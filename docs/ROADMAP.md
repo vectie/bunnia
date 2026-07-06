@@ -957,8 +957,10 @@ Current evidence:
   `--strict` diagnostics gating or runs no-write `inspect` route/backend/map/file
   pressure checks and deterministic `snapshot` artifact generation. The
   generated `ci-plan` lists the starter's check, test, interface, format,
-  platform-limits, inspect, snapshot, and explicit strict build commands plus
-  the active inspection/profile-gate thresholds and current diagnostic count.
+  platform-limits, inspect, snapshot, and explicit strict build commands,
+  prints actionable diagnostic lines, and can emit the same workflow as a
+  deterministic `sh` script with `--script`, plus the active
+  inspection/profile-gate thresholds and current diagnostic count.
   Starter `limits` accepts `--target`, so WeChat reports as available while
   Alipay/TikTok remain inspectable as deferred targets, and the local
   `moon.work` includes the starter app plus the Bunnia checkout for development
