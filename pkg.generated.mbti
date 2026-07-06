@@ -31,6 +31,8 @@ pub fn attr(String, String) -> @core.Attr
 
 pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_required~ : Int) -> @effects.BackendBudget
 
+pub fn backend_cancelled(@effects.BackendRequest) -> @effects.BackendResult
+
 pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[@effects.BackendEndpoint]) -> @effects.BackendContract
 
 pub fn backend_endpoint(id~ : String, kind~ : @effects.BackendEndpointKind, http_method~ : @effects.HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> @effects.BackendEndpoint
@@ -39,7 +41,29 @@ pub fn backend_endpoint_kind_id(@effects.BackendEndpointKind) -> String
 
 pub fn backend_error_patch(String, String) -> @core.Patch
 
+pub fn backend_failure(@effects.BackendRequest, String) -> @effects.BackendResult
+
+pub fn backend_malformed(@effects.BackendRequest, error_message? : String) -> @effects.BackendResult
+
+pub fn backend_request(id~ : String, endpoint~ : @effects.BackendEndpoint, payload_json? : String, replay_key? : String) -> @effects.BackendRequest
+
+pub fn backend_request_patches(@effects.BackendRequest) -> Array[@core.Patch]
+
 pub fn backend_response_patch(String, String) -> @core.Patch
+
+pub fn backend_result_cancelled() -> @effects.BackendResultKind
+
+pub fn backend_result_failure() -> @effects.BackendResultKind
+
+pub fn backend_result_kind_id(@effects.BackendResultKind) -> String
+
+pub fn backend_result_malformed() -> @effects.BackendResultKind
+
+pub fn backend_result_patches(@effects.BackendResult) -> Array[@core.Patch]
+
+pub fn backend_result_success() -> @effects.BackendResultKind
+
+pub fn backend_result_timeout() -> @effects.BackendResultKind
 
 pub fn backend_state_cancelled() -> @effects.BackendState
 
@@ -60,6 +84,10 @@ pub fn backend_state_ready() -> @effects.BackendState
 pub fn backend_state_stale() -> @effects.BackendState
 
 pub fn backend_state_timeout() -> @effects.BackendState
+
+pub fn backend_success(@effects.BackendRequest, String) -> @effects.BackendResult
+
+pub fn backend_timeout(@effects.BackendRequest, error_message? : String) -> @effects.BackendResult
 
 pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
@@ -387,6 +415,12 @@ pub using @effects {type BackendEndpoint}
 pub using @effects {type BackendEndpointKind}
 
 pub using @effects {type BackendPlan}
+
+pub using @effects {type BackendRequest}
+
+pub using @effects {type BackendResult}
+
+pub using @effects {type BackendResultKind}
 
 pub using @effects {type BackendState}
 

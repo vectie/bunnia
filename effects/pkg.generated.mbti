@@ -13,6 +13,8 @@ pub fn agent_stream_endpoint(String, String, String, String) -> BackendEndpoint
 
 pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_required~ : Int) -> BackendBudget
 
+pub fn backend_cancelled(BackendRequest) -> BackendResult
+
 pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[BackendEndpoint]) -> BackendContract
 
 pub fn backend_endpoint(id~ : String, kind~ : BackendEndpointKind, http_method~ : HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> BackendEndpoint
@@ -21,11 +23,27 @@ pub fn backend_endpoint_kind_id(BackendEndpointKind) -> String
 
 pub fn backend_error_patch(String, String) -> @core.Patch
 
+pub fn backend_failure(BackendRequest, String) -> BackendResult
+
+pub fn backend_malformed(BackendRequest, error_message? : String) -> BackendResult
+
+pub fn backend_request(id~ : String, endpoint~ : BackendEndpoint, payload_json? : String, replay_key? : String) -> BackendRequest
+
+pub fn backend_request_patches(BackendRequest) -> Array[@core.Patch]
+
 pub fn backend_response_patch(String, String) -> @core.Patch
+
+pub fn backend_result_kind_id(BackendResultKind) -> String
+
+pub fn backend_result_patches(BackendResult) -> Array[@core.Patch]
 
 pub fn backend_state_id(BackendState) -> String
 
 pub fn backend_state_patch(String, BackendState) -> @core.Patch
+
+pub fn backend_success(BackendRequest, String) -> BackendResult
+
+pub fn backend_timeout(BackendRequest, error_message? : String) -> BackendResult
 
 pub fn cancel(String, String) -> Effect
 
@@ -124,6 +142,28 @@ pub struct BackendPlan {
   review_required_count : Int
   diagnostics : Array[String]
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct BackendRequest {
+  id : String
+  endpoint_id : String
+  payload_json : String
+  replay_key : String
+} derive(Eq, @debug.Debug)
+
+pub struct BackendResult {
+  request : BackendRequest
+  kind : BackendResultKind
+  response_json : String
+  error_message : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum BackendResultKind {
+  BackendSuccess
+  BackendFailure
+  BackendTimeout
+  BackendMalformed
+  BackendCancelled
 } derive(Eq, @debug.Debug)
 
 pub(all) enum BackendState {

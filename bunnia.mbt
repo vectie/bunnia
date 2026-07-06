@@ -116,6 +116,15 @@ pub type BackendBudget = @effects.BackendBudget
 pub type BackendPlan = @effects.BackendPlan
 
 ///|
+pub type BackendResultKind = @effects.BackendResultKind
+
+///|
+pub type BackendRequest = @effects.BackendRequest
+
+///|
+pub type BackendResult = @effects.BackendResult
+
+///|
 pub type WechatPage = @wechat.WechatPage
 
 ///|
@@ -1078,6 +1087,68 @@ pub fn backend_state_patch(scope : String, state : BackendState) -> Patch {
 }
 
 ///|
+pub fn backend_request(
+  id~ : String,
+  endpoint~ : BackendEndpoint,
+  payload_json? : String = "{}",
+  replay_key? : String = "",
+) -> BackendRequest {
+  @effects.backend_request(id~, endpoint~, payload_json~, replay_key~)
+}
+
+///|
+pub fn backend_request_patches(input : BackendRequest) -> Array[Patch] {
+  @effects.backend_request_patches(input)
+}
+
+///|
+pub fn backend_success(
+  request : BackendRequest,
+  response_json : String,
+) -> BackendResult {
+  @effects.backend_success(request, response_json)
+}
+
+///|
+pub fn backend_failure(
+  request : BackendRequest,
+  error_message : String,
+) -> BackendResult {
+  @effects.backend_failure(request, error_message)
+}
+
+///|
+pub fn backend_timeout(
+  request : BackendRequest,
+  error_message? : String = "request timeout",
+) -> BackendResult {
+  @effects.backend_timeout(request, error_message~)
+}
+
+///|
+pub fn backend_malformed(
+  request : BackendRequest,
+  error_message? : String = "malformed response",
+) -> BackendResult {
+  @effects.backend_malformed(request, error_message~)
+}
+
+///|
+pub fn backend_cancelled(request : BackendRequest) -> BackendResult {
+  @effects.backend_cancelled(request)
+}
+
+///|
+pub fn backend_result_patches(input : BackendResult) -> Array[Patch] {
+  @effects.backend_result_patches(input)
+}
+
+///|
+pub fn backend_result_kind_id(kind : BackendResultKind) -> String {
+  @effects.backend_result_kind_id(kind)
+}
+
+///|
 pub fn backend_error_patch(scope : String, message : String) -> Patch {
   @effects.backend_error_patch(scope, message)
 }
@@ -1190,6 +1261,31 @@ pub fn backend_state_malformed() -> BackendState {
 ///|
 pub fn backend_state_cancelled() -> BackendState {
   @effects.CancelledState
+}
+
+///|
+pub fn backend_result_success() -> BackendResultKind {
+  @effects.BackendSuccess
+}
+
+///|
+pub fn backend_result_failure() -> BackendResultKind {
+  @effects.BackendFailure
+}
+
+///|
+pub fn backend_result_timeout() -> BackendResultKind {
+  @effects.BackendTimeout
+}
+
+///|
+pub fn backend_result_malformed() -> BackendResultKind {
+  @effects.BackendMalformed
+}
+
+///|
+pub fn backend_result_cancelled() -> BackendResultKind {
+  @effects.BackendCancelled
 }
 
 ///|

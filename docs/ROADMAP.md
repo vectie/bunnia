@@ -469,8 +469,14 @@ Current evidence:
   tool-result acknowledgment.
 - Backend loading, ready, stale, failed, timeout, malformed, and cancelled
   states can be represented as small `setData` patches.
+- Replayable backend requests and backend results are typed as data, with
+  helpers that lower success, failure, timeout, malformed, and cancelled
+  results to bounded patch arrays.
 - The WeChat request adapter generator emits `wx.request` helper code from a
   contract and expects the base URL from page data, avoiding generated secrets.
+- The generated WeChat request helper stores request payloads and replay keys,
+  distinguishes timeout and malformed responses, and exposes retry/cancel
+  helpers without forcing a full page rerender.
 
 Do not build yet:
 

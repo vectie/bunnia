@@ -133,25 +133,50 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  const loading = {}\n" +
   "  loading['backend.' + endpointId + '.state'] = 'loading'\n" +
   "  loading['backend.' + endpointId + '.error'] = ''\n" +
+  "  const requestPayload = payload === undefined && endpoint.payloadKey ? page.data[endpoint.payloadKey] : (payload || {})\n" +
+  "  loading['backend.' + endpointId + '.request'] = requestPayload\n" +
+  "  loading['backend.' + endpointId + '.replayKey'] = endpointId + ':' + Date.now()\n" +
   "  page.setData(loading)\n" +
   "  return wx.request({\n" +
   "    url: baseUrl + endpoint.path,\n" +
   "    method: endpoint.method,\n" +
-  "    data: payload || {},\n" +
+  "    data: requestPayload,\n" +
   "    timeout: endpoint.timeoutMs,\n" +
   "    success(res) {\n" +
   "      const update = {}\n" +
-  "      update['backend.' + endpointId + '.state'] = 'ready'\n" +
-  "      update['backend.' + endpointId + '.response'] = res.data\n" +
+  "      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {\n" +
+  "        update['backend.' + endpointId + '.state'] = 'failed'\n" +
+  "        update['backend.' + endpointId + '.error'] = 'HTTP ' + res.statusCode\n" +
+  "      } else if (res.data === undefined || res.data === null) {\n" +
+  "        update['backend.' + endpointId + '.state'] = 'malformed'\n" +
+  "        update['backend.' + endpointId + '.error'] = 'empty response'\n" +
+  "      } else {\n" +
+  "        update['backend.' + endpointId + '.state'] = 'ready'\n" +
+  "        update['backend.' + endpointId + '.response'] = res.data\n" +
+  "        update['backend.' + endpointId + '.error'] = ''\n" +
+  "      }\n" +
   "      page.setData(update)\n" +
   "    },\n" +
   "    fail(err) {\n" +
   "      const update = {}\n" +
-  "      update['backend.' + endpointId + '.state'] = 'failed'\n" +
-  "      update['backend.' + endpointId + '.error'] = String(err.errMsg || err)\n" +
+  "      const message = String(err.errMsg || err)\n" +
+  "      update['backend.' + endpointId + '.state'] = message.indexOf('timeout') >= 0 ? 'timeout' : 'failed'\n" +
+  "      update['backend.' + endpointId + '.error'] = message\n" +
   "      page.setData(update)\n" +
   "    }\n" +
   "  })\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaCancelRequest(page, endpointId) {\n" +
+  "  const update = {}\n" +
+  "  update['backend.' + endpointId + '.state'] = 'cancelled'\n" +
+  "  update['backend.' + endpointId + '.error'] = ''\n" +
+  "  page.setData(update)\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaRetryRequest(page, endpointId) {\n" +
+  "  const current = page.data.backend && page.data.backend[endpointId]\n" +
+  "  return __bunniaRequest(page, endpointId, current ? current.request : undefined)\n" +
   "}"
 }
 
