@@ -87,6 +87,41 @@ test "build profile derives route diagnostics from manifest pages once" {
 }
 
 ///|
+test "build profile reports generated scene asset references from manifests" {
+  let project = @wechat.generate_project(
+    name="Generated Scene Assets",
+    route="pages/generated-assets/index",
+    root=@core.page([
+      @core.node(kind="image", attrs=[
+        @core.class_name("bunnia-scene-sprite"),
+        @core.attr("src", "/assets/local-marker.png"),
+        @core.attr("alt", "Local marker"),
+        @core.data("asset-id", "local-marker"),
+        @core.data("asset-kind", "sprite"),
+        @core.data("asset-remote", "false"),
+      ]),
+      @core.node(kind="image", attrs=[
+        @core.class_name("bunnia-scene-tile"),
+        @core.attr("src", "https://cdn.example.test/tile.png"),
+        @core.attr("alt", "Remote tile"),
+        @core.data("asset-id", "remote-tile"),
+        @core.data("asset-kind", "remote-image"),
+        @core.data("asset-remote", "true"),
+      ]),
+    ]),
+  )
+  let profile = profile_wechat_project(project, @core.plan_patches([]))
+  assert_eq(profile.scene_asset_count, 0)
+  assert_eq(profile.scene_remote_asset_count, 0)
+  assert_eq(profile.generated_scene_asset_count, 2)
+  assert_eq(profile.generated_scene_remote_asset_count, 1)
+  assert_true(profile.summary.contains("scene_assets=0"))
+  assert_true(profile.summary.contains("scene_remote_assets=0"))
+  assert_true(profile.summary.contains("generated_scene_assets=2"))
+  assert_true(profile.summary.contains("generated_scene_remote_assets=1"))
+}
+
+///|
 test "build profile aggregates normal project signals" {
   let project = fixture_project()
   let patches = @core.plan_patches([@core.set_string("state.active", "open")])
@@ -216,6 +251,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
   assert_eq(profile.scene_remote_asset_count, 0)
+  assert_eq(profile.generated_scene_asset_count, 0)
+  assert_eq(profile.generated_scene_remote_asset_count, 0)
   assert_eq(profile.scene_insecure_remote_asset_count, 0)
   assert_eq(profile.scene_unapproved_remote_asset_count, 0)
   assert_eq(profile.scene_deferred_asset_count, 0)
@@ -276,6 +313,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("snapshot_full_replaces=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
   assert_true(profile.summary.contains("scene_remote_assets=0"))
+  assert_true(profile.summary.contains("generated_scene_assets=0"))
+  assert_true(profile.summary.contains("generated_scene_remote_assets=0"))
   assert_true(profile.summary.contains("scene_unapproved_remote_assets=0"))
   assert_true(profile.summary.contains("scene_deferred_assets=0"))
   assert_true(profile.summary.contains("scene_threads=1/1"))

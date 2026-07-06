@@ -294,6 +294,9 @@ assets that should be deferred or moved remote when package-byte budgets are
 tight. Use `@bunnia.plan_scene_assets_with_budget_and_policy(...)` when remote
 assets must stay on approved domains; build profiles report remote,
 unapproved-remote, insecure-remote, and deferred asset counts.
+Build profiles also report generated scene asset counts derived from the
+WeChat manifest, so strict builds can compare planned package pressure with
+the actual route asset references emitted by the mini-app generator.
 Markers carry stable `data-hit-width` and `data-hit-height` attributes, and
 visual quality plans flag tappable markers with hit targets below the configured
 minimum so map interactions stay usable on mobile.

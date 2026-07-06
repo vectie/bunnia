@@ -821,6 +821,9 @@ Current evidence:
 - Build profiles expose remote, insecure-remote, unapproved-remote, and
   deferred scene asset counts so package-splitting or remote-loading work is
   driven by measured deployability pressure.
+- Build profiles also expose generated scene asset and generated remote scene
+  asset counts from the WeChat manifest, so strict builds can compare planned
+  package pressure with the route assets emitted by the generator.
 - Build profiles expose agent-delta counts and duplicate streaming chunk
   diagnostics so large agentic feeds are measured during normal builds.
 - Build profiles expose communication visible/total counts, unresolved review

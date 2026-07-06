@@ -84,6 +84,8 @@ pub struct BuildProfile {
   scene_asset_count : Int
   scene_package_bytes : Int
   scene_remote_asset_count : Int
+  generated_scene_asset_count : Int
+  generated_scene_remote_asset_count : Int
   scene_insecure_remote_asset_count : Int
   scene_unapproved_remote_asset_count : Int
   scene_deferred_asset_count : Int
