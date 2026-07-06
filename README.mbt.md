@@ -123,6 +123,19 @@ visible even before reading the diagnostic lines.
 The snapshot records route, budget profile, size budgets, profile summary, and
 per-file byte/checksum lines without committing the full generated mini-program.
 
+To inspect route and file pressure without writing generated files:
+
+```bash
+moon run cmd/main -- inspect --target wechat --example agent_map --budget tight --render-budget tight
+```
+
+`inspect` prints the same render, manifest, report, patch, profile, and
+snapshot summaries as the build path, then adds one `route=...` line per
+generated page and one `file=...` line per generated artifact. This is intended
+for quick checks of first-screen bytes, update payloads, scene marker pressure,
+diagnostic counts, file kinds, file bytes, and checksums before opening WeChat
+DevTools.
+
 To print the canonical local/CI workflow for the active examples:
 
 ```bash

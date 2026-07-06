@@ -49,6 +49,8 @@ fn command_from_args(args : Array[String]) -> String {
       return "watch"
     } else if item == "snapshot" {
       return "snapshot"
+    } else if item == "inspect" {
+      return "inspect"
     } else if item == "ci-plan" {
       return "ci-plan"
     }
@@ -380,13 +382,29 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     wechat_build_budget_from_args(args),
   )
   let strict = strict_from_args(args)
-  write_project(output_dir, project)
-  print_build_result(
-    command, target, example, budget_profile, render_budget_profile, output_dir,
-    project, report, patches, profile,
-  )
+  if command == "inspect" {
+    let snapshot = snapshot_for_build(
+      target~,
+      example~,
+      project,
+      report,
+      profile,
+      budget_profile~,
+      render_budget_profile~,
+    )
+    print_inspect_result(
+      target, example, budget_profile, render_budget_profile, project, report, patches,
+      profile, snapshot,
+    )
+  } else {
+    write_project(output_dir, project)
+    print_build_result(
+      command, target, example, budget_profile, render_budget_profile, output_dir,
+      project, report, patches, profile,
+    )
+  }
   if command == "snapshot" {
-    let snapshot = @bunnia.snapshot_wechat_project_with_report(
+    let snapshot = snapshot_for_build(
       target~,
       example~,
       project,
@@ -411,6 +429,27 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
       watch_generated_output(target, example, output_dir, strict)
     }
   }
+}
+
+///|
+fn snapshot_for_build(
+  target~ : String,
+  example~ : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  profile : @bunnia.BuildProfile,
+  budget_profile~ : String,
+  render_budget_profile~ : String,
+) -> @bunnia.GeneratedSnapshot {
+  @bunnia.snapshot_wechat_project_with_report(
+    target~,
+    example~,
+    project,
+    report,
+    profile,
+    budget_profile~,
+    render_budget_profile~,
+  )
 }
 
 ///|
@@ -440,6 +479,50 @@ fn print_build_result(
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn print_inspect_result(
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  patches : @bunnia.PatchPlan,
+  profile : @bunnia.BuildProfile,
+  snapshot : @bunnia.GeneratedSnapshot,
+) -> Unit {
+  println("command=inspect")
+  println("target=\{target}")
+  println("example=\{example}")
+  println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  println(project.manifest.summary)
+  println(report.summary)
+  print_diagnostics(report.diagnostics)
+  println(patches.summary)
+  println(profile.summary)
+  print_profile_diagnostics(profile.diagnostics)
+  println(snapshot.summary)
+  println(
+    "inspect=route=\{snapshot.route} pages=\{snapshot.page_count} files=\{snapshot.file_count} bytes=\{snapshot.total_bytes} max_first_screen=\{snapshot.max_first_screen_bytes} max_update_payload=\{snapshot.max_update_payload_bytes} route_diagnostic_routes=\{snapshot.route_diagnostic_route_count} route_diagnostics=\{snapshot.route_diagnostic_count} diagnostics=\{snapshot.diagnostic_count}",
+  )
+  for page in project.manifest.pages {
+    println(
+      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_assets=\{page.scene_asset_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
+    )
+    for item in page.diagnostics {
+      println("route_diagnostic=\{page.route}:\{item}")
+    }
+  }
+  for file in snapshot.files {
+    println(
+      "file=\{file.path} kind=\{file.kind} bytes=\{file.bytes} checksum=\{file.checksum}",
+    )
+  }
 }
 
 ///|

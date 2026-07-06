@@ -122,6 +122,64 @@ test "snapshot command accepts generated output and snapshot paths" {
 }
 
 ///|
+test "inspect command exposes generated artifact metrics without output path" {
+  let args = [
+    "node", "main.js", "inspect", "--target", "wechat", "--example", "agent_map",
+    "--budget", "tight", "--render-budget", "tight",
+  ]
+  let project = project_for_build(
+    target_from_args(args),
+    example_from_args(args),
+    render_budget_from_args(args),
+  )
+  let patches = patches_for_build(
+    target_from_args(args),
+    example_from_args(args),
+  )
+  let profile = profile_for_build(
+    target_from_args(args),
+    example_from_args(args),
+    project,
+    patches,
+  )
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(args),
+  )
+  let snapshot = snapshot_for_build(
+    target=target_from_args(args),
+    example=example_from_args(args),
+    project,
+    report,
+    profile,
+    budget_profile=budget_profile_from_args(args),
+    render_budget_profile=render_budget_profile_from_args(args),
+  )
+  assert_eq(command_from_args(args), "inspect")
+  assert_eq(snapshot.target, "wechat")
+  assert_eq(snapshot.example, "agent_map")
+  assert_eq(snapshot.route, project.route)
+  assert_eq(snapshot.file_count, project.files.length())
+  assert_eq(snapshot.total_bytes, project.total_bytes)
+  assert_eq(snapshot.max_first_screen_bytes, report.max_page_first_screen_bytes)
+  assert_eq(
+    snapshot.max_update_payload_bytes,
+    report.max_page_update_payload_bytes,
+  )
+  assert_eq(snapshot.route_diagnostic_route_count, 0)
+  assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.diagnostic_count, 0)
+  assert_true(snapshot.summary.contains("budget=tight"))
+  assert_true(
+    snapshot.content.contains("pages/index/index.data.js kind=page-data"),
+  )
+  assert_true(snapshot.content.contains("route_diagnostics:"))
+  assert_eq(project.manifest.pages[0].scene_marker_count, 2)
+  assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
+}
+
+///|
 test "ci plan command prints active example workflow" {
   let args = ["node", "main.js", "ci-plan"]
   let plan = ci_plan_from_args(args)

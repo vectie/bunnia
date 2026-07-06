@@ -851,6 +851,9 @@ Current evidence:
 - Snapshot artifacts record the active build report from the selected
   generated-output budget profile, including route, report, and profile
   diagnostic lines for CI diffs.
+- `moon run cmd/main -- inspect` reuses the build/profile/snapshot pipeline to
+  print route-level first-screen, update-payload, scene-marker, diagnostic, and
+  per-file byte/checksum lines without writing generated output.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
   windowed agentic message feed, static scene map, surface status overlay,
