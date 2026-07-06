@@ -295,7 +295,9 @@ For agentic map surfaces, use `@bunnia.scene_marker_thread_link(...)`,
 `@bunnia.scene_thread_link(...)` plus `@bunnia.plan_scene_threads(...)` to keep
 scene-subject badges measurable. Scene thread plans report visible/total links,
 unread pressure, orphan marker/region links, and missing open actions before
-the mini-app output grows.
+the mini-app output grows. Scene-aware overlays derive badge anchors from
+marker centers or region centers, so agent communication stays attached to the
+map without product-specific positioning code.
 Use `@bunnia.plan_scene_surface_for_platform(...)` to make the intended
 static/canvas/lightweight surface mode and any fallback explicit in build
 profiles before adding platform-specific rendering.

@@ -271,6 +271,10 @@ test "scene thread links connect map subjects to agent communication cheaply" {
   assert_true(output.wxml.contains("data-subject-kind=\"region\""))
   assert_true(output.wxml.contains("data-subject-id=\"zone-a\""))
   assert_true(output.wxml.contains("data-thread-id=\"thread-zone-a\""))
+  assert_true(output.wxml.contains("data-anchor-state=\"anchored\""))
+  assert_true(output.wxml.contains("data-anchor-x=\"250\""))
+  assert_true(output.wxml.contains("data-anchor-y=\"240\""))
+  assert_true(output.wxml.contains("left: 250rpx; top: 240rpx;"))
   assert_true(
     output.wxml.contains("data-subject-ref=\"scene://ops-map/zone-a\""),
   )

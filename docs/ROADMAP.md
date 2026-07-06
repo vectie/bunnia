@@ -341,8 +341,8 @@ Current evidence:
 - Agent deltas now represent append-only message, communication, streaming
   chunk, run-status, and review-state updates as bounded patch plans.
 - Scene thread links connect map subjects, including markers and first-class
-  regions, to communication threads with compact badges and bounded patches for
-  selected thread, unread count, status, and new thread links.
+  regions, to communication threads with compact anchored badges and bounded
+  patches for selected thread, unread count, status, and new thread links.
 - Scene thread plans report visible/total subject-thread links, unread
   pressure, orphan marker/region links, and missing open actions so agentic map
   overlays remain measurable before rendering.
@@ -664,9 +664,9 @@ Current evidence:
 - Generic status overlays can wrap scene, list, dashboard, or feed surfaces so
   stale, error, retry, cancelled, and degraded states remain visible without
   rebuilding the underlying surface model.
-- Static scenes can render windowed communication-thread badges beside map
-  markers, preserving visible/total counts and cheap patches for map-heavy
-  agentic UIs.
+- Static scenes can render windowed communication-thread badges anchored to map
+  markers or regions, preserving visible/total counts and cheap patches for
+  map-heavy agentic UIs.
 - Scene thread plans make agentic map overlays budgeted, including unread
   pressure and orphan-link diagnostics when a thread points at a missing marker
   or region.

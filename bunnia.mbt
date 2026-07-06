@@ -1692,6 +1692,29 @@ pub fn windowed_scene_thread_overlay(
 }
 
 ///|
+pub fn anchored_scene_thread_overlay(
+  input : Scene,
+  links : Array[SceneThreadLink],
+) -> Node {
+  @scene.anchored_scene_thread_overlay(input, links)
+}
+
+///|
+pub fn windowed_anchored_scene_thread_overlay(
+  input : Scene,
+  links : Array[SceneThreadLink],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @scene.windowed_anchored_scene_thread_overlay(
+    input,
+    links,
+    total_count~,
+    offset~,
+  )
+}
+
+///|
 pub fn static_scene_with_threads(
   input : Scene,
   links : Array[SceneThreadLink],
