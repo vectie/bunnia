@@ -83,7 +83,7 @@ fn cmd_main_mbt() -> String {
   "  if command == \"ci-plan\" {\n" +
   "    print_ci_plan(strict)\n" +
   "  } else if command == \"limits\" {\n" +
-  "    print_platform_limits(@bunnia.platform_limits(target=\"wechat\"))\n" +
+  "    print_platform_limits(@bunnia.platform_limits(target=target_from_args(@env.args())))\n" +
   "  } else {\n" +
   "    let output_dir = output_dir_from_args(@env.args())\n" +
   "    let project = @app.starter_wechat_project()\n" +
@@ -132,6 +132,15 @@ fn cmd_main_mbt() -> String {
   "    }\n" +
   "  }\n" +
   "  \"build\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn target_from_args(args : Array[String]) -> String {\n" +
+  "  for i in 0..<args.length() {\n" +
+  "    if args[i] == \"--target\" && i + 1 < args.length() {\n" +
+  "      return args[i + 1]\n" +
+  "    }\n" +
+  "  }\n" +
+  "  \"wechat\"\n" +
   "}\n\n" +
   "///|\n" +
   "fn output_dir_from_args(args : Array[String]) -> String {\n" +
@@ -219,7 +228,7 @@ fn cmd_main_mbt() -> String {
   "  println(profile_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
-  "  println(\"step=limits command=moon run cmd/main -- limits\")\n" +
+  "  println(\"step=limits command=moon run cmd/main -- limits --target wechat\")\n" +
   "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
   "  println(\"step=snapshot command=moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
   "  println(\"step=build command=moon run cmd/main -- build --out _build/wechat\\{strict_flag}\")\n" +
@@ -525,7 +534,7 @@ fn readme(name : String) -> String {
   "moon check\n" +
   "moon test\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
-  "moon run cmd/main -- limits\n" +
+  "moon run cmd/main -- limits --target wechat\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
   "moon run cmd/main -- build --out _build/wechat --strict\n" +

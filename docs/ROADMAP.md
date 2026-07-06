@@ -958,8 +958,10 @@ Current evidence:
   pressure checks and deterministic `snapshot` artifact generation. The
   generated `ci-plan` lists the starter's check, test, platform-limits, inspect,
   snapshot, and explicit strict build commands plus the active inspection/profile-gate
-  thresholds, and the local `moon.work` includes the starter app plus the
-  Bunnia checkout for development before registry publication.
+  thresholds. Starter `limits` accepts `--target`, so WeChat reports as
+  available while Alipay/TikTok remain inspectable as deferred targets, and the
+  local `moon.work` includes the starter app plus the Bunnia checkout for
+  development before registry publication.
 
 ## Phase 8: Production Readiness
 

@@ -62,8 +62,11 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "platform_limits(target=\"wechat\")",
+      "platform_limits(target=target_from_args(@env.args()))",
     ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("target_from_args"),
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("generator_status="),
@@ -85,7 +88,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "step=limits command=moon run cmd/main -- limits",
+      "step=limits command=moon run cmd/main -- limits --target wechat",
     ),
   )
   assert_true(
@@ -219,7 +222,9 @@ test "scaffold project creates a small standalone starter" {
   assert_true(file_content(plan.files, "README.mbt.md").contains("inspect"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("snapshot"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("ci-plan"))
-  assert_true(file_content(plan.files, "README.mbt.md").contains("limits"))
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains("limits --target wechat"),
+  )
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
