@@ -76,6 +76,8 @@ pub struct BuildProfile {
 
 ///|
 pub struct BuildProfileBudget {
+  max_communication_unresolved_reviews : Int
+  max_tool_result_missing_acks : Int
   max_agent_duplicate_stream_chunks : Int
   max_snapshot_full_replaces : Int
   max_scene_thread_orphans : Int
@@ -88,6 +90,8 @@ pub struct BuildProfileBudget {
 ///|
 pub struct BuildProfileGate {
   budget_profile : String
+  max_communication_unresolved_reviews : Int
+  max_tool_result_missing_acks : Int
   max_agent_duplicate_stream_chunks : Int
   max_snapshot_full_replaces : Int
   max_scene_thread_orphans : Int
@@ -101,6 +105,8 @@ pub struct BuildProfileGate {
 
 ///|
 pub fn build_profile_budget(
+  max_communication_unresolved_reviews~ : Int,
+  max_tool_result_missing_acks~ : Int,
   max_agent_duplicate_stream_chunks~ : Int,
   max_snapshot_full_replaces~ : Int,
   max_scene_thread_orphans~ : Int,
@@ -110,6 +116,8 @@ pub fn build_profile_budget(
   max_degraded_scenes~ : Int,
 ) -> BuildProfileBudget {
   {
+    max_communication_unresolved_reviews,
+    max_tool_result_missing_acks,
     max_agent_duplicate_stream_chunks,
     max_snapshot_full_replaces,
     max_scene_thread_orphans,
@@ -127,6 +135,17 @@ pub fn gate_build_profile(
   budget_profile? : String = "custom",
 ) -> BuildProfileGate {
   let diagnostics : Array[String] = []
+  if profile.communication_unresolved_review_count >
+    budget.max_communication_unresolved_reviews {
+    diagnostics.push(
+      "profile-communication-unresolved-reviews-over-budget:\{profile.communication_unresolved_review_count}/\{budget.max_communication_unresolved_reviews}",
+    )
+  }
+  if profile.tool_result_missing_ack_count > budget.max_tool_result_missing_acks {
+    diagnostics.push(
+      "profile-tool-result-missing-acks-over-budget:\{profile.tool_result_missing_ack_count}/\{budget.max_tool_result_missing_acks}",
+    )
+  }
   if profile.agent_duplicate_stream_chunk_count >
     budget.max_agent_duplicate_stream_chunks {
     diagnostics.push(
@@ -165,6 +184,8 @@ pub fn gate_build_profile(
   }
   {
     budget_profile,
+    max_communication_unresolved_reviews: budget.max_communication_unresolved_reviews,
+    max_tool_result_missing_acks: budget.max_tool_result_missing_acks,
     max_agent_duplicate_stream_chunks: budget.max_agent_duplicate_stream_chunks,
     max_snapshot_full_replaces: budget.max_snapshot_full_replaces,
     max_scene_thread_orphans: budget.max_scene_thread_orphans,
@@ -173,7 +194,7 @@ pub fn gate_build_profile(
     max_scene_quality_issues: budget.max_scene_quality_issues,
     max_degraded_scenes: budget.max_degraded_scenes,
     diagnostics,
-    summary: "Bunnia build profile gate: budget=\{budget_profile} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia build profile gate: budget=\{budget_profile} max_communication_unresolved_reviews=\{budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
   }
 }
 

@@ -18,6 +18,8 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.inspection_max_scene_assets, 16)
   assert_eq(plan.inspection_max_scene_remote_assets, 4)
   assert_eq(plan.inspection_max_scene_package_bytes, 256 * 1024)
+  assert_eq(plan.profile_max_communication_unresolved_reviews, 8)
+  assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_agent_duplicate_stream_chunks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
   assert_eq(plan.profile_max_scene_thread_orphans, 0)
@@ -65,6 +67,10 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(
     plan.summary.contains("inspection_max_scene_package_bytes=262144"),
   )
+  assert_true(
+    plan.summary.contains("profile_max_communication_unresolved_reviews=8"),
+  )
+  assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
   assert_true(plan.summary.contains("profile_max_snapshot_full_replaces=0"))
   assert_true(plan.summary.contains("profile_max_scene_surface_fallbacks=0"))
   assert_true(plan.summary.contains("profile_max_scene_quality_issues=0"))
@@ -76,6 +82,12 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.inspection_gate_summary.contains("max_update_ops=16"))
   assert_true(plan.inspection_gate_summary.contains("max_backend_streams=4"))
   assert_true(plan.profile_gate_summary.contains("budget=tight"))
+  assert_true(
+    plan.profile_gate_summary.contains("max_communication_unresolved_reviews=8"),
+  )
+  assert_true(
+    plan.profile_gate_summary.contains("max_tool_result_missing_acks=0"),
+  )
   assert_true(
     plan.profile_gate_summary.contains("max_snapshot_full_replaces=0"),
   )
@@ -109,6 +121,8 @@ test "ci plan can target one example and custom budgets" {
   assert_eq(plan.inspection_max_scene_assets, 0)
   assert_eq(plan.inspection_max_scene_remote_assets, 0)
   assert_eq(plan.inspection_max_scene_package_bytes, 0)
+  assert_eq(plan.profile_max_communication_unresolved_reviews, 0)
+  assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
   assert_eq(plan.profile_max_scene_surface_fallbacks, 0)
   assert_true(plan.summary.contains("budget=tiny"))
@@ -117,6 +131,10 @@ test "ci plan can target one example and custom budgets" {
   assert_true(plan.summary.contains("inspection_max_update_payload=0"))
   assert_true(plan.summary.contains("inspection_max_update_ops=0"))
   assert_true(plan.summary.contains("inspection_max_backend_events=0"))
+  assert_true(
+    plan.summary.contains("profile_max_communication_unresolved_reviews=0"),
+  )
+  assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
   assert_true(plan.summary.contains("profile_max_degraded_scenes=0"))
   assert_true(
     plan.steps[8].command.contains(
@@ -201,12 +219,19 @@ test "ci plan diagnoses unknown budget profiles" {
   assert_eq(plan.inspection_max_update_payload_bytes, 8192)
   assert_eq(plan.inspection_max_update_operations, 64)
   assert_eq(plan.inspection_max_backend_events, 64)
+  assert_eq(plan.profile_max_communication_unresolved_reviews, 16)
+  assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 1)
   assert_eq(plan.profile_max_scene_surface_fallbacks, 4)
   assert_true(plan.inspection_gate_summary.contains("budget=oversized"))
   assert_true(plan.inspection_gate_summary.contains("max_update_payload=8192"))
   assert_true(plan.inspection_gate_summary.contains("max_update_ops=64"))
   assert_true(plan.profile_gate_summary.contains("budget=oversized"))
+  assert_true(
+    plan.profile_gate_summary.contains(
+      "max_communication_unresolved_reviews=16",
+    ),
+  )
 }
 
 ///|

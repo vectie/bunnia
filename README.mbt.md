@@ -106,8 +106,9 @@ generated-output byte budgets. Named budget profiles are exposed through
 `@bunnia.wechat_build_budget_for_profile(...)`; route-risk and update-payload
 gates are exposed through `@bunnia.inspection_budget_for_profile(...)`, and
 aggregate large-app profile gates are exposed through
-`@bunnia.build_profile_budget_for_profile(...)`, so contributors can use the
-same gates outside the CLI.
+`@bunnia.build_profile_budget_for_profile(...)`, including unresolved-review
+and tool-result acknowledgment limits, so contributors can use the same gates
+outside the CLI.
 
 For local iteration, watch generated output with:
 

@@ -759,6 +759,8 @@ test "build profile prefixes diagnostics by budget source" {
   let relaxed_gate = gate_build_profile(
     profile,
     build_profile_budget(
+      max_communication_unresolved_reviews=1,
+      max_tool_result_missing_acks=1,
       max_agent_duplicate_stream_chunks=1,
       max_snapshot_full_replaces=1,
       max_scene_thread_orphans=1,
@@ -776,6 +778,35 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_eq(relaxed_gate.diagnostics.length(), 0)
   assert_true(relaxed_gate.summary.contains("budget=relaxed"))
+  assert_true(
+    relaxed_gate.summary.contains("max_communication_unresolved_reviews=1"),
+  )
+  assert_true(relaxed_gate.summary.contains("max_tool_result_missing_acks=1"))
+  let agent_workflow_gate = gate_build_profile(
+    profile,
+    build_profile_budget(
+      max_communication_unresolved_reviews=0,
+      max_tool_result_missing_acks=0,
+      max_agent_duplicate_stream_chunks=1,
+      max_snapshot_full_replaces=1,
+      max_scene_thread_orphans=1,
+      max_scene_camera_clamped=1,
+      max_scene_surface_fallbacks=1,
+      max_scene_quality_issues=profile.scene_quality_issue_count,
+      max_degraded_scenes=1,
+    ),
+    budget_profile="agent-workflow",
+  )
+  assert_true(
+    agent_workflow_gate.diagnostics.contains(
+      "profile-communication-unresolved-reviews-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    agent_workflow_gate.diagnostics.contains(
+      "profile-tool-result-missing-acks-over-budget:1/0",
+    ),
+  )
   assert_true(
     strict_gate.diagnostics.contains(
       "profile-agent-duplicate-stream-chunks-over-budget:1/0",

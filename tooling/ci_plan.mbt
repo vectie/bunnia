@@ -25,6 +25,8 @@ pub struct CiPlan {
   inspection_max_scene_remote_assets : Int
   inspection_max_scene_package_bytes : Int
   inspection_gate_summary : String
+  profile_max_communication_unresolved_reviews : Int
+  profile_max_tool_result_missing_acks : Int
   profile_max_agent_duplicate_stream_chunks : Int
   profile_max_snapshot_full_replaces : Int
   profile_max_scene_thread_orphans : Int
@@ -61,7 +63,7 @@ pub fn ci_plan(
   let inspection_budget = ci_plan_inspection_budget(budget_profile)
   let profile_budget = ci_plan_profile_budget(budget_profile)
   let inspection_gate_summary = "Bunnia CI inspection gate: budget=\{budget_profile} max_route_risk=\{inspection_budget.max_route_risk_score} max_update_payload=\{inspection_budget.max_update_payload_bytes} max_update_ops=\{inspection_budget.max_update_operations} max_backend_events=\{inspection_budget.max_backend_events} max_backend_streams=\{inspection_budget.max_backend_streams} max_backend_reviews=\{inspection_budget.max_backend_reviews} max_backend_cancels=\{inspection_budget.max_backend_cancels} max_backend_retries=\{inspection_budget.max_backend_retries} max_scene_assets=\{inspection_budget.max_scene_assets} max_scene_remote_assets=\{inspection_budget.max_scene_remote_assets} max_scene_package_bytes=\{inspection_budget.max_scene_package_bytes}"
-  let profile_gate_summary = "Bunnia CI profile gate: budget=\{budget_profile} max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{profile_budget.max_scene_thread_orphans} max_scene_camera_clamped=\{profile_budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} max_degraded_scenes=\{profile_budget.max_degraded_scenes}"
+  let profile_gate_summary = "Bunnia CI profile gate: budget=\{budget_profile} max_communication_unresolved_reviews=\{profile_budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{profile_budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{profile_budget.max_scene_thread_orphans} max_scene_camera_clamped=\{profile_budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} max_degraded_scenes=\{profile_budget.max_degraded_scenes}"
   let steps : Array[CiPlanStep] = []
   steps.push(ci_step("check", "moon check", "type-check every package"))
   steps.push(ci_step("test", "moon test", "run framework and example tests"))
@@ -134,6 +136,8 @@ pub fn ci_plan(
     inspection_max_scene_remote_assets: inspection_budget.max_scene_remote_assets,
     inspection_max_scene_package_bytes: inspection_budget.max_scene_package_bytes,
     inspection_gate_summary,
+    profile_max_communication_unresolved_reviews: profile_budget.max_communication_unresolved_reviews,
+    profile_max_tool_result_missing_acks: profile_budget.max_tool_result_missing_acks,
     profile_max_agent_duplicate_stream_chunks: profile_budget.max_agent_duplicate_stream_chunks,
     profile_max_snapshot_full_replaces: profile_budget.max_snapshot_full_replaces,
     profile_max_scene_thread_orphans: profile_budget.max_scene_thread_orphans,
@@ -147,7 +151,7 @@ pub fn ci_plan(
     step_count: steps.length(),
     steps,
     diagnostics,
-    summary: "Bunnia CI plan: target=\{target} target_generator_status=\{target_support.generator_status_id} target_generator=\{target_support.generator_available} budget=\{budget_profile} render_budget=\{active_render_budget_profile} inspection_max_route_risk=\{inspection_budget.max_route_risk_score} inspection_max_update_payload=\{inspection_budget.max_update_payload_bytes} inspection_max_update_ops=\{inspection_budget.max_update_operations} inspection_max_backend_events=\{inspection_budget.max_backend_events} inspection_max_backend_streams=\{inspection_budget.max_backend_streams} inspection_max_backend_reviews=\{inspection_budget.max_backend_reviews} inspection_max_backend_cancels=\{inspection_budget.max_backend_cancels} inspection_max_backend_retries=\{inspection_budget.max_backend_retries} inspection_max_scene_assets=\{inspection_budget.max_scene_assets} inspection_max_scene_remote_assets=\{inspection_budget.max_scene_remote_assets} inspection_max_scene_package_bytes=\{inspection_budget.max_scene_package_bytes} profile_max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} profile_max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} profile_max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} profile_max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} profile_max_degraded_scenes=\{profile_budget.max_degraded_scenes} examples=\{examples.length()} steps=\{steps.length()} diagnostics=\{diagnostics.length()} snapshot_dir=\{snapshot_dir}",
+    summary: "Bunnia CI plan: target=\{target} target_generator_status=\{target_support.generator_status_id} target_generator=\{target_support.generator_available} budget=\{budget_profile} render_budget=\{active_render_budget_profile} inspection_max_route_risk=\{inspection_budget.max_route_risk_score} inspection_max_update_payload=\{inspection_budget.max_update_payload_bytes} inspection_max_update_ops=\{inspection_budget.max_update_operations} inspection_max_backend_events=\{inspection_budget.max_backend_events} inspection_max_backend_streams=\{inspection_budget.max_backend_streams} inspection_max_backend_reviews=\{inspection_budget.max_backend_reviews} inspection_max_backend_cancels=\{inspection_budget.max_backend_cancels} inspection_max_backend_retries=\{inspection_budget.max_backend_retries} inspection_max_scene_assets=\{inspection_budget.max_scene_assets} inspection_max_scene_remote_assets=\{inspection_budget.max_scene_remote_assets} inspection_max_scene_package_bytes=\{inspection_budget.max_scene_package_bytes} profile_max_communication_unresolved_reviews=\{profile_budget.max_communication_unresolved_reviews} profile_max_tool_result_missing_acks=\{profile_budget.max_tool_result_missing_acks} profile_max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} profile_max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} profile_max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} profile_max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} profile_max_degraded_scenes=\{profile_budget.max_degraded_scenes} examples=\{examples.length()} steps=\{steps.length()} diagnostics=\{diagnostics.length()} snapshot_dir=\{snapshot_dir}",
   }
 }
 

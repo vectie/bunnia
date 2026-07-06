@@ -129,6 +129,8 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
   match name {
     "default" =>
       build_profile_budget(
+        max_communication_unresolved_reviews=16,
+        max_tool_result_missing_acks=0,
         max_agent_duplicate_stream_chunks=0,
         max_snapshot_full_replaces=1,
         max_scene_thread_orphans=0,
@@ -139,6 +141,8 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
       )
     "tight" =>
       build_profile_budget(
+        max_communication_unresolved_reviews=8,
+        max_tool_result_missing_acks=0,
         max_agent_duplicate_stream_chunks=0,
         max_snapshot_full_replaces=0,
         max_scene_thread_orphans=0,
@@ -149,6 +153,8 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
       )
     "tiny" =>
       build_profile_budget(
+        max_communication_unresolved_reviews=0,
+        max_tool_result_missing_acks=0,
         max_agent_duplicate_stream_chunks=0,
         max_snapshot_full_replaces=0,
         max_scene_thread_orphans=0,

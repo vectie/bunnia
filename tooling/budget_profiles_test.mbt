@@ -49,6 +49,8 @@ test "named budget profiles expose render and wechat budgets" {
   assert_eq(tiny_inspection.max_scene_package_bytes, 0)
   let tight_profile = build_profile_budget_for_profile("tight")
   assert_eq(tight_profile.max_agent_duplicate_stream_chunks, 0)
+  assert_eq(tight_profile.max_communication_unresolved_reviews, 8)
+  assert_eq(tight_profile.max_tool_result_missing_acks, 0)
   assert_eq(tight_profile.max_snapshot_full_replaces, 0)
   assert_eq(tight_profile.max_scene_thread_orphans, 0)
   assert_eq(tight_profile.max_scene_camera_clamped, 0)
@@ -56,6 +58,8 @@ test "named budget profiles expose render and wechat budgets" {
   assert_eq(tight_profile.max_scene_quality_issues, 0)
   assert_eq(tight_profile.max_degraded_scenes, 0)
   let default_profile = build_profile_budget_for_profile("default")
+  assert_eq(default_profile.max_communication_unresolved_reviews, 16)
+  assert_eq(default_profile.max_tool_result_missing_acks, 0)
   assert_eq(default_profile.max_snapshot_full_replaces, 1)
   assert_eq(default_profile.max_scene_surface_fallbacks, 4)
 }
