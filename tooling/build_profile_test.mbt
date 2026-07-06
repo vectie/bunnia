@@ -759,6 +759,8 @@ test "build profile prefixes diagnostics by budget source" {
   let relaxed_gate = gate_build_profile(
     profile,
     build_profile_budget(
+      max_route_diagnostic_routes=1,
+      max_route_diagnostics=profile.route_diagnostic_count,
       max_communication_unresolved_reviews=1,
       max_tool_result_missing_acks=1,
       max_agent_duplicate_stream_chunks=1,
@@ -781,6 +783,12 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_eq(relaxed_gate.diagnostics.length(), 0)
   assert_true(relaxed_gate.summary.contains("budget=relaxed"))
+  assert_true(relaxed_gate.summary.contains("max_route_diagnostic_routes=1"))
+  assert_true(
+    relaxed_gate.summary.contains(
+      "max_route_diagnostics=\{profile.route_diagnostic_count}",
+    ),
+  )
   assert_true(
     relaxed_gate.summary.contains("max_communication_unresolved_reviews=1"),
   )
@@ -792,6 +800,8 @@ test "build profile prefixes diagnostics by budget source" {
   let agent_workflow_gate = gate_build_profile(
     profile,
     build_profile_budget(
+      max_route_diagnostic_routes=1,
+      max_route_diagnostics=profile.route_diagnostic_count,
       max_communication_unresolved_reviews=0,
       max_tool_result_missing_acks=0,
       max_agent_duplicate_stream_chunks=1,
@@ -820,6 +830,16 @@ test "build profile prefixes diagnostics by budget source" {
   assert_true(
     strict_gate.diagnostics.contains(
       "profile-agent-duplicate-stream-chunks-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-route-diagnostic-routes-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-route-diagnostics-over-budget:\{profile.route_diagnostic_count}/0",
     ),
   )
   assert_true(

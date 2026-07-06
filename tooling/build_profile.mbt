@@ -76,6 +76,8 @@ pub struct BuildProfile {
 
 ///|
 pub struct BuildProfileBudget {
+  max_route_diagnostic_routes : Int
+  max_route_diagnostics : Int
   max_communication_unresolved_reviews : Int
   max_tool_result_missing_acks : Int
   max_agent_duplicate_stream_chunks : Int
@@ -93,6 +95,8 @@ pub struct BuildProfileBudget {
 ///|
 pub struct BuildProfileGate {
   budget_profile : String
+  max_route_diagnostic_routes : Int
+  max_route_diagnostics : Int
   max_communication_unresolved_reviews : Int
   max_tool_result_missing_acks : Int
   max_agent_duplicate_stream_chunks : Int
@@ -111,6 +115,8 @@ pub struct BuildProfileGate {
 
 ///|
 pub fn build_profile_budget(
+  max_route_diagnostic_routes~ : Int,
+  max_route_diagnostics~ : Int,
   max_communication_unresolved_reviews~ : Int,
   max_tool_result_missing_acks~ : Int,
   max_agent_duplicate_stream_chunks~ : Int,
@@ -125,6 +131,8 @@ pub fn build_profile_budget(
   max_degraded_scenes~ : Int,
 ) -> BuildProfileBudget {
   {
+    max_route_diagnostic_routes,
+    max_route_diagnostics,
     max_communication_unresolved_reviews,
     max_tool_result_missing_acks,
     max_agent_duplicate_stream_chunks,
@@ -147,6 +155,16 @@ pub fn gate_build_profile(
   budget_profile? : String = "custom",
 ) -> BuildProfileGate {
   let diagnostics : Array[String] = []
+  if profile.route_diagnostic_route_count > budget.max_route_diagnostic_routes {
+    diagnostics.push(
+      "profile-route-diagnostic-routes-over-budget:\{profile.route_diagnostic_route_count}/\{budget.max_route_diagnostic_routes}",
+    )
+  }
+  if profile.route_diagnostic_count > budget.max_route_diagnostics {
+    diagnostics.push(
+      "profile-route-diagnostics-over-budget:\{profile.route_diagnostic_count}/\{budget.max_route_diagnostics}",
+    )
+  }
   if profile.communication_unresolved_review_count >
     budget.max_communication_unresolved_reviews {
     diagnostics.push(
@@ -213,6 +231,8 @@ pub fn gate_build_profile(
   }
   {
     budget_profile,
+    max_route_diagnostic_routes: budget.max_route_diagnostic_routes,
+    max_route_diagnostics: budget.max_route_diagnostics,
     max_communication_unresolved_reviews: budget.max_communication_unresolved_reviews,
     max_tool_result_missing_acks: budget.max_tool_result_missing_acks,
     max_agent_duplicate_stream_chunks: budget.max_agent_duplicate_stream_chunks,
@@ -226,7 +246,7 @@ pub fn gate_build_profile(
     max_scene_quality_issues: budget.max_scene_quality_issues,
     max_degraded_scenes: budget.max_degraded_scenes,
     diagnostics,
-    summary: "Bunnia build profile gate: budget=\{budget_profile} max_communication_unresolved_reviews=\{budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_insecure_remote_assets=\{budget.max_scene_insecure_remote_assets} max_scene_unapproved_remote_assets=\{budget.max_scene_unapproved_remote_assets} max_scene_deferred_assets=\{budget.max_scene_deferred_assets} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia build profile gate: budget=\{budget_profile} max_route_diagnostic_routes=\{budget.max_route_diagnostic_routes} max_route_diagnostics=\{budget.max_route_diagnostics} max_communication_unresolved_reviews=\{budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_insecure_remote_assets=\{budget.max_scene_insecure_remote_assets} max_scene_unapproved_remote_assets=\{budget.max_scene_unapproved_remote_assets} max_scene_deferred_assets=\{budget.max_scene_deferred_assets} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
   }
 }
 

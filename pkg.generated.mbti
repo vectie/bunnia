@@ -116,7 +116,7 @@ pub fn backend_timeout(@effects.BackendRequest, error_message? : String) -> @eff
 
 pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
-pub fn build_profile_budget(max_communication_unresolved_reviews~ : Int, max_tool_result_missing_acks~ : Int, max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_insecure_remote_assets~ : Int, max_scene_unapproved_remote_assets~ : Int, max_scene_deferred_assets~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> @tooling.BuildProfileBudget
+pub fn build_profile_budget(max_route_diagnostic_routes~ : Int, max_route_diagnostics~ : Int, max_communication_unresolved_reviews~ : Int, max_tool_result_missing_acks~ : Int, max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_insecure_remote_assets~ : Int, max_scene_unapproved_remote_assets~ : Int, max_scene_deferred_assets~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> @tooling.BuildProfileBudget
 
 pub fn build_profile_budget_for_profile(String) -> @tooling.BuildProfileBudget
 
