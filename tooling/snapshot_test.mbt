@@ -27,6 +27,9 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
+  assert_true(
+    snapshot.content.contains("report_diagnostics:\nprofile_diagnostics:"),
+  )
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("pages/snapshot/index.wxml kind=wxml"))
   assert_true(snapshot.content.contains("checksum="))
@@ -77,6 +80,8 @@ test "generated snapshots can record active build report diagnostics" {
     snapshot.content.contains("diagnostics=\{report.diagnostics.length()}"),
   )
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
+  assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
+  assert_true(snapshot.content.contains("profile_diagnostics:\nfiles:"))
 }
 
 ///|

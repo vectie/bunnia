@@ -739,7 +739,7 @@ Current evidence:
   snapshot with route, budget, profile, and per-file byte/checksum lines for CI
   diffing without committing full generated mini-program outputs.
 - Snapshot artifacts record the active build report from the selected
-  generated-output budget profile.
+  generated-output budget profile, including diagnostic lines for CI diffs.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
   windowed agentic message feed, surface status overlay, render-plan helper, and

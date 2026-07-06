@@ -121,6 +121,8 @@ fn snapshot_content(
   write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)
   write_snapshot_field(out, "summary", summary)
+  write_snapshot_diagnostics(out, "report_diagnostics", report.diagnostics)
+  write_snapshot_diagnostics(out, "profile_diagnostics", profile.diagnostics)
   out.write_string("files:\n")
   for item in files {
     out.write_string(
@@ -128,6 +130,18 @@ fn snapshot_content(
     )
   }
   out.to_string()
+}
+
+///|
+fn write_snapshot_diagnostics(
+  out : StringBuilder,
+  name : String,
+  items : Array[String],
+) -> Unit {
+  out.write_string("\{name}:\n")
+  for item in items {
+    out.write_string("- \{item}\n")
+  }
 }
 
 ///|
