@@ -116,6 +116,8 @@ pub fn canvas(String) -> @core.Node
 
 pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> @tooling.CiPlan
 
+pub fn ci_plan_shell_script(@tooling.CiPlan) -> String
+
 pub fn class_name(String) -> @core.Attr
 
 pub fn cloud_function(String, String, String) -> @effects.Effect

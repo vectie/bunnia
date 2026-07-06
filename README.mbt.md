@@ -158,6 +158,7 @@ To print the canonical local/CI workflow for the active examples:
 
 ```bash
 moon run cmd/main -- ci-plan
+moon run cmd/main -- ci-plan --script
 ```
 
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
@@ -169,7 +170,9 @@ printed as CI-plan diagnostics before contributors copy the generated commands.
 The CI plan also prints the inspection-gate thresholds derived from the selected
 budget profile, including route-risk, scene asset, and remote scene asset
 ceilings, so strict map-heavy and agent-heavy route checks are reviewable before
-the commands run.
+the commands run. Add `--script` to emit a deterministic `sh` script from the
+same plan; invalid plans print diagnostics and exit before running generated
+commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

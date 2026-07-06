@@ -2806,6 +2806,11 @@ pub fn ci_plan(
 }
 
 ///|
+pub fn ci_plan_shell_script(plan : CiPlan) -> String {
+  @tooling.ci_plan_shell_script(plan)
+}
+
+///|
 pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
   @tooling.platform_limits(target~)
 }

@@ -870,6 +870,9 @@ Current evidence:
   format, platform-limits, route-inspect, strict-build, and generator-snapshot
   commands with the default tight generated-output and render budgets, so
   contributors can inspect the workflow without reading shell docs.
+- `moon run cmd/main -- ci-plan --script` emits the same workflow as a
+  deterministic `sh` script, including diagnostic-only failure output for
+  unsupported targets or unknown budget profiles.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.

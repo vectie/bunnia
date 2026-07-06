@@ -228,6 +228,7 @@ test "ci plan command prints active example workflow" {
   let args = ["node", "main.js", "ci-plan"]
   let plan = ci_plan_from_args(args)
   assert_eq(command_from_args(args), "ci-plan")
+  assert_eq(ci_script_from_args(args), false)
   assert_eq(plan.target, "wechat")
   assert_eq(plan.budget_profile, "tight")
   assert_eq(plan.render_budget_profile, "tight")
@@ -269,6 +270,22 @@ test "ci plan command accepts target budget example and snapshot dir" {
     ),
   )
   assert_true(plan.steps[9].command.contains("--render-budget tiny"))
+}
+
+///|
+test "ci plan command can emit shell script" {
+  let args = [
+    "node", "main.js", "ci-plan", "--script", "--example", "agent_map",
+  ]
+  let plan = ci_plan_from_args(args)
+  let script = @bunnia.ci_plan_shell_script(plan)
+  assert_eq(command_from_args(args), "ci-plan")
+  assert_eq(ci_script_from_args(args), true)
+  assert_eq(plan.examples.length(), 1)
+  assert_true(script.has_prefix("#!/usr/bin/env sh"))
+  assert_true(script.contains("moon check"))
+  assert_true(script.contains("moon run cmd/main -- build --target wechat"))
+  assert_true(script.contains("--example agent_map"))
 }
 
 ///|

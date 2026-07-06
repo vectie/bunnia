@@ -12,7 +12,12 @@ fn main {
     println(scaffold.summary)
     println("wrote=\{scaffold_write_file_count(scaffold)} output=\{output_dir}")
   } else if command == "ci-plan" {
-    print_ci_plan(ci_plan_from_args(@env.args()))
+    let plan = ci_plan_from_args(@env.args())
+    if ci_script_from_args(@env.args()) {
+      println(@bunnia.ci_plan_shell_script(plan))
+    } else {
+      print_ci_plan(plan)
+    }
   } else if command == "limits" {
     print_platform_limits(platform_limits_from_args(@env.args()))
   } else {
@@ -246,6 +251,11 @@ fn ci_render_budget_profile_from_args(args : Array[String]) -> String {
     }
   }
   ci_budget_profile_from_args(args)
+}
+
+///|
+fn ci_script_from_args(args : Array[String]) -> Bool {
+  args.contains("--script")
 }
 
 ///|
