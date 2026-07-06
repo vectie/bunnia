@@ -107,8 +107,8 @@ generated-output byte budgets. Named budget profiles are exposed through
 gates are exposed through `@bunnia.inspection_budget_for_profile(...)`, and
 aggregate large-app profile gates are exposed through
 `@bunnia.build_profile_budget_for_profile(...)`, including unresolved-review
-and tool-result acknowledgment limits, so contributors can use the same gates
-outside the CLI.
+and tool-result acknowledgment limits plus scene asset deployability limits, so
+contributors can use the same gates outside the CLI.
 
 For local iteration, watch generated output with:
 

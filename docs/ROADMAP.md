@@ -951,9 +951,10 @@ Current evidence:
   becomes the only signal.
 - Build-profile gates now budget unresolved review queues, missing tool-result
   acknowledgments, duplicate stream chunks, full snapshot replacements, scene
-  thread orphans, clamped scene cameras, surface fallbacks, visual-quality
-  issues, and degraded scenes, so strict builds can fail aggregate agent/map
-  regressions even when lower-level diagnostics are noisy.
+  thread orphans, clamped scene cameras, surface fallbacks, insecure,
+  unapproved, or deferred scene assets, visual-quality issues, and degraded
+  scenes, so strict builds can fail aggregate agent/map regressions even when
+  lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
   WeChat target limits visible while Alipay/TikTok generators stay deferred.

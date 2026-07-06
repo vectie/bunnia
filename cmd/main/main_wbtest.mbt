@@ -334,6 +334,10 @@ test "ci plan command prints active example workflow" {
     plan.summary.contains("profile_max_communication_unresolved_reviews=8"),
   )
   assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
+  assert_true(
+    plan.summary.contains("profile_max_scene_unapproved_remote_assets=0"),
+  )
+  assert_true(plan.summary.contains("profile_max_scene_deferred_assets=0"))
   assert_true(plan.summary.contains("inspection_max_update_payload=1024"))
   assert_true(plan.summary.contains("inspection_max_update_ops=16"))
 }

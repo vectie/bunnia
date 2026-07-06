@@ -11,7 +11,7 @@ import {
 }
 
 // Values
-pub fn build_profile_budget(max_communication_unresolved_reviews~ : Int, max_tool_result_missing_acks~ : Int, max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> BuildProfileBudget
+pub fn build_profile_budget(max_communication_unresolved_reviews~ : Int, max_tool_result_missing_acks~ : Int, max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_insecure_remote_assets~ : Int, max_scene_unapproved_remote_assets~ : Int, max_scene_deferred_assets~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> BuildProfileBudget
 
 pub fn build_profile_budget_for_profile(String) -> BuildProfileBudget
 
@@ -143,6 +143,9 @@ pub struct BuildProfileBudget {
   max_scene_thread_orphans : Int
   max_scene_camera_clamped : Int
   max_scene_surface_fallbacks : Int
+  max_scene_insecure_remote_assets : Int
+  max_scene_unapproved_remote_assets : Int
+  max_scene_deferred_assets : Int
   max_scene_quality_issues : Int
   max_degraded_scenes : Int
 } derive(Eq, @debug.Debug)
@@ -156,6 +159,9 @@ pub struct BuildProfileGate {
   max_scene_thread_orphans : Int
   max_scene_camera_clamped : Int
   max_scene_surface_fallbacks : Int
+  max_scene_insecure_remote_assets : Int
+  max_scene_unapproved_remote_assets : Int
+  max_scene_deferred_assets : Int
   max_scene_quality_issues : Int
   max_degraded_scenes : Int
   diagnostics : Array[String]
@@ -188,6 +194,9 @@ pub struct CiPlan {
   profile_max_scene_thread_orphans : Int
   profile_max_scene_camera_clamped : Int
   profile_max_scene_surface_fallbacks : Int
+  profile_max_scene_insecure_remote_assets : Int
+  profile_max_scene_unapproved_remote_assets : Int
+  profile_max_scene_deferred_assets : Int
   profile_max_scene_quality_issues : Int
   profile_max_degraded_scenes : Int
   profile_gate_summary : String

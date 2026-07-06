@@ -83,6 +83,9 @@ pub struct BuildProfileBudget {
   max_scene_thread_orphans : Int
   max_scene_camera_clamped : Int
   max_scene_surface_fallbacks : Int
+  max_scene_insecure_remote_assets : Int
+  max_scene_unapproved_remote_assets : Int
+  max_scene_deferred_assets : Int
   max_scene_quality_issues : Int
   max_degraded_scenes : Int
 } derive(Debug, Eq)
@@ -97,6 +100,9 @@ pub struct BuildProfileGate {
   max_scene_thread_orphans : Int
   max_scene_camera_clamped : Int
   max_scene_surface_fallbacks : Int
+  max_scene_insecure_remote_assets : Int
+  max_scene_unapproved_remote_assets : Int
+  max_scene_deferred_assets : Int
   max_scene_quality_issues : Int
   max_degraded_scenes : Int
   diagnostics : Array[String]
@@ -112,6 +118,9 @@ pub fn build_profile_budget(
   max_scene_thread_orphans~ : Int,
   max_scene_camera_clamped~ : Int,
   max_scene_surface_fallbacks~ : Int,
+  max_scene_insecure_remote_assets~ : Int,
+  max_scene_unapproved_remote_assets~ : Int,
+  max_scene_deferred_assets~ : Int,
   max_scene_quality_issues~ : Int,
   max_degraded_scenes~ : Int,
 ) -> BuildProfileBudget {
@@ -123,6 +132,9 @@ pub fn build_profile_budget(
     max_scene_thread_orphans,
     max_scene_camera_clamped,
     max_scene_surface_fallbacks,
+    max_scene_insecure_remote_assets,
+    max_scene_unapproved_remote_assets,
+    max_scene_deferred_assets,
     max_scene_quality_issues,
     max_degraded_scenes,
   }
@@ -172,6 +184,23 @@ pub fn gate_build_profile(
       "profile-scene-surface-fallbacks-over-budget:\{profile.scene_surface_fallback_count}/\{budget.max_scene_surface_fallbacks}",
     )
   }
+  if profile.scene_insecure_remote_asset_count >
+    budget.max_scene_insecure_remote_assets {
+    diagnostics.push(
+      "profile-scene-insecure-remote-assets-over-budget:\{profile.scene_insecure_remote_asset_count}/\{budget.max_scene_insecure_remote_assets}",
+    )
+  }
+  if profile.scene_unapproved_remote_asset_count >
+    budget.max_scene_unapproved_remote_assets {
+    diagnostics.push(
+      "profile-scene-unapproved-remote-assets-over-budget:\{profile.scene_unapproved_remote_asset_count}/\{budget.max_scene_unapproved_remote_assets}",
+    )
+  }
+  if profile.scene_deferred_asset_count > budget.max_scene_deferred_assets {
+    diagnostics.push(
+      "profile-scene-deferred-assets-over-budget:\{profile.scene_deferred_asset_count}/\{budget.max_scene_deferred_assets}",
+    )
+  }
   if profile.scene_quality_issue_count > budget.max_scene_quality_issues {
     diagnostics.push(
       "profile-scene-quality-issues-over-budget:\{profile.scene_quality_issue_count}/\{budget.max_scene_quality_issues}",
@@ -191,10 +220,13 @@ pub fn gate_build_profile(
     max_scene_thread_orphans: budget.max_scene_thread_orphans,
     max_scene_camera_clamped: budget.max_scene_camera_clamped,
     max_scene_surface_fallbacks: budget.max_scene_surface_fallbacks,
+    max_scene_insecure_remote_assets: budget.max_scene_insecure_remote_assets,
+    max_scene_unapproved_remote_assets: budget.max_scene_unapproved_remote_assets,
+    max_scene_deferred_assets: budget.max_scene_deferred_assets,
     max_scene_quality_issues: budget.max_scene_quality_issues,
     max_degraded_scenes: budget.max_degraded_scenes,
     diagnostics,
-    summary: "Bunnia build profile gate: budget=\{budget_profile} max_communication_unresolved_reviews=\{budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia build profile gate: budget=\{budget_profile} max_communication_unresolved_reviews=\{budget.max_communication_unresolved_reviews} max_tool_result_missing_acks=\{budget.max_tool_result_missing_acks} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_insecure_remote_assets=\{budget.max_scene_insecure_remote_assets} max_scene_unapproved_remote_assets=\{budget.max_scene_unapproved_remote_assets} max_scene_deferred_assets=\{budget.max_scene_deferred_assets} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
   }
 }
 

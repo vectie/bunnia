@@ -2995,6 +2995,9 @@ pub fn build_profile_budget(
   max_scene_thread_orphans~ : Int,
   max_scene_camera_clamped~ : Int,
   max_scene_surface_fallbacks~ : Int,
+  max_scene_insecure_remote_assets~ : Int,
+  max_scene_unapproved_remote_assets~ : Int,
+  max_scene_deferred_assets~ : Int,
   max_scene_quality_issues~ : Int,
   max_degraded_scenes~ : Int,
 ) -> BuildProfileBudget {
@@ -3006,6 +3009,9 @@ pub fn build_profile_budget(
     max_scene_thread_orphans~,
     max_scene_camera_clamped~,
     max_scene_surface_fallbacks~,
+    max_scene_insecure_remote_assets~,
+    max_scene_unapproved_remote_assets~,
+    max_scene_deferred_assets~,
     max_scene_quality_issues~,
     max_degraded_scenes~,
   )

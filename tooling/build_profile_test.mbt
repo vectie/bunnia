@@ -766,6 +766,9 @@ test "build profile prefixes diagnostics by budget source" {
       max_scene_thread_orphans=1,
       max_scene_camera_clamped=1,
       max_scene_surface_fallbacks=1,
+      max_scene_insecure_remote_assets=0,
+      max_scene_unapproved_remote_assets=1,
+      max_scene_deferred_assets=1,
       max_scene_quality_issues=profile.scene_quality_issue_count,
       max_degraded_scenes=1,
     ),
@@ -782,6 +785,10 @@ test "build profile prefixes diagnostics by budget source" {
     relaxed_gate.summary.contains("max_communication_unresolved_reviews=1"),
   )
   assert_true(relaxed_gate.summary.contains("max_tool_result_missing_acks=1"))
+  assert_true(
+    relaxed_gate.summary.contains("max_scene_unapproved_remote_assets=1"),
+  )
+  assert_true(relaxed_gate.summary.contains("max_scene_deferred_assets=1"))
   let agent_workflow_gate = gate_build_profile(
     profile,
     build_profile_budget(
@@ -792,6 +799,9 @@ test "build profile prefixes diagnostics by budget source" {
       max_scene_thread_orphans=1,
       max_scene_camera_clamped=1,
       max_scene_surface_fallbacks=1,
+      max_scene_insecure_remote_assets=0,
+      max_scene_unapproved_remote_assets=1,
+      max_scene_deferred_assets=1,
       max_scene_quality_issues=profile.scene_quality_issue_count,
       max_degraded_scenes=1,
     ),
@@ -832,6 +842,23 @@ test "build profile prefixes diagnostics by budget source" {
       "profile-scene-surface-fallbacks-over-budget:1/0",
     ),
   )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-scene-unapproved-remote-assets-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-scene-deferred-assets-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.summary.contains("max_scene_insecure_remote_assets=0"),
+  )
+  assert_true(
+    strict_gate.summary.contains("max_scene_unapproved_remote_assets=0"),
+  )
+  assert_true(strict_gate.summary.contains("max_scene_deferred_assets=0"))
   assert_true(
     contains_prefix(
       strict_gate.diagnostics,

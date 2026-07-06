@@ -136,6 +136,9 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
         max_scene_thread_orphans=0,
         max_scene_camera_clamped=0,
         max_scene_surface_fallbacks=4,
+        max_scene_insecure_remote_assets=0,
+        max_scene_unapproved_remote_assets=0,
+        max_scene_deferred_assets=0,
         max_scene_quality_issues=0,
         max_degraded_scenes=0,
       )
@@ -148,6 +151,9 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
         max_scene_thread_orphans=0,
         max_scene_camera_clamped=0,
         max_scene_surface_fallbacks=0,
+        max_scene_insecure_remote_assets=0,
+        max_scene_unapproved_remote_assets=0,
+        max_scene_deferred_assets=0,
         max_scene_quality_issues=0,
         max_degraded_scenes=0,
       )
@@ -160,6 +166,9 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
         max_scene_thread_orphans=0,
         max_scene_camera_clamped=0,
         max_scene_surface_fallbacks=0,
+        max_scene_insecure_remote_assets=0,
+        max_scene_unapproved_remote_assets=0,
+        max_scene_deferred_assets=0,
         max_scene_quality_issues=0,
         max_degraded_scenes=0,
       )
