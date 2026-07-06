@@ -80,6 +80,9 @@ pub type CommunicationPlan = @agent.CommunicationPlan
 pub type ReviewAction = @agent.ReviewAction
 
 ///|
+pub type ToolResultCard = @agent.ToolResultCard
+
+///|
 pub type AgentDeltaKind = @agent.AgentDeltaKind
 
 ///|
@@ -733,6 +736,29 @@ pub fn review_action(
 }
 
 ///|
+pub fn tool_result_card(
+  id~ : String,
+  tool_name~ : String,
+  title~ : String,
+  summary~ : String,
+  artifact_ref? : String = "",
+  status? : RunStatus = @agent.Done,
+  open_message? : String = "",
+  acknowledge_message? : String = "",
+) -> ToolResultCard {
+  @agent.tool_result_card(
+    id~,
+    tool_name~,
+    title~,
+    summary~,
+    artifact_ref~,
+    status~,
+    open_message~,
+    acknowledge_message~,
+  )
+}
+
+///|
 pub fn review_action_enabled(action : ReviewAction) -> Bool {
   @agent.review_action_enabled(action)
 }
@@ -1047,6 +1073,25 @@ pub fn windowed_message_feed(
   offset? : Int = 0,
 ) -> Node {
   @agent.windowed_message_feed(messages, total_count~, offset~)
+}
+
+///|
+pub fn tool_result_card_view(card : ToolResultCard) -> Node {
+  @agent.tool_result_card_view(card)
+}
+
+///|
+pub fn tool_result_card_list(cards : Array[ToolResultCard]) -> Node {
+  @agent.tool_result_card_list(cards)
+}
+
+///|
+pub fn windowed_tool_result_card_list(
+  cards : Array[ToolResultCard],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @agent.windowed_tool_result_card_list(cards, total_count~, offset~)
 }
 
 ///|

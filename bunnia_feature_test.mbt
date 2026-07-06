@@ -87,6 +87,41 @@ test "agent feeds and traces can be windowed for long conversations" {
 }
 
 ///|
+test "tool result cards expose artifact and action metadata" {
+  let card = @bunnia.tool_result_card(
+    id="tool-route",
+    tool_name="route-inspector",
+    title="Route inspection",
+    summary="Route report is ready.",
+    artifact_ref="artifact://route-report",
+    status=@bunnia.run_waiting_review(),
+    open_message="open-tool",
+    acknowledge_message="ack-tool",
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Tool Result",
+    @bunnia.page([
+      @bunnia.windowed_tool_result_card_list([card], total_count=12, offset=8),
+    ]),
+  )
+  assert_eq(output.plan.windowed_list_count, 1)
+  assert_eq(output.plan.list_total_count, 12)
+  assert_eq(output.plan.list_visible_count, 1)
+  assert_true(output.wxml.contains("bunnia-tool-result-card"))
+  assert_true(output.wxml.contains("bunnia-tool-result-list-windowed"))
+  assert_true(output.wxml.contains("data-tool-result-id=\"tool-route\""))
+  assert_true(output.wxml.contains("data-tool-name=\"route-inspector\""))
+  assert_true(
+    output.wxml.contains("data-artifact-ref=\"artifact://route-report\""),
+  )
+  assert_true(output.wxml.contains("data-run-status=\"waiting-review\""))
+  assert_true(output.wxml.contains("data-bunnia-message=\"open-tool\""))
+  assert_true(output.wxml.contains("data-bunnia-message=\"ack-tool\""))
+  assert_true(output.plan.event_messages.contains("open-tool"))
+  assert_true(output.plan.event_messages.contains("ack-tool"))
+}
+
+///|
 test "scene assets render sprites and report asset budgets" {
   let assets = [
     @bunnia.sprite_asset("agent-sprite", "/assets/agent.png", 2048),

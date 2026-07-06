@@ -580,6 +580,12 @@ pub fn tool_ack_endpoint(String, String, String) -> @effects.BackendEndpoint
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> @agent.Communication
 
+pub fn tool_result_card(id~ : String, tool_name~ : String, title~ : String, summary~ : String, artifact_ref? : String, status? : @agent.RunStatus, open_message? : String, acknowledge_message? : String) -> @agent.ToolResultCard
+
+pub fn tool_result_card_list(Array[@agent.ToolResultCard]) -> @core.Node
+
+pub fn tool_result_card_view(@agent.ToolResultCard) -> @core.Node
+
 pub fn view(Array[@core.Node]) -> @core.Node
 
 pub fn view_with_attrs(Array[@core.Attr], Array[@core.Node]) -> @core.Node
@@ -603,6 +609,8 @@ pub fn[Item] windowed_list(Array[Item], total_count~ : Int, offset? : Int, rende
 pub fn windowed_message_feed(Array[@agent.Message], total_count~ : Int, offset? : Int) -> @core.Node
 
 pub fn windowed_scene_thread_overlay(Array[@scene.SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
+
+pub fn windowed_tool_result_card_list(Array[@agent.ToolResultCard], total_count~ : Int, offset? : Int) -> @core.Node
 
 // Errors
 
@@ -754,6 +762,8 @@ pub using @core {type SurfaceStatus}
 pub using @core {type SurfaceStatusKind}
 
 pub using @agent {type Thread}
+
+pub using @agent {type ToolResultCard}
 
 pub using @wechat {type WechatBuildBudget}
 

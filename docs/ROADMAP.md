@@ -330,6 +330,9 @@ Current evidence:
 - Generic communication records now cover threads, handoffs, broadcasts, review
   requests, approvals, tool results, and recovery notices without importing a
   product-specific agent runtime.
+- Tool-result cards now expose tool name, run status, artifact reference, open
+  actions, and acknowledgment actions as typed generic UI, including a windowed
+  list helper for large agentic result feeds.
 - Communication plans can filter traces by thread, actor, or communication
   kind while reporting visible/hidden rows, unresolved review pressure,
   artifact-bearing rows, and budget diagnostics.

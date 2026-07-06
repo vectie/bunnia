@@ -6,6 +6,10 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
   assert_true(page.wxml.contains("bunnia-status-review"))
+  assert_true(page.wxml.contains("bunnia-tool-result-card"))
+  assert_true(page.wxml.contains("data-tool-result-id=\"route-tool-result\""))
+  assert_true(page.wxml.contains("data-tool-name=\"route-inspector\""))
+  assert_true(page.wxml.contains("data-bunnia-message=\"ack-route-tool\""))
   assert_true(page.wxml.contains("left: 420rpx; top: 260rpx;"))
   assert_true(page.wxml.contains("data-hit-width=\"44\""))
   assert_true(page.wxml.contains("data-hit-height=\"44\""))
@@ -17,6 +21,7 @@ test "agent map demo generates wechat output" {
   assert_true(page.js.contains("__bunnia.lastMessage"))
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"select-zone-b\""))
+  assert_true(page.js.contains("\"ack-route-tool\""))
   assert_true(
     page.js.contains(
       "{kind:\"set\",path:\"scene.zones.zone-b.status\",value:\"running\"}",
@@ -25,6 +30,11 @@ test "agent map demo generates wechat output" {
   assert_true(
     page.js.contains(
       "{kind:\"set\",path:\"review.routeReview\",value:\"approved\"}",
+    ),
+  )
+  assert_true(
+    page.js.contains(
+      "{kind:\"set\",path:\"tool.routeToolResult\",value:\"acknowledged\"}",
     ),
   )
   assert_true(page.plan.node_count > 12)

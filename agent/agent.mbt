@@ -52,6 +52,18 @@ pub struct ReviewAction {
 } derive(Debug, Eq)
 
 ///|
+pub struct ToolResultCard {
+  id : String
+  tool_name : String
+  title : String
+  summary : String
+  artifact_ref : String
+  status : RunStatus
+  open_message : String
+  acknowledge_message : String
+} derive(Debug, Eq)
+
+///|
 pub fn actor(id~ : String, label~ : String, kind? : ActorKind = Agent) -> Actor {
   { id, label, kind }
 }
@@ -77,6 +89,29 @@ pub fn review_action(
   state? : ReviewState = Pending,
 ) -> ReviewAction {
   { id, label, state, approve_message, reject_message }
+}
+
+///|
+pub fn tool_result_card(
+  id~ : String,
+  tool_name~ : String,
+  title~ : String,
+  summary~ : String,
+  artifact_ref? : String = "",
+  status? : RunStatus = Done,
+  open_message? : String = "",
+  acknowledge_message? : String = "",
+) -> ToolResultCard {
+  {
+    id,
+    tool_name,
+    title,
+    summary,
+    artifact_ref,
+    status,
+    open_message,
+    acknowledge_message,
+  }
 }
 
 ///|
@@ -141,6 +176,67 @@ pub fn windowed_message_feed(
 }
 
 ///|
+pub fn tool_result_card_view(card : ToolResultCard) -> @core.Node {
+  @core.keyed(
+    card.id,
+    @core.view_with_attrs(
+      [
+        @core.class_name(
+          "bunnia-tool-result-card \{run_status_class(card.status)}",
+        ),
+        @core.data("tool-result-id", card.id),
+        @core.data("tool-name", card.tool_name),
+        @core.data("artifact-ref", card.artifact_ref),
+        @core.data("run-status", run_status_id(card.status)),
+      ],
+      [
+        @core.text(card.title),
+        @core.text(card.summary),
+        artifact_badge(card.artifact_ref),
+        tool_result_action("Open", card.open_message),
+        tool_result_action("Acknowledge", card.acknowledge_message),
+      ],
+    ),
+  )
+}
+
+///|
+pub fn tool_result_card_list(cards : Array[ToolResultCard]) -> @core.Node {
+  let rows : Array[@core.Node] = []
+  for card in cards {
+    rows.push(tool_result_card_view(card))
+  }
+  @core.view_with_attrs([@core.class_name("bunnia-tool-result-list")], rows)
+}
+
+///|
+pub fn windowed_tool_result_card_list(
+  cards : Array[ToolResultCard],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> @core.Node {
+  let rows : Array[@core.Node] = []
+  for card in cards {
+    rows.push(tool_result_card_view(card))
+  }
+  @core.node(
+    kind="view",
+    attrs=[
+      @core.class_name(
+        "bunnia-tool-result-list bunnia-tool-result-list-windowed",
+      ),
+      @core.data("bunnia-list-mode", "windowed"),
+      @core.data("total-count", total_count.to_string()),
+      @core.data("visible-start", offset.to_string()),
+      @core.data("visible-count", cards.length().to_string()),
+    ],
+    children=rows,
+    list_total_count=total_count,
+    list_visible_count=cards.length(),
+  )
+}
+
+///|
 pub fn review_controls(action : ReviewAction) -> @core.Node {
   let enabled = review_action_enabled(action)
   @core.view_with_attrs(
@@ -156,6 +252,20 @@ pub fn review_controls(action : ReviewAction) -> @core.Node {
       review_button("Reject", action.reject_message, enabled),
     ],
   )
+}
+
+///|
+fn tool_result_action(label : String, message : String) -> @core.Node {
+  if message == "" {
+    @core.view([])
+  } else {
+    @core.node(
+      kind="button",
+      attrs=[@core.class_name("bunnia-tool-result-action")],
+      events=[@core.tap(message)],
+      children=[@core.text(label)],
+    )
+  }
 }
 
 ///|

@@ -24,12 +24,25 @@ pub fn demo_view() -> @bunnia.Node {
       reject_message="reject-route",
     ),
   )
+  let tool_result = @bunnia.tool_result_card_view(
+    @bunnia.tool_result_card(
+      id="route-tool-result",
+      tool_name="route-inspector",
+      title="Route inspection",
+      summary="Scene report is ready for operator review.",
+      artifact_ref="artifact://scene-report",
+      status=@bunnia.run_waiting_review(),
+      open_message="open-route-tool",
+      acknowledge_message="ack-route-tool",
+    ),
+  )
   let map = @bunnia.static_scene_view(demo_scene())
   @bunnia.page([
     @bunnia.view_with_attrs([@bunnia.class_name("demo-shell")], [
       @bunnia.text("Agent Map"),
       feed,
       review,
+      tool_result,
       map,
     ]),
   ])
@@ -70,12 +83,18 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     @bunnia.wechat_event_patch("reject-route", [
       @bunnia.set_json("review.routeReview", "\"rejected\""),
     ]),
+    @bunnia.wechat_event_patch("open-route-tool", [
+      @bunnia.set_string("tool.activeResult", "route-tool-result"),
+    ]),
+    @bunnia.wechat_event_patch("ack-route-tool", [
+      @bunnia.set_json("tool.routeToolResult", "\"acknowledged\""),
+    ]),
   ])
 }
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"review\":{\"routeReview\":\"pending\"}}"
+  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
 }
 
 ///|

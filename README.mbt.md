@@ -151,6 +151,10 @@ normal CLI summary.
 For long agent conversations, use `@bunnia.windowed_message_feed(...)` and
 `@bunnia.windowed_communication_trace(...)` so chat rows and action traces keep
 the same visible/total diagnostics as other large surfaces.
+For tool outputs, use `@bunnia.tool_result_card(...)` with
+`@bunnia.tool_result_card_view(...)` or
+`@bunnia.windowed_tool_result_card_list(...)` so artifact references,
+run-status, open actions, and acknowledgments remain typed UI state.
 For streaming output, append completed chunks with
 `@bunnia.append_stream_chunk_delta(...)` and update the current in-flight chunk
 with `@bunnia.set_stream_chunk_delta(...)`; agent delta plans flag duplicate
