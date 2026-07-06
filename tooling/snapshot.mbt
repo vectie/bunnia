@@ -10,6 +10,7 @@ pub struct GeneratedSnapshotFile {
 pub struct GeneratedSnapshot {
   target : String
   example : String
+  budget_profile : String
   project_name : String
   route : String
   page_count : Int
@@ -36,6 +37,7 @@ pub fn snapshot_wechat_project(
     project,
     project.report,
     profile,
+    budget_profile="default",
   )
 }
 
@@ -46,6 +48,7 @@ pub fn snapshot_wechat_project_with_report(
   project : @wechat.WechatProject,
   report : @wechat.WechatBuildReport,
   profile : BuildProfile,
+  budget_profile? : String = "default",
 ) -> GeneratedSnapshot {
   let files : Array[GeneratedSnapshotFile] = []
   for item in project.files {
@@ -53,13 +56,14 @@ pub fn snapshot_wechat_project_with_report(
   }
   let diagnostic_count = report.diagnostics.length() +
     profile.diagnostics.length()
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} diagnostics=\{diagnostic_count}"
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
-    target, example, project, report, profile, files, summary,
+    target, example, budget_profile, project, report, profile, files, summary,
   )
   {
     target,
     example,
+    budget_profile,
     project_name: project.name,
     route: project.route,
     page_count: project.page_count,
@@ -88,6 +92,7 @@ fn snapshot_file(input : @wechat.WechatFile) -> GeneratedSnapshotFile {
 fn snapshot_content(
   target : String,
   example : String,
+  budget_profile : String,
   project : @wechat.WechatProject,
   report : @wechat.WechatBuildReport,
   profile : BuildProfile,
@@ -98,6 +103,7 @@ fn snapshot_content(
   out.write_string("bunnia-generated-snapshot-v1\n")
   write_snapshot_field(out, "target", target)
   write_snapshot_field(out, "example", example)
+  write_snapshot_field(out, "budget_profile", budget_profile)
   write_snapshot_field(out, "project", project.name)
   write_snapshot_field(out, "route", project.route)
   write_snapshot_field(out, "pages", project.page_count.to_string())

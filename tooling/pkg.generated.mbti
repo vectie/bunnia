@@ -19,7 +19,7 @@ pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
 
 pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, BuildProfile) -> GeneratedSnapshot
 
-pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, BuildProfile) -> GeneratedSnapshot
+pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, BuildProfile, budget_profile? : String) -> GeneratedSnapshot
 
 // Errors
 
@@ -81,6 +81,7 @@ pub struct BuildProfile {
 pub struct GeneratedSnapshot {
   target : String
   example : String
+  budget_profile : String
   project_name : String
   route : String
   page_count : Int

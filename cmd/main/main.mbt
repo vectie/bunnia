@@ -317,6 +317,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let project = project_for_build(target, example)
   let patches = patches_for_build(target, example)
   let profile = profile_for_build(target, example, project, patches)
+  let budget_profile = budget_profile_from_args(args)
   let report = @bunnia.report_wechat_project_with_budget(
     project,
     @bunnia.default_wechat_runtime(),
@@ -325,7 +326,8 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let strict = strict_from_args(args)
   write_project(output_dir, project)
   print_build_result(
-    command, target, example, output_dir, project, report, patches, profile,
+    command, target, example, budget_profile, output_dir, project, report, patches,
+    profile,
   )
   if command == "snapshot" {
     let snapshot = @bunnia.snapshot_wechat_project_with_report(
@@ -334,6 +336,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
       project,
       report,
       profile,
+      budget_profile~,
     )
     let snapshot_path = snapshot_output_path_from_args(args, target, example)
     write_text_file(snapshot_path, snapshot.content)
@@ -358,6 +361,7 @@ fn print_build_result(
   command : String,
   target : String,
   example : String,
+  budget_profile : String,
   output_dir : String,
   project : @bunnia.WechatProject,
   report : @bunnia.WechatBuildReport,
@@ -367,6 +371,7 @@ fn print_build_result(
   println("command=\{command}")
   println("target=\{target}")
   println("example=\{example}")
+  println("budget=\{budget_profile}")
   println(project.page.plan.summary)
   println(project.summary)
   println(project.manifest.summary)

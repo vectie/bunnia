@@ -498,7 +498,7 @@ pub fn snapshot_load_endpoint(String, String, String) -> @effects.BackendEndpoin
 
 pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @tooling.BuildProfile) -> @tooling.GeneratedSnapshot
 
-pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, @tooling.BuildProfile) -> @tooling.GeneratedSnapshot
+pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, @tooling.BuildProfile, budget_profile? : String) -> @tooling.GeneratedSnapshot
 
 pub fn sprite_asset(String, String, Int) -> @scene.SceneAsset
 

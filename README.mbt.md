@@ -105,11 +105,12 @@ snapshot:
 moon run cmd/main -- snapshot --target wechat --example agent_map --strict
 ```
 
-Snapshot output uses the selected `--budget` profile, so CI diffs include the
-same generated-output report and diagnostic lines that strict builds evaluate.
+Snapshot output records the selected `--budget` profile, so CI diffs include
+the same generated-output report and diagnostic lines that strict builds
+evaluate.
 
-The snapshot records route, size budgets, profile summary, and per-file
-byte/checksum lines without committing the full generated mini-program.
+The snapshot records route, budget profile, size budgets, profile summary, and
+per-file byte/checksum lines without committing the full generated mini-program.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

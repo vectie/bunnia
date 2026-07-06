@@ -2425,6 +2425,7 @@ pub fn snapshot_wechat_project_with_report(
   project : WechatProject,
   report : WechatBuildReport,
   profile : BuildProfile,
+  budget_profile? : String = "default",
 ) -> GeneratedSnapshot {
   @tooling.snapshot_wechat_project_with_report(
     target~,
@@ -2432,6 +2433,7 @@ pub fn snapshot_wechat_project_with_report(
     project,
     report,
     profile,
+    budget_profile~,
   )
 }
 
