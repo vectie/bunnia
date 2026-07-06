@@ -791,6 +791,9 @@ Current evidence:
 - Generated manifests expose route-level scene count, visible/total marker
   count, scene asset count, degraded scene count, and render-budget limits so
   map-heavy routes are attributable beside payload and backend budgets.
+- Render budgets gate route scene asset references directly, keeping map-heavy
+  package pressure visible in strict builds even before separate scene asset
+  planning is wired into an example.
 - Generated manifests include route-scoped scene asset ids, kinds, sources, and
   remote flags, and `inspect` prints those refs beside the owning route.
 - Generator snapshots carry manifest-derived scene asset counts plus

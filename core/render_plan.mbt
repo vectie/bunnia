@@ -6,6 +6,7 @@ pub struct RenderBudget {
   max_initial_data_bytes : Int
   max_unwindowed_list_children : Int
   max_scene_markers : Int
+  max_scene_assets : Int
   max_degraded_scenes : Int
 } derive(Debug, Eq)
 
@@ -18,6 +19,7 @@ pub fn default_render_budget() -> RenderBudget {
     max_initial_data_bytes: 65536,
     max_unwindowed_list_children: 64,
     max_scene_markers: 600,
+    max_scene_assets: 64,
     max_degraded_scenes: 0,
   }
 }
@@ -30,6 +32,7 @@ pub fn render_budget(
   max_initial_data_bytes~ : Int,
   max_unwindowed_list_children? : Int = 64,
   max_scene_markers? : Int = 600,
+  max_scene_assets? : Int = 64,
   max_degraded_scenes? : Int = 0,
 ) -> RenderBudget {
   {
@@ -39,6 +42,7 @@ pub fn render_budget(
     max_initial_data_bytes,
     max_unwindowed_list_children,
     max_scene_markers,
+    max_scene_assets,
     max_degraded_scenes,
   }
 }
@@ -152,6 +156,11 @@ pub fn plan_for_adapter_with_budget(
   if scene_markers > budget.max_scene_markers {
     diagnostics.push(
       "scene-marker-count-over-budget:\{scene_markers}/\{budget.max_scene_markers}",
+    )
+  }
+  if scene_assets > budget.max_scene_assets {
+    diagnostics.push(
+      "scene-asset-count-over-budget:\{scene_assets}/\{budget.max_scene_assets}",
     )
   }
   if degraded_scenes > budget.max_degraded_scenes {

@@ -15,6 +15,7 @@ pub fn render_budget_for_profile(name : String) -> @core.RenderBudget {
         max_initial_data_bytes=4096,
         max_unwindowed_list_children=16,
         max_scene_markers=64,
+        max_scene_assets=16,
         max_degraded_scenes=0,
       )
     "tiny" =>
@@ -25,6 +26,7 @@ pub fn render_budget_for_profile(name : String) -> @core.RenderBudget {
         max_initial_data_bytes=64,
         max_unwindowed_list_children=0,
         max_scene_markers=1,
+        max_scene_assets=0,
         max_degraded_scenes=0,
       )
     _ => panic()

@@ -400,7 +400,7 @@ pub fn remove_path(String) -> @core.Patch
 
 pub fn remove_snapshot_section_delta(String, String) -> @effects.SnapshotDelta
 
-pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_degraded_scenes? : Int) -> @core.RenderBudget
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_scene_assets? : Int, max_degraded_scenes? : Int) -> @core.RenderBudget
 
 pub fn render_budget_for_profile(String) -> @core.RenderBudget
 

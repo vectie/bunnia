@@ -965,6 +965,7 @@ fn render_budget_json(input : @core.RenderBudget) -> String {
   "\"maxInitialDataBytes\":\{input.max_initial_data_bytes}," +
   "\"maxUnwindowedListChildren\":\{input.max_unwindowed_list_children}," +
   "\"maxSceneMarkers\":\{input.max_scene_markers}," +
+  "\"maxSceneAssets\":\{input.max_scene_assets}," +
   "\"maxDegradedScenes\":\{input.max_degraded_scenes}" +
   "}"
 }

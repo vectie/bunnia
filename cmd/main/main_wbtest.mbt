@@ -61,12 +61,17 @@ test "build budgets come from shared named profiles" {
   assert_eq(render.max_nodes, shared_render.max_nodes)
   assert_eq(render.max_initial_data_bytes, shared_render.max_initial_data_bytes)
   assert_eq(render.max_scene_markers, shared_render.max_scene_markers)
+  assert_eq(render.max_scene_assets, shared_render.max_scene_assets)
   let explicit_render = render_budget_from_args([
     "node", "main.js", "--budget", "tight", "--render-budget", "tiny",
   ])
   let shared_tiny_render = @bunnia.render_budget_for_profile("tiny")
   assert_eq(explicit_render.max_nodes, shared_tiny_render.max_nodes)
   assert_eq(explicit_render.max_events, shared_tiny_render.max_events)
+  assert_eq(
+    explicit_render.max_scene_assets,
+    shared_tiny_render.max_scene_assets,
+  )
   let wechat = wechat_build_budget_from_args([
     "node", "main.js", "--budget", "tight",
   ])

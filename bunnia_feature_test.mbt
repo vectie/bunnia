@@ -745,6 +745,38 @@ test "render budgets diagnose scene marker pressure" {
 }
 
 ///|
+test "render budgets diagnose scene asset pressure" {
+  let scene = @bunnia.scene(
+    "asset-map",
+    @bunnia.scene_size(320, 240),
+    [
+      @bunnia.layer("markers", 1, [
+        @bunnia.marker(id="a", label="A", x=16, y=16, asset_ref="pin-a"),
+        @bunnia.marker(id="b", label="B", x=32, y=32, asset_ref="pin-b"),
+      ]),
+    ],
+    assets=[
+      @bunnia.sprite_asset("pin-a", "/assets/pin-a.png", 256),
+      @bunnia.sprite_asset("pin-b", "/assets/pin-b.png", 256),
+    ],
+  )
+  let plan = @bunnia.plan_with_budget(
+    @bunnia.page([@bunnia.static_scene_view(scene)]),
+    @bunnia.wechat(),
+    @bunnia.render_budget(
+      max_nodes=64,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=1024,
+      max_scene_assets=1,
+    ),
+  )
+  assert_eq(plan.scene_asset_count, 2)
+  assert_true(plan.diagnostics.contains("scene-asset-count-over-budget:2/1"))
+  assert_true(plan.summary.contains("scene_assets=2"))
+}
+
+///|
 test "wechat project generation accepts route render budgets" {
   let surface = @bunnia.static_scene_view(
     @bunnia.scene("budget-map", @bunnia.scene_size(320, 240), [
@@ -765,6 +797,7 @@ test "wechat project generation accepts route render budgets" {
       max_events=8,
       max_initial_data_bytes=1024,
       max_scene_markers=1,
+      max_scene_assets=1,
     ),
   )
   assert_true(
@@ -777,6 +810,7 @@ test "wechat project generation accepts route render budgets" {
   )
   assert_eq(project.manifest.pages[0].render_budget.max_nodes, 64)
   assert_eq(project.manifest.pages[0].render_budget.max_scene_markers, 1)
+  assert_eq(project.manifest.pages[0].render_budget.max_scene_assets, 1)
   assert_true(
     project.manifest.pages[0].render_diagnostics.contains(
       "scene-marker-count-over-budget:2/1",
@@ -794,7 +828,7 @@ test "wechat project generation accepts route render budgets" {
   assert_true(project.manifest.summary.contains("diagnostic_routes=1"))
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxDegradedScenes\":0}",
+      "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxSceneAssets\":1,\"maxDegradedScenes\":0}",
     ),
   )
   assert_true(
@@ -1259,6 +1293,7 @@ test "wechat manifest records route render diagnostics" {
   assert_eq(project.manifest.pages.length(), 1)
   assert_eq(project.manifest.pages[0].route, "pages/diagnostics/index")
   assert_eq(project.manifest.pages[0].render_budget.max_scene_markers, 600)
+  assert_eq(project.manifest.pages[0].render_budget.max_scene_assets, 64)
   assert_eq(project.manifest.pages[0].unwindowed_list_child_count, 2)
   assert_eq(project.manifest.pages[0].unkeyed_list_child_count, 2)
   assert_true(

@@ -269,12 +269,13 @@ visible/total marker count, scene asset count, and degraded scene count, so map
 pressure is visible even before product-specific profiling is wired in. Route
 manifests include the render-budget limits used for generation, which keeps
 budget failures explainable from generated output alone.
-`@bunnia.render_budget(...)` can gate scene marker count and degraded scene
-count directly, which lets strict builds catch oversized map routes without a
-separate scene-specific planner. WeChat generation APIs also accept explicit
-render budgets, so route manifests and build reports carry those render
-diagnostics into normal build output. For agentic pages, route initial-data
-bytes are also checked against the page render budget.
+`@bunnia.render_budget(...)` can gate scene marker count, scene asset reference
+count, and degraded scene count directly, which lets strict builds catch
+oversized map routes without a separate scene-specific planner. WeChat
+generation APIs also accept explicit render budgets, so route manifests and
+build reports carry those render diagnostics into normal build output. For
+agentic pages, route initial-data bytes are also checked against the page render
+budget.
 Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.
