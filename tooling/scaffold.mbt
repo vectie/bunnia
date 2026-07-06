@@ -89,6 +89,12 @@ fn cmd_main_mbt() -> String {
   "  println(project.report.summary)\n" +
   "  if command == \"inspect\" {\n" +
   "    print_inspect_result(project)\n" +
+  "  } else if command == \"snapshot\" {\n" +
+  "    let snapshot = starter_snapshot(project)\n" +
+  "    let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
+  "    write_text_file(snapshot_path, snapshot.content)\n" +
+  "    println(snapshot.summary)\n" +
+  "    println(\"snapshot=\\{snapshot_path}\")\n" +
   "  } else {\n" +
   "    for file in project.files {\n" +
   "      write_text_file(join_path(output_dir, file.path), file.content)\n" +
@@ -105,6 +111,8 @@ fn cmd_main_mbt() -> String {
   "  for item in args {\n" +
   "    if item == \"inspect\" {\n" +
   "      return \"inspect\"\n" +
+  "    } else if item == \"snapshot\" {\n" +
+  "      return \"snapshot\"\n" +
   "    } else if item == \"build\" {\n" +
   "      return \"build\"\n" +
   "    }\n" +
@@ -121,6 +129,15 @@ fn cmd_main_mbt() -> String {
   "  \"_build/wechat\"\n" +
   "}\n\n" +
   "///|\n" +
+  "fn snapshot_output_path_from_args(args : Array[String]) -> String {\n" +
+  "  for i in 0..<args.length() {\n" +
+  "    if args[i] == \"--snapshot-out\" && i + 1 < args.length() {\n" +
+  "      return args[i + 1]\n" +
+  "    }\n" +
+  "  }\n" +
+  "  \"_build/snapshots/wechat/starter.snapshot.txt\"\n" +
+  "}\n\n" +
+  "///|\n" +
   "fn strict_from_args(args : Array[String]) -> Bool {\n" +
   "  args.contains(\"--strict\") || args.contains(\"--fail-on-diagnostics\")\n" +
   "}\n\n" +
@@ -129,6 +146,19 @@ fn cmd_main_mbt() -> String {
   "  strict && (\n" +
   "    project.report.diagnostics.length() > 0 ||\n" +
   "    project.manifest.diagnostic_count > 0\n" +
+  "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn starter_snapshot(project : @bunnia.WechatProject) -> @bunnia.GeneratedSnapshot {\n" +
+  "  let profile = @bunnia.profile_wechat_project(project, @app.patch_plan())\n" +
+  "  @bunnia.snapshot_wechat_project_with_report(\n" +
+  "    target=\"wechat\",\n" +
+  "    example=\"starter\",\n" +
+  "    project,\n" +
+  "    project.report,\n" +
+  "    profile,\n" +
+  "    budget_profile=\"tight\",\n" +
+  "    render_budget_profile=\"tight\",\n" +
   "  )\n" +
   "}\n\n" +
   "///|\n" +
@@ -342,6 +372,7 @@ fn readme(name : String) -> String {
   "moon check\n" +
   "moon test\n" +
   "moon run cmd/main -- inspect --strict\n" +
+  "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
   "moon run cmd/main -- --out _build/wechat --strict\n" +
   "```\n"
 }

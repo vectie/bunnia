@@ -49,6 +49,14 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "snapshot_output_path_from_args",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("starter_snapshot"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "print_inspect_result",
     ),
   )
@@ -112,6 +120,7 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
   assert_true(file_content(plan.files, "README.mbt.md").contains("inspect"))
+  assert_true(file_content(plan.files, "README.mbt.md").contains("snapshot"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(plan.summary.contains("files=12"))
 }
