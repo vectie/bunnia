@@ -50,38 +50,54 @@ pub fn platform_label(platform : Platform) -> String {
 }
 
 ///|
+pub fn platform_adapter(
+  platform~ : Platform,
+  id~ : String,
+  page_component~ : String,
+  tap_event~ : String,
+  component_prefix? : String = "",
+  supports_canvas? : Bool = true,
+  supports_cloud? : Bool = false,
+) -> PlatformAdapter {
+  {
+    platform,
+    id,
+    page_component,
+    tap_event,
+    component_prefix,
+    supports_canvas,
+    supports_cloud,
+  }
+}
+
+///|
 pub fn adapter(platform : Platform) -> PlatformAdapter {
   match platform {
     Wechat =>
-      {
-        platform,
-        id: platform_id(platform),
-        page_component: "page",
-        tap_event: "bindtap",
-        component_prefix: "",
-        supports_canvas: true,
-        supports_cloud: true,
-      }
+      platform_adapter(
+        platform~,
+        id=platform_id(platform),
+        page_component="page",
+        tap_event="bindtap",
+        supports_cloud=true,
+      )
     Alipay =>
-      {
-        platform,
-        id: platform_id(platform),
-        page_component: "page",
-        tap_event: "onTap",
-        component_prefix: "a:",
-        supports_canvas: true,
-        supports_cloud: true,
-      }
+      platform_adapter(
+        platform~,
+        id=platform_id(platform),
+        page_component="page",
+        tap_event="onTap",
+        component_prefix="a:",
+        supports_cloud=true,
+      )
     TikTok =>
-      {
-        platform,
-        id: platform_id(platform),
-        page_component: "page",
-        tap_event: "bindtap",
-        component_prefix: "tt:",
-        supports_canvas: true,
-        supports_cloud: false,
-      }
+      platform_adapter(
+        platform~,
+        id=platform_id(platform),
+        page_component="page",
+        tap_event="bindtap",
+        component_prefix="tt:",
+      )
   }
 }
 

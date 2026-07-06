@@ -394,6 +394,39 @@ test "scene visual quality plans expose map readiness diagnostics" {
 }
 
 ///|
+test "scene surface planning keeps map rendering capability explicit" {
+  let scene = @bunnia.scene("ops-map", @bunnia.scene_size(640, 480), [
+    @bunnia.layer("markers", 1, [
+      @bunnia.marker(
+        id="actor-a",
+        label="Actor A",
+        x=80,
+        y=80,
+        status="running",
+        tap_message="open-actor-a",
+      ),
+    ]),
+  ])
+  let constrained = @bunnia.platform_adapter(
+    platform=@bunnia.wechat(),
+    id="wechat-lite",
+    page_component="page",
+    tap_event="bindtap",
+    supports_canvas=false,
+  )
+  let plan = @bunnia.plan_scene_surface(
+    scene,
+    constrained,
+    preference=@bunnia.prefer_canvas_surface(),
+  )
+  assert_true(plan.requested_mode == @bunnia.scene_mode_canvas_surface())
+  assert_true(plan.mode == @bunnia.scene_mode_static_markup())
+  assert_eq(plan.fallback, true)
+  assert_eq(@bunnia.scene_surface_preference_id(plan.preference), "canvas")
+  assert_true(plan.diagnostics.contains("scene-canvas-unsupported:wechat-lite"))
+}
+
+///|
 test "render budgets report large app pressure early" {
   let root = @bunnia.page([
     @bunnia.view([

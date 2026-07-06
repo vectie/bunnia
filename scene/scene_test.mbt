@@ -54,6 +54,56 @@ test "scene render plan degrades large marker sets" {
 }
 
 ///|
+test "scene surface plan uses canvas when preferred and supported" {
+  let plan = plan_scene_surface_for_platform(
+    fixture_scene(12),
+    @core.Wechat,
+    preference=PreferCanvasSurface,
+  )
+  assert_true(plan.requested_mode is CanvasSurface)
+  assert_true(plan.mode is CanvasSurface)
+  assert_eq(plan.fallback, false)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("preference=canvas"))
+}
+
+///|
+test "scene surface plan falls back when canvas is unsupported" {
+  let no_canvas = @core.platform_adapter(
+    platform=@core.Wechat,
+    id="wechat-lite",
+    page_component="page",
+    tap_event="bindtap",
+    supports_canvas=false,
+  )
+  let plan = plan_scene_surface(
+    fixture_scene(12),
+    no_canvas,
+    preference=PreferCanvasSurface,
+  )
+  assert_true(plan.requested_mode is CanvasSurface)
+  assert_true(plan.mode is StaticMarkup)
+  assert_eq(plan.fallback, true)
+  assert_true(plan.diagnostics.contains("scene-canvas-unsupported:wechat-lite"))
+}
+
+///|
+test "scene surface plan keeps marker-budget fallback explicit" {
+  let plan = plan_scene_surface_for_platform(
+    fixture_scene(12),
+    @core.Wechat,
+    preference=PreferCanvasSurface,
+    budget=scene_render_budget(max_layers=4, max_markers=4, max_static_assets=4),
+  )
+  assert_true(plan.requested_mode is CanvasSurface)
+  assert_true(plan.mode is LightweightMarkup)
+  assert_eq(plan.fallback, true)
+  assert_true(
+    plan.diagnostics.contains("render:scene-marker-count-over-budget:12/4"),
+  )
+}
+
+///|
 test "budgeted scene view caps visible markers and preserves stable events" {
   let root = static_scene_view_with_budget(
     fixture_scene(12),

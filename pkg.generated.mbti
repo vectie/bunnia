@@ -288,6 +288,10 @@ pub fn plan_scene_render_viewport(@scene.Scene, @scene.SceneViewport, @scene.Sce
 
 pub fn plan_scene_render_with_budget(@scene.Scene, @scene.SceneRenderBudget) -> @scene.SceneRenderPlan
 
+pub fn plan_scene_surface(@scene.Scene, @core.PlatformAdapter, preference? : @scene.SceneSurfacePreference, budget? : @scene.SceneRenderBudget) -> @scene.SceneSurfacePlan
+
+pub fn plan_scene_surface_for_platform(@scene.Scene, @core.Platform, preference? : @scene.SceneSurfacePreference, budget? : @scene.SceneRenderBudget) -> @scene.SceneSurfacePlan
+
 pub fn plan_scene_visual_quality(@scene.Scene) -> @scene.SceneVisualQualityPlan
 
 pub fn plan_scene_visual_quality_viewport(@scene.Scene, @scene.SceneViewport, @scene.SceneRenderBudget, @scene.SceneAssetBudget, @scene.SceneVisualQualityBudget) -> @scene.SceneVisualQualityPlan
@@ -300,9 +304,17 @@ pub fn plan_snapshot_deltas_with_budget(Array[@effects.SnapshotDelta], @core.Pat
 
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
+pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool) -> @core.PlatformAdapter
+
 pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
+
+pub fn prefer_canvas_surface() -> @scene.SceneSurfacePreference
+
+pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
+
+pub fn prefer_static_surface() -> @scene.SceneSurfacePreference
 
 pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
 
@@ -405,6 +417,8 @@ pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_ass
 pub fn scene_render_mode_id(@scene.SceneRenderMode) -> String
 
 pub fn scene_size(Int, Int) -> @scene.SceneSize
+
+pub fn scene_surface_preference_id(@scene.SceneSurfacePreference) -> String
 
 pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> @scene.SceneThreadLink
 
@@ -658,6 +672,10 @@ pub using @scene {type SceneRenderMode}
 pub using @scene {type SceneRenderPlan}
 
 pub using @scene {type SceneSize}
+
+pub using @scene {type SceneSurfacePlan}
+
+pub using @scene {type SceneSurfacePreference}
 
 pub using @scene {type SceneThreadLink}
 

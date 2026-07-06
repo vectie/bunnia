@@ -122,6 +122,12 @@ pub type SceneRenderBudget = @scene.SceneRenderBudget
 pub type SceneRenderPlan = @scene.SceneRenderPlan
 
 ///|
+pub type SceneSurfacePreference = @scene.SceneSurfacePreference
+
+///|
+pub type SceneSurfacePlan = @scene.SceneSurfacePlan
+
+///|
 pub type SceneVisualQualityBudget = @scene.SceneVisualQualityBudget
 
 ///|
@@ -497,6 +503,27 @@ pub fn platform_label(platform : Platform) -> String {
 ///|
 pub fn adapter(platform : Platform) -> PlatformAdapter {
   @core.adapter(platform)
+}
+
+///|
+pub fn platform_adapter(
+  platform~ : Platform,
+  id~ : String,
+  page_component~ : String,
+  tap_event~ : String,
+  component_prefix? : String = "",
+  supports_canvas? : Bool = true,
+  supports_cloud? : Bool = false,
+) -> PlatformAdapter {
+  @core.platform_adapter(
+    platform~,
+    id~,
+    page_component~,
+    tap_event~,
+    component_prefix~,
+    supports_canvas~,
+    supports_cloud~,
+  )
 }
 
 ///|
@@ -1301,6 +1328,26 @@ pub fn plan_scene_render_viewport(
 }
 
 ///|
+pub fn plan_scene_surface_for_platform(
+  input : Scene,
+  platform : Platform,
+  preference? : SceneSurfacePreference = @scene.PreferStaticSurface,
+  budget? : SceneRenderBudget = @scene.default_scene_render_budget(),
+) -> SceneSurfacePlan {
+  @scene.plan_scene_surface_for_platform(input, platform, preference~, budget~)
+}
+
+///|
+pub fn plan_scene_surface(
+  input : Scene,
+  adapter : PlatformAdapter,
+  preference? : SceneSurfacePreference = @scene.PreferStaticSurface,
+  budget? : SceneRenderBudget = @scene.default_scene_render_budget(),
+) -> SceneSurfacePlan {
+  @scene.plan_scene_surface(input, adapter, preference~, budget~)
+}
+
+///|
 pub fn scene_visual_quality_budget(
   min_width~ : Int,
   min_height~ : Int,
@@ -1378,6 +1425,13 @@ pub fn scene_quality_id(quality : SceneQualityLevel) -> String {
 }
 
 ///|
+pub fn scene_surface_preference_id(
+  preference : SceneSurfacePreference,
+) -> String {
+  @scene.scene_surface_preference_id(preference)
+}
+
+///|
 pub fn scene_mode_static_markup() -> SceneRenderMode {
   @scene.StaticMarkup
 }
@@ -1405,6 +1459,21 @@ pub fn scene_quality_balanced() -> SceneQualityLevel {
 ///|
 pub fn scene_quality_lightweight() -> SceneQualityLevel {
   @scene.LightweightQuality
+}
+
+///|
+pub fn prefer_static_surface() -> SceneSurfacePreference {
+  @scene.PreferStaticSurface
+}
+
+///|
+pub fn prefer_canvas_surface() -> SceneSurfacePreference {
+  @scene.PreferCanvasSurface
+}
+
+///|
+pub fn prefer_lightweight_surface() -> SceneSurfacePreference {
+  @scene.PreferLightweightSurface
 }
 
 ///|
