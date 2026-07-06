@@ -611,6 +611,9 @@ Current evidence:
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, and package-byte signals.
+- The CLI accepts build-style usage, `build --target wechat`, keeps generated
+  output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
+  CI-style budget gates.
 
 ## Phase 8: Production Readiness
 

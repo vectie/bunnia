@@ -2,12 +2,17 @@
 /// Entry point for local framework probes.
 /// Run with `moon run cmd/main` from the project root.
 fn main {
+  let command = command_from_args(@env.args())
+  let target = target_from_args(@env.args())
   let example = example_from_args(@env.args())
-  let output_dir = output_dir_from_args(@env.args(), example)
-  let project = project_for_example(example)
-  let patches = patches_for_example(example)
-  let profile = profile_for_example(example, project, patches)
+  let output_dir = output_dir_from_args(@env.args(), target, example)
+  let project = project_for_build(target, example)
+  let patches = patches_for_build(target, example)
+  let profile = profile_for_build(target, example, project, patches)
+  let strict = strict_from_args(@env.args())
   write_project(output_dir, project)
+  println("command=\{command}")
+  println("target=\{target}")
   println("example=\{example}")
   println(project.page.plan.summary)
   println(project.summary)
@@ -16,7 +21,21 @@ fn main {
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
+  if should_fail_build(strict, project, patches, profile) {
+    println("build_failed=diagnostics")
+    panic()
+  }
   println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn default_command() -> String {
+  "build"
+}
+
+///|
+fn default_target() -> String {
+  "wechat"
 }
 
 ///|
@@ -25,8 +44,28 @@ fn default_example() -> String {
 }
 
 ///|
-fn default_output_dir_for_example(example : String) -> String {
-  "_build/bunnia/wechat/\{example}"
+fn default_output_dir_for_build(target : String, example : String) -> String {
+  "_build/bunnia/\{target}/\{example}"
+}
+
+///|
+fn command_from_args(args : Array[String]) -> String {
+  for item in args {
+    if item == "build" {
+      return "build"
+    }
+  }
+  default_command()
+}
+
+///|
+fn target_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--target" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  default_target()
 }
 
 ///|
@@ -40,13 +79,34 @@ fn example_from_args(args : Array[String]) -> String {
 }
 
 ///|
-fn output_dir_from_args(args : Array[String], example : String) -> String {
+fn strict_from_args(args : Array[String]) -> Bool {
+  args.contains("--strict") || args.contains("--fail-on-diagnostics")
+}
+
+///|
+fn output_dir_from_args(
+  args : Array[String],
+  target : String,
+  example : String,
+) -> String {
   for i in 0..<args.length() {
     if args[i] == "--out" && i + 1 < args.length() {
       return args[i + 1]
     }
   }
-  default_output_dir_for_example(example)
+  default_output_dir_for_build(target, example)
+}
+
+///|
+fn project_for_build(
+  target : String,
+  example : String,
+) -> @bunnia.WechatProject {
+  if target != "wechat" {
+    println("unsupported target=\{target}")
+    panic()
+  }
+  project_for_example(example)
 }
 
 ///|
@@ -62,6 +122,15 @@ fn project_for_example(example : String) -> @bunnia.WechatProject {
 }
 
 ///|
+fn patches_for_build(target : String, example : String) -> @bunnia.PatchPlan {
+  if target != "wechat" {
+    println("unsupported target=\{target}")
+    panic()
+  }
+  patches_for_example(example)
+}
+
+///|
 fn patches_for_example(example : String) -> @bunnia.PatchPlan {
   if example == "wenyu_overview" {
     @wenyu.demo_patch_plan()
@@ -71,6 +140,20 @@ fn patches_for_example(example : String) -> @bunnia.PatchPlan {
     println("unsupported example=\{example}")
     panic()
   }
+}
+
+///|
+fn profile_for_build(
+  target : String,
+  example : String,
+  project : @bunnia.WechatProject,
+  patches : @bunnia.PatchPlan,
+) -> @bunnia.BuildProfile {
+  if target != "wechat" {
+    println("unsupported target=\{target}")
+    panic()
+  }
+  profile_for_example(example, project, patches)
 }
 
 ///|
@@ -97,6 +180,22 @@ fn profile_for_example(
     println("unsupported example=\{example}")
     panic()
   }
+}
+
+///|
+fn should_fail_build(
+  strict : Bool,
+  project : @bunnia.WechatProject,
+  patches : @bunnia.PatchPlan,
+  profile : @bunnia.BuildProfile,
+) -> Bool {
+  strict &&
+  (
+    project.page.plan.diagnostics.length() > 0 ||
+    project.report.diagnostics.length() > 0 ||
+    patches.diagnostics.length() > 0 ||
+    profile.diagnostics.length() > 0
+  )
 }
 
 ///|

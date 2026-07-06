@@ -71,6 +71,15 @@ budget summaries. Use `--out` to choose another directory:
 moon run cmd/main -- --out /tmp/bunnia-agent-map
 ```
 
+The same generator also accepts explicit build-style arguments:
+
+```bash
+moon run cmd/main -- build --target wechat --strict
+```
+
+`--strict` fails the command when render, generated-file, patch, or
+build-profile diagnostics are present.
+
 Generate the Wenyu proof slice with:
 
 ```bash
