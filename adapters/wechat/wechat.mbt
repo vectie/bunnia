@@ -790,9 +790,7 @@ fn page_js(
   "\n" +
   runtime_helpers_js() +
   "\n" +
-  backend_noop_js() +
-  "\n" +
-  page_definition_js(name, plan, runtime.initial_data_json)
+  page_definition_js(name, plan, runtime.initial_data_json, "")
 }
 
 ///|
@@ -804,9 +802,7 @@ fn project_page_js(
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
   "\n" +
-  backend_noop_js() +
-  "\n" +
-  page_definition_js(name, plan, "__bunniaInitialData")
+  page_definition_js(name, plan, "__bunniaInitialData", "")
 }
 
 ///|
@@ -823,7 +819,9 @@ fn project_page_js_with_backend(
   "\n" +
   backend_request_dispatch_js() +
   "\n" +
-  page_definition_js(name, plan, "__bunniaInitialData")
+  page_definition_js(
+    name, plan, "__bunniaInitialData", "    __bunniaMaybeRequest(this, message)\n",
+  )
 }
 
 ///|
@@ -868,6 +866,7 @@ fn page_definition_js(
   name : String,
   plan : @core.RenderPlan,
   initial_data_expr : String,
+  after_event_js : String,
 ) -> String {
   "Page({\n" +
   "  data: {\n" +
@@ -888,14 +887,9 @@ fn page_definition_js(
   "      { kind: 'set', path: '__bunnia.handledEvents', value: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
   "      ...patches\n" +
   "    ])\n" +
-  "    __bunniaMaybeRequest(this, message)\n" +
+  after_event_js +
   "  }\n" +
   "})"
-}
-
-///|
-fn backend_noop_js() -> String {
-  "function __bunniaMaybeRequest(_page, _message) {}\n"
 }
 
 ///|

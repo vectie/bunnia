@@ -571,6 +571,7 @@ test "wechat generator emits page files with targeted event routing" {
     ),
   )
   assert_true(output.js.contains("...({\"counter\":0})"))
+  assert_true(!output.js.contains("__bunniaMaybeRequest"))
   assert_true(output.js.contains("path: '__bunnia.handledEvents'"))
   assert_true(output.json.contains("navigationBarTitleText"))
   assert_eq(output.plan.node_count, 5)
@@ -981,6 +982,11 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(
     file_content(project.files, "pages/home/home.js").contains(
       "require('./home.data.js')",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/home/home.js").contains(
+      "__bunniaMaybeRequest",
     ),
   )
   assert_true(

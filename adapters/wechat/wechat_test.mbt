@@ -72,6 +72,7 @@ test "wechat projects share generated patch runtime" {
   assert_true(project.page.js.contains("require('./index.data.js')"))
   assert_true(project.page.js.contains("__bunniaInitialData"))
   assert_true(!project.page.js.contains("const __bunniaEventPatches = {"))
+  assert_true(!project.page.js.contains("__bunniaMaybeRequest"))
   assert_true(!project.page.js.contains("function __bunniaReadPath"))
   assert_true(
     file_content(project.files, "pages/runtime/index.data.js").contains(
