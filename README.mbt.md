@@ -82,6 +82,15 @@ moon run cmd/main -- build --target wechat --strict
 `--strict` fails the command when render, generated-file, patch, effect, or
 build-profile diagnostics are present.
 
+For local iteration, watch generated output with:
+
+```bash
+moon run cmd/main -- watch --target wechat --example agent_map --strict
+```
+
+Use `--once` with `watch` to run the same generation path once in CI or smoke
+tests without starting a long-running file watcher.
+
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
 `@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page

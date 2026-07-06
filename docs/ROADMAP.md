@@ -663,6 +663,10 @@ Current evidence:
 - The CLI accepts build-style usage, `build --target wechat`, keeps generated
   output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
   CI-style budget gates.
+- `moon run cmd/main -- watch` writes the selected WeChat example once, then
+  watches source/docs/package files and reruns the deterministic build command
+  on changes; `--once` keeps the same path testable without a long-running
+  process.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
   windowed agentic message feed, surface status overlay, render-plan helper, and

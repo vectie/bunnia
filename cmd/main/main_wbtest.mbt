@@ -39,6 +39,23 @@ test "build command and target parse explicitly" {
 }
 
 ///|
+test "watch command shares build flags and supports once mode" {
+  let args = [
+    "node", "main.js", "watch", "--target", "wechat", "--example", "wenyu_overview",
+    "--out", "/tmp/bunnia-watch", "--once",
+  ]
+  assert_eq(command_from_args(args), "watch")
+  assert_eq(target_from_args(args), "wechat")
+  assert_eq(example_from_args(args), "wenyu_overview")
+  assert_eq(
+    output_dir_from_args(args, target_from_args(args), example_from_args(args)),
+    "/tmp/bunnia-watch",
+  )
+  assert_eq(watch_once_from_args(args), true)
+  assert_eq(watch_once_from_args(["node", "main.js", "watch"]), false)
+}
+
+///|
 test "init command builds a scaffold plan" {
   let args = [
     "node", "main.js", "init", "--name", "agent_demo", "--module", "local/agent_demo",

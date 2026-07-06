@@ -12,30 +12,7 @@ fn main {
     println(scaffold.summary)
     println("wrote=\{scaffold_write_file_count(scaffold)} output=\{output_dir}")
   } else {
-    let target = target_from_args(@env.args())
-    let example = example_from_args(@env.args())
-    let output_dir = output_dir_from_args(@env.args(), target, example)
-    let project = project_for_build(target, example)
-    let patches = patches_for_build(target, example)
-    let profile = profile_for_build(target, example, project, patches)
-    let strict = strict_from_args(@env.args())
-    write_project(output_dir, project)
-    println("command=\{command}")
-    println("target=\{target}")
-    println("example=\{example}")
-    println(project.page.plan.summary)
-    println(project.summary)
-    println(project.manifest.summary)
-    println(project.report.summary)
-    print_diagnostics(project.report.diagnostics)
-    println(patches.summary)
-    println(profile.summary)
-    print_profile_diagnostics(profile.diagnostics)
-    if should_fail_build(strict, project, patches, profile) {
-      println("build_failed=diagnostics")
-      panic()
-    }
-    println("wrote=\{project.files.length()} output=\{output_dir}")
+    run_build_or_watch(command, @env.args())
   }
 }
 
@@ -66,6 +43,8 @@ fn command_from_args(args : Array[String]) -> String {
       return "build"
     } else if item == "init" {
       return "init"
+    } else if item == "watch" {
+      return "watch"
     }
   }
   default_command()
@@ -94,6 +73,11 @@ fn example_from_args(args : Array[String]) -> String {
 ///|
 fn strict_from_args(args : Array[String]) -> Bool {
   args.contains("--strict") || args.contains("--fail-on-diagnostics")
+}
+
+///|
+fn watch_once_from_args(args : Array[String]) -> Bool {
+  args.contains("--once")
 }
 
 ///|
@@ -247,6 +231,56 @@ fn profile_for_example(
 }
 
 ///|
+fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
+  let target = target_from_args(args)
+  let example = example_from_args(args)
+  let output_dir = output_dir_from_args(args, target, example)
+  let project = project_for_build(target, example)
+  let patches = patches_for_build(target, example)
+  let profile = profile_for_build(target, example, project, patches)
+  let strict = strict_from_args(args)
+  write_project(output_dir, project)
+  print_build_result(
+    command, target, example, output_dir, project, patches, profile,
+  )
+  if should_fail_build(strict, project, patches, profile) {
+    println("build_failed=diagnostics")
+    panic()
+  }
+  if command == "watch" {
+    if watch_once_from_args(args) {
+      println("watch=once")
+    } else {
+      watch_generated_output(target, example, output_dir, strict)
+    }
+  }
+}
+
+///|
+fn print_build_result(
+  command : String,
+  target : String,
+  example : String,
+  output_dir : String,
+  project : @bunnia.WechatProject,
+  patches : @bunnia.PatchPlan,
+  profile : @bunnia.BuildProfile,
+) -> Unit {
+  println("command=\{command}")
+  println("target=\{target}")
+  println("example=\{example}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  println(project.manifest.summary)
+  println(project.report.summary)
+  print_diagnostics(project.report.diagnostics)
+  println(patches.summary)
+  println(profile.summary)
+  print_profile_diagnostics(profile.diagnostics)
+  println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
 fn should_fail_build(
   strict : Bool,
   project : @bunnia.WechatProject,
@@ -341,6 +375,85 @@ extern "js" fn current_working_dir() -> String =
 #cfg(not(target="js"))
 fn current_working_dir() -> String {
   "."
+}
+
+///|
+#cfg(target="js")
+extern "js" fn watch_generated_output(
+  target : String,
+  example : String,
+  output_dir : String,
+  strict : Bool,
+) -> Unit =
+  #| function(target, example, outputDir, strict) {
+  #|   const fs = require("fs")
+  #|   const childProcess = require("child_process")
+  #|   const watchRoots = [
+  #|     "core",
+  #|     "agent",
+  #|     "scene",
+  #|     "effects",
+  #|     "program",
+  #|     "adapters",
+  #|     "tooling",
+  #|     "examples",
+  #|     "cmd",
+  #|     "docs",
+  #|   ]
+  #|   const rootFiles = ["moon.mod", "moon.pkg", "README.mbt.md"]
+  #|   const buildArgs = ["run", "cmd/main", "--", "build", "--target", target, "--example", example, "--out", outputDir]
+  #|   if (strict) buildArgs.push("--strict")
+  #|   function shouldRebuild(filename) {
+  #|     if (!filename) return true
+  #|     const text = String(filename)
+  #|     if (text.includes("_build") || text.includes(".git")) return false
+  #|     return text.endsWith(".mbt") ||
+  #|       text.endsWith(".mbt.md") ||
+  #|       text.endsWith(".md") ||
+  #|       text.endsWith(".mbti") ||
+  #|       text.endsWith("moon.pkg") ||
+  #|       text.endsWith("moon.mod")
+  #|   }
+  #|   let timer = null
+  #|   function rebuild(reason) {
+  #|     if (!shouldRebuild(reason)) return
+  #|     clearTimeout(timer)
+  #|     timer = setTimeout(() => {
+  #|       console.log("watch=rebuild reason=" + (reason || "change"))
+  #|       const result = childProcess.spawnSync("moon", buildArgs, { stdio: "inherit" })
+  #|       if (result.error) {
+  #|         console.error("watch_error=" + result.error.message)
+  #|       } else if (result.status !== 0) {
+  #|         console.error("watch_exit=" + result.status)
+  #|       }
+  #|     }, 150)
+  #|   }
+  #|   for (const file of rootFiles) {
+  #|     if (fs.existsSync(file)) {
+  #|       fs.watch(file, () => rebuild(file))
+  #|     }
+  #|   }
+  #|   for (const root of watchRoots) {
+  #|     if (fs.existsSync(root)) {
+  #|       fs.watch(root, { recursive: true }, (_event, filename) => {
+  #|         rebuild(filename ? root + "/" + filename : root)
+  #|       })
+  #|     }
+  #|   }
+  #|   console.log("watch=active target=" + target + " example=" + example + " output=" + outputDir)
+  #|   console.log("watching=" + watchRoots.join(","))
+  #|   process.stdin.resume()
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn watch_generated_output(
+  _target : String,
+  _example : String,
+  _output_dir : String,
+  _strict : Bool,
+) -> Unit {
+  panic()
 }
 
 ///|
