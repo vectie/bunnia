@@ -21,6 +21,8 @@ pub struct BuildProfile {
   effect_count : Int
   cloud_function_count : Int
   stream_effect_count : Int
+  agent_delta_count : Int
+  agent_duplicate_stream_chunk_count : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
@@ -42,6 +44,7 @@ pub fn profile_wechat_project(
   project : @wechat.WechatProject,
   patches : @core.PatchPlan,
   effect_plans? : Array[@effects.EffectPlan] = [],
+  agent_delta_plans? : Array[@agent.AgentDeltaPlan] = [],
   backend_plans? : Array[@effects.BackendPlan] = [],
   asset_plans? : Array[@scene.SceneAssetPlan] = [],
   scene_plans? : Array[@scene.SceneRenderPlan] = [],
@@ -54,6 +57,9 @@ pub fn profile_wechat_project(
   push_prefixed(diagnostics, "patch", patches.diagnostics)
   let (effect_count, cloud_function_count, stream_effect_count) = collect_effect_diagnostics(
     diagnostics, effect_plans,
+  )
+  let (agent_delta_count, agent_duplicate_stream_chunk_count) = collect_agent_delta_diagnostics(
+    diagnostics, agent_delta_plans,
   )
   let backend_endpoint_count = collect_backend_diagnostics(
     diagnostics, backend_plans,
@@ -95,6 +101,8 @@ pub fn profile_wechat_project(
     effect_count,
     cloud_function_count,
     stream_effect_count,
+    agent_delta_count,
+    agent_duplicate_stream_chunk_count,
     backend_endpoint_count,
     scene_marker_count,
     scene_visible_marker_count,
@@ -114,6 +122,8 @@ pub fn profile_wechat_project(
       effect_count,
       cloud_function_count,
       stream_effect_count,
+      agent_delta_count,
+      agent_duplicate_stream_chunk_count,
       backend_endpoint_count,
       scene_marker_count,
       scene_visible_marker_count,
@@ -138,6 +148,8 @@ fn profile_summary(
   effect_count : Int,
   cloud_function_count : Int,
   stream_effect_count : Int,
+  agent_delta_count : Int,
+  agent_duplicate_stream_chunk_count : Int,
   backend_endpoint_count : Int,
   scene_marker_count : Int,
   scene_visible_marker_count : Int,
@@ -152,7 +164,7 @@ fn profile_summary(
   degraded_scene_count : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} agent_deltas=\{agent_delta_count} agent_duplicate_stream_chunks=\{agent_duplicate_stream_chunk_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -258,6 +270,21 @@ fn collect_effect_diagnostics(
     push_prefixed(diagnostics, "effect", plan.diagnostics)
   }
   (effect_count, cloud_function_count, stream_effect_count)
+}
+
+///|
+fn collect_agent_delta_diagnostics(
+  diagnostics : Array[String],
+  plans : Array[@agent.AgentDeltaPlan],
+) -> (Int, Int) {
+  let mut delta_count = 0
+  let mut duplicate_stream_chunk_count = 0
+  for plan in plans {
+    delta_count += plan.deltas.length()
+    duplicate_stream_chunk_count += plan.duplicate_stream_chunk_count
+    push_prefixed(diagnostics, "agent-delta", plan.diagnostics)
+  }
+  (delta_count, duplicate_stream_chunk_count)
 }
 
 ///|

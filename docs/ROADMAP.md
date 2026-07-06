@@ -511,6 +511,9 @@ Current evidence:
 - In-flight streaming chunks can be updated through `SetStreamChunk` deltas, and
   agent delta plans flag duplicate appended stream chunks before feeds grow
   accidentally.
+- Build profiles now report agent-delta count and duplicate streaming chunk
+  pressure so agentic update costs are visible in the same CLI summary as
+  render, backend, and scene budgets.
 - Generic snapshot deltas can set sections, append stable-id items, remove
   sections, or explicitly flag full-snapshot replacement while reusing patch
   budgets.
@@ -687,6 +690,8 @@ Current evidence:
   canvas/static/lightweight map decisions are visible in normal CLI output.
 - Build profiles expose deferred scene asset counts so package-splitting or
   remote-loading work is driven by measured asset pressure.
+- Build profiles expose agent-delta counts and duplicate streaming chunk
+  diagnostics so large agentic feeds are measured during normal builds.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

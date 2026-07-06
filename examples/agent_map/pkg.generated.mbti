@@ -3,11 +3,14 @@ package "vectie/bunnia/examples/agent_map"
 
 import {
   "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/agent",
   "vectie/bunnia/core",
   "vectie/bunnia/scene",
 }
 
 // Values
+pub fn demo_agent_delta_plan() -> @agent.AgentDeltaPlan
+
 pub fn demo_asset_plan() -> @scene.SceneAssetPlan
 
 pub fn demo_patch_plan() -> @core.PatchPlan

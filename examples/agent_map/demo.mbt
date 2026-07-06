@@ -87,6 +87,34 @@ pub fn demo_patch_plan() -> @bunnia.PatchPlan {
 }
 
 ///|
+pub fn demo_agent_delta_plan() -> @bunnia.AgentDeltaPlan {
+  @bunnia.plan_agent_deltas([
+    @bunnia.append_message_delta(
+      "agent.feed",
+      @bunnia.message(
+        id="msg-agent-progress",
+        actor_id="agent-planner",
+        thread_id="thread-overview",
+        text="Planner marked Review Dock as active.",
+      ),
+    ),
+    @bunnia.append_stream_chunk_delta(
+      "agent.streamChunks", "route-chunk-1", "Checking route coverage...",
+    ),
+    @bunnia.set_stream_chunk_delta(
+      "agent.streamChunks",
+      "route-chunk-1",
+      "Route coverage checked.",
+      status=@bunnia.run_done(),
+    ),
+    @bunnia.set_review_state_delta(
+      "review.routeReview",
+      @bunnia.review_pending(),
+    ),
+  ])
+}
+
+///|
 pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
   @bunnia.plan_scene_render(demo_scene())
 }

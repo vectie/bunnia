@@ -50,6 +50,16 @@ test "agent map demo keeps updates as patches" {
 }
 
 ///|
+test "agent map demo exposes bounded agent deltas" {
+  let plan = demo_agent_delta_plan()
+  assert_eq(plan.deltas.length(), 4)
+  assert_eq(plan.patch_plan.patches.length(), 4)
+  assert_eq(plan.duplicate_stream_chunk_count, 0)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("duplicate_stream_chunks=0"))
+}
+
+///|
 test "agent map demo exposes scene profile signals" {
   let scene = demo_scene_render_plan()
   let assets = demo_asset_plan()

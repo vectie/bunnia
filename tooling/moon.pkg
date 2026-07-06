@@ -1,4 +1,5 @@
 import {
+  "vectie/bunnia/agent",
   "vectie/bunnia/core",
   "vectie/bunnia/effects",
   "vectie/bunnia/scene",

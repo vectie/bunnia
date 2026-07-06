@@ -54,6 +54,19 @@ test "build profile aggregates normal project signals" {
   let profile = profile_wechat_project(
     project,
     patches,
+    agent_delta_plans=[
+      @agent.plan_agent_deltas([
+        @agent.append_stream_chunk_delta(
+          "agent.streamChunks", "chunk-1", "loading",
+        ),
+        @agent.set_stream_chunk_delta(
+          "agent.streamChunks",
+          "chunk-1",
+          "loaded",
+          status=@agent.Done,
+        ),
+      ]),
+    ],
     backend_plans=[backend],
     asset_plans=[assets],
     scene_plans=[scene],
@@ -92,6 +105,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.effect_count, 0)
   assert_eq(profile.cloud_function_count, 0)
   assert_eq(profile.stream_effect_count, 0)
+  assert_eq(profile.agent_delta_count, 2)
+  assert_eq(profile.agent_duplicate_stream_chunk_count, 0)
   assert_eq(profile.diagnostics.length(), 0)
   assert_true(profile.summary.contains("backend_endpoints=1"))
   assert_true(profile.summary.contains("pages=1"))
@@ -101,6 +116,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("max_first_screen="))
   assert_true(profile.summary.contains("max_update_payload="))
   assert_true(profile.summary.contains("effects=0"))
+  assert_true(profile.summary.contains("agent_deltas=2"))
+  assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
   assert_true(profile.summary.contains("scene_deferred_assets=0"))
   assert_true(
@@ -196,6 +213,16 @@ test "build profile prefixes diagnostics by budget source" {
         @core.TikTok,
       ),
     ],
+    agent_delta_plans=[
+      @agent.plan_agent_deltas([
+        @agent.append_stream_chunk_delta(
+          "agent.streamChunks", "chunk-1", "first",
+        ),
+        @agent.append_stream_chunk_delta(
+          "agent.streamChunks", "chunk-1", "second",
+        ),
+      ]),
+    ],
     backend_plans=[backend],
     asset_plans=[assets],
     scene_plans=[scene],
@@ -205,10 +232,15 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.effect_count, 2)
   assert_eq(profile.cloud_function_count, 1)
   assert_eq(profile.stream_effect_count, 1)
+  assert_eq(profile.agent_delta_count, 2)
+  assert_eq(profile.agent_duplicate_stream_chunk_count, 1)
   assert_true(
     profile.diagnostics.contains(
       "effect:effect-cloud-function-unsupported:tiktok:1",
     ),
+  )
+  assert_true(
+    profile.diagnostics.contains("agent-delta:agent-stream-chunk-duplicate:1"),
   )
   assert_true(
     profile.diagnostics.contains(

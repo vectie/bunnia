@@ -4,13 +4,14 @@ package "vectie/bunnia/tooling"
 import {
   "moonbitlang/core/debug",
   "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/agent",
   "vectie/bunnia/core",
   "vectie/bunnia/effects",
   "vectie/bunnia/scene",
 }
 
 // Values
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn scaffold_file(String, String) -> ScaffoldFile
 
@@ -43,6 +44,8 @@ pub struct BuildProfile {
   effect_count : Int
   cloud_function_count : Int
   stream_effect_count : Int
+  agent_delta_count : Int
+  agent_duplicate_stream_chunk_count : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int

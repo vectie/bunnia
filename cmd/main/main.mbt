@@ -237,6 +237,7 @@ fn profile_for_example(
     @bunnia.profile_wechat_project(
       project,
       patches,
+      agent_delta_plans=[@demo.demo_agent_delta_plan()],
       asset_plans=[@demo.demo_asset_plan()],
       scene_plans=[@demo.demo_scene_render_plan()],
       surface_plans=[@demo.demo_scene_surface_plan()],
