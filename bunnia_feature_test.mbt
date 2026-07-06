@@ -83,6 +83,60 @@ test "wechat generator emits page files with targeted event routing" {
 }
 
 ///|
+test "program model updates through messages and effects" {
+  let app = @bunnia.program(
+    id="counter",
+    model=0,
+    view=counter_view,
+    update=counter_update,
+  )
+  let next = @bunnia.apply(app, "inc")
+  let root = @bunnia.current_view(next)
+  let output = @bunnia.generate_wechat_page("Counter", root)
+  assert_eq(next.model, 1)
+  assert_eq(next.effects.length(), 1)
+  assert_true(output.wxml.contains("Count 1"))
+  assert_true(output.wxml.contains("data-bunnia-message=\"inc\""))
+}
+
+///|
+test "form input and list controls lower to mini-app events" {
+  let root = @bunnia.page([
+    @bunnia.form("save-profile", [
+      @bunnia.input(
+        name="displayName",
+        value="Bunnia",
+        input_message="edit-name",
+      ),
+      @bunnia.list(["agent", "map"], render_tag),
+    ]),
+  ])
+  let output = @bunnia.generate_wechat_page("Form", root)
+  assert_true(output.wxml.contains("<form"))
+  assert_true(output.wxml.contains("bindsubmit=\"__bunniaEvent\""))
+  assert_true(output.wxml.contains("bindinput=\"__bunniaEvent\""))
+  assert_true(output.wxml.contains("data-bunnia-message=\"edit-name\""))
+  assert_true(output.wxml.contains("class=\"bunnia-list\""))
+  assert_true(output.plan.event_messages.contains("save-profile"))
+  assert_true(output.plan.event_messages.contains("edit-name"))
+}
+
+///|
+test "effect constructors cover mini-app backend capabilities" {
+  let effects = [
+    @bunnia.storage("save-draft", "storage:draft", "draft"),
+    @bunnia.login("login", "wechat-login"),
+    @bunnia.share("share-route", "route-card"),
+    @bunnia.cloud_function("refresh", "refreshSnapshot", "snapshot"),
+    @bunnia.stream("agent-stream", "/agent/stream", "thread-a"),
+  ]
+  assert_eq(effects.length(), 5)
+  assert_eq(effects[0].payload_key, "draft")
+  assert_eq(effects[4].target, "/agent/stream")
+  assert_true(@bunnia.effect_chip(effects[3]).text == "")
+}
+
+///|
 test "wechat project generator emits deterministic mini-program files" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
@@ -145,4 +199,37 @@ fn file_content(files : Array[@bunnia.WechatFile], path : String) -> String {
     }
   }
   ""
+}
+
+///|
+fn counter_view(count : Int) -> @bunnia.Node {
+  @bunnia.page([
+    @bunnia.view([
+      @bunnia.text("Count \{count}"),
+      @bunnia.button("Increment", "inc"),
+    ]),
+  ])
+}
+
+///|
+fn counter_update(count : Int, message : String) -> @bunnia.Step[Int] {
+  if message == "inc" {
+    @bunnia.step(
+      model=count + 1,
+      effects=[@bunnia.request("sync-counter", "/counter", "count")],
+      patches=[@bunnia.set_json("counter.value", (count + 1).to_string())],
+    )
+  } else {
+    @bunnia.step(model=count)
+  }
+}
+
+///|
+fn render_tag(value : String) -> @bunnia.Node {
+  @bunnia.keyed(
+    value,
+    @bunnia.view_with_attrs([@bunnia.class_name("bunnia-row")], [
+      @bunnia.text(value),
+    ]),
+  )
 }

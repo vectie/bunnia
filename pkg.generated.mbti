@@ -6,6 +6,7 @@ import {
   "vectie/bunnia/agent",
   "vectie/bunnia/core",
   "vectie/bunnia/effects",
+  "vectie/bunnia/program",
   "vectie/bunnia/scene",
 }
 
@@ -18,6 +19,8 @@ pub fn alipay() -> @core.Platform
 
 pub fn append_json(String, String) -> @core.Patch
 
+pub fn[Model, Msg] apply(@program.Program[Model, Msg], Msg) -> @program.Program[Model, Msg]
+
 pub fn attr(String, String) -> @core.Attr
 
 pub fn button(String, String) -> @core.Node
@@ -27,6 +30,10 @@ pub fn cancel(String, String) -> @effects.Effect
 pub fn canvas(String) -> @core.Node
 
 pub fn class_name(String) -> @core.Attr
+
+pub fn cloud_function(String, String, String) -> @effects.Effect
+
+pub fn[Model, Msg] current_view(@program.Program[Model, Msg]) -> @core.Node
 
 pub fn custom(String, Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
@@ -44,6 +51,8 @@ pub fn effect_chip(@effects.Effect) -> @core.Node
 
 pub fn event(String, String) -> @core.EventBinding
 
+pub fn form(String, Array[@core.Node]) -> @core.Node
+
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
 pub fn generate_wechat_page_with_runtime(String, @core.Node, @wechat.WechatRuntime) -> @wechat.WechatPage
@@ -58,9 +67,15 @@ pub fn id(String) -> @core.Attr
 
 pub fn image(String, String) -> @core.Node
 
+pub fn input(name~ : String, value? : String, input_message? : String) -> @core.Node
+
 pub fn keyed(String, @core.Node) -> @core.Node
 
 pub fn layer(String, Int, Array[@scene.SceneMarker]) -> @scene.SceneLayer
+
+pub fn[Item] list(Array[Item], (Item) -> @core.Node) -> @core.Node
+
+pub fn login(String, String) -> @effects.Effect
 
 pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String) -> @scene.SceneMarker
 
@@ -93,6 +108,8 @@ pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core
 pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
+
+pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
 pub fn remove_path(String) -> @core.Patch
 
@@ -142,7 +159,17 @@ pub fn set_json(String, String) -> @core.Patch
 
 pub fn set_string(String, String) -> @core.Patch
 
+pub fn share(String, String) -> @effects.Effect
+
 pub fn static_scene_view(@scene.Scene) -> @core.Node
+
+pub fn[Model] step(model~ : Model, effects? : Array[@effects.Effect], patches? : Array[@core.Patch]) -> @program.Step[Model]
+
+pub fn[Model] step_patches(@program.Step[Model]) -> @core.PatchPlan
+
+pub fn storage(String, String, String) -> @effects.Effect
+
+pub fn stream(String, String, String) -> @effects.Effect
 
 pub fn supported_platforms() -> Array[@core.Platform]
 
@@ -161,6 +188,8 @@ pub fn wechat() -> @core.Platform
 pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatch
 
 pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
+
+pub fn when(Bool, @core.Node) -> @core.Node
 
 // Errors
 
@@ -195,6 +224,8 @@ pub using @core {type Platform}
 
 pub using @core {type PlatformAdapter}
 
+pub using @program {type Program}
+
 pub using @core {type RenderBudget}
 
 pub using @core {type RenderPlan}
@@ -212,6 +243,8 @@ pub using @scene {type SceneLayer}
 pub using @scene {type SceneMarker}
 
 pub using @scene {type SceneSize}
+
+pub using @program {type Step}
 
 pub using @wechat {type WechatEventPatch}
 

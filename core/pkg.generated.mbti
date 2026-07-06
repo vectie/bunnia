@@ -28,11 +28,17 @@ pub fn default_render_budget() -> RenderBudget
 
 pub fn event(String, String) -> EventBinding
 
+pub fn form(String, Array[Node]) -> Node
+
 pub fn id(String) -> Attr
 
 pub fn image(String, String) -> Node
 
+pub fn input(name~ : String, value? : String, input_message? : String) -> Node
+
 pub fn keyed(String, Node) -> Node
+
+pub fn[Item] list(Array[Item], (Item) -> Node) -> Node
 
 pub fn max_depth(Node) -> Int
 
@@ -75,6 +81,8 @@ pub fn text(String) -> Node
 pub fn view(Array[Node]) -> Node
 
 pub fn view_with_attrs(Array[Attr], Array[Node]) -> Node
+
+pub fn when(Bool, Node) -> Node
 
 // Errors
 

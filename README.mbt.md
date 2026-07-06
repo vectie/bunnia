@@ -38,6 +38,8 @@ phase-by-phase implementation plan.
 ## Package Shape
 
 - `core`: platform-neutral tree, events, adapters, and render planning.
+- `program`: pure `Program[Model, Msg]` update/view boundary with pending
+  effects and patch plans.
 - `agent`: lightweight message, review, artifact-link, and run-status UI
   primitives.
 - `scene`: static stylised map model with layers, markers, hit targets, and
@@ -75,6 +77,35 @@ test {
   ])
   let plan = @bunnia.plan(page, @bunnia.wechat())
   assert_eq(plan.node_count, 5)
+}
+```
+
+```mbt check
+///|
+test {
+  let app = @bunnia.program(
+    id="counter",
+    model=0,
+    view=fn(count) {
+      @bunnia.page([
+        @bunnia.text("Count \{count}"),
+        @bunnia.button("Increment", "inc"),
+      ])
+    },
+    update=fn(count, msg) {
+      if msg == "inc" {
+        @bunnia.step(model=count + 1)
+      } else {
+        @bunnia.step(model=count)
+      }
+    },
+  )
+  let next = @bunnia.apply(app, "inc")
+  let output = @bunnia.generate_wechat_page(
+    "Counter",
+    @bunnia.current_view(next),
+  )
+  assert_true(output.wxml.contains("Count 1"))
 }
 ```
 

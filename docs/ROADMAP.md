@@ -251,6 +251,14 @@ Acceptance checks:
 
 Status: started.
 
+Current evidence:
+
+- Core tree, adapter metadata, render planning, and public facade are in place.
+- `moon check`, `moon test`, and `moon info` are part of the regular validation
+  loop.
+- The framework boundary is documented and core packages do not import
+  Moontown-specific modules.
+
 Do not build yet:
 
 - WXML/WXSS/JS file emission.
@@ -297,6 +305,18 @@ Acceptance checks:
 - Artifact links render without loading artifact contents into page data.
 - Reviewable actions have visible disabled, pending, confirmed, cancelled, and
   failed states in the view model.
+
+Current evidence:
+
+- `Program[Model, Msg]` and `Step[Model]` provide the first pure app
+  update/view boundary.
+- Common controls now include `input`, `form`, `list`, and `when` in addition
+  to page/view/text/image/button/scroll-view/canvas.
+- Root facade helpers expose program updates without leaking internal package
+  structure.
+- Tests cover a counter-style program update, pending effects, form/input event
+  lowering, agent feed primitives, bounded patches, and a static scene marker
+  update path.
 
 Do not build yet:
 

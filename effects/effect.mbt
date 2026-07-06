@@ -42,6 +42,35 @@ pub fn navigate(id : String, target : String) -> Effect {
 }
 
 ///|
+pub fn storage(id : String, target : String, payload_key : String) -> Effect {
+  effect(id~, kind=Storage, target~, payload_key~)
+}
+
+///|
+pub fn login(id : String, target : String) -> Effect {
+  effect(id~, kind=Login, target~)
+}
+
+///|
+pub fn share(id : String, target : String) -> Effect {
+  effect(id~, kind=Share, target~)
+}
+
+///|
+pub fn cloud_function(
+  id : String,
+  target : String,
+  payload_key : String,
+) -> Effect {
+  effect(id~, kind=CloudFunction, target~, payload_key~)
+}
+
+///|
+pub fn stream(id : String, target : String, payload_key : String) -> Effect {
+  effect(id~, kind=Stream, target~, payload_key~)
+}
+
+///|
 pub fn cancel(id : String, target : String) -> Effect {
   effect(id~, kind=Cancel, target~)
 }

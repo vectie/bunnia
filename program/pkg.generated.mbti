@@ -1,0 +1,40 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/program"
+
+import {
+  "vectie/bunnia/core",
+  "vectie/bunnia/effects",
+}
+
+// Values
+pub fn[Model, Msg] apply(Program[Model, Msg], Msg) -> Program[Model, Msg]
+
+pub fn[Model, Msg] current_view(Program[Model, Msg]) -> @core.Node
+
+pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> Step[Model], init_effects? : Array[@effects.Effect]) -> Program[Model, Msg]
+
+pub fn[Model] step(model~ : Model, effects? : Array[@effects.Effect], patches? : Array[@core.Patch]) -> Step[Model]
+
+pub fn[Model] step_patches(Step[Model]) -> @core.PatchPlan
+
+// Errors
+
+// Types and methods
+pub struct Program[Model, Msg] {
+  id : String
+  model : Model
+  effects : Array[@effects.Effect]
+  view : (Model) -> @core.Node
+  update : (Model, Msg) -> Step[Model]
+}
+
+pub struct Step[Model] {
+  model : Model
+  effects : Array[@effects.Effect]
+  patches : Array[@core.Patch]
+}
+
+// Type aliases
+
+// Traits
+

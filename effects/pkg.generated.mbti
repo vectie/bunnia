@@ -9,15 +9,25 @@ import {
 // Values
 pub fn cancel(String, String) -> Effect
 
+pub fn cloud_function(String, String, String) -> Effect
+
 pub fn effect(id~ : String, kind~ : EffectKind, target~ : String, payload_key? : String, message? : String) -> Effect
 
 pub fn effect_chip(Effect) -> @core.Node
+
+pub fn login(String, String) -> Effect
 
 pub fn navigate(String, String) -> Effect
 
 pub fn request(String, String, String) -> Effect
 
 pub fn retry(String, String) -> Effect
+
+pub fn share(String, String) -> Effect
+
+pub fn storage(String, String, String) -> Effect
+
+pub fn stream(String, String, String) -> Effect
 
 // Errors
 

@@ -32,6 +32,12 @@ pub type PatchBudget = @core.PatchBudget
 pub type PatchPlan = @core.PatchPlan
 
 ///|
+pub type Program[Model, Msg] = @program.Program[Model, Msg]
+
+///|
+pub type Step[Model] = @program.Step[Model]
+
+///|
 pub type ActorKind = @agent.ActorKind
 
 ///|
@@ -155,6 +161,30 @@ pub fn text(value : String) -> Node {
 }
 
 ///|
+pub fn input(
+  name~ : String,
+  value? : String = "",
+  input_message? : String = "",
+) -> Node {
+  @core.input(name~, value~, input_message~)
+}
+
+///|
+pub fn form(submit_message : String, children : Array[Node]) -> Node {
+  @core.form(submit_message, children)
+}
+
+///|
+pub fn[Item] list(items : Array[Item], render : (Item) -> Node) -> Node {
+  @core.list(items, render)
+}
+
+///|
+pub fn when(condition : Bool, child : Node) -> Node {
+  @core.when(condition, child)
+}
+
+///|
 pub fn image(src : String, alt : String) -> Node {
   @core.image(src, alt)
 }
@@ -255,6 +285,44 @@ pub fn plan_with_budget(
   budget : RenderBudget,
 ) -> RenderPlan {
   @core.plan_with_budget(root, platform, budget)
+}
+
+///|
+pub fn[Model] step(
+  model~ : Model,
+  effects? : Array[Effect] = [],
+  patches? : Array[Patch] = [],
+) -> Step[Model] {
+  @program.step(model~, effects~, patches~)
+}
+
+///|
+pub fn[Model, Msg] program(
+  id~ : String,
+  model~ : Model,
+  view~ : (Model) -> Node,
+  update~ : (Model, Msg) -> Step[Model],
+  init_effects? : Array[Effect] = [],
+) -> Program[Model, Msg] {
+  @program.program(id~, model~, view~, update~, init_effects~)
+}
+
+///|
+pub fn[Model, Msg] current_view(input : Program[Model, Msg]) -> Node {
+  @program.current_view(input)
+}
+
+///|
+pub fn[Model, Msg] apply(
+  input : Program[Model, Msg],
+  message : Msg,
+) -> Program[Model, Msg] {
+  @program.apply(input, message)
+}
+
+///|
+pub fn[Model] step_patches(input : Step[Model]) -> PatchPlan {
+  @program.step_patches(input)
 }
 
 ///|
@@ -471,6 +539,35 @@ pub fn request(id : String, target : String, payload_key : String) -> Effect {
 ///|
 pub fn navigate(id : String, target : String) -> Effect {
   @effects.navigate(id, target)
+}
+
+///|
+pub fn storage(id : String, target : String, payload_key : String) -> Effect {
+  @effects.storage(id, target, payload_key)
+}
+
+///|
+pub fn login(id : String, target : String) -> Effect {
+  @effects.login(id, target)
+}
+
+///|
+pub fn share(id : String, target : String) -> Effect {
+  @effects.share(id, target)
+}
+
+///|
+pub fn cloud_function(
+  id : String,
+  target : String,
+  payload_key : String,
+) -> Effect {
+  @effects.cloud_function(id, target, payload_key)
+}
+
+///|
+pub fn stream(id : String, target : String, payload_key : String) -> Effect {
+  @effects.stream(id, target, payload_key)
 }
 
 ///|

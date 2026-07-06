@@ -120,6 +120,43 @@ pub fn text(value : String) -> Node {
 }
 
 ///|
+pub fn input(
+  name~ : String,
+  value? : String = "",
+  input_message? : String = "",
+) -> Node {
+  let events = if input_message == "" {
+    []
+  } else {
+    [event("input", input_message)]
+  }
+  node(kind="input", attrs=[attr("name", name), attr("value", value)], events~)
+}
+
+///|
+pub fn form(submit_message : String, children : Array[Node]) -> Node {
+  node(kind="form", events=[event("submit", submit_message)], children~)
+}
+
+///|
+pub fn[Item] list(items : Array[Item], render : (Item) -> Node) -> Node {
+  let children : Array[Node] = []
+  for item in items {
+    children.push(render(item))
+  }
+  node(kind="view", attrs=[class_name("bunnia-list")], children~)
+}
+
+///|
+pub fn when(condition : Bool, child : Node) -> Node {
+  if condition {
+    child
+  } else {
+    view([])
+  }
+}
+
+///|
 pub fn image(src : String, alt : String) -> Node {
   node(kind="image", attrs=[attr("src", src), attr("alt", alt)])
 }

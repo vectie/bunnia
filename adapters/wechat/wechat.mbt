@@ -222,15 +222,24 @@ fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
     out.write_string(" \{attr.name}=\"\{escape_xml(attr.value)}\"")
   }
   for binding in root.events {
-    let event_name = if binding.event == "tap" {
-      adapter.tap_event
-    } else {
-      binding.event
-    }
-    out.write_string(" \{event_name}=\"__bunniaEvent\"")
+    let rendered_event = event_name(binding.event, adapter)
+    out.write_string(" \{rendered_event}=\"__bunniaEvent\"")
     out.write_string(" data-bunnia-message=\"\{escape_xml(binding.message)}\"")
   }
   out.to_string()
+}
+
+///|
+fn event_name(event : String, adapter : @core.PlatformAdapter) -> String {
+  if event == "tap" {
+    adapter.tap_event
+  } else if event == "input" {
+    "bindinput"
+  } else if event == "submit" {
+    "bindsubmit"
+  } else {
+    event
+  }
 }
 
 ///|
