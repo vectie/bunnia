@@ -301,6 +301,77 @@ test "scene thread links connect map subjects to agent communication cheaply" {
 }
 
 ///|
+test "viewported scene thread overlays keep hidden map communication out of first render" {
+  let scene = @bunnia.scene("ops-map", @bunnia.scene_size(900, 640), [
+    @bunnia.layer(
+      "subjects",
+      1,
+      [
+        @bunnia.marker(
+          id="agent-far",
+          label="Far",
+          x=700,
+          y=440,
+          status="waiting",
+        ),
+      ],
+      regions=[
+        @bunnia.region(
+          id="zone-a",
+          label="Zone A",
+          x=160,
+          y=180,
+          width=180,
+          height=120,
+          status="review",
+        ),
+      ],
+    ),
+  ])
+  let links = [
+    @bunnia.scene_region_thread_link(
+      id="link-zone-a",
+      scene_id="ops-map",
+      region_id="zone-a",
+      thread_id="thread-zone-a",
+      unread_count=3,
+      open_message="open-thread-zone-a",
+    ),
+    @bunnia.scene_marker_thread_link(
+      id="link-far",
+      scene_id="ops-map",
+      marker_id="agent-far",
+      thread_id="thread-far",
+      unread_count=9,
+      open_message="open-thread-far",
+    ),
+  ]
+  let viewport = @bunnia.scene_viewport(x=0, y=0, width=520, height=360)
+  let overlay = @bunnia.windowed_anchored_scene_thread_overlay_with_viewport(
+    scene,
+    viewport,
+    links,
+    total_count=links.length(),
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Viewport Threads",
+    @bunnia.page([
+      @bunnia.static_scene_view_with_viewport(scene, viewport),
+      overlay,
+    ]),
+  )
+  assert_eq(output.plan.windowed_list_count, 1)
+  assert_eq(output.plan.list_total_count, 2)
+  assert_eq(output.plan.list_visible_count, 1)
+  assert_true(output.wxml.contains("data-thread-overlay-viewport=\"true\""))
+  assert_true(output.wxml.contains("data-visible-count=\"1\""))
+  assert_true(output.wxml.contains("data-total-count=\"2\""))
+  assert_true(output.wxml.contains("data-subject-id=\"zone-a\""))
+  assert_true(!output.wxml.contains("data-subject-id=\"agent-far\""))
+  assert_true(!output.plan.event_messages.contains("open-thread-far"))
+}
+
+///|
 test "communication trace renders structured agent interactions" {
   let thread = @bunnia.thread(
     id="thread-route",

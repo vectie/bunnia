@@ -297,7 +297,9 @@ scene-subject badges measurable. Scene thread plans report visible/total links,
 unread pressure, orphan marker/region links, and missing open actions before
 the mini-app output grows. Scene-aware overlays derive badge anchors from
 marker centers or region centers, so agent communication stays attached to the
-map without product-specific positioning code.
+map without product-specific positioning code. Use the viewport-aware anchored
+overlay helpers when a large map is cameraed or clipped; they keep total thread
+counts visible while rendering only badges inside the active viewport.
 Use `@bunnia.plan_scene_surface_for_platform(...)` to make the intended
 static/canvas/lightweight surface mode and any fallback explicit in build
 profiles before adding platform-specific rendering.

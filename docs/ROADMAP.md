@@ -346,6 +346,9 @@ Current evidence:
 - Scene thread plans report visible/total subject-thread links, unread
   pressure, orphan marker/region links, and missing open actions so agentic map
   overlays remain measurable before rendering.
+- Viewport-aware scene thread overlays keep total communication pressure
+  measurable while only rendering badges anchored inside the active map
+  viewport.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
 - Generic render plans now report scene count, visible/total marker count,
@@ -667,6 +670,9 @@ Current evidence:
 - Static scenes can render windowed communication-thread badges anchored to map
   markers or regions, preserving visible/total counts and cheap patches for
   map-heavy agentic UIs.
+- Viewported anchored overlays render only in-viewport thread badges while
+  preserving total link counts, so cameraed maps do not ship offscreen agent
+  communication badges in the first screen.
 - Scene thread plans make agentic map overlays budgeted, including unread
   pressure and orphan-link diagnostics when a thread points at a missing marker
   or region.

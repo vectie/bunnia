@@ -99,7 +99,7 @@ pub fn windowed_scene_thread_overlay(
   for item in links {
     rows.push(scene_thread_badge(item, None))
   }
-  scene_thread_overlay_node(rows, total_count, offset, false)
+  scene_thread_overlay_node(rows, total_count, offset, false, None)
 }
 
 ///|
@@ -125,7 +125,39 @@ pub fn windowed_anchored_scene_thread_overlay(
   for item in links {
     rows.push(scene_thread_badge(item, scene_thread_anchor(input, item)))
   }
-  scene_thread_overlay_node(rows, total_count, offset, true)
+  scene_thread_overlay_node(rows, total_count, offset, true, None)
+}
+
+///|
+pub fn anchored_scene_thread_overlay_with_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+) -> @core.Node {
+  windowed_anchored_scene_thread_overlay_with_viewport(
+    input,
+    viewport,
+    links,
+    total_count=links.length(),
+  )
+}
+
+///|
+pub fn windowed_anchored_scene_thread_overlay_with_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> @core.Node {
+  let rows : Array[@core.Node] = []
+  for item in links {
+    let anchor = scene_thread_anchor(input, item)
+    if scene_thread_anchor_in_viewport(anchor, viewport) {
+      rows.push(scene_thread_badge(item, anchor))
+    }
+  }
+  scene_thread_overlay_node(rows, total_count, offset, true, Some(viewport))
 }
 
 ///|
@@ -218,22 +250,36 @@ fn scene_thread_overlay_node(
   total_count : Int,
   offset : Int,
   anchored : Bool,
+  viewport : SceneViewport?,
 ) -> @core.Node {
   let class_name = if anchored {
     "bunnia-scene-thread-overlay bunnia-scene-thread-overlay-anchored"
   } else {
     "bunnia-scene-thread-overlay"
   }
+  let attrs = [
+    @core.class_name(class_name),
+    @core.data("bunnia-list-mode", "windowed"),
+    @core.data("thread-overlay-anchored", anchored.to_string()),
+    @core.data("total-count", total_count.to_string()),
+    @core.data("visible-start", offset.to_string()),
+    @core.data("visible-count", rows.length().to_string()),
+  ]
+  match viewport {
+    Some(value) => {
+      attrs.push(@core.data("thread-overlay-viewport", "true"))
+      attrs.push(@core.data("overlay-viewport-x", value.x.to_string()))
+      attrs.push(@core.data("overlay-viewport-y", value.y.to_string()))
+      attrs.push(@core.data("overlay-viewport-width", value.width.to_string()))
+      attrs.push(
+        @core.data("overlay-viewport-height", value.height.to_string()),
+      )
+    }
+    None => attrs.push(@core.data("thread-overlay-viewport", "false"))
+  }
   @core.node(
     kind="view",
-    attrs=[
-      @core.class_name(class_name),
-      @core.data("bunnia-list-mode", "windowed"),
-      @core.data("thread-overlay-anchored", anchored.to_string()),
-      @core.data("total-count", total_count.to_string()),
-      @core.data("visible-start", offset.to_string()),
-      @core.data("visible-count", rows.length().to_string()),
-    ],
+    attrs~,
     children=rows,
     list_total_count=total_count,
     list_visible_count=rows.length(),
@@ -298,6 +344,21 @@ fn scene_thread_anchor(input : Scene, link : SceneThreadLink) -> (Int, Int)? {
       "region" => scene_thread_region_anchor(input, link.subject_id)
       _ => None
     }
+  }
+}
+
+///|
+fn scene_thread_anchor_in_viewport(
+  anchor : (Int, Int)?,
+  viewport : SceneViewport,
+) -> Bool {
+  match anchor {
+    Some((x, y)) =>
+      x >= viewport.x &&
+      y >= viewport.y &&
+      x < viewport.x + viewport.width &&
+      y < viewport.y + viewport.height
+    None => false
   }
 }
 

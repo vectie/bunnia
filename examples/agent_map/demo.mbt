@@ -38,12 +38,15 @@ pub fn demo_view() -> @bunnia.Node {
   )
   let thread_links = demo_scene_thread_links()
   let scene = demo_scene()
+  let camera = demo_camera()
+  let camera_plan = @bunnia.plan_scene_camera(scene, camera)
   let map = @bunnia.view_with_attrs(
     [@bunnia.class_name("bunnia-scene-with-threads")],
     [
-      @bunnia.static_scene_view_with_camera(scene, demo_camera()),
-      @bunnia.windowed_anchored_scene_thread_overlay(
+      @bunnia.static_scene_view_with_camera(scene, camera),
+      @bunnia.windowed_anchored_scene_thread_overlay_with_viewport(
         scene,
+        camera_plan.viewport,
         thread_links,
         total_count=thread_links.length(),
       ),

@@ -9,6 +9,8 @@ import {
 // Values
 pub fn anchored_scene_thread_overlay(Scene, Array[SceneThreadLink]) -> @core.Node
 
+pub fn anchored_scene_thread_overlay_with_viewport(Scene, SceneViewport, Array[SceneThreadLink]) -> @core.Node
+
 pub fn append_scene_thread_link(String, SceneThreadLink) -> @core.Patch
 
 pub fn default_scene_asset_budget() -> SceneAssetBudget
@@ -154,6 +156,8 @@ pub fn static_scene_with_windowed_threads(Scene, Array[SceneThreadLink], total_c
 pub fn tile_asset(String, String, Int) -> SceneAsset
 
 pub fn windowed_anchored_scene_thread_overlay(Scene, Array[SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
+
+pub fn windowed_anchored_scene_thread_overlay_with_viewport(Scene, SceneViewport, Array[SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
 
 pub fn windowed_scene_thread_overlay(Array[SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
 
