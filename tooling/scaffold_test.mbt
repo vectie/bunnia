@@ -112,6 +112,26 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "diagnostic=\\{item}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "route_diagnostic=\\{page.route}:\\{item}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "inspection_diagnostic=\\{item}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "profile_gate_diagnostic=\\{item}",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("starter_snapshot"),
   )
   assert_true(

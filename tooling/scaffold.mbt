@@ -230,6 +230,20 @@ fn cmd_main_mbt() -> String {
   "  println(\"Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}\")\n" +
   "  println(inspection_gate.summary)\n" +
   "  println(profile_gate.summary)\n" +
+  "  for item in project.report.diagnostics {\n" +
+  "    println(\"diagnostic=\\{item}\")\n" +
+  "  }\n" +
+  "  for page in project.manifest.pages {\n" +
+  "    for item in page.diagnostics {\n" +
+  "      println(\"route_diagnostic=\\{page.route}:\\{item}\")\n" +
+  "    }\n" +
+  "  }\n" +
+  "  for item in inspection_gate.diagnostics {\n" +
+  "    println(\"inspection_diagnostic=\\{item}\")\n" +
+  "  }\n" +
+  "  for item in profile_gate.diagnostics {\n" +
+  "    println(\"profile_gate_diagnostic=\\{item}\")\n" +
+  "  }\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
   "  println(\"step=info command=moon info\")\n" +
