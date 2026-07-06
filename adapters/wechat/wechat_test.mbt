@@ -190,6 +190,66 @@ test "backend-aware projects keep local-only routes backend-free" {
 }
 
 ///|
+test "wechat manifests attribute reachable backend pressure per route" {
+  let local_page = project_page(
+    name="Local",
+    route="pages/local/index",
+    root=@core.page([@core.button("Local", "local-only")]),
+    runtime=runtime(event_patches=[
+      event_patch("local-only", [@core.set_string("state.local", "yes")]),
+    ]),
+  )
+  let backend_page = project_page(
+    name="Agent Backend",
+    route="pages/agent/index",
+    root=@core.page([
+      @core.button("Send", "send-agent"),
+      @core.button("Stream", "stream-agent"),
+      @core.button("Review", "review-agent"),
+    ]),
+    runtime=runtime(event_patches=[
+      event_patch("send-agent", [
+        @core.set_string("backend.send-agent.state", "loading"),
+      ]),
+      event_patch("stream-agent", [
+        @core.set_string("backend.stream-agent.state", "loading"),
+      ]),
+      event_patch("review-agent", [
+        @core.set_string("backend.review-agent.state", "loading"),
+      ]),
+    ]),
+  )
+  let contract = @effects.backend_contract(id="agent-pressure", endpoints=[
+    @effects.agent_message_endpoint(
+      "send-agent", "/agent/message", "draft", "messageResult",
+    ),
+    @effects.agent_stream_endpoint(
+      "stream-agent", "/agent/stream", "streamCursor", "streamResult",
+    ),
+    @effects.review_decision_endpoint(
+      "review-agent", "/agent/review", "reviewDecision", "reviewResult",
+    ),
+    @effects.status_load_endpoint("unused-status", "/status", "status"),
+  ])
+  let project = generate_project_from_pages_with_backend(
+    name="Backend Pressure",
+    pages=[local_page, backend_page],
+    backend_contract=contract,
+  )
+  assert_eq(project.manifest.pages[0].backend_event_count, 0)
+  assert_eq(project.manifest.pages[0].backend_stream_count, 0)
+  assert_eq(project.manifest.pages[0].backend_review_count, 0)
+  assert_eq(project.manifest.pages[1].backend_event_count, 3)
+  assert_eq(project.manifest.pages[1].backend_stream_count, 1)
+  assert_eq(project.manifest.pages[1].backend_review_count, 1)
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"backendEvents\":3,\"backendStreams\":1,\"backendReviews\":1",
+    ),
+  )
+}
+
+///|
 test "wechat build reports missing and orphan event patches" {
   let project = generate_project_with_runtime(
     name="Runtime Coverage",

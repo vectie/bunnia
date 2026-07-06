@@ -55,6 +55,9 @@ pub struct WechatManifestPage {
   duplicate_list_key_count : Int
   component_count : Int
   event_count : Int
+  backend_event_count : Int
+  backend_stream_count : Int
+  backend_review_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   initial_data_bytes : Int
@@ -102,9 +105,9 @@ pub fn generate_page_with_runtime(
   root : @core.Node,
   runtime : WechatRuntime,
 ) -> WechatPage {
-  let plan = @core.plan(root, @core.Wechat)
+  let plan = @core.plan(root, Wechat)
   {
-    wxml: render_node(root, @core.adapter(@core.Wechat)),
+    wxml: render_node(root, @core.adapter(Wechat)),
     wxss: default_wxss(),
     js: page_js(name, plan, runtime),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
@@ -118,9 +121,9 @@ fn generate_project_page_with_runtime(
   route : String,
   root : @core.Node,
 ) -> WechatPage {
-  let plan = @core.plan(root, @core.Wechat)
+  let plan = @core.plan(root, Wechat)
   {
-    wxml: render_node(root, @core.adapter(@core.Wechat)),
+    wxml: render_node(root, @core.adapter(Wechat)),
     wxss: "",
     js: project_page_js(name, route, plan),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
@@ -239,7 +242,13 @@ fn generate_project_from_pages_internal(
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
-  let manifest = project_manifest(name, entry.route, generated_pages, files)
+  let manifest = project_manifest(
+    name,
+    entry.route,
+    generated_pages,
+    files,
+    backend_contract,
+  )
   files.push(wechat_file("bunnia.manifest.json", manifest_json(manifest)))
   let total = total_file_bytes(files)
   let report = report_project_pages(
@@ -430,10 +439,11 @@ fn project_manifest(
   entry_route : String,
   pages : Array[WechatProjectPage],
   files : Array[WechatFile],
+  backend_contract : @effects.BackendContract?,
 ) -> WechatProjectManifest {
   let app_total = total_file_bytes(files)
   let manifest_files = manifest_files(files)
-  let manifest_pages = manifest_pages(pages, files)
+  let manifest_pages = manifest_pages(pages, files, backend_contract)
   {
     name,
     entry_route,
@@ -464,9 +474,13 @@ fn manifest_files(files : Array[WechatFile]) -> Array[WechatManifestFile] {
 fn manifest_pages(
   pages : Array[WechatProjectPage],
   files : Array[WechatFile],
+  backend_contract : @effects.BackendContract?,
 ) -> Array[WechatManifestPage] {
   let output : Array[WechatManifestPage] = []
   for item in pages {
+    let (backend_events, backend_streams, backend_reviews) = page_backend_pressure(
+      item, backend_contract,
+    )
     output.push({
       name: item.name,
       route: item.route,
@@ -480,6 +494,9 @@ fn manifest_pages(
       duplicate_list_key_count: item.page.plan.duplicate_list_key_count,
       component_count: item.page.plan.component_kinds.length(),
       event_count: item.page.plan.event_messages.length(),
+      backend_event_count: backend_events,
+      backend_stream_count: backend_streams,
+      backend_review_count: backend_reviews,
       missing_event_patch_count: page_missing_event_patch_count(item),
       orphan_event_patch_count: page_orphan_event_patch_count(item),
       initial_data_bytes: item.runtime.initial_data_json.length(),
@@ -598,6 +615,33 @@ fn page_runtime_has_patch(runtime : WechatRuntime, message : String) -> Bool {
 }
 
 ///|
+fn page_backend_pressure(
+  page : WechatProjectPage,
+  contract : @effects.BackendContract?,
+) -> (Int, Int, Int) {
+  match contract {
+    Some(value) => {
+      let mut event_count = 0
+      let mut stream_count = 0
+      let mut review_count = 0
+      for endpoint in value.endpoints {
+        if page.page.plan.event_messages.contains(endpoint.id) {
+          event_count += 1
+          if endpoint.streaming {
+            stream_count += 1
+          }
+          if endpoint.requires_review {
+            review_count += 1
+          }
+        }
+      }
+      (event_count, stream_count, review_count)
+    }
+    None => (0, 0, 0)
+  }
+}
+
+///|
 fn manifest_json(input : WechatProjectManifest) -> String {
   "{\n" +
   "  \"name\": \"\{escape_json(input.name)}\",\n" +
@@ -639,6 +683,9 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"duplicateListKeys\":\{item.duplicate_list_key_count}," +
   "\"components\":\{item.component_count}," +
   "\"events\":\{item.event_count}," +
+  "\"backendEvents\":\{item.backend_event_count}," +
+  "\"backendStreams\":\{item.backend_stream_count}," +
+  "\"backendReviews\":\{item.backend_review_count}," +
   "\"missingEventPatches\":\{item.missing_event_patch_count}," +
   "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
@@ -764,9 +811,9 @@ fn patches_to_operations(patches : Array[@core.Patch]) -> String {
 ///|
 fn patch_kind_id(kind : @core.PatchKind) -> String {
   match kind {
-    @core.Set => "set"
-    @core.Append => "append"
-    @core.Remove => "remove"
+    Set => "set"
+    Append => "append"
+    Remove => "remove"
   }
 }
 

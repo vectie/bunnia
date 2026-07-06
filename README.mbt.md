@@ -142,6 +142,9 @@ rendered events; orphan handlers stay visible as diagnostics instead of being
 serialized into page payloads.
 The manifest records missing and orphan event-patch counts per route, so large
 apps can locate broken interaction wiring without scanning aggregate logs.
+Backend-aware manifests also record reachable backend, stream, and review
+endpoint counts per route, making agentic request pressure attributable before
+opening the mini-app IDE.
 Projects generated with a backend contract also include `bunnia.backend.js`, a
 contract-derived `wx.request` adapter that keeps base URLs in page data and
 does not generate app secrets. Backend-aware pages call that adapter when a

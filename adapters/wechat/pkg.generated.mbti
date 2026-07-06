@@ -109,6 +109,9 @@ pub struct WechatManifestPage {
   duplicate_list_key_count : Int
   component_count : Int
   event_count : Int
+  backend_event_count : Int
+  backend_stream_count : Int
+  backend_review_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   initial_data_bytes : Int

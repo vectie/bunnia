@@ -424,6 +424,9 @@ Current evidence:
 - Backend-aware projects leave routes with no matching endpoint events on the
   lightweight non-backend page JS path, even while packaging the shared backend
   adapter for other routes.
+- Generated manifests record reachable backend, stream, and review endpoint
+  counts per route, so agentic request pressure is attributable in large
+  multi-page apps before manual preview.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -747,6 +750,8 @@ Current evidence:
   interaction wiring regressions are attributable before manual preview.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
+- Generated manifests expose route-level backend event, stream, and review
+  counts so agentic request pressure is visible beside route payload budgets.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,
