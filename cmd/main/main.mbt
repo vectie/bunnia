@@ -815,7 +815,12 @@ fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
 ///|
 fn write_scaffold(output_dir : String, scaffold : @bunnia.ScaffoldPlan) -> Unit {
   for file in scaffold.files {
-    write_text_file(join_path(output_dir, file.path), file.content)
+    let path = join_path(output_dir, file.path)
+    if scaffold_file_is_executable(file.path) {
+      write_executable_text_file(path, file.content)
+    } else {
+      write_text_file(path, file.content)
+    }
   }
   write_text_file(
     join_path(output_dir, "moon.work"),
@@ -826,6 +831,11 @@ fn write_scaffold(output_dir : String, scaffold : @bunnia.ScaffoldPlan) -> Unit 
 ///|
 fn scaffold_write_file_count(scaffold : @bunnia.ScaffoldPlan) -> Int {
   scaffold.files.length() + 1
+}
+
+///|
+fn scaffold_file_is_executable(path : String) -> Bool {
+  path.has_prefix("scripts/")
 }
 
 ///|
@@ -971,5 +981,25 @@ extern "js" fn write_text_file(path : String, content : String) -> Unit =
 ///|
 #cfg(not(target="js"))
 fn write_text_file(_path : String, _content : String) -> Unit {
+  panic()
+}
+
+///|
+#cfg(target="js")
+extern "js" fn write_executable_text_file(
+  path : String,
+  content : String,
+) -> Unit =
+  #| function(path, content) {
+  #|   const fs = require("fs")
+  #|   const nodePath = require("path")
+  #|   fs.mkdirSync(nodePath.dirname(path), { recursive: true })
+  #|   fs.writeFileSync(path, content, { encoding: "utf8", mode: 0o755 })
+  #|   fs.chmodSync(path, 0o755)
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn write_executable_text_file(_path : String, _content : String) -> Unit {
   panic()
 }

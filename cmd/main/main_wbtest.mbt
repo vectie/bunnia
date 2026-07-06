@@ -408,6 +408,13 @@ test "init command writes a local workspace link" {
 }
 
 ///|
+test "init command marks starter scripts executable" {
+  assert_eq(scaffold_file_is_executable("scripts/ci.sh"), true)
+  assert_eq(scaffold_file_is_executable("README.md"), false)
+  assert_eq(scaffold_file_is_executable("cmd/main/main.mbt"), false)
+}
+
+///|
 test "build example flag selects Wenyu proof output folder" {
   let example = example_from_args([
     "node", "main.js", "--example", "wenyu_overview",
