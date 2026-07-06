@@ -1,0 +1,26 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/adapters/wechat"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/core",
+}
+
+// Values
+pub fn generate_page(String, @core.Node) -> WechatPage
+
+// Errors
+
+// Types and methods
+pub struct WechatPage {
+  wxml : String
+  wxss : String
+  js : String
+  json : String
+  plan : @core.RenderPlan
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

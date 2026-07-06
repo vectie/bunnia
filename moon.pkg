@@ -1,0 +1,7 @@
+import {
+  "vectie/bunnia/core",
+  "vectie/bunnia/agent",
+  "vectie/bunnia/scene",
+  "vectie/bunnia/effects",
+  "vectie/bunnia/adapters/wechat",
+}

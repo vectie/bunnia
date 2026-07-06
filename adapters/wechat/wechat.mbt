@@ -1,0 +1,122 @@
+///|
+pub struct WechatPage {
+  wxml : String
+  wxss : String
+  js : String
+  json : String
+  plan : @core.RenderPlan
+} derive(Debug, Eq)
+
+///|
+pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
+  let plan = @core.plan(root, @core.Wechat)
+  {
+    wxml: render_node(root, @core.adapter(@core.Wechat)),
+    wxss: default_wxss(),
+    js: page_js(name, plan),
+    json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
+    plan,
+  }
+}
+
+///|
+fn render_node(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
+  let kind = component_name(root.kind, adapter)
+  if kind == "page" {
+    render_children(root.children, adapter)
+  } else {
+    let attrs = render_attrs(root, adapter)
+    if root.children.length() == 0 && root.text == "" {
+      "<\{kind}\{attrs}></\{kind}>"
+    } else {
+      "<\{kind}\{attrs}>\{escape_xml(root.text)}\{render_children(root.children, adapter)}</\{kind}>"
+    }
+  }
+}
+
+///|
+fn render_children(
+  children : Array[@core.Node],
+  adapter : @core.PlatformAdapter,
+) -> String {
+  let out = StringBuilder::new()
+  for child in children {
+    out.write_string(render_node(child, adapter))
+  }
+  out.to_string()
+}
+
+///|
+fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
+  let out = StringBuilder::new()
+  if root.key != "" {
+    out.write_string(" data-bunnia-key=\"\{escape_xml(root.key)}\"")
+  }
+  for attr in root.attrs {
+    out.write_string(" \{attr.name}=\"\{escape_xml(attr.value)}\"")
+  }
+  for binding in root.events {
+    let event_name = if binding.event == "tap" {
+      adapter.tap_event
+    } else {
+      binding.event
+    }
+    out.write_string(" \{event_name}=\"__bunniaEvent\"")
+    out.write_string(" data-bunnia-message=\"\{escape_xml(binding.message)}\"")
+  }
+  out.to_string()
+}
+
+///|
+fn component_name(kind : String, adapter : @core.PlatformAdapter) -> String {
+  if kind == "page" {
+    adapter.page_component
+  } else {
+    "\{adapter.component_prefix}\{kind}"
+  }
+}
+
+///|
+fn page_js(name : String, plan : @core.RenderPlan) -> String {
+  "Page({\n" +
+  "  data: {\n" +
+  "    __bunnia: {\n" +
+  "      name: \"\{escape_json(name)}\",\n" +
+  "      nodes: \{plan.node_count},\n" +
+  "      depth: \{plan.depth}\n" +
+  "    }\n" +
+  "  },\n" +
+  "  __bunniaEvent(event) {\n" +
+  "    const message = event.currentTarget.dataset.bunniaMessage\n" +
+  "    this.setData({ \"__bunnia.lastMessage\": message })\n" +
+  "  }\n" +
+  "})"
+}
+
+///|
+fn default_wxss() -> String {
+  ".bunnia-message { padding: 16rpx 20rpx; border-bottom: 1rpx solid #e5e7eb; }\n" +
+  ".bunnia-review { display: flex; gap: 12rpx; align-items: center; }\n" +
+  ".bunnia-scene { position: relative; overflow: hidden; }\n" +
+  ".bunnia-scene-layer { position: absolute; inset: 0; }\n" +
+  ".bunnia-scene-marker { position: absolute; min-width: 88rpx; min-height: 56rpx; }"
+}
+
+///|
+fn escape_xml(value : String) -> String {
+  value
+  .replace(old="&", new="&amp;")
+  .replace(old="<", new="&lt;")
+  .replace(old=">", new="&gt;")
+  .replace(old="\"", new="&quot;")
+  .to_string()
+}
+
+///|
+fn escape_json(value : String) -> String {
+  value
+  .replace(old="\\", new="\\\\")
+  .replace(old="\"", new="\\\"")
+  .replace(old="\n", new="\\n")
+  .to_string()
+}

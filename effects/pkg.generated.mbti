@@ -1,0 +1,48 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/effects"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/core",
+}
+
+// Values
+pub fn cancel(String, String) -> Effect
+
+pub fn effect(id~ : String, kind~ : EffectKind, target~ : String, payload_key? : String, message? : String) -> Effect
+
+pub fn effect_chip(Effect) -> @core.Node
+
+pub fn navigate(String, String) -> Effect
+
+pub fn request(String, String, String) -> Effect
+
+pub fn retry(String, String) -> Effect
+
+// Errors
+
+// Types and methods
+pub struct Effect {
+  id : String
+  kind : EffectKind
+  target : String
+  payload_key : String
+  message : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum EffectKind {
+  Request
+  Navigate
+  Storage
+  Login
+  Share
+  CloudFunction
+  Stream
+  Cancel
+  Retry
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

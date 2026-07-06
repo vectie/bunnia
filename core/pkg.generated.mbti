@@ -1,0 +1,129 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/core"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn adapter(Platform) -> PlatformAdapter
+
+pub fn attr(String, String) -> Attr
+
+pub fn button(String, String) -> Node
+
+pub fn canvas(String) -> Node
+
+pub fn class_name(String) -> Attr
+
+pub fn custom(String, Array[Attr], Array[Node]) -> Node
+
+pub fn data(String, String) -> Attr
+
+pub fn default_render_budget() -> RenderBudget
+
+pub fn event(String, String) -> EventBinding
+
+pub fn id(String) -> Attr
+
+pub fn image(String, String) -> Node
+
+pub fn keyed(String, Node) -> Node
+
+pub fn max_depth(Node) -> Int
+
+pub fn node(kind~ : String, key? : String, attrs? : Array[Attr], events? : Array[EventBinding], children? : Array[Node], text? : String) -> Node
+
+pub fn node_count(Node) -> Int
+
+pub fn page(Array[Node]) -> Node
+
+pub fn plan(Node, Platform) -> RenderPlan
+
+pub fn plan_with_budget(Node, Platform, RenderBudget) -> RenderPlan
+
+pub fn platform_id(Platform) -> String
+
+pub fn platform_label(Platform) -> String
+
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> RenderBudget
+
+pub fn scroll_view(Array[Node]) -> Node
+
+pub fn supported_platforms() -> Array[Platform]
+
+pub fn tap(String) -> EventBinding
+
+pub fn text(String) -> Node
+
+pub fn view(Array[Node]) -> Node
+
+pub fn view_with_attrs(Array[Attr], Array[Node]) -> Node
+
+// Errors
+
+// Types and methods
+pub struct Attr {
+  name : String
+  value : String
+} derive(Eq, @debug.Debug)
+pub impl Show for Attr
+
+pub struct EventBinding {
+  event : String
+  message : String
+} derive(Eq, @debug.Debug)
+pub impl Show for EventBinding
+
+pub struct Node {
+  kind : String
+  key : String
+  attrs : Array[Attr]
+  events : Array[EventBinding]
+  children : Array[Node]
+  text : String
+} derive(Eq, @debug.Debug)
+pub impl Show for Node
+
+pub(all) enum Platform {
+  Wechat
+  Alipay
+  TikTok
+} derive(Eq, @debug.Debug)
+pub impl Show for Platform
+
+pub struct PlatformAdapter {
+  platform : Platform
+  id : String
+  page_component : String
+  tap_event : String
+  component_prefix : String
+  supports_canvas : Bool
+  supports_cloud : Bool
+} derive(Eq, @debug.Debug)
+pub impl Show for PlatformAdapter
+
+pub struct RenderBudget {
+  max_nodes : Int
+  max_depth : Int
+  max_events : Int
+  max_initial_data_bytes : Int
+} derive(Eq, @debug.Debug)
+
+pub struct RenderPlan {
+  platform : Platform
+  adapter : PlatformAdapter
+  root_kind : String
+  node_count : Int
+  depth : Int
+  component_kinds : Array[String]
+  event_messages : Array[String]
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+pub impl Show for RenderPlan
+
+// Type aliases
+
+// Traits
+

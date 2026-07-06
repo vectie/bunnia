@@ -1,0 +1,76 @@
+///|
+test "agent feed and scene primitives produce keyed mini-app trees" {
+  let messages = [
+    @bunnia.message(
+      id="msg-1",
+      actor_id="agent-a",
+      thread_id="thread-a",
+      text="Checking status",
+      artifact_ref="artifact://a",
+    ),
+    @bunnia.message(
+      id="msg-2",
+      actor_id="human-a",
+      thread_id="thread-a",
+      text="Approve the update?",
+    ),
+  ]
+  let scene = @bunnia.scene("overview", @bunnia.scene_size(640, 480), [
+    @bunnia.layer("actors", 10, [
+      @bunnia.marker(
+        id="marker-a",
+        label="Agent A",
+        x=120,
+        y=180,
+        status="running",
+        tap_message="select-marker-a",
+      ),
+    ]),
+  ])
+  let root = @bunnia.page([
+    @bunnia.message_feed(messages),
+    @bunnia.static_scene_view(scene),
+  ])
+  let render = @bunnia.plan(root, @bunnia.wechat())
+  assert_true(render.event_messages.contains("select-marker-a"))
+  assert_true(render.component_kinds.contains("scroll-view"))
+  assert_true(@bunnia.node_count(root) > 8)
+}
+
+///|
+test "render budgets report large app pressure early" {
+  let root = @bunnia.page([
+    @bunnia.view([
+      @bunnia.view([
+        @bunnia.view([
+          @bunnia.button("Open", "open"),
+          @bunnia.button("Close", "close"),
+        ]),
+      ]),
+    ]),
+  ])
+  let budget = @bunnia.render_budget(
+    max_nodes=3,
+    max_depth=2,
+    max_events=1,
+    max_initial_data_bytes=1024,
+  )
+  let render = @bunnia.plan_with_budget(root, @bunnia.wechat(), budget)
+  assert_eq(render.diagnostics.length(), 3)
+  assert_true(render.diagnostics.contains("node-count-over-budget:8/3"))
+  assert_true(render.diagnostics.contains("depth-over-budget:6/2"))
+  assert_true(render.diagnostics.contains("event-count-over-budget:2/1"))
+}
+
+///|
+test "wechat generator emits page files with targeted event routing" {
+  let root = @bunnia.page([
+    @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
+  ])
+  let output = @bunnia.generate_wechat_page("Demo", root)
+  assert_true(output.wxml.contains("bindtap=\"__bunniaEvent\""))
+  assert_true(output.wxml.contains("data-bunnia-message=\"open-detail\""))
+  assert_true(output.js.contains("\"__bunnia.lastMessage\""))
+  assert_true(output.json.contains("navigationBarTitleText"))
+  assert_eq(output.plan.node_count, 5)
+}

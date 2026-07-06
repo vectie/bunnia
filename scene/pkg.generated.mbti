@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/scene"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/core",
+}
+
+// Values
+pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
+
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String) -> SceneMarker
+
+pub fn scene(String, SceneSize, Array[SceneLayer]) -> Scene
+
+pub fn scene_size(Int, Int) -> SceneSize
+
+pub fn static_scene_view(Scene) -> @core.Node
+
+// Errors
+
+// Types and methods
+pub struct Scene {
+  id : String
+  size : SceneSize
+  layers : Array[SceneLayer]
+} derive(Eq, @debug.Debug)
+
+pub struct SceneLayer {
+  id : String
+  z_index : Int
+  markers : Array[SceneMarker]
+} derive(Eq, @debug.Debug)
+
+pub struct SceneMarker {
+  id : String
+  label : String
+  x : Int
+  y : Int
+  status : String
+  tap_message : String
+} derive(Eq, @debug.Debug)
+
+pub struct SceneSize {
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

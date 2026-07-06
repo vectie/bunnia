@@ -1,0 +1,159 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia"
+
+import {
+  "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/agent",
+  "vectie/bunnia/core",
+  "vectie/bunnia/effects",
+  "vectie/bunnia/scene",
+}
+
+// Values
+pub fn actor(id~ : String, label~ : String, kind? : @agent.ActorKind) -> @agent.Actor
+
+pub fn adapter(@core.Platform) -> @core.PlatformAdapter
+
+pub fn alipay() -> @core.Platform
+
+pub fn attr(String, String) -> @core.Attr
+
+pub fn button(String, String) -> @core.Node
+
+pub fn cancel(String, String) -> @effects.Effect
+
+pub fn canvas(String) -> @core.Node
+
+pub fn class_name(String) -> @core.Attr
+
+pub fn custom(String, Array[@core.Attr], Array[@core.Node]) -> @core.Node
+
+pub fn data(String, String) -> @core.Attr
+
+pub fn default_render_budget() -> @core.RenderBudget
+
+pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
+
+pub fn effect_chip(@effects.Effect) -> @core.Node
+
+pub fn event(String, String) -> @core.EventBinding
+
+pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
+
+pub fn id(String) -> @core.Attr
+
+pub fn image(String, String) -> @core.Node
+
+pub fn keyed(String, @core.Node) -> @core.Node
+
+pub fn layer(String, Int, Array[@scene.SceneMarker]) -> @scene.SceneLayer
+
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String) -> @scene.SceneMarker
+
+pub fn max_depth(@core.Node) -> Int
+
+pub fn message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, artifact_ref? : String, status? : @agent.RunStatus) -> @agent.Message
+
+pub fn message_feed(Array[@agent.Message]) -> @core.Node
+
+pub fn message_row(@agent.Message) -> @core.Node
+
+pub fn navigate(String, String) -> @effects.Effect
+
+pub fn node(kind~ : String, key? : String, attrs? : Array[@core.Attr], events? : Array[@core.EventBinding], children? : Array[@core.Node], text? : String) -> @core.Node
+
+pub fn node_count(@core.Node) -> Int
+
+pub fn page(Array[@core.Node]) -> @core.Node
+
+pub fn plan(@core.Node, @core.Platform) -> @core.RenderPlan
+
+pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
+
+pub fn platform_id(@core.Platform) -> String
+
+pub fn platform_label(@core.Platform) -> String
+
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> @core.RenderBudget
+
+pub fn request(String, String, String) -> @effects.Effect
+
+pub fn retry(String, String) -> @effects.Effect
+
+pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : @agent.ReviewState) -> @agent.ReviewAction
+
+pub fn review_controls(@agent.ReviewAction) -> @core.Node
+
+pub fn review_state_id(@agent.ReviewState) -> String
+
+pub fn run_status_id(@agent.RunStatus) -> String
+
+pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer]) -> @scene.Scene
+
+pub fn scene_size(Int, Int) -> @scene.SceneSize
+
+pub fn scroll_view(Array[@core.Node]) -> @core.Node
+
+pub fn static_scene_view(@scene.Scene) -> @core.Node
+
+pub fn supported_platforms() -> Array[@core.Platform]
+
+pub fn tap(String) -> @core.EventBinding
+
+pub fn text(String) -> @core.Node
+
+pub fn tiktok() -> @core.Platform
+
+pub fn view(Array[@core.Node]) -> @core.Node
+
+pub fn view_with_attrs(Array[@core.Attr], Array[@core.Node]) -> @core.Node
+
+pub fn wechat() -> @core.Platform
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub using @agent {type Actor}
+
+pub using @agent {type ActorKind}
+
+pub using @core {type Attr}
+
+pub using @effects {type Effect}
+
+pub using @effects {type EffectKind}
+
+pub using @core {type EventBinding}
+
+pub using @agent {type Message}
+
+pub using @core {type Node}
+
+pub using @core {type Platform}
+
+pub using @core {type PlatformAdapter}
+
+pub using @core {type RenderBudget}
+
+pub using @core {type RenderPlan}
+
+pub using @agent {type ReviewAction}
+
+pub using @agent {type ReviewState}
+
+pub using @agent {type RunStatus}
+
+pub using @scene {type Scene}
+
+pub using @scene {type SceneLayer}
+
+pub using @scene {type SceneMarker}
+
+pub using @scene {type SceneSize}
+
+pub using @wechat {type WechatPage}
+
+// Traits
+
