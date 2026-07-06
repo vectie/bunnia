@@ -8,6 +8,18 @@ pub struct WechatPage {
 } derive(Debug, Eq)
 
 ///|
+pub struct WechatEventPatch {
+  message : String
+  patches : Array[@core.Patch]
+} derive(Debug, Eq)
+
+///|
+pub struct WechatRuntime {
+  initial_data_json : String
+  event_patches : Array[WechatEventPatch]
+} derive(Debug, Eq)
+
+///|
 pub struct WechatFile {
   path : String
   content : String
@@ -25,11 +37,20 @@ pub struct WechatProject {
 
 ///|
 pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
+  generate_page_with_runtime(name, root, default_runtime())
+}
+
+///|
+pub fn generate_page_with_runtime(
+  name : String,
+  root : @core.Node,
+  runtime : WechatRuntime,
+) -> WechatPage {
   let plan = @core.plan(root, @core.Wechat)
   {
     wxml: render_node(root, @core.adapter(@core.Wechat)),
     wxss: default_wxss(),
-    js: page_js(name, plan),
+    js: page_js(name, plan, runtime),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
   }
@@ -41,7 +62,17 @@ pub fn generate_project(
   route? : String = "pages/index/index",
   root~ : @core.Node,
 ) -> WechatProject {
-  let page = generate_page(name, root)
+  generate_project_with_runtime(name~, route~, root~, runtime=default_runtime())
+}
+
+///|
+pub fn generate_project_with_runtime(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : @core.Node,
+  runtime~ : WechatRuntime,
+) -> WechatProject {
+  let page = generate_page_with_runtime(name, root, runtime)
   let files = [
     wechat_file("app.json", app_json(route)),
     wechat_file("project.config.json", project_config_json(name)),
@@ -60,6 +91,27 @@ pub fn generate_project(
     total_bytes: total,
     summary: "Bunnia WeChat project: files=\{files.length()} bytes=\{total} route=\{route}",
   }
+}
+
+///|
+pub fn default_runtime() -> WechatRuntime {
+  { initial_data_json: "{}", event_patches: [] }
+}
+
+///|
+pub fn runtime(
+  initial_data_json? : String = "{}",
+  event_patches? : Array[WechatEventPatch] = [],
+) -> WechatRuntime {
+  { initial_data_json, event_patches }
+}
+
+///|
+pub fn event_patch(
+  message : String,
+  patches : Array[@core.Patch],
+) -> WechatEventPatch {
+  { message, patches }
 }
 
 ///|
@@ -191,20 +243,52 @@ fn component_name(kind : String, adapter : @core.PlatformAdapter) -> String {
 }
 
 ///|
-fn page_js(name : String, plan : @core.RenderPlan) -> String {
+fn page_js(
+  name : String,
+  plan : @core.RenderPlan,
+  runtime : WechatRuntime,
+) -> String {
+  "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "\n" +
   "Page({\n" +
   "  data: {\n" +
   "    __bunnia: {\n" +
   "      name: \"\{escape_json(name)}\",\n" +
   "      nodes: \{plan.node_count},\n" +
-  "      depth: \{plan.depth}\n" +
-  "    }\n" +
+  "      depth: \{plan.depth},\n" +
+  "      lastMessage: \"\",\n" +
+  "      handledEvents: 0\n" +
+  "    },\n" +
+  "    ...(\{runtime.initial_data_json})\n" +
   "  },\n" +
   "  __bunniaEvent(event) {\n" +
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
-  "    this.setData({ \"__bunnia.lastMessage\": message })\n" +
+  "    const patches = __bunniaEventPatches[message] || {}\n" +
+  "    this.setData({\n" +
+  "      \"__bunnia.lastMessage\": message,\n" +
+  "      \"__bunnia.handledEvents\": (this.data.__bunnia.handledEvents || 0) + 1,\n" +
+  "      ...patches\n" +
+  "    })\n" +
   "  }\n" +
   "})"
+}
+
+///|
+fn event_patches_object(items : Array[WechatEventPatch]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("{")
+  for i in 0..<items.length() {
+    let item = items[i]
+    if i > 0 {
+      out.write_string(",")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(item.message))
+    out.write_string("\":")
+    out.write_string(patches_to_object(item.patches))
+  }
+  out.write_string("}")
+  out.to_string()
 }
 
 ///|

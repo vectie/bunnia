@@ -5,6 +5,10 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("select-zone-b"))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.js.contains("__bunnia.lastMessage"))
+  assert_true(page.js.contains("__bunniaEventPatches"))
+  assert_true(page.js.contains("\"select-zone-b\""))
+  assert_true(page.js.contains("\"scene.zones.zone-b.status\":\"running\""))
+  assert_true(page.js.contains("\"review.routeReview\":\"approved\""))
   assert_true(page.plan.node_count > 12)
 }
 

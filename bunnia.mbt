@@ -71,6 +71,12 @@ pub type Effect = @effects.Effect
 pub type WechatPage = @wechat.WechatPage
 
 ///|
+pub type WechatEventPatch = @wechat.WechatEventPatch
+
+///|
+pub type WechatRuntime = @wechat.WechatRuntime
+
+///|
 pub type WechatFile = @wechat.WechatFile
 
 ///|
@@ -433,12 +439,52 @@ pub fn generate_wechat_page(name : String, root : Node) -> WechatPage {
 }
 
 ///|
+pub fn generate_wechat_page_with_runtime(
+  name : String,
+  root : Node,
+  runtime : WechatRuntime,
+) -> WechatPage {
+  @wechat.generate_page_with_runtime(name, root, runtime)
+}
+
+///|
 pub fn generate_wechat_project(
   name~ : String,
   route? : String = "pages/index/index",
   root~ : Node,
 ) -> WechatProject {
   @wechat.generate_project(name~, route~, root~)
+}
+
+///|
+pub fn generate_wechat_project_with_runtime(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  runtime~ : WechatRuntime,
+) -> WechatProject {
+  @wechat.generate_project_with_runtime(name~, route~, root~, runtime~)
+}
+
+///|
+pub fn default_wechat_runtime() -> WechatRuntime {
+  @wechat.default_runtime()
+}
+
+///|
+pub fn wechat_runtime(
+  initial_data_json? : String = "{}",
+  event_patches? : Array[WechatEventPatch] = [],
+) -> WechatRuntime {
+  @wechat.runtime(initial_data_json~, event_patches~)
+}
+
+///|
+pub fn wechat_event_patch(
+  message : String,
+  patches : Array[Patch],
+) -> WechatEventPatch {
+  @wechat.event_patch(message, patches)
 }
 
 ///|

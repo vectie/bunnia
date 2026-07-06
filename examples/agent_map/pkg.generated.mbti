@@ -9,6 +9,8 @@ import {
 // Values
 pub fn demo_patch_plan() -> @core.PatchPlan
 
+pub fn demo_runtime() -> @wechat.WechatRuntime
+
 pub fn demo_view() -> @core.Node
 
 pub fn demo_wechat_page() -> @wechat.WechatPage

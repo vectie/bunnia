@@ -57,12 +57,45 @@ pub fn demo_view() -> @bunnia.Node {
 
 ///|
 pub fn demo_wechat_page() -> @bunnia.WechatPage {
-  @bunnia.generate_wechat_page("Agent Map", demo_view())
+  @bunnia.generate_wechat_page_with_runtime(
+    "Agent Map",
+    demo_view(),
+    demo_runtime(),
+  )
 }
 
 ///|
 pub fn demo_wechat_project() -> @bunnia.WechatProject {
-  @bunnia.generate_wechat_project(name="Agent Map", root=demo_view())
+  @bunnia.generate_wechat_project_with_runtime(
+    name="Agent Map",
+    root=demo_view(),
+    runtime=demo_runtime(),
+  )
+}
+
+///|
+pub fn demo_runtime() -> @bunnia.WechatRuntime {
+  @bunnia.wechat_runtime(initial_data_json=demo_initial_data_json(), event_patches=[
+    @bunnia.wechat_event_patch("select-zone-a", [
+      @bunnia.set_string("scene.selectedZone", "zone-a"),
+      @bunnia.set_json("scene.zones.zone-a.status", "\"selected\""),
+    ]),
+    @bunnia.wechat_event_patch("select-zone-b", [
+      @bunnia.set_string("scene.selectedZone", "zone-b"),
+      @bunnia.set_json("scene.zones.zone-b.status", "\"running\""),
+    ]),
+    @bunnia.wechat_event_patch("approve-route", [
+      @bunnia.set_json("review.routeReview", "\"approved\""),
+    ]),
+    @bunnia.wechat_event_patch("reject-route", [
+      @bunnia.set_json("review.routeReview", "\"rejected\""),
+    ]),
+  ])
+}
+
+///|
+fn demo_initial_data_json() -> String {
+  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"review\":{\"routeReview\":\"pending\"}}"
 }
 
 ///|

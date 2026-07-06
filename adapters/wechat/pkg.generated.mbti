@@ -7,15 +7,30 @@ import {
 }
 
 // Values
+pub fn default_runtime() -> WechatRuntime
+
+pub fn event_patch(String, Array[@core.Patch]) -> WechatEventPatch
+
 pub fn generate_page(String, @core.Node) -> WechatPage
+
+pub fn generate_page_with_runtime(String, @core.Node, WechatRuntime) -> WechatPage
 
 pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> WechatProject
 
+pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime) -> WechatProject
+
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
+
+pub fn runtime(initial_data_json? : String, event_patches? : Array[WechatEventPatch]) -> WechatRuntime
 
 // Errors
 
 // Types and methods
+pub struct WechatEventPatch {
+  message : String
+  patches : Array[@core.Patch]
+} derive(Eq, @debug.Debug)
+
 pub struct WechatFile {
   path : String
   content : String
@@ -36,6 +51,11 @@ pub struct WechatProject {
   files : Array[WechatFile]
   total_bytes : Int
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct WechatRuntime {
+  initial_data_json : String
+  event_patches : Array[WechatEventPatch]
 } derive(Eq, @debug.Debug)
 
 // Type aliases

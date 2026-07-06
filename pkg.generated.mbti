@@ -36,6 +36,8 @@ pub fn default_patch_budget() -> @core.PatchBudget
 
 pub fn default_render_budget() -> @core.RenderBudget
 
+pub fn default_wechat_runtime() -> @wechat.WechatRuntime
+
 pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
 
 pub fn effect_chip(@effects.Effect) -> @core.Node
@@ -44,7 +46,11 @@ pub fn event(String, String) -> @core.EventBinding
 
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
+pub fn generate_wechat_page_with_runtime(String, @core.Node, @wechat.WechatRuntime) -> @wechat.WechatPage
+
 pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.Node) -> @wechat.WechatProject
+
+pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime) -> @wechat.WechatProject
 
 pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
@@ -130,6 +136,10 @@ pub fn view_with_attrs(Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
 pub fn wechat() -> @core.Platform
 
+pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatch
+
+pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
+
 // Errors
 
 // Types and methods
@@ -181,11 +191,15 @@ pub using @scene {type SceneMarker}
 
 pub using @scene {type SceneSize}
 
+pub using @wechat {type WechatEventPatch}
+
 pub using @wechat {type WechatFile}
 
 pub using @wechat {type WechatPage}
 
 pub using @wechat {type WechatProject}
+
+pub using @wechat {type WechatRuntime}
 
 // Traits
 

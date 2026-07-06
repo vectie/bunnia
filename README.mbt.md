@@ -56,7 +56,9 @@ moon run cmd/main
 ```
 
 This writes a WeChat Mini Program file set to
-`_build/bunnia/wechat/agent_map`. Use `--out` to choose another directory:
+`_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
+event-to-patch dispatch for review buttons and map markers. Use `--out` to
+choose another directory:
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map

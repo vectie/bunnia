@@ -67,10 +67,17 @@ test "wechat generator emits page files with targeted event routing" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
   ])
-  let output = @bunnia.generate_wechat_page("Demo", root)
+  let runtime = @bunnia.wechat_runtime(initial_data_json="{\"counter\":0}", event_patches=[
+    @bunnia.wechat_event_patch("open-detail", [@bunnia.set_json("counter", "1")]),
+  ])
+  let output = @bunnia.generate_wechat_page_with_runtime("Demo", root, runtime)
   assert_true(output.wxml.contains("bindtap=\"__bunniaEvent\""))
   assert_true(output.wxml.contains("data-bunnia-message=\"open-detail\""))
   assert_true(output.js.contains("\"__bunnia.lastMessage\""))
+  assert_true(output.js.contains("const __bunniaEventPatches"))
+  assert_true(output.js.contains("\"open-detail\":{\"counter\":1}"))
+  assert_true(output.js.contains("...({\"counter\":0})"))
+  assert_true(output.js.contains("\"__bunnia.handledEvents\""))
   assert_true(output.json.contains("navigationBarTitleText"))
   assert_eq(output.plan.node_count, 5)
 }
