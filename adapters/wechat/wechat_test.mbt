@@ -4,6 +4,7 @@ fn test_backend_contract() -> @effects.BackendContract {
     @effects.agent_message_endpoint(
       "send-message", "/agent/message", "draftMessage", "messageResult",
     ),
+    @effects.status_load_endpoint("load-status", "/status", "status"),
   ])
 }
 
@@ -129,6 +130,7 @@ test "wechat projects can package backend request adapter" {
   assert_eq(project.manifest.app_file_count, 10)
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
   assert_true(project.page.js.contains("\"send-message\":\"send-message\""))
+  assert_true(!project.page.js.contains("\"load-status\""))
   assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
   assert_true(project.page.js.contains("__bunniaRequest(page, endpointId)"))
   assert_true(

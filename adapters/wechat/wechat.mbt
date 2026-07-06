@@ -815,7 +815,7 @@ fn project_page_js_with_backend(
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
   "const { __bunniaRequest } = require('\{backend_require_path(route)}')\n" +
-  "const __bunniaBackendEvents = \{backend_event_object(contract)}\n" +
+  "const __bunniaBackendEvents = \{backend_event_object(contract, plan)}\n" +
   "\n" +
   backend_request_dispatch_js() +
   "\n" +
@@ -981,19 +981,25 @@ fn event_patches_object(items : Array[WechatEventPatch]) -> String {
 }
 
 ///|
-fn backend_event_object(contract : @effects.BackendContract) -> String {
+fn backend_event_object(
+  contract : @effects.BackendContract,
+  plan : @core.RenderPlan,
+) -> String {
   let out = StringBuilder::new()
   out.write_string("{")
-  for i in 0..<contract.endpoints.length() {
-    let endpoint = contract.endpoints[i]
-    if i > 0 {
-      out.write_string(",")
+  let mut emitted = 0
+  for endpoint in contract.endpoints {
+    if plan.event_messages.contains(endpoint.id) {
+      if emitted > 0 {
+        out.write_string(",")
+      }
+      emitted += 1
+      out.write_string("\"")
+      out.write_string(escape_json(endpoint.id))
+      out.write_string("\":\"")
+      out.write_string(escape_json(endpoint.id))
+      out.write_string("\"")
     }
-    out.write_string("\"")
-    out.write_string(escape_json(endpoint.id))
-    out.write_string("\":\"")
-    out.write_string(escape_json(endpoint.id))
-    out.write_string("\"")
   }
   out.write_string("}")
   out.to_string()

@@ -39,6 +39,9 @@ test "wenyu proof slice generates a separate mini-program route" {
       "\"submit-operator-request\":\"submit-operator-request\"",
     ),
   )
+  assert_true(!project.page.js.contains("\"load-snapshot\""))
+  assert_true(!project.page.js.contains("\"load-building-status\""))
+  assert_true(!project.page.js.contains("\"review-wenyu-overview\""))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_eq(project.manifest.pages[0].windowed_list_count, 1)
   assert_eq(project.manifest.pages[0].list_total_count, 4)

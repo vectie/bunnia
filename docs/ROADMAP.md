@@ -413,6 +413,8 @@ Current evidence:
 - Backend-aware WeChat page JS dispatches a contract request when the handled
   event message matches an endpoint id, so request behavior stays data-driven
   instead of product-specific.
+- Backend-aware pages only embed endpoint ids reachable from that route's
+  rendered events, avoiding full-contract duplication in every page JS file.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -561,6 +563,8 @@ Current evidence:
   request boundary without embedding Moontown-specific execution logic.
 - Matching endpoint events now call the generated request helper after bounded
   local patches, preserving replay/loading state without full-page rerenders.
+- Per-page request dispatch maps are filtered by reachable event messages, so
+  multi-page agentic apps do not copy unrelated endpoint ids into each route.
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.
