@@ -298,13 +298,13 @@ test "init command builds a scaffold plan" {
   assert_eq(command_from_args(args), "init")
   assert_eq(name, "agent_demo")
   assert_eq(scaffold.module_name, "local/agent_demo")
-  assert_eq(scaffold.files.length(), 8)
-  assert_eq(scaffold_write_file_count(scaffold), 9)
+  assert_eq(scaffold.files.length(), 9)
+  assert_eq(scaffold_write_file_count(scaffold), 10)
   assert_eq(
     scaffold_output_dir_from_args(args, name),
     "_build/bunnia/scaffold/agent_demo",
   )
-  assert_true(scaffold.summary.contains("files=8"))
+  assert_true(scaffold.summary.contains("files=9"))
 }
 
 ///|
@@ -321,7 +321,7 @@ test "init command accepts output override and module default" {
 test "init command writes a local workspace link" {
   assert_eq(
     scaffold_workspace_content("/Users/kq/Workspace/moonmini"),
-    "members = [\n  \"/Users/kq/Workspace/moonmini\",\n]\n",
+    "members = [\n  \".\",\n  \"/Users/kq/Workspace/moonmini\",\n]\n",
   )
 }
 

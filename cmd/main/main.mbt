@@ -673,7 +673,10 @@ fn scaffold_write_file_count(scaffold : @bunnia.ScaffoldPlan) -> Int {
 
 ///|
 fn scaffold_workspace_content(framework_path : String) -> String {
-  "members = [\n" + "  \"\{escape_toml_string(framework_path)}\",\n" + "]\n"
+  "members = [\n" +
+  "  \".\",\n" +
+  "  \"\{escape_toml_string(framework_path)}\",\n" +
+  "]\n"
 }
 
 ///|

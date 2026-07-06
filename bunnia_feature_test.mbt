@@ -1509,7 +1509,7 @@ test "scaffold project exposes starter files through facade" {
     name="mini_agent",
     module_name="local/mini_agent",
   )
-  assert_eq(scaffold.files.length(), 8)
+  assert_eq(scaffold.files.length(), 9)
   assert_eq(scaffold.module_name, "local/mini_agent")
   assert_true(scaffold.summary.contains("Bunnia scaffold"))
   assert_true(
@@ -1533,6 +1533,11 @@ test "scaffold project exposes starter files through facade" {
   assert_true(
     scaffold_file_content(scaffold.files, "quality.mbt").contains(
       "strict_render_plan",
+    ),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "app_test.mbt").contains(
+      "starter render plans",
     ),
   )
   assert_true(

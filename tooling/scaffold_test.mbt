@@ -3,7 +3,7 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 8)
+  assert_eq(plan.files.length(), 9)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
   assert_true(has_file(plan.files, "app.mbt"))
@@ -11,6 +11,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(has_file(plan.files, "scene.mbt"))
   assert_true(has_file(plan.files, "updates.mbt"))
   assert_true(has_file(plan.files, "quality.mbt"))
+  assert_true(has_file(plan.files, "app_test.mbt"))
   assert_true(has_file(plan.files, "README.mbt.md"))
   assert_true(
     file_content(plan.files, "moon.mod").contains("name = \"local/starter\""),
@@ -51,14 +52,20 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "app_test.mbt").contains("strict_render_plan"),
+  )
+  assert_true(
+    file_content(plan.files, "app_test.mbt").contains("starter updates"),
+  )
+  assert_true(
     file_content(plan.files, "updates.mbt").contains(
       "append_stream_chunk_delta",
     ),
   )
   assert_true(
-    file_content(plan.files, "README.mbt.md").contains("separate files"),
+    file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
-  assert_true(plan.summary.contains("files=8"))
+  assert_true(plan.summary.contains("files=9"))
 }
 
 ///|
