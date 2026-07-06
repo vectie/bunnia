@@ -342,6 +342,40 @@ test "windowed lists expose total count without rendering every row" {
 }
 
 ///|
+test "render plans diagnose unkeyed repeated surface rows" {
+  let keyed = @bunnia.plan(
+    @bunnia.page([
+      @bunnia.list(["agent", "map"], render_tag),
+      @bunnia.windowed_message_feed(
+        [
+          @bunnia.message(
+            id="msg-keyed",
+            actor_id="agent",
+            thread_id="thread-a",
+            text="Keyed row.",
+          ),
+        ],
+        total_count=4,
+      ),
+    ]),
+    @bunnia.wechat(),
+  )
+  let unkeyed = @bunnia.plan(
+    @bunnia.page([
+      @bunnia.list(["agent", "map"], value => {
+        @bunnia.view([@bunnia.text(value)])
+      }),
+    ]),
+    @bunnia.wechat(),
+  )
+  assert_eq(keyed.unkeyed_list_child_count, 0)
+  assert_eq(keyed.diagnostics.length(), 0)
+  assert_eq(unkeyed.unkeyed_list_child_count, 2)
+  assert_true(unkeyed.diagnostics.contains("list-child-missing-key:2"))
+  assert_true(unkeyed.summary.contains("unkeyed_list_children=2"))
+}
+
+///|
 test "effect constructors cover mini-app backend capabilities" {
   let effects = [
     @bunnia.storage("save-draft", "storage:draft", "draft"),
@@ -547,6 +581,7 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].windowed_list_count, 1)
   assert_eq(project.manifest.pages[1].list_total_count, 24)
   assert_eq(project.manifest.pages[1].list_visible_count, 1)
+  assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),
@@ -554,6 +589,11 @@ test "wechat project generator supports multiple app routes" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"route\":\"pages/chat/index\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"unkeyedListChildren\":0",
     ),
   )
   assert_eq(project.report.page_count, 2)

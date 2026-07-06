@@ -316,6 +316,8 @@ Current evidence:
   preserving total item counts in render plans and generated manifests.
 - Agent feeds and communication traces can use dedicated windowed helpers, so
   long conversations expose visible/total counts without expanding every row.
+- Render plans diagnose unkeyed repeated rows, making list/feed/trace identity
+  problems visible before they become large-app update regressions.
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event
@@ -630,6 +632,8 @@ Current evidence:
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, backend, scene asset, and
   scene render diagnostics into one CLI-visible summary for generated examples.
+- Build profiles and generated manifests expose unkeyed repeated-row counts
+  alongside page, list, and generated-size signals.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, and package-byte signals.
