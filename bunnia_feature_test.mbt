@@ -230,6 +230,48 @@ test "communication trace renders structured agent interactions" {
 }
 
 ///|
+test "surface statuses wrap large panels without changing their model" {
+  let scene = @bunnia.scene("status-map", @bunnia.scene_size(320, 240), [
+    @bunnia.layer("actors", 1, [
+      @bunnia.marker(
+        id="actor-a",
+        label="Actor A",
+        x=80,
+        y=80,
+        status="running",
+      ),
+    ]),
+  ])
+  let status = @bunnia.surface_error(
+    label="Snapshot failed",
+    detail="Tap to retry without rebuilding the scene.",
+    action_message="retry-snapshot",
+  )
+  let badge = @bunnia.surface_status_badge(
+    @bunnia.surface_stale(label="Stale", detail="Last update is old."),
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Surface Status",
+    @bunnia.page([
+      @bunnia.surface_status_overlay(status, @bunnia.static_scene_view(scene)),
+      badge,
+    ]),
+  )
+  assert_eq(@bunnia.surface_status_kind_id(status.kind), "error")
+  assert_eq(
+    @bunnia.surface_status_kind_id(@bunnia.surface_status_degraded()),
+    "degraded",
+  )
+  assert_true(output.plan.event_messages.contains("retry-snapshot"))
+  assert_true(output.wxml.contains("bunnia-status-surface"))
+  assert_true(output.wxml.contains("bunnia-status-badge"))
+  assert_true(output.wxml.contains("data-surface-status=\"error\""))
+  assert_true(output.wxml.contains("data-action-message=\"retry-snapshot\""))
+  assert_true(output.wxml.contains("bunnia-surface-state-stale"))
+  assert_true(output.wxss.contains(".bunnia-status-surface"))
+}
+
+///|
 test "render budgets report large app pressure early" {
   let root = @bunnia.page([
     @bunnia.view([

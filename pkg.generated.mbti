@@ -424,6 +424,42 @@ pub fn stream(String, String, String) -> @effects.Effect
 
 pub fn supported_platforms() -> Array[@core.Platform]
 
+pub fn surface_cancelled(label? : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_degraded(label? : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_error(label? : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_loading(label? : String, detail? : String) -> @core.SurfaceStatus
+
+pub fn surface_ready(label? : String, detail? : String) -> @core.SurfaceStatus
+
+pub fn surface_retry(label? : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_stale(label? : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_status(kind~ : @core.SurfaceStatusKind, label~ : String, detail? : String, action_message? : String) -> @core.SurfaceStatus
+
+pub fn surface_status_badge(@core.SurfaceStatus) -> @core.Node
+
+pub fn surface_status_cancelled() -> @core.SurfaceStatusKind
+
+pub fn surface_status_degraded() -> @core.SurfaceStatusKind
+
+pub fn surface_status_error() -> @core.SurfaceStatusKind
+
+pub fn surface_status_kind_id(@core.SurfaceStatusKind) -> String
+
+pub fn surface_status_loading() -> @core.SurfaceStatusKind
+
+pub fn surface_status_overlay(@core.SurfaceStatus, @core.Node) -> @core.Node
+
+pub fn surface_status_ready() -> @core.SurfaceStatusKind
+
+pub fn surface_status_retry() -> @core.SurfaceStatusKind
+
+pub fn surface_status_stale() -> @core.SurfaceStatusKind
+
 pub fn tap(String) -> @core.EventBinding
 
 pub fn text(String) -> @core.Node
@@ -574,6 +610,10 @@ pub using @scene {type SceneSize}
 pub using @scene {type SceneViewport}
 
 pub using @program {type Step}
+
+pub using @core {type SurfaceStatus}
+
+pub using @core {type SurfaceStatusKind}
 
 pub using @agent {type Thread}
 

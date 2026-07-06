@@ -8,6 +8,12 @@ pub type EventBinding = @core.EventBinding
 pub type Node = @core.Node
 
 ///|
+pub type SurfaceStatusKind = @core.SurfaceStatusKind
+
+///|
+pub type SurfaceStatus = @core.SurfaceStatus
+
+///|
 pub type Platform = @core.Platform
 
 ///|
@@ -307,6 +313,127 @@ pub fn image(src : String, alt : String) -> Node {
 ///|
 pub fn button(label : String, message : String) -> Node {
   @core.button(label, message)
+}
+
+///|
+pub fn surface_status(
+  kind~ : SurfaceStatusKind,
+  label~ : String,
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_status(kind~, label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_loading(
+  label? : String = "Loading",
+  detail? : String = "",
+) -> SurfaceStatus {
+  @core.surface_loading(label~, detail~)
+}
+
+///|
+pub fn surface_ready(
+  label? : String = "Ready",
+  detail? : String = "",
+) -> SurfaceStatus {
+  @core.surface_ready(label~, detail~)
+}
+
+///|
+pub fn surface_stale(
+  label? : String = "Stale",
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_stale(label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_error(
+  label? : String = "Error",
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_error(label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_retry(
+  label? : String = "Retry",
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_retry(label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_cancelled(
+  label? : String = "Cancelled",
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_cancelled(label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_degraded(
+  label? : String = "Degraded",
+  detail? : String = "",
+  action_message? : String = "",
+) -> SurfaceStatus {
+  @core.surface_degraded(label~, detail~, action_message~)
+}
+
+///|
+pub fn surface_status_kind_id(kind : SurfaceStatusKind) -> String {
+  @core.surface_status_kind_id(kind)
+}
+
+///|
+pub fn surface_status_badge(status : SurfaceStatus) -> Node {
+  @core.surface_status_badge(status)
+}
+
+///|
+pub fn surface_status_overlay(status : SurfaceStatus, child : Node) -> Node {
+  @core.surface_status_overlay(status, child)
+}
+
+///|
+pub fn surface_status_loading() -> SurfaceStatusKind {
+  @core.SurfaceLoading
+}
+
+///|
+pub fn surface_status_ready() -> SurfaceStatusKind {
+  @core.SurfaceReady
+}
+
+///|
+pub fn surface_status_stale() -> SurfaceStatusKind {
+  @core.SurfaceStale
+}
+
+///|
+pub fn surface_status_error() -> SurfaceStatusKind {
+  @core.SurfaceError
+}
+
+///|
+pub fn surface_status_retry() -> SurfaceStatusKind {
+  @core.SurfaceRetry
+}
+
+///|
+pub fn surface_status_cancelled() -> SurfaceStatusKind {
+  @core.SurfaceCancelled
+}
+
+///|
+pub fn surface_status_degraded() -> SurfaceStatusKind {
+  @core.SurfaceDegraded
 }
 
 ///|

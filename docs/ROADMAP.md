@@ -333,6 +333,9 @@ Current evidence:
   static rendering, and scene-specific marker status/selection patch helpers.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
   effects on a target that does not advertise cloud support.
+- Generic surface-status badges and overlays cover loading, ready, stale,
+  error, retry, cancelled, and degraded states without hardcoding a product
+  widget.
 
 Do not build yet:
 
@@ -550,6 +553,9 @@ Current evidence:
   without forcing product code to change shape.
 - Viewported static scene rendering filters markers spatially and emits
   viewport plus visible/total marker data attributes for map-heavy pages.
+- Generic status overlays can wrap scene, list, dashboard, or feed surfaces so
+  stale, error, retry, cancelled, and degraded states remain visible without
+  rebuilding the underlying surface model.
 
 Acceptance checks:
 

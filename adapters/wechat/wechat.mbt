@@ -796,6 +796,16 @@ fn default_wxss() -> String {
   ".bunnia-communication-tool-result { border-left-color: #7c3aed; }\n" +
   ".bunnia-communication-recovery-notice { border-left-color: #dc2626; }\n" +
   ".bunnia-list-windowed { display: flex; flex-direction: column; gap: 12rpx; }\n" +
+  ".bunnia-status-surface { position: relative; display: flex; flex-direction: column; gap: 10rpx; }\n" +
+  ".bunnia-status-badge { align-self: flex-start; padding: 8rpx 12rpx; border: 1rpx solid #94a3b8; border-radius: 8rpx; background: #ffffff; color: #111827; font-size: 24rpx; line-height: 1.35; box-sizing: border-box; }\n" +
+  ".bunnia-status-detail { margin-top: 2rpx; color: #475569; font-size: 22rpx; }\n" +
+  ".bunnia-surface-state-loading { border-color: #2563eb; }\n" +
+  ".bunnia-surface-state-ready { border-color: #16a34a; }\n" +
+  ".bunnia-surface-state-stale { border-color: #d97706; }\n" +
+  ".bunnia-surface-state-error { border-color: #dc2626; }\n" +
+  ".bunnia-surface-state-retry { border-color: #0891b2; }\n" +
+  ".bunnia-surface-state-cancelled { border-color: #64748b; }\n" +
+  ".bunnia-surface-state-degraded { border-color: #7c3aed; }\n" +
   ".bunnia-review { display: flex; gap: 12rpx; align-items: center; padding: 16rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; }\n" +
   ".bunnia-review-pending { border-color: #d97706; }\n" +
   ".bunnia-review-approved { border-color: #16a34a; }\n" +

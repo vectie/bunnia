@@ -37,7 +37,9 @@ phase-by-phase implementation plan.
 
 ## Package Shape
 
-- `core`: platform-neutral tree, events, adapters, and render planning.
+- `core`: platform-neutral tree, events, adapters, render planning, and generic
+  surface-status badges/overlays for loading, stale, error, retry, cancelled,
+  and degraded states.
 - `program`: pure `Program[Model, Msg]` update/view boundary with pending
   effects and patch plans.
 - `agent`: lightweight message, review, artifact-link, and run-status UI
@@ -108,6 +110,11 @@ and traces can update predictably.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+
+Use `@bunnia.surface_status_badge(...)` and
+`@bunnia.surface_status_overlay(...)` for loading, stale, error, retry,
+cancelled, or degraded state that should be visible without replacing the
+underlying list, dashboard, feed, or scene model.
 
 Generate a standalone starter project with:
 
