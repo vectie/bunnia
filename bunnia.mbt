@@ -233,6 +233,12 @@ pub type WechatProject = @wechat.WechatProject
 pub type BuildProfile = @tooling.BuildProfile
 
 ///|
+pub type CiPlanStep = @tooling.CiPlanStep
+
+///|
+pub type CiPlan = @tooling.CiPlan
+
+///|
 pub type GeneratedSnapshotFile = @tooling.GeneratedSnapshotFile
 
 ///|
@@ -2406,6 +2412,16 @@ pub fn profile_wechat_project(
     surface_plans~,
     quality_plans~,
   )
+}
+
+///|
+pub fn ci_plan(
+  target? : String = "wechat",
+  budget_profile? : String = "tight",
+  examples? : Array[String] = ["agent_map", "wenyu_overview"],
+  snapshot_dir? : String = "_build/bunnia/snapshots",
+) -> CiPlan {
+  @tooling.ci_plan(target~, budget_profile~, examples~, snapshot_dir~)
 }
 
 ///|

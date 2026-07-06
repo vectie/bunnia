@@ -11,6 +11,8 @@ import {
 }
 
 // Values
+pub fn ci_plan(target? : String, budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
+
 pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn scaffold_file(String, String) -> ScaffoldFile
@@ -76,6 +78,22 @@ pub struct BuildProfile {
   degraded_scene_count : Int
   diagnostics : Array[String]
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct CiPlan {
+  target : String
+  budget_profile : String
+  examples : Array[String]
+  snapshot_dir : String
+  step_count : Int
+  steps : Array[CiPlanStep]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct CiPlanStep {
+  name : String
+  command : String
+  purpose : String
 } derive(Eq, @debug.Debug)
 
 pub struct GeneratedSnapshot {

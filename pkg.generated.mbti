@@ -114,6 +114,8 @@ pub fn cancel(String, String) -> @effects.Effect
 
 pub fn canvas(String) -> @core.Node
 
+pub fn ci_plan(target? : String, budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> @tooling.CiPlan
+
 pub fn class_name(String) -> @core.Attr
 
 pub fn cloud_function(String, String, String) -> @effects.Effect
@@ -638,6 +640,10 @@ pub using @effects {type BackendResultKind}
 pub using @effects {type BackendState}
 
 pub using @tooling {type BuildProfile}
+
+pub using @tooling {type CiPlan}
+
+pub using @tooling {type CiPlanStep}
 
 pub using @agent {type Communication}
 

@@ -86,6 +86,41 @@ test "snapshot command accepts generated output and snapshot paths" {
 }
 
 ///|
+test "ci plan command prints active example workflow" {
+  let args = ["node", "main.js", "ci-plan"]
+  let plan = ci_plan_from_args(args)
+  assert_eq(command_from_args(args), "ci-plan")
+  assert_eq(plan.target, "wechat")
+  assert_eq(plan.budget_profile, "tight")
+  assert_eq(plan.examples.length(), 2)
+  assert_eq(plan.examples[0], "agent_map")
+  assert_eq(plan.examples[1], "wenyu_overview")
+  assert_eq(plan.step_count, 10)
+  assert_true(plan.summary.contains("snapshot_dir=_build/bunnia/snapshots"))
+}
+
+///|
+test "ci plan command accepts target budget example and snapshot dir" {
+  let args = [
+    "node", "main.js", "ci-plan", "--target", "wechat", "--budget", "tight", "--example",
+    "agent_map", "--snapshot-dir", "/tmp/bunnia-ci",
+  ]
+  let plan = ci_plan_from_args(args)
+  assert_eq(command_from_args(args), "ci-plan")
+  assert_eq(plan.target, "wechat")
+  assert_eq(plan.budget_profile, "tight")
+  assert_eq(plan.examples.length(), 1)
+  assert_eq(plan.snapshot_dir, "/tmp/bunnia-ci")
+  assert_eq(plan.step_count, 8)
+  assert_true(plan.steps[6].command.contains("--budget tight"))
+  assert_true(
+    plan.steps[7].command.contains(
+      "/tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
+    ),
+  )
+}
+
+///|
 test "init command builds a scaffold plan" {
   let args = [
     "node", "main.js", "init", "--name", "agent_demo", "--module", "local/agent_demo",

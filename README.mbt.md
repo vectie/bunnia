@@ -112,6 +112,16 @@ evaluate.
 The snapshot records route, budget profile, size budgets, profile summary, and
 per-file byte/checksum lines without committing the full generated mini-program.
 
+To print the canonical local/CI workflow for the active examples:
+
+```bash
+moon run cmd/main -- ci-plan
+```
+
+`ci-plan` defaults to the `tight` budget and lists the check, test, interface,
+format, strict build, and snapshot commands that contributors should run before
+review.
+
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
 `@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page

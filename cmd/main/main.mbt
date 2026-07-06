@@ -11,6 +11,8 @@ fn main {
     println("command=init")
     println(scaffold.summary)
     println("wrote=\{scaffold_write_file_count(scaffold)} output=\{output_dir}")
+  } else if command == "ci-plan" {
+    print_ci_plan(ci_plan_from_args(@env.args()))
   } else {
     run_build_or_watch(command, @env.args())
   }
@@ -47,6 +49,8 @@ fn command_from_args(args : Array[String]) -> String {
       return "watch"
     } else if item == "snapshot" {
       return "snapshot"
+    } else if item == "ci-plan" {
+      return "ci-plan"
     }
   }
   default_command()
@@ -203,6 +207,46 @@ fn snapshot_output_path_from_args(
     }
   }
   "_build/bunnia/snapshots/\{target}/\{example}.snapshot.txt"
+}
+
+///|
+fn ci_snapshot_dir_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--snapshot-dir" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "_build/bunnia/snapshots"
+}
+
+///|
+fn ci_examples_from_args(args : Array[String]) -> Array[String] {
+  for i in 0..<args.length() {
+    if args[i] == "--example" && i + 1 < args.length() {
+      return [args[i + 1]]
+    }
+  }
+  [default_example(), "wenyu_overview"]
+}
+
+///|
+fn ci_budget_profile_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--budget" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "tight"
+}
+
+///|
+fn ci_plan_from_args(args : Array[String]) -> @bunnia.CiPlan {
+  @bunnia.ci_plan(
+    target=target_from_args(args),
+    budget_profile=ci_budget_profile_from_args(args),
+    examples=ci_examples_from_args(args),
+    snapshot_dir=ci_snapshot_dir_from_args(args),
+  )
 }
 
 ///|
@@ -381,6 +425,17 @@ fn print_build_result(
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
+  println("command=ci-plan")
+  println("target=\{plan.target}")
+  println("budget=\{plan.budget_profile}")
+  println(plan.summary)
+  for step in plan.steps {
+    println("step=\{step.name} command=\{step.command}")
+  }
 }
 
 ///|
