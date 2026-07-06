@@ -104,11 +104,33 @@ pub fn retry(String, String) -> @effects.Effect
 
 pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : @agent.ReviewState) -> @agent.ReviewAction
 
+pub fn review_approved() -> @agent.ReviewState
+
+pub fn review_cancelled() -> @agent.ReviewState
+
 pub fn review_controls(@agent.ReviewAction) -> @core.Node
+
+pub fn review_not_required() -> @agent.ReviewState
+
+pub fn review_pending() -> @agent.ReviewState
+
+pub fn review_rejected() -> @agent.ReviewState
 
 pub fn review_state_id(@agent.ReviewState) -> String
 
+pub fn run_cancelled() -> @agent.RunStatus
+
+pub fn run_done() -> @agent.RunStatus
+
+pub fn run_failed() -> @agent.RunStatus
+
+pub fn run_idle() -> @agent.RunStatus
+
+pub fn run_running() -> @agent.RunStatus
+
 pub fn run_status_id(@agent.RunStatus) -> String
+
+pub fn run_waiting_review() -> @agent.RunStatus
 
 pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer]) -> @scene.Scene
 

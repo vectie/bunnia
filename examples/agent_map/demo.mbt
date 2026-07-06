@@ -13,6 +13,7 @@ pub fn demo_view() -> @bunnia.Node {
       actor_id="operator",
       thread_id="thread-overview",
       text="Review the suggested route before dispatch.",
+      status=@bunnia.run_waiting_review(),
     ),
   ])
   let review = @bunnia.review_controls(

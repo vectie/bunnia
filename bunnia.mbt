@@ -358,6 +358,61 @@ pub fn review_state_id(state : ReviewState) -> String {
 }
 
 ///|
+pub fn run_idle() -> RunStatus {
+  @agent.Idle
+}
+
+///|
+pub fn run_running() -> RunStatus {
+  @agent.Running
+}
+
+///|
+pub fn run_waiting_review() -> RunStatus {
+  @agent.WaitingReview
+}
+
+///|
+pub fn run_done() -> RunStatus {
+  @agent.Done
+}
+
+///|
+pub fn run_failed() -> RunStatus {
+  @agent.Failed
+}
+
+///|
+pub fn run_cancelled() -> RunStatus {
+  @agent.Cancelled
+}
+
+///|
+pub fn review_not_required() -> ReviewState {
+  @agent.NotRequired
+}
+
+///|
+pub fn review_pending() -> ReviewState {
+  @agent.Pending
+}
+
+///|
+pub fn review_approved() -> ReviewState {
+  @agent.Approved
+}
+
+///|
+pub fn review_rejected() -> ReviewState {
+  @agent.Rejected
+}
+
+///|
+pub fn review_cancelled() -> ReviewState {
+  @agent.CancelledReview
+}
+
+///|
 pub fn scene_size(width : Int, height : Int) -> SceneSize {
   @scene.scene_size(width, height)
 }

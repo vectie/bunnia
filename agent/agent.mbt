@@ -81,10 +81,11 @@ pub fn review_action(
 ///|
 pub fn message_row(item : Message) -> @core.Node {
   let attrs = [
-    @core.class_name("bunnia-message"),
+    @core.class_name("bunnia-message \{run_status_class(item.status)}"),
     @core.data("message-id", item.id),
     @core.data("thread-id", item.thread_id),
     @core.data("actor-id", item.actor_id),
+    @core.data("run-status", run_status_id(item.status)),
   ]
   @core.keyed(
     item.id,
@@ -108,7 +109,7 @@ pub fn message_feed(messages : Array[Message]) -> @core.Node {
 pub fn review_controls(action : ReviewAction) -> @core.Node {
   @core.view_with_attrs(
     [
-      @core.class_name("bunnia-review"),
+      @core.class_name("bunnia-review \{review_state_class(action.state)}"),
       @core.data("review-id", action.id),
       @core.data("review-state", review_state_id(action.state)),
     ],
@@ -156,4 +157,14 @@ pub fn review_state_id(state : ReviewState) -> String {
     Rejected => "rejected"
     CancelledReview => "cancelled"
   }
+}
+
+///|
+fn run_status_class(status : RunStatus) -> String {
+  "bunnia-run-\{run_status_id(status)}"
+}
+
+///|
+fn review_state_class(state : ReviewState) -> String {
+  "bunnia-review-\{review_state_id(state)}"
 }

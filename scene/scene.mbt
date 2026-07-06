@@ -72,6 +72,7 @@ pub fn static_scene_view(input : Scene) -> @core.Node {
   @core.view_with_attrs(
     [
       @core.class_name("bunnia-scene"),
+      @core.attr("style", scene_style(input.size)),
       @core.data("scene-id", input.id),
       @core.data("scene-width", input.size.width.to_string()),
       @core.data("scene-height", input.size.height.to_string()),
@@ -89,6 +90,7 @@ fn layer_view(input : SceneLayer) -> @core.Node {
   @core.view_with_attrs(
     [
       @core.class_name("bunnia-scene-layer"),
+      @core.attr("style", "z-index: \{input.z_index};"),
       @core.data("layer-id", input.id),
       @core.data("z-index", input.z_index.to_string()),
     ],
@@ -108,7 +110,8 @@ fn marker_view(input : SceneMarker) -> @core.Node {
     @core.node(
       kind="view",
       attrs=[
-        @core.class_name("bunnia-scene-marker"),
+        @core.class_name("bunnia-scene-marker \{status_class(input.status)}"),
+        @core.attr("style", marker_style(input)),
         @core.data("marker-id", input.id),
         @core.data("x", input.x.to_string()),
         @core.data("y", input.y.to_string()),
@@ -118,4 +121,32 @@ fn marker_view(input : SceneMarker) -> @core.Node {
       children=[@core.text(input.label)],
     ),
   )
+}
+
+///|
+fn scene_style(size : SceneSize) -> String {
+  "width: \{size.width}rpx; height: \{size.height}rpx;"
+}
+
+///|
+fn marker_style(input : SceneMarker) -> String {
+  "left: \{input.x}rpx; top: \{input.y}rpx;"
+}
+
+///|
+fn status_class(status : String) -> String {
+  if status == "" {
+    "bunnia-status-default"
+  } else {
+    "bunnia-status-\{status_slug(status)}"
+  }
+}
+
+///|
+fn status_slug(status : String) -> String {
+  status
+  .replace(old=" ", new="-")
+  .replace(old="_", new="-")
+  .replace(old="/", new="-")
+  .to_string()
 }

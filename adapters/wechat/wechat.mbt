@@ -293,11 +293,24 @@ fn event_patches_object(items : Array[WechatEventPatch]) -> String {
 
 ///|
 fn default_wxss() -> String {
-  ".bunnia-message { padding: 16rpx 20rpx; border-bottom: 1rpx solid #e5e7eb; }\n" +
-  ".bunnia-review { display: flex; gap: 12rpx; align-items: center; }\n" +
-  ".bunnia-scene { position: relative; overflow: hidden; }\n" +
-  ".bunnia-scene-layer { position: absolute; inset: 0; }\n" +
-  ".bunnia-scene-marker { position: absolute; min-width: 88rpx; min-height: 56rpx; }"
+  ".demo-shell { min-height: 100vh; padding: 24rpx; box-sizing: border-box; display: flex; flex-direction: column; gap: 20rpx; background: #f7f8fa; color: #111827; }\n" +
+  ".bunnia-message { padding: 16rpx 20rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 28rpx; line-height: 1.5; }\n" +
+  ".bunnia-run-running { border-color: #2563eb; box-shadow: 0 0 0 2rpx rgba(37, 99, 235, 0.10); }\n" +
+  ".bunnia-run-waiting-review { border-color: #d97706; }\n" +
+  ".bunnia-run-failed { border-color: #dc2626; }\n" +
+  ".bunnia-artifact-link { margin-top: 8rpx; color: #2563eb; font-size: 24rpx; }\n" +
+  ".bunnia-review { display: flex; gap: 12rpx; align-items: center; padding: 16rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; }\n" +
+  ".bunnia-review-pending { border-color: #d97706; }\n" +
+  ".bunnia-review-approved { border-color: #16a34a; }\n" +
+  ".bunnia-review-rejected { border-color: #dc2626; }\n" +
+  ".bunnia-scene { position: relative; overflow: hidden; max-width: 100%; border: 1rpx solid #d1d5db; border-radius: 8rpx; background: #eef6f3; box-sizing: border-box; }\n" +
+  ".bunnia-scene-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }\n" +
+  ".bunnia-scene-marker { position: absolute; transform: translate(-50%, -50%); min-width: 120rpx; min-height: 56rpx; padding: 10rpx 14rpx; border: 2rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 24rpx; line-height: 1.4; text-align: center; }\n" +
+  ".bunnia-status-stable { border-color: #16a34a; }\n" +
+  ".bunnia-status-review { border-color: #d97706; }\n" +
+  ".bunnia-status-running { border-color: #2563eb; }\n" +
+  ".bunnia-status-selected { border-color: #0891b2; background: #ecfeff; }\n" +
+  ".bunnia-status-default { border-color: #64748b; }"
 }
 
 ///|
