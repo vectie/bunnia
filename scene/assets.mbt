@@ -27,6 +27,8 @@ pub struct SceneAssetPlan {
   assets : Array[SceneAsset]
   package_bytes : Int
   remote_assets : Int
+  deferred_asset_count : Int
+  deferred_asset_ids : Array[String]
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -99,13 +101,21 @@ pub fn plan_scene_assets_with_budget(
   budget : SceneAssetBudget,
 ) -> SceneAssetPlan {
   let diagnostics : Array[String] = []
+  let deferred_asset_ids : Array[String] = []
   let mut package_bytes = 0
   let mut remote_assets = 0
+  let mut planned_package_bytes = 0
   for item in assets {
     if item.remote {
       remote_assets += 1
     } else {
       package_bytes += item.estimated_bytes
+      if planned_package_bytes + item.estimated_bytes <=
+        budget.max_package_bytes {
+        planned_package_bytes += item.estimated_bytes
+      } else {
+        deferred_asset_ids.push(item.id)
+      }
     }
   }
   if assets.length() > budget.max_assets {
@@ -123,12 +133,17 @@ pub fn plan_scene_assets_with_budget(
       "scene-remote-assets-over-budget:\{remote_assets}/\{budget.max_remote_assets}",
     )
   }
+  if deferred_asset_ids.length() > 0 {
+    diagnostics.push("scene-deferred-assets:\{deferred_asset_ids.length()}")
+  }
   {
     assets,
     package_bytes,
     remote_assets,
+    deferred_asset_count: deferred_asset_ids.length(),
+    deferred_asset_ids,
     diagnostics,
-    summary: "Bunnia scene asset plan: assets=\{assets.length()} package_bytes=\{package_bytes} remote=\{remote_assets} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia scene asset plan: assets=\{assets.length()} package_bytes=\{package_bytes} remote=\{remote_assets} deferred=\{deferred_asset_ids.length()} diagnostics=\{diagnostics.length()}",
   }
 }
 

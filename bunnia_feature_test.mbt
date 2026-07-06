@@ -135,12 +135,15 @@ test "scene assets render sprites and report asset budgets" {
   assert_true(output.wxss.contains(".bunnia-scene-sprite"))
   assert_eq(plan.package_bytes, 2048)
   assert_eq(plan.remote_assets, 1)
-  assert_eq(plan.diagnostics.length(), 3)
+  assert_eq(plan.deferred_asset_count, 1)
+  assert_true(plan.deferred_asset_ids.contains("agent-sprite"))
+  assert_eq(plan.diagnostics.length(), 4)
   assert_true(plan.diagnostics.contains("scene-asset-count-over-budget:2/1"))
   assert_true(
     plan.diagnostics.contains("scene-package-bytes-over-budget:2048/1024"),
   )
   assert_true(plan.diagnostics.contains("scene-remote-assets-over-budget:1/0"))
+  assert_true(plan.diagnostics.contains("scene-deferred-assets:1"))
   assert_eq(patches.patches.length(), 2)
   assert_true(
     @bunnia.generate_wechat_set_data_call(patches.patches).contains(

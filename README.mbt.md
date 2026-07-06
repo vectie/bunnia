@@ -135,6 +135,9 @@ profiles before adding platform-specific rendering.
 Use `@bunnia.plan_scene_visual_quality(...)` for a checklist covering scene
 size, marker status, tap targets, asset references, unresolved assets, and
 degraded output.
+Use `@bunnia.plan_scene_assets_with_budget(...)` to identify bundled scene
+assets that should be deferred or moved remote when package-byte budgets are
+tight; build profiles report deferred asset counts.
 Markers carry stable `data-hit-width` and `data-hit-height` attributes, and
 visual quality plans flag tappable markers with hit targets below the configured
 minimum so map interactions stay usable on mobile.

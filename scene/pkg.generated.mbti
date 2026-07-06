@@ -134,6 +134,8 @@ pub struct SceneAssetPlan {
   assets : Array[SceneAsset]
   package_bytes : Int
   remote_assets : Int
+  deferred_asset_count : Int
+  deferred_asset_ids : Array[String]
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

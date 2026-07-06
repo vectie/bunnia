@@ -26,6 +26,7 @@ pub struct BuildProfile {
   scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
+  scene_deferred_asset_count : Int
   scene_static_surface_count : Int
   scene_canvas_surface_count : Int
   scene_lightweight_surface_count : Int
@@ -57,7 +58,7 @@ pub fn profile_wechat_project(
   let backend_endpoint_count = collect_backend_diagnostics(
     diagnostics, backend_plans,
   )
-  let (scene_asset_count, scene_package_bytes) = collect_asset_diagnostics(
+  let (scene_asset_count, scene_package_bytes, scene_deferred_asset_count) = collect_asset_diagnostics(
     diagnostics, asset_plans,
   )
   let (scene_marker_count, scene_visible_marker_count) = collect_scene_diagnostics(
@@ -99,6 +100,7 @@ pub fn profile_wechat_project(
     scene_visible_marker_count,
     scene_asset_count,
     scene_package_bytes,
+    scene_deferred_asset_count,
     scene_static_surface_count,
     scene_canvas_surface_count,
     scene_lightweight_surface_count,
@@ -117,6 +119,7 @@ pub fn profile_wechat_project(
       scene_visible_marker_count,
       scene_asset_count,
       scene_package_bytes,
+      scene_deferred_asset_count,
       scene_static_surface_count,
       scene_canvas_surface_count,
       scene_lightweight_surface_count,
@@ -140,6 +143,7 @@ fn profile_summary(
   scene_visible_marker_count : Int,
   scene_asset_count : Int,
   scene_package_bytes : Int,
+  scene_deferred_asset_count : Int,
   scene_static_surface_count : Int,
   scene_canvas_surface_count : Int,
   scene_lightweight_surface_count : Int,
@@ -148,7 +152,7 @@ fn profile_summary(
   degraded_scene_count : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -273,15 +277,17 @@ fn collect_backend_diagnostics(
 fn collect_asset_diagnostics(
   diagnostics : Array[String],
   plans : Array[@scene.SceneAssetPlan],
-) -> (Int, Int) {
+) -> (Int, Int, Int) {
   let mut count = 0
   let mut package_bytes = 0
+  let mut deferred_count = 0
   for plan in plans {
     count += plan.assets.length()
     package_bytes += plan.package_bytes
+    deferred_count += plan.deferred_asset_count
     push_prefixed(diagnostics, "scene-assets", plan.diagnostics)
   }
-  (count, package_bytes)
+  (count, package_bytes, deferred_count)
 }
 
 ///|

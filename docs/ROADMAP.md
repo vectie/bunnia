@@ -555,6 +555,9 @@ Current evidence:
   references, and generated WeChat sprite markup.
 - Scene asset plans report asset count, package bytes, remote asset count, and
   budget diagnostics.
+- Scene asset plans identify bundled assets that should be deferred when
+  package-byte budgets are exceeded, keeping asset pressure visible before
+  generator packaging grows.
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
 - Scene render plans report mode, quality level, layer count, marker count,
@@ -677,6 +680,8 @@ Current evidence:
   generated-size signals.
 - Build profiles expose scene surface mode counts and fallback counts so
   canvas/static/lightweight map decisions are visible in normal CLI output.
+- Build profiles expose deferred scene asset counts so package-splitting or
+  remote-loading work is driven by measured asset pressure.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

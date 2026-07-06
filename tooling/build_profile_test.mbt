@@ -82,6 +82,7 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
+  assert_eq(profile.scene_deferred_asset_count, 0)
   assert_eq(profile.scene_static_surface_count, 1)
   assert_eq(profile.scene_canvas_surface_count, 0)
   assert_eq(profile.scene_lightweight_surface_count, 0)
@@ -101,6 +102,7 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("max_update_payload="))
   assert_true(profile.summary.contains("effects=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
+  assert_true(profile.summary.contains("scene_deferred_assets=0"))
   assert_true(
     profile.summary.contains("scene_surfaces=static:1,canvas:0,lightweight:0"),
   )
@@ -236,6 +238,9 @@ test "build profile prefixes diagnostics by budget source" {
     ),
   )
   assert_true(
+    profile.diagnostics.contains("scene-assets:scene-deferred-assets:1"),
+  )
+  assert_true(
     profile.diagnostics.contains(
       "scene-render:scene-marker-count-over-budget:2/1",
     ),
@@ -254,6 +259,7 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.scene_canvas_surface_count, 0)
   assert_eq(profile.scene_lightweight_surface_count, 0)
   assert_eq(profile.scene_surface_fallback_count, 1)
+  assert_eq(profile.scene_deferred_asset_count, 1)
   assert_true(profile.scene_quality_issue_count > 0)
   assert_eq(profile.degraded_scene_count, 1)
   assert_true(profile.summary.contains("diagnostics="))

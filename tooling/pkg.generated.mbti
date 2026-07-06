@@ -48,6 +48,7 @@ pub struct BuildProfile {
   scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
+  scene_deferred_asset_count : Int
   scene_static_surface_count : Int
   scene_canvas_surface_count : Int
   scene_lightweight_surface_count : Int
