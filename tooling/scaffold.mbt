@@ -204,6 +204,13 @@ fn cmd_main_mbt() -> String {
   "      println(\"build_failed=diagnostics\")\n" +
   "      panic()\n" +
   "    }\n" +
+  "    if command == \"watch\" {\n" +
+  "      if watch_once_from_args(@env.args()) {\n" +
+  "        println(\"watch=once\")\n" +
+  "      } else {\n" +
+  "        watch_generated_output(target_support.target, output_dir, strict)\n" +
+  "      }\n" +
+  "    }\n" +
   "  }\n" +
   "}\n\n" +
   "///|\n" +
@@ -226,6 +233,8 @@ fn cmd_main_mbt() -> String {
   "      return \"limits\"\n" +
   "    } else if item == \"build\" {\n" +
   "      return \"build\"\n" +
+  "    } else if item == \"watch\" {\n" +
+  "      return \"watch\"\n" +
   "    } else {\n" +
   "      return \"unknown\"\n" +
   "    }\n" +
@@ -248,6 +257,7 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn command_arg_is_known(item : String) -> Bool {\n" +
   "  item == \"build\" ||\n" +
+  "  item == \"watch\" ||\n" +
   "  item == \"inspect\" ||\n" +
   "  item == \"snapshot\" ||\n" +
   "  item == \"ci-plan\" ||\n" +
@@ -275,11 +285,12 @@ fn cmd_main_mbt() -> String {
   "  println(\"Bunnia starter CLI\")\n" +
   "  println(\"usage=moon run cmd/main -- <command> [options]\")\n" +
   "  println(\"command=build writes=_build/wechat\")\n" +
+  "  println(\"command=watch writes=_build/wechat options=--once\")\n" +
   "  println(\"command=inspect writes=false\")\n" +
   "  println(\"command=snapshot writes=snapshot-file\")\n" +
   "  println(\"command=ci-plan writes=false options=--script\")\n" +
   "  println(\"command=limits writes=false options=--target wechat|alipay|tiktok\")\n" +
-  "  println(\"options=--target --strict --out --snapshot-out\")\n" +
+  "  println(\"options=--target --strict --out --snapshot-out --once\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn target_from_args(args : Array[String]) -> String {\n" +
@@ -311,6 +322,10 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn strict_from_args(args : Array[String]) -> Bool {\n" +
   "  args.contains(\"--strict\") || args.contains(\"--fail-on-diagnostics\")\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn watch_once_from_args(args : Array[String]) -> Bool {\n" +
+  "  args.contains(\"--once\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn ci_script_from_args(args : Array[String]) -> Bool {\n" +
@@ -400,7 +415,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"# \\{target_support.summary}\")\n" +
   "  println(\"\")\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"# Bunnia starter CI plan: steps=11 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=12 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    println(\"echo 'Bunnia starter CI plan diagnostics:'\")\n" +
   "    for item in target_support.diagnostics {\n" +
   "      println(\"echo '\\{item}'\")\n" +
@@ -414,7 +429,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"# Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}\")\n" +
   "    println(\"# \\{inspection_gate.summary}\")\n" +
   "    println(\"# \\{profile_gate.summary}\")\n" +
   "    println(\"\")\n" +
@@ -444,6 +459,8 @@ fn cmd_main_mbt() -> String {
   "      println(\"moon run cmd/main -- snapshot --target \\{target_support.target} --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
   "      println(\"echo '==> build'\")\n" +
   "      println(\"moon run cmd/main -- build --target \\{target_support.target} --out _build/wechat\\{strict_flag}\")\n" +
+  "      println(\"echo '==> watch-once'\")\n" +
+  "      println(\"moon run cmd/main -- watch --target \\{target_support.target} --out _build/wechat-watch --once\\{strict_flag}\")\n" +
   "    }\n" +
   "  }\n" +
   "}\n\n" +
@@ -458,7 +475,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"strict=\\{strict}\")\n" +
   "  println(target_support.summary)\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"Bunnia starter CI plan: steps=11 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=12 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    print_target_diagnostics(target_support)\n" +
   "  } else {\n" +
   "    let project = @app.starter_wechat_project()\n" +
@@ -468,7 +485,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}\")\n" +
   "    println(inspection_gate.summary)\n" +
   "    println(profile_gate.summary)\n" +
   "    for item in project.report.diagnostics {\n" +
@@ -496,6 +513,7 @@ fn cmd_main_mbt() -> String {
   "    println(\"step=inspect command=moon run cmd/main -- inspect --target \\{target_support.target}\\{strict_flag}\")\n" +
   "    println(\"step=snapshot command=moon run cmd/main -- snapshot --target \\{target_support.target} --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
   "    println(\"step=build command=moon run cmd/main -- build --target \\{target_support.target} --out _build/wechat\\{strict_flag}\")\n" +
+  "    println(\"step=watch-once command=moon run cmd/main -- watch --target \\{target_support.target} --out _build/wechat-watch --once\\{strict_flag}\")\n" +
   "  }\n" +
   "}\n\n" +
   "///|\n" +
@@ -524,6 +542,63 @@ fn cmd_main_mbt() -> String {
   "  } else {\n" +
   "    \"\\{left}/\\{right}\"\n" +
   "  }\n" +
+  "}\n\n" +
+  "///|\n" +
+  "#cfg(target=\"js\")\n" +
+  "extern \"js\" fn watch_generated_output(\n" +
+  "  target : String,\n" +
+  "  output_dir : String,\n" +
+  "  strict : Bool,\n" +
+  ") -> Unit =\n" +
+  "  #| function(target, outputDir, strict) {\n" +
+  "  #|   const fs = require(\"fs\")\n" +
+  "  #|   const childProcess = require(\"child_process\")\n" +
+  "  #|   const watchRoots = [\"cmd\", \"scripts\", \".github\"]\n" +
+  "  #|   const rootFiles = [\"moon.mod\", \"moon.pkg\", \"app.mbt\", \"agent_feed.mbt\", \"scene.mbt\", \"updates.mbt\", \"quality.mbt\", \"wechat.mbt\", \"app_test.mbt\", \"README.mbt.md\", \"README.md\"]\n" +
+  "  #|   const buildArgs = [\"run\", \"cmd/main\", \"--\", \"build\", \"--target\", target, \"--out\", outputDir]\n" +
+  "  #|   if (strict) buildArgs.push(\"--strict\")\n" +
+  "  #|   function shouldRebuild(filename) {\n" +
+  "  #|     if (!filename) return true\n" +
+  "  #|     const text = String(filename)\n" +
+  "  #|     if (text.includes(\"_build\") || text.includes(\".git\")) return false\n" +
+  "  #|     return text.endsWith(\".mbt\") || text.endsWith(\".mbt.md\") || text.endsWith(\".md\") || text.endsWith(\".mbti\") || text.endsWith(\".sh\") || text.endsWith(\".yml\") || text.endsWith(\"moon.pkg\") || text.endsWith(\"moon.mod\")\n" +
+  "  #|   }\n" +
+  "  #|   let timer = null\n" +
+  "  #|   function rebuild(reason) {\n" +
+  "  #|     if (!shouldRebuild(reason)) return\n" +
+  "  #|     clearTimeout(timer)\n" +
+  "  #|     timer = setTimeout(() => {\n" +
+  "  #|       console.log(\"watch=rebuild reason=\" + (reason || \"change\"))\n" +
+  "  #|       const result = childProcess.spawnSync(\"moon\", buildArgs, { stdio: \"inherit\" })\n" +
+  "  #|       if (result.error) {\n" +
+  "  #|         console.error(\"watch_error=\" + result.error.message)\n" +
+  "  #|       } else if (result.status !== 0) {\n" +
+  "  #|         console.error(\"watch_exit=\" + result.status)\n" +
+  "  #|       }\n" +
+  "  #|     }, 150)\n" +
+  "  #|   }\n" +
+  "  #|   for (const file of rootFiles) {\n" +
+  "  #|     if (fs.existsSync(file)) fs.watch(file, () => rebuild(file))\n" +
+  "  #|   }\n" +
+  "  #|   for (const root of watchRoots) {\n" +
+  "  #|     if (fs.existsSync(root)) {\n" +
+  "  #|       fs.watch(root, { recursive: true }, (_event, filename) => {\n" +
+  "  #|         rebuild(filename ? root + \"/\" + filename : root)\n" +
+  "  #|       })\n" +
+  "  #|     }\n" +
+  "  #|   }\n" +
+  "  #|   console.log(\"watch=active target=\" + target + \" output=\" + outputDir)\n" +
+  "  #|   console.log(\"watching=\" + rootFiles.concat(watchRoots).join(\",\"))\n" +
+  "  #|   process.stdin.resume()\n" +
+  "  #| }\n\n" +
+  "///|\n" +
+  "#cfg(not(target=\"js\"))\n" +
+  "fn watch_generated_output(\n" +
+  "  _target : String,\n" +
+  "  _output_dir : String,\n" +
+  "  _strict : Bool,\n" +
+  ") -> Unit {\n" +
+  "  panic()\n" +
   "}\n\n" +
   "///|\n" +
   "#cfg(target=\"js\")\n" +
@@ -812,6 +887,8 @@ fn readme(name : String) -> String {
   "moon run cmd/main -- inspect --target wechat --strict\n" +
   "moon run cmd/main -- snapshot --target wechat --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
   "moon run cmd/main -- build --target wechat --out _build/wechat --strict\n" +
+  "moon run cmd/main -- watch --target wechat --out _build/wechat-watch --once --strict\n" +
+  "moon run cmd/main -- watch --target wechat --out _build/wechat-watch --strict\n" +
   "```\n"
 }
 

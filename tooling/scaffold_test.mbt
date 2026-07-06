@@ -109,6 +109,35 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "watch_once_from_args",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "watch_generated_output",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "command == \"watch\"",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("return \"watch\""),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("watch=once"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("watch=active"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "childProcess.spawnSync(\"moon\", buildArgs",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "unknown_command_from_args",
     ),
   )
@@ -234,7 +263,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}",
+      "Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}",
     ),
   )
   assert_true(
@@ -260,6 +289,11 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "command=watch writes=_build/wechat options=--once",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "command=inspect writes=false",
     ),
   )
@@ -271,6 +305,16 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "moon run cmd/main -- build --target \\{target_support.target} --out _build/wechat\\{strict_flag}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "moon run cmd/main -- watch --target \\{target_support.target} --out _build/wechat-watch --once\\{strict_flag}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=watch-once command=moon run cmd/main -- watch --target \\{target_support.target} --out _build/wechat-watch --once\\{strict_flag}",
     ),
   )
   assert_true(
@@ -488,6 +532,16 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
       "build --target wechat --out _build/wechat",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "watch --target wechat --out _build/wechat-watch --once --strict",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "watch --target wechat --out _build/wechat-watch --strict",
     ),
   )
   assert_true(plan.summary.contains("files=17"))
