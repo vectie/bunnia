@@ -902,8 +902,10 @@ Current evidence:
   bounded patches, and clean WeChat event wiring, while `moon run cmd/main`
   writes the starter's WeChat files with optional `--strict` diagnostics gating
   or runs no-write `inspect` route/file pressure checks and deterministic
-  `snapshot` artifact generation. The local `moon.work` includes the starter
-  app plus the Bunnia checkout for development before registry publication.
+  `snapshot` artifact generation. The generated `ci-plan` lists the starter's
+  check, test, inspect, snapshot, and strict build commands, and the local
+  `moon.work` includes the starter app plus the Bunnia checkout for development
+  before registry publication.
 
 ## Phase 8: Production Readiness
 

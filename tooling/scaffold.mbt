@@ -79,31 +79,35 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn main {\n" +
   "  let command = command_from_args(@env.args())\n" +
-  "  let output_dir = output_dir_from_args(@env.args())\n" +
   "  let strict = strict_from_args(@env.args())\n" +
-  "  let project = @app.starter_wechat_project()\n" +
-  "  println(\"command=\\{command}\")\n" +
-  "  println(\"strict=\\{strict}\")\n" +
-  "  println(project.summary)\n" +
-  "  println(project.manifest.summary)\n" +
-  "  println(project.report.summary)\n" +
-  "  if command == \"inspect\" {\n" +
-  "    print_inspect_result(project)\n" +
-  "  } else if command == \"snapshot\" {\n" +
-  "    let snapshot = starter_snapshot(project)\n" +
-  "    let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
-  "    write_text_file(snapshot_path, snapshot.content)\n" +
-  "    println(snapshot.summary)\n" +
-  "    println(\"snapshot=\\{snapshot_path}\")\n" +
+  "  if command == \"ci-plan\" {\n" +
+  "    print_ci_plan(strict)\n" +
   "  } else {\n" +
-  "    for file in project.files {\n" +
-  "      write_text_file(join_path(output_dir, file.path), file.content)\n" +
+  "    let output_dir = output_dir_from_args(@env.args())\n" +
+  "    let project = @app.starter_wechat_project()\n" +
+  "    println(\"command=\\{command}\")\n" +
+  "    println(\"strict=\\{strict}\")\n" +
+  "    println(project.summary)\n" +
+  "    println(project.manifest.summary)\n" +
+  "    println(project.report.summary)\n" +
+  "    if command == \"inspect\" {\n" +
+  "      print_inspect_result(project)\n" +
+  "    } else if command == \"snapshot\" {\n" +
+  "      let snapshot = starter_snapshot(project)\n" +
+  "      let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
+  "      write_text_file(snapshot_path, snapshot.content)\n" +
+  "      println(snapshot.summary)\n" +
+  "      println(\"snapshot=\\{snapshot_path}\")\n" +
+  "    } else {\n" +
+  "      for file in project.files {\n" +
+  "        write_text_file(join_path(output_dir, file.path), file.content)\n" +
+  "      }\n" +
+  "      println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
   "    }\n" +
-  "    println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
-  "  }\n" +
-  "  if should_fail(strict, project) {\n" +
-  "    println(\"build_failed=diagnostics\")\n" +
-  "    panic()\n" +
+  "    if should_fail(strict, project) {\n" +
+  "      println(\"build_failed=diagnostics\")\n" +
+  "      panic()\n" +
+  "    }\n" +
   "  }\n" +
   "}\n\n" +
   "///|\n" +
@@ -113,6 +117,8 @@ fn cmd_main_mbt() -> String {
   "      return \"inspect\"\n" +
   "    } else if item == \"snapshot\" {\n" +
   "      return \"snapshot\"\n" +
+  "    } else if item == \"ci-plan\" {\n" +
+  "      return \"ci-plan\"\n" +
   "    } else if item == \"build\" {\n" +
   "      return \"build\"\n" +
   "    }\n" +
@@ -170,6 +176,18 @@ fn cmd_main_mbt() -> String {
   "  for file in project.manifest.files {\n" +
   "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
   "  }\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn print_ci_plan(strict : Bool) -> Unit {\n" +
+  "  let strict_flag = if strict { \" --strict\" } else { \"\" }\n" +
+  "  println(\"command=ci-plan\")\n" +
+  "  println(\"strict=\\{strict}\")\n" +
+  "  println(\"Bunnia starter CI plan: steps=5 diagnostics=0\")\n" +
+  "  println(\"step=check command=moon check\")\n" +
+  "  println(\"step=test command=moon test\")\n" +
+  "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
+  "  println(\"step=snapshot command=moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
+  "  println(\"step=build command=moon run cmd/main -- --out _build/wechat\\{strict_flag}\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
@@ -371,6 +389,7 @@ fn readme(name : String) -> String {
   "```bash\n" +
   "moon check\n" +
   "moon test\n" +
+  "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
   "moon run cmd/main -- --out _build/wechat --strict\n" +

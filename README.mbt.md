@@ -332,10 +332,11 @@ WeChat generation into separate files, plus a local `cmd/main` build command
 that writes the starter's WeChat files and supports `--strict` diagnostic
 gating. The same command has an `inspect` mode for no-write route and file
 pressure checks and a `snapshot` mode for deterministic generated-output
-artifacts. Starter tests check render budgets, scene output, bounded patches,
-and clean WeChat event wiring. The command also writes a local `moon.work` that
-includes the starter app and the current Bunnia checkout for pre-registry
-development.
+artifacts. It also prints a local `ci-plan` with check, test, inspect,
+snapshot, and strict build commands. Starter tests check render budgets, scene
+output, bounded patches, and clean WeChat event wiring. The command also writes
+a local `moon.work` that includes the starter app and the current Bunnia
+checkout for pre-registry development.
 
 Generate the Wenyu proof slice with:
 
