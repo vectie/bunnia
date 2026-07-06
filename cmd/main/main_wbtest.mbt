@@ -298,13 +298,13 @@ test "init command builds a scaffold plan" {
   assert_eq(command_from_args(args), "init")
   assert_eq(name, "agent_demo")
   assert_eq(scaffold.module_name, "local/agent_demo")
-  assert_eq(scaffold.files.length(), 10)
-  assert_eq(scaffold_write_file_count(scaffold), 11)
+  assert_eq(scaffold.files.length(), 12)
+  assert_eq(scaffold_write_file_count(scaffold), 13)
   assert_eq(
     scaffold_output_dir_from_args(args, name),
     "_build/bunnia/scaffold/agent_demo",
   )
-  assert_true(scaffold.summary.contains("files=10"))
+  assert_true(scaffold.summary.contains("files=12"))
 }
 
 ///|

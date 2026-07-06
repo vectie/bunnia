@@ -3,9 +3,11 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 10)
+  assert_eq(plan.files.length(), 12)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
+  assert_true(has_file(plan.files, "cmd/main/moon.pkg"))
+  assert_true(has_file(plan.files, "cmd/main/main.mbt"))
   assert_true(has_file(plan.files, "app.mbt"))
   assert_true(has_file(plan.files, "agent_feed.mbt"))
   assert_true(has_file(plan.files, "scene.mbt"))
@@ -22,6 +24,19 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "moon.pkg").contains("\"vectie/bunnia\""),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/moon.pkg").contains(
+      "\"local/starter\" @app",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "starter_wechat_project",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("write_text_file"),
   )
   assert_true(file_content(plan.files, "app.mbt").contains("pub fn view()"))
   assert_true(
@@ -77,7 +92,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
-  assert_true(plan.summary.contains("files=10"))
+  assert_true(plan.summary.contains("files=12"))
 }
 
 ///|

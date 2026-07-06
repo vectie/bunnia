@@ -1509,7 +1509,7 @@ test "scaffold project exposes starter files through facade" {
     name="mini_agent",
     module_name="local/mini_agent",
   )
-  assert_eq(scaffold.files.length(), 10)
+  assert_eq(scaffold.files.length(), 12)
   assert_eq(scaffold.module_name, "local/mini_agent")
   assert_true(scaffold.summary.contains("Bunnia scaffold"))
   assert_true(
@@ -1538,6 +1538,11 @@ test "scaffold project exposes starter files through facade" {
   assert_true(
     scaffold_file_content(scaffold.files, "wechat.mbt").contains(
       "starter_wechat_project",
+    ),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "cmd/main/main.mbt").contains(
+      "write_text_file",
     ),
   )
   assert_true(
