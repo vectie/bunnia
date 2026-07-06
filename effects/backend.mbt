@@ -177,6 +177,23 @@ pub fn endpoint_effect(endpoint : BackendEndpoint, id? : String = "") -> Effect 
 }
 
 ///|
+pub fn backend_contract_effects(contract : BackendContract) -> Array[Effect] {
+  let output : Array[Effect] = []
+  for endpoint in contract.endpoints {
+    output.push(endpoint_effect(endpoint))
+  }
+  output
+}
+
+///|
+pub fn plan_backend_effects_for_platform(
+  contract : BackendContract,
+  platform : @core.Platform,
+) -> EffectPlan {
+  plan_effects_for_platform(backend_contract_effects(contract), platform)
+}
+
+///|
 pub fn snapshot_load_endpoint(
   id : String,
   path : String,

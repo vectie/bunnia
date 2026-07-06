@@ -282,8 +282,13 @@ test {
     ),
   ])
   let plan = @bunnia.plan_backend_contract(contract)
+  let effects = @bunnia.plan_backend_effects_for_platform(
+    contract,
+    @bunnia.wechat(),
+  )
   let js = @bunnia.generate_wechat_request_adapter(contract)
   assert_eq(plan.endpoint_count, 2)
+  assert_eq(effects.effect_count, 2)
   assert_true(js.contains("wx.request"))
   assert_true(!js.contains("secret"))
 }

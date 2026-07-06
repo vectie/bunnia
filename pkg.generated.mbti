@@ -50,6 +50,8 @@ pub fn backend_cancelled(@effects.BackendRequest) -> @effects.BackendResult
 
 pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[@effects.BackendEndpoint]) -> @effects.BackendContract
 
+pub fn backend_contract_effects(@effects.BackendContract) -> Array[@effects.Effect]
+
 pub fn backend_endpoint(id~ : String, kind~ : @effects.BackendEndpointKind, http_method~ : @effects.HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> @effects.BackendEndpoint
 
 pub fn backend_endpoint_kind_id(@effects.BackendEndpointKind) -> String
@@ -283,6 +285,8 @@ pub fn plan_agent_deltas_with_budget(Array[@agent.AgentDelta], @core.PatchBudget
 pub fn plan_backend_contract(@effects.BackendContract) -> @effects.BackendPlan
 
 pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.BackendBudget) -> @effects.BackendPlan
+
+pub fn plan_backend_effects_for_platform(@effects.BackendContract, @core.Platform) -> @effects.EffectPlan
 
 pub fn plan_communications(Array[@agent.Communication]) -> @agent.CommunicationPlan
 

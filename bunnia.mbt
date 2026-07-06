@@ -1780,6 +1780,19 @@ pub fn endpoint_effect(endpoint : BackendEndpoint, id? : String = "") -> Effect 
 }
 
 ///|
+pub fn backend_contract_effects(contract : BackendContract) -> Array[Effect] {
+  @effects.backend_contract_effects(contract)
+}
+
+///|
+pub fn plan_backend_effects_for_platform(
+  contract : BackendContract,
+  platform : Platform,
+) -> EffectPlan {
+  @effects.plan_backend_effects_for_platform(contract, platform)
+}
+
+///|
 pub fn snapshot_load_endpoint(
   id : String,
   path : String,

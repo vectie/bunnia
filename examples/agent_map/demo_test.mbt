@@ -83,6 +83,21 @@ test "agent map demo exposes communication pressure" {
 }
 
 ///|
+test "agent map demo exposes backend-derived effect pressure" {
+  let backend = @bunnia.plan_backend_contract(demo_backend_contract())
+  let effects = demo_effect_plan()
+  assert_eq(backend.endpoint_count, 4)
+  assert_eq(backend.streaming_count, 1)
+  assert_eq(backend.review_required_count, 1)
+  assert_eq(backend.diagnostics.length(), 0)
+  assert_eq(effects.effect_count, 4)
+  assert_eq(effects.stream_effect_count, 1)
+  assert_eq(effects.cloud_function_count, 0)
+  assert_eq(effects.diagnostics.length(), 0)
+  assert_true(effects.summary.contains("effects=4"))
+}
+
+///|
 test "agent map demo exposes scene profile signals" {
   let scene = demo_scene_render_plan()
   let assets = demo_asset_plan()

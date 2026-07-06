@@ -110,6 +110,14 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
 }
 
 ///|
+pub fn demo_effect_plan() -> @bunnia.EffectPlan {
+  @bunnia.plan_backend_effects_for_platform(
+    demo_backend_contract(),
+    @bunnia.wechat(),
+  )
+}
+
+///|
 pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
   @bunnia.plan_scene_assets(scene_assets())
 }

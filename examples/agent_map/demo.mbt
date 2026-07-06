@@ -157,6 +157,30 @@ pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
 }
 
 ///|
+pub fn demo_backend_contract() -> @bunnia.BackendContract {
+  @bunnia.backend_contract(id="agent-map-backend", endpoints=[
+    @bunnia.agent_message_endpoint(
+      "send-agent-message", "/agent/message", "draftMessage", "messageResult",
+    ),
+    @bunnia.agent_stream_endpoint(
+      "stream-route-status", "/agent/route/status", "threadId", "routeStatus",
+    ),
+    @bunnia.review_decision_endpoint(
+      "review-route", "/review/route", "reviewDecision", "reviewResult",
+    ),
+    @bunnia.tool_ack_endpoint("ack-route-tool", "/tool/route/ack", "toolAck"),
+  ])
+}
+
+///|
+pub fn demo_effect_plan() -> @bunnia.EffectPlan {
+  @bunnia.plan_backend_effects_for_platform(
+    demo_backend_contract(),
+    @bunnia.wechat(),
+  )
+}
+
+///|
 pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
   @bunnia.plan_scene_render(demo_scene())
 }

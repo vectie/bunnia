@@ -225,6 +225,7 @@ fn profile_for_example(
     @bunnia.profile_wechat_project(
       project,
       patches,
+      effect_plans=[@wenyu.demo_effect_plan()],
       communication_plans=[@wenyu.demo_communication_plan()],
       backend_plans=[
         @bunnia.plan_backend_contract(@wenyu.demo_backend_contract()),
@@ -240,8 +241,12 @@ fn profile_for_example(
     @bunnia.profile_wechat_project(
       project,
       patches,
+      effect_plans=[@demo.demo_effect_plan()],
       communication_plans=[@demo.demo_communication_plan()],
       agent_delta_plans=[@demo.demo_agent_delta_plan()],
+      backend_plans=[
+        @bunnia.plan_backend_contract(@demo.demo_backend_contract()),
+      ],
       snapshot_plans=[@demo.demo_snapshot_delta_plan()],
       asset_plans=[@demo.demo_asset_plan()],
       thread_plans=[@demo.demo_scene_thread_plan()],

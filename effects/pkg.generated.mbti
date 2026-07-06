@@ -19,6 +19,8 @@ pub fn backend_cancelled(BackendRequest) -> BackendResult
 
 pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[BackendEndpoint]) -> BackendContract
 
+pub fn backend_contract_effects(BackendContract) -> Array[Effect]
+
 pub fn backend_endpoint(id~ : String, kind~ : BackendEndpointKind, http_method~ : HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> BackendEndpoint
 
 pub fn backend_endpoint_kind_id(BackendEndpointKind) -> String
@@ -76,6 +78,8 @@ pub fn operator_submit_endpoint(String, String, String, String) -> BackendEndpoi
 pub fn plan_backend_contract(BackendContract) -> BackendPlan
 
 pub fn plan_backend_contract_with_budget(BackendContract, BackendBudget) -> BackendPlan
+
+pub fn plan_backend_effects_for_platform(BackendContract, @core.Platform) -> EffectPlan
 
 pub fn plan_effects_for_platform(Array[Effect], @core.Platform) -> EffectPlan
 

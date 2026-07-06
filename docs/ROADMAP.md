@@ -507,6 +507,8 @@ Current evidence:
 - Endpoint helpers cover snapshot/status loads, operator submit, agent message
   send, agent status stream, thread load, handoff submit, review decision, and
   tool-result acknowledgment.
+- Backend contracts can derive request/stream effect plans, so examples avoid
+  duplicating endpoint intent when profiling runtime pressure.
 - Backend loading, ready, stale, failed, timeout, malformed, and cancelled
   states can be represented as small `setData` patches.
 - Replayable backend requests and backend results are typed as data, with
@@ -694,6 +696,8 @@ Current evidence:
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,
   scene render, and scene visual-quality diagnostics into one CLI-visible
   summary for generated examples.
+- Example build profiles feed backend-derived effect plans into that summary,
+  so request and stream pressure is visible in normal CLI output.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.

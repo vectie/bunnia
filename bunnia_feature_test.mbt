@@ -710,6 +710,10 @@ test "backend contracts plan request and streaming effects" {
       max_review_required=1,
     ),
   )
+  let effect_plan = @bunnia.plan_backend_effects_for_platform(
+    contract,
+    @bunnia.wechat(),
+  )
   let stream_effect = @bunnia.endpoint_effect(endpoints[3])
   let patches = @bunnia.plan_patches([
     @bunnia.backend_state_patch(
@@ -723,6 +727,10 @@ test "backend contracts plan request and streaming effects" {
   assert_eq(plan.endpoint_count, 6)
   assert_eq(plan.streaming_count, 1)
   assert_eq(plan.review_required_count, 2)
+  assert_eq(effect_plan.effect_count, 6)
+  assert_eq(effect_plan.stream_effect_count, 1)
+  assert_eq(effect_plan.cloud_function_count, 0)
+  assert_eq(effect_plan.diagnostics.length(), 0)
   assert_eq(plan.diagnostics.length(), 3)
   assert_true(
     plan.diagnostics.contains("backend-endpoint-count-over-budget:6/3"),
