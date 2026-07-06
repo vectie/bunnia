@@ -775,6 +775,9 @@ Current evidence:
   diagnostics, first-screen bytes, update payloads, node/event counts, and
   scene marker pressure, so huge apps can choose the next page to optimize
   without opening every generated file.
+- Project inspection reports also expose max scene asset and remote scene asset
+  pressure across routes, so map-heavy generated output can be triaged before
+  opening every route manifest.
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.

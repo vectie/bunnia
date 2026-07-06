@@ -197,7 +197,7 @@ fn write_snapshot_route_inspections(
   out.write_string("route_inspections:\n")
   for route in routes {
     out.write_string(
-      "- \{route.route} status=\{route.status} risk_score=\{route.risk_score} diagnostics=\{route.diagnostics} first_screen=\{route.first_screen_bytes} update_payload=\{route.update_payload_bytes} nodes=\{route.node_count} events=\{route.event_count} scene_markers=\{route.scene_visible_marker_count}/\{route.scene_marker_count} scene_assets=\{route.scene_asset_count}\n",
+      "- \{route.route} status=\{route.status} risk_score=\{route.risk_score} diagnostics=\{route.diagnostics} first_screen=\{route.first_screen_bytes} update_payload=\{route.update_payload_bytes} nodes=\{route.node_count} events=\{route.event_count} scene_markers=\{route.scene_visible_marker_count}/\{route.scene_marker_count} scene_assets=\{route.scene_asset_count} scene_remote_assets=\{route.scene_remote_asset_count}\n",
     )
   }
 }

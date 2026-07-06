@@ -134,12 +134,12 @@ moon run cmd/main -- inspect --target wechat --example agent_map --budget tight 
 
 `inspect` prints the same render, manifest, report, patch, profile, and
 snapshot summaries as the build path, then adds a project inspection summary,
-the highest-risk route, one route-inspection line per generated page, one
-`route=...` manifest line per generated page, route-scoped `scene_asset=...`
-lines, and one `file=...` line per generated artifact. This is intended for
-quick checks of first-screen bytes, update payloads, scene marker and asset
-pressure, diagnostic counts, file kinds, file bytes, and checksums before
-opening WeChat DevTools.
+the highest-risk route, max scene marker/asset pressure, one route-inspection
+line per generated page, one `route=...` manifest line per generated page,
+route-scoped `scene_asset=...` lines, and one `file=...` line per generated
+artifact. This is intended for quick checks of first-screen bytes, update
+payloads, scene marker and asset pressure, diagnostic counts, file kinds, file
+bytes, and checksums before opening WeChat DevTools.
 
 To inspect component mapping and platform capability limits:
 

@@ -57,6 +57,7 @@ test "generated snapshots record deterministic file pressure" {
       "route_inspections:\n- pages/snapshot/index status=ok",
     ),
   )
+  assert_true(snapshot.content.contains("scene_remote_assets=0"))
   assert_true(snapshot.content.contains("scene_assets:\nroute_diagnostics:"))
   assert_true(
     snapshot.content.contains(
@@ -115,6 +116,12 @@ test "generated snapshots expose route scene asset references" {
       "scene_assets:\n- pages/assets/index:agent kind=sprite src=/assets/agent.png remote=false",
     ),
   )
+  assert_true(
+    snapshot.content.contains(
+      "route_inspections:\n- pages/assets/index status=ok",
+    ),
+  )
+  assert_true(snapshot.content.contains("scene_remote_assets=1"))
   assert_true(
     snapshot.content.contains(
       "- pages/assets/index:pin kind=remote-image src=https://cdn.example.test/pin.png remote=true",
