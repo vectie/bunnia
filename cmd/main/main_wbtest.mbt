@@ -467,11 +467,13 @@ test "build profile keeps agent map diagnostics visible" {
   assert_eq(profile.scene_camera_clamped_count, 0)
   assert_eq(profile.scene_static_surface_count, 1)
   assert_eq(profile.scene_surface_fallback_count, 0)
-  assert_eq(profile.effect_count, 4)
+  assert_eq(profile.effect_count, 6)
   assert_eq(profile.stream_effect_count, 1)
-  assert_eq(profile.backend_endpoint_count, 4)
+  assert_eq(profile.backend_endpoint_count, 6)
   assert_eq(profile.backend_streaming_count, 1)
   assert_eq(profile.backend_review_required_count, 1)
+  assert_eq(profile.backend_cancel_count, 1)
+  assert_eq(profile.backend_retry_count, 1)
   assert_eq(profile.communication_count, 3)
   assert_eq(profile.communication_visible_count, 3)
   assert_eq(profile.communication_unresolved_review_count, 1)
@@ -488,11 +490,13 @@ test "build profile keeps agent map diagnostics visible" {
   assert_eq(profile.snapshot_append_item_count, 1)
   assert_eq(profile.snapshot_full_replace_count, 0)
   assert_eq(profile.diagnostics.length(), 0)
-  assert_true(profile.summary.contains("effects=4"))
+  assert_true(profile.summary.contains("effects=6"))
   assert_true(profile.summary.contains("streams=1"))
-  assert_true(profile.summary.contains("backend_endpoints=4"))
+  assert_true(profile.summary.contains("backend_endpoints=6"))
   assert_true(profile.summary.contains("backend_streams=1"))
   assert_true(profile.summary.contains("backend_reviews=1"))
+  assert_true(profile.summary.contains("backend_cancels=1"))
+  assert_true(profile.summary.contains("backend_retries=1"))
   assert_true(profile.summary.contains("agent_deltas=4"))
   assert_true(profile.summary.contains("communications=3/3"))
   assert_true(profile.summary.contains("tool_results=1/1"))
@@ -540,7 +544,7 @@ test "build render budget can fail map-heavy routes before preview" {
     wechat_build_budget_from_args(["node", "main.js"]),
   )
   assert_true(
-    project.page.plan.diagnostics.contains("node-count-over-budget:50/8"),
+    project.page.plan.diagnostics.contains("node-count-over-budget:54/8"),
   )
   assert_true(
     report.diagnostics.contains(

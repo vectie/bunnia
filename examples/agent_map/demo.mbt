@@ -61,6 +61,8 @@ pub fn demo_view() -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("scene-controls")], [
         @bunnia.button("Pan Map", "pan-map-east"),
         @bunnia.button("Zoom Map", "zoom-map-in"),
+        @bunnia.button("Cancel Run", "cancel-agent-run"),
+        @bunnia.button("Retry Run", "retry-agent-run"),
       ]),
       map,
     ]),
@@ -123,6 +125,12 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     @bunnia.wechat_event_patch("zoom-map-in", [
       @bunnia.set_scene_camera_zoom("ops-map", 150),
     ]),
+    @bunnia.wechat_event_patch("cancel-agent-run", [
+      @bunnia.set_string("agent.routeRun.status", "cancelled"),
+    ]),
+    @bunnia.wechat_event_patch("retry-agent-run", [
+      @bunnia.set_string("agent.routeRun.status", "retrying"),
+    ]),
     @bunnia.wechat_event_patch("open-thread-zone-a", [
       @bunnia.select_scene_region_thread("ops-map", "zone-a", "thread-overview"),
     ]),
@@ -136,7 +144,7 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"scenes\":{\"ops-map\":{\"selectedRegion\":\"\",\"regions\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}},\"camera\":{\"x\":0,\"y\":0,\"width\":520,\"height\":360,\"zoomPercent\":100}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
+  "{\"scenes\":{\"ops-map\":{\"selectedRegion\":\"\",\"regions\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}},\"camera\":{\"x\":0,\"y\":0,\"width\":520,\"height\":360,\"zoomPercent\":100}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"},\"agent\":{\"routeRun\":{\"status\":\"running\"}},\"runCancel\":{\"runId\":\"route-run-1\"},\"runRetry\":{\"runId\":\"route-run-1\"}}"
 }
 
 ///|
@@ -249,6 +257,12 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
       "review-route", "/review/route", "reviewDecision", "reviewResult",
     ),
     @bunnia.tool_ack_endpoint("ack-route-tool", "/tool/route/ack", "toolAck"),
+    @bunnia.agent_cancel_endpoint(
+      "cancel-agent-run", "/agent/route/cancel", "runCancel", "cancelResult",
+    ),
+    @bunnia.agent_retry_endpoint(
+      "retry-agent-run", "/agent/route/retry", "runRetry", "retryResult",
+    ),
   ])
 }
 

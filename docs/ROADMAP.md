@@ -593,6 +593,9 @@ Current evidence:
 - Backend-aware generated projects package that request helper as
   `bunnia.backend.js`, so agentic examples carry their contract-derived
   request boundary without embedding Moontown-specific execution logic.
+- The `agent_map` proof route now exposes cancel and retry run controls backed
+  by generic agent-operation backend endpoints, keeping recovery flows visible
+  in generated WeChat output.
 - Matching endpoint events now call the generated request helper after bounded
   local patches, preserving replay/loading state without full-page rerenders.
 - Per-page request dispatch maps are filtered by reachable event messages, so

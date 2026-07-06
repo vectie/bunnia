@@ -29,6 +29,8 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("data-bunnia-message=\"ack-route-tool\""))
   assert_true(page.wxml.contains("pan-map-east"))
   assert_true(page.wxml.contains("zoom-map-in"))
+  assert_true(page.wxml.contains("cancel-agent-run"))
+  assert_true(page.wxml.contains("retry-agent-run"))
   assert_true(page.wxml.contains("data-camera-width=\"520\""))
   assert_true(page.wxml.contains("data-camera-zoom-percent=\"100\""))
   assert_true(page.wxml.contains("data-scene-width=\"720\""))
@@ -53,6 +55,8 @@ test "agent map demo generates wechat output" {
   assert_true(page.js.contains("\"ack-route-tool\""))
   assert_true(page.js.contains("\"pan-map-east\""))
   assert_true(page.js.contains("\"zoom-map-in\""))
+  assert_true(page.js.contains("\"cancel-agent-run\""))
+  assert_true(page.js.contains("\"retry-agent-run\""))
   assert_true(page.js.contains("\"open-thread-zone-a\""))
   assert_true(page.js.contains("\"open-thread-zone-b\""))
   assert_true(
@@ -85,6 +89,16 @@ test "agent map demo generates wechat output" {
       "{kind:\"set\",path:\"scenes.ops-map.camera.zoomPercent\",value:150}",
     ),
   )
+  assert_true(
+    page.js.contains(
+      "{kind:\"set\",path:\"agent.routeRun.status\",value:\"cancelled\"}",
+    ),
+  )
+  assert_true(
+    page.js.contains(
+      "{kind:\"set\",path:\"agent.routeRun.status\",value:\"retrying\"}",
+    ),
+  )
   assert_true(page.js.contains("\"subjectKind\":\"region\""))
   assert_true(page.js.contains("\"subjectId\":\"agent-b\""))
   assert_true(page.plan.node_count > 12)
@@ -111,9 +125,24 @@ test "agent map demo generates a mini-program file set" {
   assert_true(project.page.js.contains("require('./index.data.js')"))
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
   assert_true(project.page.js.contains("\"ack-route-tool\":\"ack-route-tool\""))
+  assert_true(
+    project.page.js.contains("\"cancel-agent-run\":\"cancel-agent-run\""),
+  )
+  assert_true(
+    project.page.js.contains("\"retry-agent-run\":\"retry-agent-run\""),
+  )
+  assert_true(
+    project.page.js.contains("endpoint.kind === 'agent-operation-cancel'"),
+  )
+  assert_true(
+    project.page.js.contains("endpoint.kind === 'agent-operation-retry'"),
+  )
   assert_true(!project.page.js.contains("\"send-agent-message\""))
   assert_true(!project.page.js.contains("\"stream-route-status\""))
   assert_true(!project.page.js.contains("\"review-route\""))
+  assert_eq(project.manifest.pages[0].backend_event_count, 3)
+  assert_eq(project.manifest.pages[0].backend_stream_count, 0)
+  assert_eq(project.manifest.pages[0].backend_review_count, 0)
   assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
   assert_true(project.page.js.contains("__bunniaEventPatches"))
   assert_true(has_file(project.files, "bunnia.runtime.js"))
@@ -217,15 +246,17 @@ test "agent map demo exposes tool result pressure" {
 test "agent map demo exposes backend-derived effect pressure" {
   let backend = @bunnia.plan_backend_contract(demo_backend_contract())
   let effects = demo_effect_plan()
-  assert_eq(backend.endpoint_count, 4)
+  assert_eq(backend.endpoint_count, 6)
   assert_eq(backend.streaming_count, 1)
   assert_eq(backend.review_required_count, 1)
+  assert_eq(backend.cancel_count, 1)
+  assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 4)
+  assert_eq(effects.effect_count, 6)
   assert_eq(effects.stream_effect_count, 1)
   assert_eq(effects.cloud_function_count, 0)
   assert_eq(effects.diagnostics.length(), 0)
-  assert_true(effects.summary.contains("effects=4"))
+  assert_true(effects.summary.contains("effects=6"))
 }
 
 ///|
