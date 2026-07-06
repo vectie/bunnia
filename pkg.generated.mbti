@@ -69,6 +69,8 @@ pub fn default_patch_budget() -> @core.PatchBudget
 
 pub fn default_render_budget() -> @core.RenderBudget
 
+pub fn default_scene_asset_budget() -> @scene.SceneAssetBudget
+
 pub fn default_wechat_runtime() -> @wechat.WechatRuntime
 
 pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
@@ -95,6 +97,8 @@ pub fn id(String) -> @core.Attr
 
 pub fn image(String, String) -> @core.Node
 
+pub fn image_asset(String, String, Int) -> @scene.SceneAsset
+
 pub fn input(name~ : String, value? : String, input_message? : String) -> @core.Node
 
 pub fn keyed(String, @core.Node) -> @core.Node
@@ -105,7 +109,7 @@ pub fn[Item] list(Array[Item], (Item) -> @core.Node) -> @core.Node
 
 pub fn login(String, String) -> @effects.Effect
 
-pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String) -> @scene.SceneMarker
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String) -> @scene.SceneMarker
 
 pub fn max_depth(@core.Node) -> Int
 
@@ -133,6 +137,10 @@ pub fn plan_patches(Array[@core.Patch]) -> @core.PatchPlan
 
 pub fn plan_patches_with_budget(Array[@core.Patch], @core.PatchBudget) -> @core.PatchPlan
 
+pub fn plan_scene_assets(Array[@scene.SceneAsset]) -> @scene.SceneAssetPlan
+
+pub fn plan_scene_assets_with_budget(Array[@scene.SceneAsset], @scene.SceneAssetBudget) -> @scene.SceneAssetPlan
+
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
 pub fn platform_id(@core.Platform) -> String
@@ -142,6 +150,8 @@ pub fn platform_label(@core.Platform) -> String
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
 pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
+
+pub fn remote_image_asset(String, String) -> @scene.SceneAsset
 
 pub fn remove_path(String) -> @core.Patch
 
@@ -183,17 +193,37 @@ pub fn run_status_id(@agent.RunStatus) -> String
 
 pub fn run_waiting_review() -> @agent.RunStatus
 
-pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer]) -> @scene.Scene
+pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer], assets? : Array[@scene.SceneAsset]) -> @scene.Scene
+
+pub fn scene_asset(id~ : String, kind~ : @scene.SceneAssetKind, src~ : String, estimated_bytes? : Int, remote? : Bool) -> @scene.SceneAsset
+
+pub fn scene_asset_budget(max_assets~ : Int, max_package_bytes~ : Int, max_remote_assets~ : Int) -> @scene.SceneAssetBudget
+
+pub fn scene_asset_image() -> @scene.SceneAssetKind
+
+pub fn scene_asset_kind_id(@scene.SceneAssetKind) -> String
+
+pub fn scene_asset_remote_image() -> @scene.SceneAssetKind
+
+pub fn scene_asset_sprite() -> @scene.SceneAssetKind
+
+pub fn scene_asset_tile() -> @scene.SceneAssetKind
 
 pub fn scene_size(Int, Int) -> @scene.SceneSize
 
 pub fn scroll_view(Array[@core.Node]) -> @core.Node
 
+pub fn select_scene_marker(String, String) -> @core.Patch
+
 pub fn set_json(String, String) -> @core.Patch
+
+pub fn set_scene_marker_status(String, String, String) -> @core.Patch
 
 pub fn set_string(String, String) -> @core.Patch
 
 pub fn share(String, String) -> @effects.Effect
+
+pub fn sprite_asset(String, String, Int) -> @scene.SceneAsset
 
 pub fn static_scene_view(@scene.Scene) -> @core.Node
 
@@ -216,6 +246,8 @@ pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_r
 pub fn thread_card(@agent.Thread) -> @core.Node
 
 pub fn tiktok() -> @core.Platform
+
+pub fn tile_asset(String, String, Int) -> @scene.SceneAsset
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> @agent.Communication
 
@@ -281,6 +313,14 @@ pub using @agent {type ReviewState}
 pub using @agent {type RunStatus}
 
 pub using @scene {type Scene}
+
+pub using @scene {type SceneAsset}
+
+pub using @scene {type SceneAssetBudget}
+
+pub using @scene {type SceneAssetKind}
+
+pub using @scene {type SceneAssetPlan}
 
 pub using @scene {type SceneLayer}
 

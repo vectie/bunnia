@@ -7,15 +7,39 @@ import {
 }
 
 // Values
+pub fn default_scene_asset_budget() -> SceneAssetBudget
+
+pub fn image_asset(String, String, Int) -> SceneAsset
+
 pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
 
-pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String) -> SceneMarker
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String) -> SceneMarker
 
-pub fn scene(String, SceneSize, Array[SceneLayer]) -> Scene
+pub fn plan_scene_assets(Array[SceneAsset]) -> SceneAssetPlan
+
+pub fn plan_scene_assets_with_budget(Array[SceneAsset], SceneAssetBudget) -> SceneAssetPlan
+
+pub fn remote_image_asset(String, String) -> SceneAsset
+
+pub fn scene(String, SceneSize, Array[SceneLayer], assets? : Array[SceneAsset]) -> Scene
+
+pub fn scene_asset(id~ : String, kind~ : SceneAssetKind, src~ : String, estimated_bytes? : Int, remote? : Bool) -> SceneAsset
+
+pub fn scene_asset_budget(max_assets~ : Int, max_package_bytes~ : Int, max_remote_assets~ : Int) -> SceneAssetBudget
+
+pub fn scene_asset_kind_id(SceneAssetKind) -> String
 
 pub fn scene_size(Int, Int) -> SceneSize
 
+pub fn select_scene_marker(String, String) -> @core.Patch
+
+pub fn set_scene_marker_status(String, String, String) -> @core.Patch
+
+pub fn sprite_asset(String, String, Int) -> SceneAsset
+
 pub fn static_scene_view(Scene) -> @core.Node
+
+pub fn tile_asset(String, String, Int) -> SceneAsset
 
 // Errors
 
@@ -24,6 +48,36 @@ pub struct Scene {
   id : String
   size : SceneSize
   layers : Array[SceneLayer]
+  assets : Array[SceneAsset]
+} derive(Eq, @debug.Debug)
+
+pub struct SceneAsset {
+  id : String
+  kind : SceneAssetKind
+  src : String
+  estimated_bytes : Int
+  remote : Bool
+} derive(Eq, @debug.Debug)
+
+pub struct SceneAssetBudget {
+  max_assets : Int
+  max_package_bytes : Int
+  max_remote_assets : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SceneAssetKind {
+  Image
+  Sprite
+  Tile
+  RemoteImage
+} derive(Eq, @debug.Debug)
+
+pub struct SceneAssetPlan {
+  assets : Array[SceneAsset]
+  package_bytes : Int
+  remote_assets : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneLayer {
@@ -39,6 +93,7 @@ pub struct SceneMarker {
   y : Int
   status : String
   tap_message : String
+  asset_ref : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneSize {

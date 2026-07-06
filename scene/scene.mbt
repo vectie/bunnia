@@ -12,6 +12,7 @@ pub struct SceneMarker {
   y : Int
   status : String
   tap_message : String
+  asset_ref : String
 } derive(Debug, Eq)
 
 ///|
@@ -26,6 +27,7 @@ pub struct Scene {
   id : String
   size : SceneSize
   layers : Array[SceneLayer]
+  assets : Array[SceneAsset]
 } derive(Debug, Eq)
 
 ///|
@@ -41,8 +43,9 @@ pub fn marker(
   y~ : Int,
   status? : String = "",
   tap_message? : String = "",
+  asset_ref? : String = "",
 ) -> SceneMarker {
-  { id, label, x, y, status, tap_message }
+  { id, label, x, y, status, tap_message, asset_ref }
 }
 
 ///|
@@ -59,15 +62,16 @@ pub fn scene(
   id : String,
   size : SceneSize,
   layers : Array[SceneLayer],
+  assets? : Array[SceneAsset] = [],
 ) -> Scene {
-  { id, size, layers }
+  { id, size, layers, assets }
 }
 
 ///|
 pub fn static_scene_view(input : Scene) -> @core.Node {
   let children : Array[@core.Node] = []
   for item in input.layers {
-    children.push(layer_view(item))
+    children.push(layer_view(item, input.assets))
   }
   @core.view_with_attrs(
     [
@@ -76,16 +80,17 @@ pub fn static_scene_view(input : Scene) -> @core.Node {
       @core.data("scene-id", input.id),
       @core.data("scene-width", input.size.width.to_string()),
       @core.data("scene-height", input.size.height.to_string()),
+      @core.data("scene-assets", input.assets.length().to_string()),
     ],
     children,
   )
 }
 
 ///|
-fn layer_view(input : SceneLayer) -> @core.Node {
+fn layer_view(input : SceneLayer, assets : Array[SceneAsset]) -> @core.Node {
   let children : Array[@core.Node] = []
   for item in input.markers {
-    children.push(marker_view(item))
+    children.push(marker_view(item, assets))
   }
   @core.view_with_attrs(
     [
@@ -99,12 +104,18 @@ fn layer_view(input : SceneLayer) -> @core.Node {
 }
 
 ///|
-fn marker_view(input : SceneMarker) -> @core.Node {
+fn marker_view(input : SceneMarker, assets : Array[SceneAsset]) -> @core.Node {
   let events = if input.tap_message == "" {
     []
   } else {
     [@core.tap(input.tap_message)]
   }
+  let children : Array[@core.Node] = []
+  match find_asset(assets, input.asset_ref) {
+    Some(asset) => children.push(asset_image(asset, input.label))
+    None => ()
+  }
+  children.push(@core.text(input.label))
   @core.keyed(
     input.id,
     @core.node(
@@ -116,11 +127,55 @@ fn marker_view(input : SceneMarker) -> @core.Node {
         @core.data("x", input.x.to_string()),
         @core.data("y", input.y.to_string()),
         @core.data("status", input.status),
+        @core.data("asset-ref", input.asset_ref),
       ],
       events~,
-      children=[@core.text(input.label)],
+      children~,
     ),
   )
+}
+
+///|
+pub fn set_scene_marker_status(
+  scene_id : String,
+  marker_id : String,
+  status : String,
+) -> @core.Patch {
+  @core.set_string("scenes.\{scene_id}.markers.\{marker_id}.status", status)
+}
+
+///|
+pub fn select_scene_marker(
+  scene_id : String,
+  marker_id : String,
+) -> @core.Patch {
+  @core.set_string("scenes.\{scene_id}.selectedMarker", marker_id)
+}
+
+///|
+fn find_asset(assets : Array[SceneAsset], asset_ref : String) -> SceneAsset? {
+  if asset_ref == "" {
+    None
+  } else {
+    for item in assets {
+      if item.id == asset_ref {
+        return Some(item)
+      }
+    }
+    None
+  }
+}
+
+///|
+fn asset_image(asset : SceneAsset, alt : String) -> @core.Node {
+  @core.node(kind="image", attrs=[
+    @core.class_name("bunnia-scene-sprite"),
+    @core.attr("src", asset.src),
+    @core.attr("alt", alt),
+    @core.data("asset-id", asset.id),
+    @core.data("asset-kind", scene_asset_kind_id(asset.kind)),
+    @core.data("asset-remote", asset.remote.to_string()),
+  ])
 }
 
 ///|

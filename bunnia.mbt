@@ -68,6 +68,18 @@ pub type ReviewAction = @agent.ReviewAction
 pub type SceneSize = @scene.SceneSize
 
 ///|
+pub type SceneAssetKind = @scene.SceneAssetKind
+
+///|
+pub type SceneAsset = @scene.SceneAsset
+
+///|
+pub type SceneAssetBudget = @scene.SceneAssetBudget
+
+///|
+pub type SceneAssetPlan = @scene.SceneAssetPlan
+
+///|
 pub type SceneMarker = @scene.SceneMarker
 
 ///|
@@ -709,6 +721,101 @@ pub fn scene_size(width : Int, height : Int) -> SceneSize {
 }
 
 ///|
+pub fn scene_asset(
+  id~ : String,
+  kind~ : SceneAssetKind,
+  src~ : String,
+  estimated_bytes? : Int = 0,
+  remote? : Bool = false,
+) -> SceneAsset {
+  @scene.scene_asset(id~, kind~, src~, estimated_bytes~, remote~)
+}
+
+///|
+pub fn image_asset(
+  id : String,
+  src : String,
+  estimated_bytes : Int,
+) -> SceneAsset {
+  @scene.image_asset(id, src, estimated_bytes)
+}
+
+///|
+pub fn sprite_asset(
+  id : String,
+  src : String,
+  estimated_bytes : Int,
+) -> SceneAsset {
+  @scene.sprite_asset(id, src, estimated_bytes)
+}
+
+///|
+pub fn tile_asset(
+  id : String,
+  src : String,
+  estimated_bytes : Int,
+) -> SceneAsset {
+  @scene.tile_asset(id, src, estimated_bytes)
+}
+
+///|
+pub fn remote_image_asset(id : String, src : String) -> SceneAsset {
+  @scene.remote_image_asset(id, src)
+}
+
+///|
+pub fn scene_asset_budget(
+  max_assets~ : Int,
+  max_package_bytes~ : Int,
+  max_remote_assets~ : Int,
+) -> SceneAssetBudget {
+  @scene.scene_asset_budget(max_assets~, max_package_bytes~, max_remote_assets~)
+}
+
+///|
+pub fn default_scene_asset_budget() -> SceneAssetBudget {
+  @scene.default_scene_asset_budget()
+}
+
+///|
+pub fn plan_scene_assets(assets : Array[SceneAsset]) -> SceneAssetPlan {
+  @scene.plan_scene_assets(assets)
+}
+
+///|
+pub fn plan_scene_assets_with_budget(
+  assets : Array[SceneAsset],
+  budget : SceneAssetBudget,
+) -> SceneAssetPlan {
+  @scene.plan_scene_assets_with_budget(assets, budget)
+}
+
+///|
+pub fn scene_asset_kind_id(kind : SceneAssetKind) -> String {
+  @scene.scene_asset_kind_id(kind)
+}
+
+///|
+pub fn scene_asset_image() -> SceneAssetKind {
+  @scene.Image
+}
+
+///|
+pub fn scene_asset_sprite() -> SceneAssetKind {
+  @scene.Sprite
+}
+
+///|
+pub fn scene_asset_tile() -> SceneAssetKind {
+  @scene.Tile
+}
+
+///|
+pub fn scene_asset_remote_image() -> SceneAssetKind {
+  @scene.RemoteImage
+}
+
+///|
 pub fn marker(
   id~ : String,
   label~ : String,
@@ -716,8 +823,9 @@ pub fn marker(
   y~ : Int,
   status? : String = "",
   tap_message? : String = "",
+  asset_ref? : String = "",
 ) -> SceneMarker {
-  @scene.marker(id~, label~, x~, y~, status~, tap_message~)
+  @scene.marker(id~, label~, x~, y~, status~, tap_message~, asset_ref~)
 }
 
 ///|
@@ -734,13 +842,28 @@ pub fn scene(
   id : String,
   size : SceneSize,
   layers : Array[SceneLayer],
+  assets? : Array[SceneAsset] = [],
 ) -> Scene {
-  @scene.scene(id, size, layers)
+  @scene.scene(id, size, layers, assets~)
 }
 
 ///|
 pub fn static_scene_view(input : Scene) -> Node {
   @scene.static_scene_view(input)
+}
+
+///|
+pub fn set_scene_marker_status(
+  scene_id : String,
+  marker_id : String,
+  status : String,
+) -> Patch {
+  @scene.set_scene_marker_status(scene_id, marker_id, status)
+}
+
+///|
+pub fn select_scene_marker(scene_id : String, marker_id : String) -> Patch {
+  @scene.select_scene_marker(scene_id, marker_id)
 }
 
 ///|

@@ -320,6 +320,8 @@ Current evidence:
 - Generic communication records now cover threads, handoffs, broadcasts, review
   requests, approvals, tool results, and recovery notices without importing a
   product-specific agent runtime.
+- Scene assets now have explicit manifests, budget diagnostics, sprite-aware
+  static rendering, and scene-specific marker status/selection patch helpers.
 
 Do not build yet:
 
@@ -459,6 +461,15 @@ Deliverables:
 - Scene model for map layers, positioned objects, status overlays, and hit
   targets.
 - Static scene renderer before canvas animation.
+
+Current evidence:
+
+- Static scenes support layers, positioned markers, sprite/image asset
+  references, and generated WeChat sprite markup.
+- Scene asset plans report asset count, package bytes, remote asset count, and
+  budget diagnostics.
+- Marker status and selection updates can be represented as small `setData`
+  patches without regenerating the whole scene.
 
 Acceptance checks:
 

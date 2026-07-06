@@ -42,8 +42,8 @@ phase-by-phase implementation plan.
   effects and patch plans.
 - `agent`: lightweight message, review, artifact-link, and run-status UI
   primitives, plus generic communication threads and traces.
-- `scene`: static stylised map model with layers, markers, hit targets, and
-  bounded updates.
+- `scene`: static stylised map model with layers, markers, asset manifests,
+  hit targets, and bounded updates.
 - `effects`: typed frontend effect descriptions for request, navigation,
   cancel, and retry paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
@@ -125,6 +125,39 @@ test {
   let output = @bunnia.generate_wechat_page("Trace", @bunnia.page([trace]))
   assert_true(output.wxml.contains("bunnia-communication-handoff"))
   assert_true(output.wxml.contains("open-review"))
+}
+```
+
+```mbt check
+///|
+test {
+  let assets = [@bunnia.sprite_asset("agent", "/assets/agent.png", 2048)]
+  let map = @bunnia.static_scene_view(
+    @bunnia.scene(
+      "overview",
+      @bunnia.scene_size(640, 480),
+      [
+        @bunnia.layer("actors", 10, [
+          @bunnia.marker(
+            id="actor-a",
+            label="Agent A",
+            x=120,
+            y=180,
+            status="running",
+            asset_ref="agent",
+            tap_message="select-actor-a",
+          ),
+        ]),
+      ],
+      assets~,
+    ),
+  )
+  let patches = @bunnia.plan_patches([
+    @bunnia.set_scene_marker_status("overview", "actor-a", "selected"),
+  ])
+  let output = @bunnia.generate_wechat_page("Map", @bunnia.page([map]))
+  assert_true(output.wxml.contains("bunnia-scene-sprite"))
+  assert_true(patches.total_estimated_bytes < 96)
 }
 ```
 

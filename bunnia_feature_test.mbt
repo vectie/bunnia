@@ -38,6 +38,70 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
 }
 
 ///|
+test "scene assets render sprites and report asset budgets" {
+  let assets = [
+    @bunnia.sprite_asset("agent-sprite", "/assets/agent.png", 2048),
+    @bunnia.remote_image_asset(
+      "remote-tile", "https://cdn.example.test/tile.png",
+    ),
+  ]
+  let scene = @bunnia.scene(
+    "overview",
+    @bunnia.scene_size(640, 480),
+    [
+      @bunnia.layer("actors", 10, [
+        @bunnia.marker(
+          id="marker-a",
+          label="Agent A",
+          x=120,
+          y=180,
+          status="running",
+          tap_message="select-marker-a",
+          asset_ref="agent-sprite",
+        ),
+      ]),
+    ],
+    assets~,
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Scene Assets",
+    @bunnia.page([@bunnia.static_scene_view(scene)]),
+  )
+  let plan = @bunnia.plan_scene_assets_with_budget(
+    assets,
+    @bunnia.scene_asset_budget(
+      max_assets=1,
+      max_package_bytes=1024,
+      max_remote_assets=0,
+    ),
+  )
+  let patches = @bunnia.plan_patches([
+    @bunnia.select_scene_marker("overview", "marker-a"),
+    @bunnia.set_scene_marker_status("overview", "marker-a", "selected"),
+  ])
+  assert_true(output.wxml.contains("data-scene-assets=\"2\""))
+  assert_true(output.wxml.contains("class=\"bunnia-scene-sprite\""))
+  assert_true(output.wxml.contains("src=\"/assets/agent.png\""))
+  assert_true(output.wxml.contains("data-asset-ref=\"agent-sprite\""))
+  assert_true(output.wxss.contains(".bunnia-scene-sprite"))
+  assert_eq(plan.package_bytes, 2048)
+  assert_eq(plan.remote_assets, 1)
+  assert_eq(plan.diagnostics.length(), 3)
+  assert_true(plan.diagnostics.contains("scene-asset-count-over-budget:2/1"))
+  assert_true(
+    plan.diagnostics.contains("scene-package-bytes-over-budget:2048/1024"),
+  )
+  assert_true(plan.diagnostics.contains("scene-remote-assets-over-budget:1/0"))
+  assert_eq(patches.patches.length(), 2)
+  assert_true(
+    @bunnia.generate_wechat_set_data_call(patches.patches).contains(
+      "\"scenes.overview.markers.marker-a.status\":\"selected\"",
+    ),
+  )
+  assert_eq(@bunnia.scene_asset_kind_id(@bunnia.scene_asset_sprite()), "sprite")
+}
+
+///|
 test "communication trace renders structured agent interactions" {
   let thread = @bunnia.thread(
     id="thread-route",
