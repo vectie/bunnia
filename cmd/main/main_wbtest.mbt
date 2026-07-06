@@ -126,6 +126,17 @@ test "snapshot command accepts snapshot path without generated output requiremen
 }
 
 ///|
+test "only build-like commands write generated project output" {
+  assert_eq(command_writes_project_output("build"), true)
+  assert_eq(command_writes_project_output("watch"), true)
+  assert_eq(command_writes_project_output("snapshot"), false)
+  assert_eq(command_writes_project_output("inspect"), false)
+  assert_eq(command_writes_project_output("ci-plan"), false)
+  assert_eq(command_writes_project_output("init"), false)
+  assert_eq(command_writes_project_output("limits"), false)
+}
+
+///|
 test "inspect command exposes generated artifact metrics without output path" {
   let args = [
     "node", "main.js", "inspect", "--target", "wechat", "--example", "agent_map",

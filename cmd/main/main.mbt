@@ -68,6 +68,11 @@ fn command_from_args(args : Array[String]) -> String {
 }
 
 ///|
+fn command_writes_project_output(command : String) -> Bool {
+  command == "build" || command == "watch"
+}
+
+///|
 fn target_from_args(args : Array[String]) -> String {
   for i in 0..<args.length() {
     if args[i] == "--target" && i + 1 < args.length() {
@@ -451,12 +456,15 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     write_text_file(snapshot_path, snapshot.content)
     println(snapshot.summary)
     println("snapshot=\{snapshot_path}")
-  } else {
+  } else if command_writes_project_output(command) {
     write_project(output_dir, project)
     print_build_result(
       command, target, example, budget_profile, render_budget_profile, output_dir,
       project, report, patches, profile, profile_gate, inspection_gate,
     )
+  } else {
+    println("unsupported command=\{command}")
+    panic()
   }
   if should_fail_build(
       strict, project, report, patches, profile, profile_gate, inspection_gate,
