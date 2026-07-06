@@ -273,6 +273,9 @@ test {
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker and region counts so large maps can stay spatially bounded.
+Viewported scene views keep full scene dimensions as data while rendering a
+viewport-sized surface with viewport-local marker, region, and overlay
+coordinates, so first-screen layout does not inherit the whole map size.
 Generic render plans and generated route manifests also report scene count,
 visible/total marker count, visible/total region count, scene asset count, and
 degraded scene count, so map

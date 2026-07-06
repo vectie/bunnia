@@ -654,8 +654,10 @@ Current evidence:
 - Budgeted static scene rendering can cap visible markers and mark degraded
   output with stable data attributes, leaving room for a later canvas surface
   without forcing product code to change shape.
-- Viewported static scene rendering filters markers spatially and emits
-  viewport plus visible/total marker data attributes for map-heavy pages.
+- Viewported static scene rendering filters geometry spatially, renders a
+  viewport-sized surface, translates markers/regions to viewport-local
+  coordinates, and emits viewport plus visible/total data attributes for
+  map-heavy pages.
 - Scene camera plans make pan/zoom state explicit, clamp camera viewports to
   scene bounds, and expose small camera-position/zoom patch helpers.
 - Scene visual quality plans check scene size, marker status, tap targets,
@@ -671,8 +673,8 @@ Current evidence:
   markers or regions, preserving visible/total counts and cheap patches for
   map-heavy agentic UIs.
 - Viewported anchored overlays render only in-viewport thread badges while
-  preserving total link counts, so cameraed maps do not ship offscreen agent
-  communication badges in the first screen.
+  preserving total link counts and viewport-local anchors, so cameraed maps do
+  not ship offscreen agent communication badges in the first screen.
 - Viewport-aware scene thread plans align profile and budget signals with the
   rendered overlay, so offscreen agent communication remains measurable without
   counting as first-screen badge work.

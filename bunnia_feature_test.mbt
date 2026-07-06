@@ -346,7 +346,7 @@ test "viewported scene thread overlays keep hidden map communication out of firs
       open_message="open-thread-far",
     ),
   ]
-  let viewport = @bunnia.scene_viewport(x=0, y=0, width=520, height=360)
+  let viewport = @bunnia.scene_viewport(x=120, y=140, width=520, height=360)
   let overlay = @bunnia.windowed_anchored_scene_thread_overlay_with_viewport(
     scene,
     viewport,
@@ -366,7 +366,14 @@ test "viewported scene thread overlays keep hidden map communication out of firs
   assert_true(output.wxml.contains("data-thread-overlay-viewport=\"true\""))
   assert_true(output.wxml.contains("data-visible-count=\"1\""))
   assert_true(output.wxml.contains("data-total-count=\"2\""))
+  assert_true(output.wxml.contains("style=\"width: 520rpx; height: 360rpx;\""))
+  assert_true(output.wxml.contains("data-scene-width=\"900\""))
+  assert_true(output.wxml.contains("data-render-width=\"520\""))
+  assert_true(output.wxml.contains("left: 40rpx; top: 40rpx;"))
   assert_true(output.wxml.contains("data-subject-id=\"zone-a\""))
+  assert_true(output.wxml.contains("data-anchor-x=\"130\""))
+  assert_true(output.wxml.contains("data-anchor-y=\"100\""))
+  assert_true(output.wxml.contains("left: 130rpx; top: 100rpx;"))
   assert_true(!output.wxml.contains("data-subject-id=\"agent-far\""))
   assert_true(!output.plan.event_messages.contains("open-thread-far"))
 }

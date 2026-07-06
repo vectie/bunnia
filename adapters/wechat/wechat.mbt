@@ -1543,9 +1543,11 @@ fn default_wxss() -> String {
   ".bunnia-scene-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }\n" +
   ".bunnia-scene-marker { position: absolute; transform: translate(-50%, -50%); min-width: 120rpx; min-height: 56rpx; padding: 10rpx 14rpx; border: 2rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 24rpx; line-height: 1.4; text-align: center; }\n" +
   ".bunnia-scene-sprite { display: block; width: 48rpx; height: 48rpx; margin: 0 auto 4rpx; }\n" +
-  ".bunnia-scene-with-threads { position: relative; display: flex; flex-direction: column; gap: 10rpx; }\n" +
+  ".bunnia-scene-with-threads { position: relative; display: block; }\n" +
   ".bunnia-scene-thread-overlay { display: flex; flex-wrap: wrap; gap: 8rpx; }\n" +
+  ".bunnia-scene-thread-overlay-anchored { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: block; pointer-events: none; }\n" +
   ".bunnia-scene-thread { min-width: 44rpx; min-height: 44rpx; padding: 6rpx 10rpx; border: 1rpx solid #64748b; border-radius: 8rpx; background: #ffffff; color: #111827; font-size: 22rpx; line-height: 1.35; text-align: center; box-sizing: border-box; }\n" +
+  ".bunnia-scene-thread-anchored { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; }\n" +
   ".bunnia-scene-thread-running { border-color: #2563eb; }\n" +
   ".bunnia-scene-thread-review { border-color: #d97706; }\n" +
   ".bunnia-scene-thread-failed { border-color: #dc2626; }\n" +

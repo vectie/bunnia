@@ -154,7 +154,12 @@ pub fn windowed_anchored_scene_thread_overlay_with_viewport(
   for item in links {
     let anchor = scene_thread_anchor(input, item)
     if scene_thread_anchor_in_viewport(anchor, viewport) {
-      rows.push(scene_thread_badge(item, anchor))
+      rows.push(
+        scene_thread_badge(
+          item,
+          scene_thread_anchor_to_viewport(anchor, viewport),
+        ),
+      )
     }
   }
   scene_thread_overlay_node(rows, total_count, offset, true, Some(viewport))
@@ -359,6 +364,17 @@ fn scene_thread_anchor_in_viewport(
       x < viewport.x + viewport.width &&
       y < viewport.y + viewport.height
     None => false
+  }
+}
+
+///|
+fn scene_thread_anchor_to_viewport(
+  anchor : (Int, Int)?,
+  viewport : SceneViewport,
+) -> (Int, Int)? {
+  match anchor {
+    Some((x, y)) => Some((x - viewport.x, y - viewport.y))
+    None => None
   }
 }
 

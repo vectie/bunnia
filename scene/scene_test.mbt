@@ -142,8 +142,17 @@ test "viewport scene view renders only spatially visible markers" {
   assert_eq(plan.visible_marker_count, 4)
   assert_eq(attr_value(root.attrs, "data-viewport-x"), "32")
   assert_eq(attr_value(root.attrs, "data-viewport-width"), "32")
+  assert_eq(attr_value(root.attrs, "data-scene-width"), "640")
+  assert_eq(attr_value(root.attrs, "data-render-width"), "32")
+  assert_true(attr_value(root.attrs, "style").contains("width: 32rpx"))
   assert_eq(attr_value(root.attrs, "data-markers-total"), "12")
   assert_eq(attr_value(root.attrs, "data-markers-visible"), "4")
+  let first_marker = root.children[0].children[0]
+  assert_eq(attr_value(first_marker.attrs, "data-x"), "0")
+  assert_eq(attr_value(first_marker.attrs, "data-y"), "0")
+  assert_true(
+    attr_value(first_marker.attrs, "style").contains("left: 0rpx; top: 0rpx"),
+  )
   assert_eq(render.scene_count, 1)
   assert_eq(render.scene_marker_count, 12)
   assert_eq(render.scene_visible_marker_count, 4)

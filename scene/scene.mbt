@@ -163,37 +163,52 @@ pub fn static_scene_view_with_viewport(
   } else {
     visible
   }
-  scene_view(rendered, [
-    @core.data("scene-mode", scene_render_mode_id(plan.mode)),
-    @core.data("scene-quality", scene_quality_id(plan.quality)),
-    @core.data("viewport-x", viewport.x.to_string()),
-    @core.data("viewport-y", viewport.y.to_string()),
-    @core.data("viewport-width", viewport.width.to_string()),
-    @core.data("viewport-height", viewport.height.to_string()),
-    @core.data("markers-total", plan.marker_count.to_string()),
-    @core.data("markers-visible", scene_marker_count(rendered).to_string()),
-    @core.data("regions-total", plan.region_count.to_string()),
-    @core.data("regions-visible", scene_region_count(rendered).to_string()),
-    @core.data(
-      "scene-degraded",
-      (plan.marker_count > scene_marker_count(rendered) ||
-      plan.region_count > scene_region_count(rendered)).to_string(),
-    ),
-  ])
+  scene_view_with_render_size(
+    rendered,
+    scene_size(viewport.width, viewport.height),
+    [
+      @core.data("scene-mode", scene_render_mode_id(plan.mode)),
+      @core.data("scene-quality", scene_quality_id(plan.quality)),
+      @core.data("viewport-x", viewport.x.to_string()),
+      @core.data("viewport-y", viewport.y.to_string()),
+      @core.data("viewport-width", viewport.width.to_string()),
+      @core.data("viewport-height", viewport.height.to_string()),
+      @core.data("markers-total", plan.marker_count.to_string()),
+      @core.data("markers-visible", scene_marker_count(rendered).to_string()),
+      @core.data("regions-total", plan.region_count.to_string()),
+      @core.data("regions-visible", scene_region_count(rendered).to_string()),
+      @core.data(
+        "scene-degraded",
+        (plan.marker_count > scene_marker_count(rendered) ||
+        plan.region_count > scene_region_count(rendered)).to_string(),
+      ),
+    ],
+  )
 }
 
 ///|
 fn scene_view(input : Scene, extra_attrs : Array[@core.Attr]) -> @core.Node {
+  scene_view_with_render_size(input, input.size, extra_attrs)
+}
+
+///|
+fn scene_view_with_render_size(
+  input : Scene,
+  render_size : SceneSize,
+  extra_attrs : Array[@core.Attr],
+) -> @core.Node {
   let children : Array[@core.Node] = []
   for item in input.layers {
     children.push(layer_view(item, input.assets))
   }
   let attrs = [
     @core.class_name("bunnia-scene"),
-    @core.attr("style", scene_style(input.size)),
+    @core.attr("style", scene_style(render_size)),
     @core.data("scene-id", input.id),
     @core.data("scene-width", input.size.width.to_string()),
     @core.data("scene-height", input.size.height.to_string()),
+    @core.data("render-width", render_size.width.to_string()),
+    @core.data("render-height", render_size.height.to_string()),
     @core.data("scene-assets", input.assets.length().to_string()),
   ]
   for item in extra_attrs {
@@ -384,17 +399,52 @@ fn viewport_scene(input : Scene, viewport : SceneViewport) -> Scene {
     let regions : Array[SceneRegion] = []
     for scene_marker in item.markers {
       if marker_in_viewport(scene_marker, viewport) {
-        markers.push(scene_marker)
+        markers.push(translate_marker(scene_marker, viewport))
       }
     }
     for scene_region in item.regions {
       if region_in_viewport(scene_region, viewport) {
-        regions.push(scene_region)
+        regions.push(translate_region(scene_region, viewport))
       }
     }
     layers.push(layer(item.id, item.z_index, markers, regions~))
   }
   scene(input.id, input.size, layers, assets=input.assets)
+}
+
+///|
+fn translate_marker(
+  input : SceneMarker,
+  viewport : SceneViewport,
+) -> SceneMarker {
+  {
+    id: input.id,
+    label: input.label,
+    x: input.x - viewport.x,
+    y: input.y - viewport.y,
+    status: input.status,
+    tap_message: input.tap_message,
+    asset_ref: input.asset_ref,
+    hit_width: input.hit_width,
+    hit_height: input.hit_height,
+  }
+}
+
+///|
+fn translate_region(
+  input : SceneRegion,
+  viewport : SceneViewport,
+) -> SceneRegion {
+  {
+    id: input.id,
+    label: input.label,
+    x: input.x - viewport.x,
+    y: input.y - viewport.y,
+    width: input.width,
+    height: input.height,
+    status: input.status,
+    tap_message: input.tap_message,
+  }
 }
 
 ///|
