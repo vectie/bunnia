@@ -25,7 +25,4 @@ jobs:
           moon update
 
       - name: Run Bunnia CI plan
-        run: |
-          mkdir -p _build/bunnia
-          moon run cmd/main -- ci-plan --script > _build/bunnia/ci.sh
-          sh _build/bunnia/ci.sh
+        run: sh scripts/ci.sh
