@@ -729,6 +729,8 @@ Current evidence:
 - The CLI accepts build-style usage, `build --target wechat`, keeps generated
   output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
   CI-style budget gates.
+- The CLI accepts named generated-output budgets, including `--budget tight`
+  for stricter CI size gates and `--budget tiny` for failure-path smoke tests.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running

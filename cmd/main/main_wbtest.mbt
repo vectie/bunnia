@@ -31,6 +31,11 @@ test "build command and target parse explicitly" {
   assert_eq(command_from_args(args), "build")
   assert_eq(target_from_args(args), "wechat")
   assert_eq(strict_from_args(args), false)
+  assert_eq(budget_profile_from_args(args), "default")
+  assert_eq(
+    budget_profile_from_args(["node", "main.js", "--budget", "tight"]),
+    "tight",
+  )
   assert_eq(strict_from_args(["node", "main.js", "--strict"]), true)
   assert_eq(
     strict_from_args(["node", "main.js", "--fail-on-diagnostics"]),
@@ -132,8 +137,14 @@ test "build example flag selects Wenyu project" {
   let project = project_for_build("wechat", "wenyu_overview")
   let patches = patches_for_build("wechat", "wenyu_overview")
   let profile = profile_for_build("wechat", "wenyu_overview", project, patches)
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(["node", "main.js", "--budget", "tight"]),
+  )
   assert_eq(project.route, "pages/wenyu/index")
   assert_eq(patches.patches.length(), 2)
+  assert_eq(report.diagnostics.length(), 0)
   assert_eq(profile.backend_endpoint_count, 4)
   assert_eq(profile.backend_streaming_count, 0)
   assert_eq(profile.backend_review_required_count, 2)
@@ -169,8 +180,8 @@ test "build example flag selects Wenyu project" {
   assert_true(profile.summary.contains("scene_threads=1/1"))
   assert_true(profile.summary.contains("scene_thread_unread=1"))
   assert_true(profile.summary.contains("scene_surfaces=static:1"))
-  assert_eq(should_fail_build(false, project, patches, profile), false)
-  assert_eq(should_fail_build(true, project, patches, profile), false)
+  assert_eq(should_fail_build(false, project, report, patches, profile), false)
+  assert_eq(should_fail_build(true, project, report, patches, profile), false)
 }
 
 ///|
@@ -178,6 +189,16 @@ test "build profile keeps agent map diagnostics visible" {
   let project = project_for_build("wechat", "agent_map")
   let patches = patches_for_build("wechat", "agent_map")
   let profile = profile_for_build("wechat", "agent_map", project, patches)
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(["node", "main.js"]),
+  )
+  let tiny_report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(["node", "main.js", "--budget", "tiny"]),
+  )
   let bad_patches = @bunnia.plan_patches_with_budget(
     patches.patches,
     @bunnia.patch_budget(max_patches=0, max_patch_bytes=1),
@@ -218,8 +239,22 @@ test "build profile keeps agent map diagnostics visible" {
   assert_true(profile.summary.contains("scene_threads=2/2"))
   assert_true(profile.summary.contains("scene_thread_unread=2"))
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
-  assert_eq(should_fail_build(false, project, bad_patches, profile), false)
-  assert_eq(should_fail_build(true, project, bad_patches, profile), true)
+  assert_eq(tiny_report.diagnostics.length() > 0, true)
+  assert_true(
+    tiny_report.diagnostics.contains("wechat-file-count-over-budget:8/1"),
+  )
+  assert_eq(
+    should_fail_build(false, project, report, bad_patches, profile),
+    false,
+  )
+  assert_eq(
+    should_fail_build(true, project, report, bad_patches, profile),
+    true,
+  )
+  assert_eq(
+    should_fail_build(true, project, tiny_report, patches, profile),
+    true,
+  )
 }
 
 ///|

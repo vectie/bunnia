@@ -82,6 +82,12 @@ moon run cmd/main -- build --target wechat --strict
 
 `--strict` fails the command when render, generated-file, patch, effect, or
 build-profile diagnostics are present.
+Use `--budget tight` for a stricter generated-output gate, or `--budget tiny`
+when testing that CI fails on size regressions:
+
+```bash
+moon run cmd/main -- build --target wechat --strict --budget tight
+```
 
 For local iteration, watch generated output with:
 

@@ -78,6 +78,55 @@ fn strict_from_args(args : Array[String]) -> Bool {
 }
 
 ///|
+fn budget_profile_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--budget" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "default"
+}
+
+///|
+fn wechat_build_budget_from_args(
+  args : Array[String],
+) -> @bunnia.WechatBuildBudget {
+  match budget_profile_from_args(args) {
+    "default" => @bunnia.default_wechat_build_budget()
+    "tight" =>
+      @bunnia.wechat_build_budget(
+        max_pages=4,
+        max_files=16,
+        max_total_bytes=32768,
+        max_wxml_bytes=16384,
+        max_wxss_bytes=8192,
+        max_js_bytes=8192,
+        max_initial_data_bytes=1024,
+        max_event_patch_bytes=1024,
+        max_page_first_screen_bytes=24576,
+        max_page_update_payload_bytes=1024,
+      )
+    "tiny" =>
+      @bunnia.wechat_build_budget(
+        max_pages=1,
+        max_files=1,
+        max_total_bytes=128,
+        max_wxml_bytes=128,
+        max_wxss_bytes=128,
+        max_js_bytes=128,
+        max_initial_data_bytes=4,
+        max_event_patch_bytes=4,
+        max_page_first_screen_bytes=4,
+        max_page_update_payload_bytes=4,
+      )
+    other => {
+      println("unsupported budget=\{other}")
+      panic()
+    }
+  }
+}
+
+///|
 fn watch_once_from_args(args : Array[String]) -> Bool {
   args.contains("--once")
 }
@@ -268,10 +317,15 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let project = project_for_build(target, example)
   let patches = patches_for_build(target, example)
   let profile = profile_for_build(target, example, project, patches)
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(args),
+  )
   let strict = strict_from_args(args)
   write_project(output_dir, project)
   print_build_result(
-    command, target, example, output_dir, project, patches, profile,
+    command, target, example, output_dir, project, report, patches, profile,
   )
   if command == "snapshot" {
     let snapshot = @bunnia.snapshot_wechat_project(
@@ -285,7 +339,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     println(snapshot.summary)
     println("snapshot=\{snapshot_path}")
   }
-  if should_fail_build(strict, project, patches, profile) {
+  if should_fail_build(strict, project, report, patches, profile) {
     println("build_failed=diagnostics")
     panic()
   }
@@ -305,6 +359,7 @@ fn print_build_result(
   example : String,
   output_dir : String,
   project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
 ) -> Unit {
@@ -314,8 +369,8 @@ fn print_build_result(
   println(project.page.plan.summary)
   println(project.summary)
   println(project.manifest.summary)
-  println(project.report.summary)
-  print_diagnostics(project.report.diagnostics)
+  println(report.summary)
+  print_diagnostics(report.diagnostics)
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
@@ -326,13 +381,14 @@ fn print_build_result(
 fn should_fail_build(
   strict : Bool,
   project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
 ) -> Bool {
   strict &&
   (
     project_has_render_diagnostics(project) ||
-    project.report.diagnostics.length() > 0 ||
+    report.diagnostics.length() > 0 ||
     patches.diagnostics.length() > 0 ||
     profile.diagnostics.length() > 0
   )
