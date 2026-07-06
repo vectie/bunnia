@@ -29,6 +29,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.scene_remote_asset_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
+  assert_eq(snapshot.profile_gate_diagnostic_count, 0)
   assert_eq(snapshot.inspection_gate_diagnostic_count, 0)
   assert_eq(snapshot.diagnostic_count, 0)
   assert_true(snapshot.summary.contains("files=10"))
@@ -38,6 +39,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("route_diagnostics=0"))
   assert_true(snapshot.summary.contains("scene_assets=0"))
   assert_true(snapshot.summary.contains("scene_remote_assets=0"))
+  assert_true(snapshot.summary.contains("profile_gate_diagnostics=0"))
   assert_true(snapshot.summary.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
@@ -49,9 +51,15 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("scene_assets=0"))
   assert_true(snapshot.content.contains("scene_remote_assets=0"))
+  assert_true(snapshot.content.contains("profile_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
+  assert_true(
+    snapshot.content.contains(
+      "profile_gate=Bunnia build profile gate: budget=default",
+    ),
+  )
   assert_true(
     snapshot.content.contains("inspection=Bunnia project inspection:"),
   )
@@ -72,7 +80,11 @@ test "generated snapshots record deterministic file pressure" {
       "route_diagnostics:\nreport_diagnostics:\nprofile_diagnostics:",
     ),
   )
-  assert_true(snapshot.content.contains("inspection_gate_diagnostics:\nfiles:"))
+  assert_true(
+    snapshot.content.contains(
+      "profile_gate_diagnostics:\ninspection_gate_diagnostics:\nfiles:",
+    ),
+  )
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("- bunnia.runtime.js kind=js bytes="))
   assert_true(snapshot.content.contains("- app.wxss kind=wxss bytes="))
@@ -168,6 +180,65 @@ test "generated snapshots classify backend adapter files" {
 }
 
 ///|
+test "generated snapshots record profile gate diagnostics" {
+  let project = @wechat.generate_project(
+    name="Snapshot Profile Gate",
+    route="pages/profile-gate/index",
+    root=@core.page([@core.text("Profile gate")]),
+  )
+  let profile = profile_wechat_project(
+    project,
+    @core.plan_patches([]),
+    agent_delta_plans=[
+      @agent.plan_agent_deltas([
+        @agent.append_stream_chunk_delta(
+          "agent.streamChunks", "chunk-1", "first",
+        ),
+        @agent.append_stream_chunk_delta(
+          "agent.streamChunks", "chunk-1", "second",
+        ),
+      ]),
+    ],
+    snapshot_plans=[
+      @effects.plan_snapshot_deltas([
+        @effects.replace_snapshot_delta("profile", "{\"all\":true}"),
+      ]),
+    ],
+  )
+  let snapshot = snapshot_wechat_project_with_report(
+    target="wechat",
+    example="snapshot_profile_gate",
+    project,
+    project.report,
+    profile,
+    budget_profile="tight",
+    render_budget_profile="tight",
+  )
+  assert_eq(snapshot.profile_gate_diagnostic_count, 2)
+  assert_true(snapshot.summary.contains("profile_gate_diagnostics=2"))
+  assert_true(snapshot.content.contains("profile_gate_diagnostics=2"))
+  assert_true(
+    snapshot.content.contains(
+      "profile_gate=Bunnia build profile gate: budget=tight",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "profile_gate_diagnostics:\n- profile-agent-duplicate-stream-chunks-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "- profile-snapshot-full-replaces-over-budget:1/0",
+    ),
+  )
+  assert_eq(
+    snapshot.diagnostic_count,
+    profile.diagnostics.length() + snapshot.profile_gate_diagnostic_count,
+  )
+}
+
+///|
 test "generated snapshots can record active build report diagnostics" {
   let project = @wechat.generate_project_with_runtime(
     name="Snapshot Budget Fixture",
@@ -212,18 +283,27 @@ test "generated snapshots can record active build report diagnostics" {
   assert_eq(snapshot.route_diagnostic_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
+  assert_eq(snapshot.profile_gate_diagnostic_count, 0)
   assert_true(snapshot.inspection_gate_diagnostic_count > 0)
   assert_eq(
     snapshot.diagnostic_count,
-    report.diagnostics.length() + snapshot.inspection_gate_diagnostic_count,
+    report.diagnostics.length() +
+    snapshot.profile_gate_diagnostic_count +
+    snapshot.inspection_gate_diagnostic_count,
   )
   assert_true(snapshot.diagnostic_count > 0)
   assert_true(snapshot.summary.contains("diagnostics="))
+  assert_true(snapshot.summary.contains("profile_gate_diagnostics=0"))
   assert_true(snapshot.summary.contains("inspection_gate_diagnostics="))
   assert_true(snapshot.summary.contains("budget=tiny"))
   assert_true(snapshot.summary.contains("render_budget=tiny-render"))
   assert_true(
     snapshot.content.contains("diagnostics=\{snapshot.diagnostic_count}"),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "profile_gate_diagnostics=\{snapshot.profile_gate_diagnostic_count}",
+    ),
   )
   assert_true(
     snapshot.content.contains(
@@ -235,9 +315,13 @@ test "generated snapshots can record active build report diagnostics" {
   assert_true(snapshot.content.contains("risk_route=pages/snapshot/index"))
   assert_true(snapshot.content.contains("route_inspections:"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
+  assert_true(
+    snapshot.content.contains("profile_gate=Bunnia build profile gate:"),
+  )
   assert_true(snapshot.content.contains("route_diagnostics:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
   assert_true(snapshot.content.contains("profile_diagnostics:"))
+  assert_true(snapshot.content.contains("profile_gate_diagnostics:"))
   assert_true(
     snapshot.content.contains(
       "inspection_gate_diagnostics:\n- inspection-route-risk-over-budget:pages/snapshot/index:",

@@ -201,6 +201,7 @@ pub struct GeneratedSnapshot {
   scene_remote_asset_count : Int
   top_route : String
   route_risk_score : Int
+  profile_gate_diagnostic_count : Int
   inspection_gate_diagnostic_count : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]

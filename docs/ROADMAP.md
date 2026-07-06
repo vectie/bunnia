@@ -933,11 +933,11 @@ Current evidence:
   process.
 - `moon run cmd/main -- snapshot` writes a compact deterministic generator
   snapshot with route, budget, route risk, route diagnostics, scene asset
-  references, profile, and per-file byte/checksum lines for CI diffing without
-  committing full generated mini-program outputs.
+  references, profile, profile-gate diagnostics, and per-file byte/checksum
+  lines for CI diffing without committing full generated mini-program outputs.
 - Snapshot artifacts record the active build report from the selected
-  generated-output budget profile, including route, report, and profile
-  diagnostic lines for CI diffs.
+  generated-output budget profile, including route, report, profile, and
+  profile-gate diagnostic lines for CI diffs.
 - `moon run cmd/main -- inspect` reuses the build/profile/snapshot pipeline to
   print project inspection, highest-risk route, route-level first-screen,
   update-payload, scene-marker, diagnostic, and per-file byte/checksum lines

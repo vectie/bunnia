@@ -121,12 +121,12 @@ too. Snapshots also include route-scoped manifest diagnostics, so a CI diff can
 point directly at the generated page that owns a render, payload, or interaction
 issue. The same snapshot records route diagnostic counts, making route pressure
 visible even before reading the diagnostic lines. Snapshots also record the
-inspection gate summary and diagnostics, highest-risk route, and per-route
-inspection lines, so CI diffs can show which page should be optimized first and
-which strict route-pressure gate fired.
+profile-gate and inspection-gate summaries and diagnostics, highest-risk route,
+and per-route inspection lines, so CI diffs can show which page should be
+optimized first and which strict route/profile-pressure gate fired.
 
 The snapshot records route, budget profile, size budgets, profile summary,
-per-route risk, route-scoped scene asset references, and per-file
+profile-gate summary, per-route risk, route-scoped scene asset references, and per-file
 byte/checksum lines without committing the full generated mini-program.
 
 To inspect route and file pressure without writing generated files:
