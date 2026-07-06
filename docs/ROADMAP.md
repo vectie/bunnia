@@ -964,6 +964,8 @@ Current evidence:
   scaffold writes both `README.mbt.md` and `README.md` from the same content, so
   documentation stays testable by MoonBit while remaining visible on GitHub, and
   includes a starter `.gitignore` for generated output and MoonBit build caches. The
+  starter also includes `scripts/ci.sh`, which delegates to the generated
+  `ci-plan --script --strict` workflow instead of duplicating CI command lists. The
   generated `ci-plan` lists the starter's check, test, interface, format,
   platform-limits, inspect, snapshot, and explicit strict build commands,
   prints actionable diagnostic lines, and can emit the same workflow as a

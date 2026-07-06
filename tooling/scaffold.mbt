@@ -34,6 +34,7 @@ pub fn scaffold_project(
     scaffold_file("README.mbt.md", readme_content),
     scaffold_file("README.md", readme_content),
     scaffold_file(".gitignore", gitignore()),
+    scaffold_file("scripts/ci.sh", ci_script()),
   ]
   {
     name,
@@ -63,6 +64,15 @@ fn moon_mod(module_name : String) -> String {
 ///|
 fn gitignore() -> String {
   ".DS_Store\n" + "_build/\n" + "target/\n" + ".mooncakes/\n" + ".moonagent/\n"
+}
+
+///|
+fn ci_script() -> String {
+  "#!/usr/bin/env sh\n" +
+  "set -eu\n\n" +
+  "mkdir -p _build\n" +
+  "moon run cmd/main -- ci-plan --script --strict > _build/bunnia-ci.sh\n" +
+  "sh _build/bunnia-ci.sh\n"
 }
 
 ///|
@@ -678,6 +688,7 @@ fn readme(name : String) -> String {
   "moon fmt\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- ci-plan --script --strict\n" +
+  "sh scripts/ci.sh\n" +
   "moon run cmd/main -- limits --target wechat\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
