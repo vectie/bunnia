@@ -916,11 +916,11 @@ Current evidence:
 - Unknown positional commands fail before the build pipeline runs, preventing
   command typos from silently writing stale generated output.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
-  format, framework-boundary, platform-limits, route-inspect, strict-build, and
-  generator-snapshot commands with the default tight generated-output and
-  render budgets, plus a scaffold-smoke command that generates and validates a
-  standalone starter, so contributors can inspect the workflow without reading
-  shell docs.
+  format, framework-boundary, platform-limits, route-inspect, strict-build,
+  watch-once, and generator-snapshot commands with the default tight
+  generated-output and render budgets, plus a scaffold-smoke command that
+  generates and validates a standalone starter, so contributors can inspect the
+  workflow without reading shell docs.
 - `moon run cmd/main -- ci-plan --script` emits the same workflow as a
   deterministic `sh` script, including diagnostic-only failure output for
   unsupported targets or unknown budget profiles.

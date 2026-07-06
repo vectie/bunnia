@@ -189,7 +189,8 @@ hook once with `git config core.hooksPath .githooks`.
 
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
 the check, test, interface, format, framework-boundary, platform-limits, route
-inspection, strict build, snapshot, and scaffold-smoke commands that
+inspection, strict build, one-shot watch generation, snapshot, and
+scaffold-smoke commands that
 contributors should run before review. The public `@bunnia.ci_plan()` default
 stays product-neutral; the root CLI explicitly includes the Wenyu proof slice
 as an example stress test. Pass `--render-budget` to make render pressure
@@ -399,7 +400,7 @@ inspect, snapshot, and CI-plan paths reuse Bunnia's target-support gate, so
 deferred or unknown targets report diagnostics before starter WeChat artifacts
 are generated. It also prints a local `ci-plan` with check, test, interface,
 format, product-neutral boundary, platform-limits, inspect, snapshot, strict
-build commands, and the active inspection/profile-gate thresholds. Its summary
+build, one-shot watch commands, and the active inspection/profile-gate thresholds. Its summary
 reports the current generated-output and gate diagnostic count. Starter tests
 check render budgets, scene output, bounded patches, backend visibility,
 profile gates, and clean WeChat event wiring. The command also writes a local

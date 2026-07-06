@@ -320,15 +320,17 @@ test "ci plan command prints active example workflow" {
   assert_eq(plan.examples.length(), 2)
   assert_eq(plan.examples[0], "agent_map")
   assert_eq(plan.examples[1], "wenyu_overview")
-  assert_eq(plan.step_count, 15)
+  assert_eq(plan.step_count, 17)
   assert_eq(
     plan.steps[7].command,
     "moon run cmd/main -- limits --target wechat",
   )
   assert_eq(plan.steps[6].command, "sh scripts/validate_boundaries.sh")
   assert_true(plan.steps[8].command.contains("inspect --target wechat"))
-  assert_true(plan.steps[11].command.contains("--example wenyu_overview"))
-  assert_eq(plan.steps[14].command, "sh scripts/scaffold_smoke.sh")
+  assert_true(plan.steps[12].command.contains("--example wenyu_overview"))
+  assert_true(plan.steps[14].command.contains("watch --target wechat"))
+  assert_true(plan.steps[14].command.contains("--once"))
+  assert_eq(plan.steps[16].command, "sh scripts/scaffold_smoke.sh")
   assert_true(plan.summary.contains("snapshot_dir=_build/bunnia/snapshots"))
   assert_true(
     plan.summary.contains("profile_max_communication_unresolved_reviews=8"),
@@ -366,19 +368,21 @@ test "ci plan command accepts target budget example and snapshot dir" {
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.examples.length(), 1)
   assert_eq(plan.snapshot_dir, "/tmp/bunnia-ci")
-  assert_eq(plan.step_count, 12)
+  assert_eq(plan.step_count, 13)
   assert_eq(plan.steps[6].command, "sh scripts/validate_boundaries.sh")
   assert_true(plan.steps[8].command.contains("--budget tight"))
   assert_true(plan.steps[8].command.contains("--render-budget tiny"))
   assert_true(plan.steps[8].command.contains("inspect --target wechat"))
   assert_true(plan.steps[9].command.contains("build --target wechat"))
+  assert_true(plan.steps[10].command.contains("watch --target wechat"))
+  assert_true(plan.steps[10].command.contains("--once"))
   assert_true(
-    plan.steps[10].command.contains(
+    plan.steps[11].command.contains(
       "/tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
     ),
   )
-  assert_true(plan.steps[10].command.contains("--render-budget tiny"))
-  assert_eq(plan.steps[11].command, "sh scripts/scaffold_smoke.sh")
+  assert_true(plan.steps[11].command.contains("--render-budget tiny"))
+  assert_eq(plan.steps[12].command, "sh scripts/scaffold_smoke.sh")
 }
 
 ///|
