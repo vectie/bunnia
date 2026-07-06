@@ -330,10 +330,11 @@ The generated starter keeps agent chat and map-heavy surfaces first-class while
 splitting app view, agent feed, scene model, bounded updates, budget checks, and
 WeChat generation into separate files, plus a local `cmd/main` build command
 that writes the starter's WeChat files and supports `--strict` diagnostic
-gating. Starter tests check render budgets, scene output, bounded patches, and
-clean WeChat event wiring. The command also writes a local `moon.work` that
-includes the starter app and the current Bunnia checkout for pre-registry
-development.
+gating. The same command has an `inspect` mode for no-write route and file
+pressure checks. Starter tests check render budgets, scene output, bounded
+patches, and clean WeChat event wiring. The command also writes a local
+`moon.work` that includes the starter app and the current Bunnia checkout for
+pre-registry development.
 
 Generate the Wenyu proof slice with:
 

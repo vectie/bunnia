@@ -31,6 +31,9 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/moon.pkg").contains("\"vectie/bunnia\""),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "starter_wechat_project",
     ),
@@ -40,6 +43,14 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("strict_from_args"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("command_from_args"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "print_inspect_result",
+    ),
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
@@ -100,6 +111,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
+  assert_true(file_content(plan.files, "README.mbt.md").contains("inspect"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(plan.summary.contains("files=12"))
 }

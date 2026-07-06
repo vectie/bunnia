@@ -901,8 +901,9 @@ Current evidence:
   separate files. The generated tests cover render budgets, scene output,
   bounded patches, and clean WeChat event wiring, while `moon run cmd/main`
   writes the starter's WeChat files with optional `--strict` diagnostics gating
-  and the local `moon.work` includes the starter app plus the Bunnia checkout
-  for development before registry publication.
+  or runs no-write `inspect` route/file pressure checks. The local `moon.work`
+  includes the starter app plus the Bunnia checkout for development before
+  registry publication.
 
 ## Phase 8: Production Readiness
 

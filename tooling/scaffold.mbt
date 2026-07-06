@@ -66,6 +66,7 @@ fn moon_pkg() -> String {
 fn cmd_main_pkg(module_name : String) -> String {
   "import {\n" +
   "  \"\{escape_toml(module_name)}\" @app,\n" +
+  "  \"vectie/bunnia\",\n" +
   "  \"moonbitlang/core/env\",\n" +
   "}\n\n" +
   "options(\n" +
@@ -77,21 +78,38 @@ fn cmd_main_pkg(module_name : String) -> String {
 fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn main {\n" +
+  "  let command = command_from_args(@env.args())\n" +
   "  let output_dir = output_dir_from_args(@env.args())\n" +
   "  let strict = strict_from_args(@env.args())\n" +
   "  let project = @app.starter_wechat_project()\n" +
-  "  for file in project.files {\n" +
-  "    write_text_file(join_path(output_dir, file.path), file.content)\n" +
-  "  }\n" +
-  "  println(\"command=build\")\n" +
+  "  println(\"command=\\{command}\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
   "  println(project.summary)\n" +
+  "  println(project.manifest.summary)\n" +
   "  println(project.report.summary)\n" +
-  "  println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
-  "  if strict && project.report.diagnostics.length() > 0 {\n" +
+  "  if command == \"inspect\" {\n" +
+  "    print_inspect_result(project)\n" +
+  "  } else {\n" +
+  "    for file in project.files {\n" +
+  "      write_text_file(join_path(output_dir, file.path), file.content)\n" +
+  "    }\n" +
+  "    println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
+  "  }\n" +
+  "  if should_fail(strict, project) {\n" +
   "    println(\"build_failed=diagnostics\")\n" +
   "    panic()\n" +
   "  }\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn command_from_args(args : Array[String]) -> String {\n" +
+  "  for item in args {\n" +
+  "    if item == \"inspect\" {\n" +
+  "      return \"inspect\"\n" +
+  "    } else if item == \"build\" {\n" +
+  "      return \"build\"\n" +
+  "    }\n" +
+  "  }\n" +
+  "  \"build\"\n" +
   "}\n\n" +
   "///|\n" +
   "fn output_dir_from_args(args : Array[String]) -> String {\n" +
@@ -105,6 +123,23 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn strict_from_args(args : Array[String]) -> Bool {\n" +
   "  args.contains(\"--strict\") || args.contains(\"--fail-on-diagnostics\")\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn should_fail(strict : Bool, project : @bunnia.WechatProject) -> Bool {\n" +
+  "  strict && (\n" +
+  "    project.report.diagnostics.length() > 0 ||\n" +
+  "    project.manifest.diagnostic_count > 0\n" +
+  "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn print_inspect_result(project : @bunnia.WechatProject) -> Unit {\n" +
+  "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} diagnostics=\\{project.manifest.diagnostic_count}\")\n" +
+  "  for page in project.manifest.pages {\n" +
+  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
+  "  }\n" +
+  "  for file in project.manifest.files {\n" +
+  "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
+  "  }\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
@@ -306,6 +341,7 @@ fn readme(name : String) -> String {
   "```bash\n" +
   "moon check\n" +
   "moon test\n" +
+  "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- --out _build/wechat --strict\n" +
   "```\n"
 }
