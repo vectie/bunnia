@@ -982,10 +982,11 @@ Current evidence:
   deterministic `sh` script with `--script`, plus the active
   inspection/profile-gate thresholds and current diagnostic count.
   Starter `help` is also no-write, unknown starter commands fail before writing
-  generated output, and starter `limits` accepts `--target`, so WeChat reports
-  as available while Alipay/TikTok remain inspectable as deferred targets, and
-  the local `moon.work` includes the starter app plus the Bunnia checkout for
-  development before registry publication.
+  generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
+  shared platform target-support gate, so WeChat reports as available while
+  Alipay/TikTok remain inspectable as deferred targets and fail before starter
+  WeChat artifacts are written. The local `moon.work` includes the starter app
+  plus the Bunnia checkout for development before registry publication.
 
 ## Phase 8: Production Readiness
 

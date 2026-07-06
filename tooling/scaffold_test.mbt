@@ -134,6 +134,26 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "cmd/main/main.mbt").contains("target_from_args"),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "target_support_from_args",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "platform_target_support(target=target_from_args(args))",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "ensure_target_generator_available(target_support)",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "Bunnia starter CI plan diagnostics:",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("generator_status="),
   )
   assert_true(
@@ -148,12 +168,12 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "build --out _build/wechat",
+      "build --target \\{target_support.target} --out _build/wechat",
     ),
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "step=limits command=moon run cmd/main -- limits --target wechat",
+      "step=limits command=moon run cmd/main -- limits --target \\{target_support.target}",
     ),
   )
   assert_true(
@@ -199,7 +219,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "moon run cmd/main -- build --out _build/wechat\\{strict_flag}",
+      "moon run cmd/main -- build --target \\{target_support.target} --out _build/wechat\\{strict_flag}",
     ),
   )
   assert_true(
@@ -368,7 +388,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
-      "build --out _build/wechat",
+      "build --target wechat --out _build/wechat",
     ),
   )
   assert_true(plan.summary.contains("files=16"))
