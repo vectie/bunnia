@@ -762,6 +762,9 @@ Current evidence:
 - Generated manifests expose route-level diagnostics for render, initial-data
   payload, and event-patch wiring issues, so generated projects remain
   debuggable without scanning aggregate CLI output.
+- Generated manifests expose app-level diagnostic counts plus per-route
+  diagnostic counts and route status, so large multi-route apps can rank risky
+  routes before opening the target mini-app IDE.
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.

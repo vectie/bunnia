@@ -276,6 +276,10 @@ test "wechat build reports missing and orphan event patches" {
   )
   assert_eq(project.manifest.pages[0].missing_event_patch_count, 1)
   assert_eq(project.manifest.pages[0].orphan_event_patch_count, 1)
+  assert_eq(project.manifest.pages[0].diagnostic_count, 2)
+  assert_eq(project.manifest.pages[0].status, "diagnostic")
+  assert_eq(project.manifest.diagnostic_route_count, 1)
+  assert_eq(project.manifest.diagnostic_count, 2)
   assert_true(
     project.manifest.pages[0].diagnostics.contains(
       "wechat-event-without-patch:pages/index/index:missing",

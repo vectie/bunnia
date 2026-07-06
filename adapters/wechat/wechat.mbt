@@ -74,6 +74,8 @@ pub struct WechatManifestPage {
   render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
   diagnostics : Array[String]
+  diagnostic_count : Int
+  status : String
 } derive(Debug, Eq)
 
 ///|
@@ -83,6 +85,8 @@ pub struct WechatProjectManifest {
   page_count : Int
   app_file_count : Int
   app_total_bytes : Int
+  diagnostic_route_count : Int
+  diagnostic_count : Int
   pages : Array[WechatManifestPage]
   files : Array[WechatManifestFile]
   summary : String
@@ -514,15 +518,19 @@ fn project_manifest(
   let app_total = total_file_bytes(files)
   let manifest_files = manifest_files(files)
   let manifest_pages = manifest_pages(pages, files, backend_contract)
+  let diagnostic_route_count = manifest_diagnostic_route_count(manifest_pages)
+  let diagnostic_count = manifest_diagnostic_count(manifest_pages)
   {
     name,
     entry_route,
     page_count: pages.length(),
     app_file_count: files.length(),
     app_total_bytes: app_total,
+    diagnostic_route_count,
+    diagnostic_count,
     pages: manifest_pages,
     files: manifest_files,
-    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} entry=\{entry_route}",
+    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
   }
 }
 
@@ -551,6 +559,7 @@ fn manifest_pages(
     let (backend_events, backend_streams, backend_reviews) = page_backend_pressure(
       item, backend_contract,
     )
+    let diagnostics = page_manifest_diagnostics(item)
     output.push({
       name: item.name,
       route: item.route,
@@ -581,10 +590,41 @@ fn manifest_pages(
       file_bytes: route_file_bytes(item.route, files),
       render_budget: item.page.render_budget,
       render_diagnostics: item.page.plan.diagnostics,
-      diagnostics: page_manifest_diagnostics(item),
+      diagnostics,
+      diagnostic_count: diagnostics.length(),
+      status: route_manifest_status(diagnostics),
     })
   }
   output
+}
+
+///|
+fn route_manifest_status(diagnostics : Array[String]) -> String {
+  if diagnostics.length() == 0 {
+    "ok"
+  } else {
+    "diagnostic"
+  }
+}
+
+///|
+fn manifest_diagnostic_route_count(pages : Array[WechatManifestPage]) -> Int {
+  let mut total = 0
+  for page in pages {
+    if page.diagnostic_count > 0 {
+      total += 1
+    }
+  }
+  total
+}
+
+///|
+fn manifest_diagnostic_count(pages : Array[WechatManifestPage]) -> Int {
+  let mut total = 0
+  for page in pages {
+    total += page.diagnostic_count
+  }
+  total
 }
 
 ///|
@@ -752,6 +792,8 @@ fn manifest_json(input : WechatProjectManifest) -> String {
   "  \"pageCount\": \{input.page_count},\n" +
   "  \"appFileCount\": \{input.app_file_count},\n" +
   "  \"appTotalBytes\": \{input.app_total_bytes},\n" +
+  "  \"diagnosticRouteCount\": \{input.diagnostic_route_count},\n" +
+  "  \"diagnosticCount\": \{input.diagnostic_count},\n" +
   "  \"pages\": \{manifest_pages_json(input.pages)},\n" +
   "  \"files\": \{manifest_files_json(input.files)}\n" +
   "}\n"
@@ -803,7 +845,9 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"fileBytes\":\{item.file_bytes}," +
   "\"renderBudget\":\{render_budget_json(item.render_budget)}," +
   "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}," +
-  "\"diagnostics\":\{strings_json(item.diagnostics)}" +
+  "\"diagnostics\":\{strings_json(item.diagnostics)}," +
+  "\"diagnosticCount\":\{item.diagnostic_count}," +
+  "\"status\":\"\{escape_json(item.status)}\"" +
   "}"
 }
 

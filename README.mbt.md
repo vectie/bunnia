@@ -150,7 +150,9 @@ serialized into page payloads.
 The manifest records missing and orphan event-patch counts per route, so large
 apps can locate broken interaction wiring without scanning aggregate logs.
 Route manifests also include a `diagnostics` array for render, payload, and
-interaction issues attributable to that page.
+interaction issues attributable to that page, plus per-route and app-level
+diagnostic counts/status fields so large apps can rank problematic routes
+without parsing every diagnostic string.
 Backend-aware manifests also record reachable backend, stream, and review
 endpoint counts per route, making agentic request pressure attributable before
 opening the mini-app IDE.

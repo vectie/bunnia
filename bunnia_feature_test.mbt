@@ -787,9 +787,24 @@ test "wechat project generation accepts route render budgets" {
       "wechat-render:pages/budget/index:scene-marker-count-over-budget:2/1",
     ),
   )
+  assert_eq(project.manifest.pages[0].diagnostic_count, 1)
+  assert_eq(project.manifest.pages[0].status, "diagnostic")
+  assert_eq(project.manifest.diagnostic_route_count, 1)
+  assert_eq(project.manifest.diagnostic_count, 1)
+  assert_true(project.manifest.summary.contains("diagnostic_routes=1"))
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxDegradedScenes\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnosticRouteCount\": 1",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnosticCount\":1,\"status\":\"diagnostic\"",
     ),
   )
   assert_true(
@@ -1256,6 +1271,10 @@ test "wechat manifest records route render diagnostics" {
       "wechat-render:pages/diagnostics/index:list-child-missing-key:2",
     ),
   )
+  assert_eq(project.manifest.pages[0].diagnostic_count, 1)
+  assert_eq(project.manifest.pages[0].status, "diagnostic")
+  assert_eq(project.manifest.diagnostic_route_count, 1)
+  assert_eq(project.manifest.diagnostic_count, 1)
   assert_true(
     project.report.diagnostics.contains(
       "wechat-render:pages/diagnostics/index:list-child-missing-key:2",
@@ -1279,6 +1298,11 @@ test "wechat manifest records route render diagnostics" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderBudget\":{\"maxNodes\":800,\"maxDepth\":18,\"maxEvents\":160",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnosticCount\":1,\"status\":\"diagnostic\"",
     ),
   )
 }
