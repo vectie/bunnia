@@ -1546,6 +1546,11 @@ test "scaffold project exposes starter files through facade" {
     ),
   )
   assert_true(
+    scaffold_file_content(scaffold.files, "cmd/main/main.mbt").contains(
+      "strict_from_args",
+    ),
+  )
+  assert_true(
     scaffold_file_content(scaffold.files, "app_test.mbt").contains(
       "starter render plans",
     ),

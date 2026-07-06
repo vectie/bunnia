@@ -38,6 +38,14 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("write_text_file"),
   )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("strict_from_args"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "build_failed=diagnostics",
+    ),
+  )
   assert_true(file_content(plan.files, "app.mbt").contains("pub fn view()"))
   assert_true(
     file_content(plan.files, "app.mbt").contains("starter_agent_feed"),
@@ -92,6 +100,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
+  assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(plan.summary.contains("files=12"))
 }
 

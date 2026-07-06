@@ -78,14 +78,20 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn main {\n" +
   "  let output_dir = output_dir_from_args(@env.args())\n" +
+  "  let strict = strict_from_args(@env.args())\n" +
   "  let project = @app.starter_wechat_project()\n" +
   "  for file in project.files {\n" +
   "    write_text_file(join_path(output_dir, file.path), file.content)\n" +
   "  }\n" +
   "  println(\"command=build\")\n" +
+  "  println(\"strict=\\{strict}\")\n" +
   "  println(project.summary)\n" +
   "  println(project.report.summary)\n" +
   "  println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
+  "  if strict && project.report.diagnostics.length() > 0 {\n" +
+  "    println(\"build_failed=diagnostics\")\n" +
+  "    panic()\n" +
+  "  }\n" +
   "}\n\n" +
   "///|\n" +
   "fn output_dir_from_args(args : Array[String]) -> String {\n" +
@@ -95,6 +101,10 @@ fn cmd_main_mbt() -> String {
   "    }\n" +
   "  }\n" +
   "  \"_build/wechat\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn strict_from_args(args : Array[String]) -> Bool {\n" +
+  "  args.contains(\"--strict\") || args.contains(\"--fail-on-diagnostics\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
@@ -296,7 +306,7 @@ fn readme(name : String) -> String {
   "```bash\n" +
   "moon check\n" +
   "moon test\n" +
-  "moon run cmd/main -- --out _build/wechat\n" +
+  "moon run cmd/main -- --out _build/wechat --strict\n" +
   "```\n"
 }
 
