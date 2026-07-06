@@ -112,6 +112,11 @@ pub struct WechatManifestPage {
   backend_event_count : Int
   backend_stream_count : Int
   backend_review_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_asset_count : Int
+  degraded_scene_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   initial_data_bytes : Int

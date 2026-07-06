@@ -58,6 +58,11 @@ pub struct WechatManifestPage {
   backend_event_count : Int
   backend_stream_count : Int
   backend_review_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_asset_count : Int
+  degraded_scene_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   initial_data_bytes : Int
@@ -497,6 +502,11 @@ fn manifest_pages(
       backend_event_count: backend_events,
       backend_stream_count: backend_streams,
       backend_review_count: backend_reviews,
+      scene_count: item.page.plan.scene_count,
+      scene_marker_count: item.page.plan.scene_marker_count,
+      scene_visible_marker_count: item.page.plan.scene_visible_marker_count,
+      scene_asset_count: item.page.plan.scene_asset_count,
+      degraded_scene_count: item.page.plan.degraded_scene_count,
       missing_event_patch_count: page_missing_event_patch_count(item),
       orphan_event_patch_count: page_orphan_event_patch_count(item),
       initial_data_bytes: item.runtime.initial_data_json.length(),
@@ -686,6 +696,11 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"backendEvents\":\{item.backend_event_count}," +
   "\"backendStreams\":\{item.backend_stream_count}," +
   "\"backendReviews\":\{item.backend_review_count}," +
+  "\"scenes\":\{item.scene_count}," +
+  "\"sceneMarkers\":\{item.scene_marker_count}," +
+  "\"sceneVisibleMarkers\":\{item.scene_visible_marker_count}," +
+  "\"sceneAssets\":\{item.scene_asset_count}," +
+  "\"degradedScenes\":\{item.degraded_scene_count}," +
   "\"missingEventPatches\":\{item.missing_event_patch_count}," +
   "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +

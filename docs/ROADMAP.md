@@ -348,6 +348,9 @@ Current evidence:
   measurable before rendering.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
+- Generic render plans now report scene count, visible/total marker count,
+  scene asset count, and degraded scene count, making map pressure visible
+  before adapter-specific generation.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
   effects on a target that does not advertise cloud support.
 - Render plans can be produced directly from a `PlatformAdapter` and now report
@@ -752,6 +755,9 @@ Current evidence:
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review
   counts so agentic request pressure is visible beside route payload budgets.
+- Generated manifests expose route-level scene count, visible/total marker
+  count, scene asset count, and degraded scene count so map-heavy routes are
+  attributable beside payload and backend budgets.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,

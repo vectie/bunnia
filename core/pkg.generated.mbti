@@ -207,6 +207,11 @@ pub struct RenderPlan {
   duplicate_list_key_count : Int
   canvas_count : Int
   unsupported_canvas_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_asset_count : Int
+  degraded_scene_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]

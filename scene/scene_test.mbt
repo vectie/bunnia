@@ -115,8 +115,14 @@ test "budgeted scene view caps visible markers and preserves stable events" {
   assert_eq(attr_value(root.attrs, "data-markers-total"), "12")
   assert_eq(attr_value(root.attrs, "data-markers-visible"), "4")
   assert_eq(attr_value(root.attrs, "data-scene-degraded"), "true")
+  assert_eq(render.scene_count, 1)
+  assert_eq(render.scene_marker_count, 12)
+  assert_eq(render.scene_visible_marker_count, 4)
+  assert_eq(render.scene_asset_count, 1)
+  assert_eq(render.degraded_scene_count, 1)
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))
+  assert_true(render.summary.contains("scene_markers=4/12"))
 }
 
 ///|
@@ -135,6 +141,11 @@ test "viewport scene view renders only spatially visible markers" {
   assert_eq(attr_value(root.attrs, "data-viewport-width"), "32")
   assert_eq(attr_value(root.attrs, "data-markers-total"), "12")
   assert_eq(attr_value(root.attrs, "data-markers-visible"), "4")
+  assert_eq(render.scene_count, 1)
+  assert_eq(render.scene_marker_count, 12)
+  assert_eq(render.scene_visible_marker_count, 4)
+  assert_eq(render.scene_asset_count, 1)
+  assert_eq(render.degraded_scene_count, 1)
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))
   assert_true(!render.event_messages.contains("select-marker-8"))

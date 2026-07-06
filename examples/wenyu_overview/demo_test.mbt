@@ -22,6 +22,11 @@ test "wenyu proof slice generates wechat output from projection" {
     ),
   )
   assert_true(page.plan.node_count > 35)
+  assert_eq(page.plan.scene_count, 1)
+  assert_eq(page.plan.scene_marker_count, 4)
+  assert_eq(page.plan.scene_visible_marker_count, 4)
+  assert_eq(page.plan.scene_asset_count, 1)
+  assert_eq(page.plan.degraded_scene_count, 0)
 }
 
 ///|
@@ -46,6 +51,11 @@ test "wenyu proof slice generates a separate mini-program route" {
   assert_eq(project.manifest.pages[0].windowed_list_count, 1)
   assert_eq(project.manifest.pages[0].list_total_count, 4)
   assert_eq(project.manifest.pages[0].list_visible_count, 4)
+  assert_eq(project.manifest.pages[0].scene_count, 1)
+  assert_eq(project.manifest.pages[0].scene_marker_count, 4)
+  assert_eq(project.manifest.pages[0].scene_visible_marker_count, 4)
+  assert_eq(project.manifest.pages[0].scene_asset_count, 1)
+  assert_eq(project.manifest.pages[0].degraded_scene_count, 0)
   assert_true(project.report.total_bytes == project.total_bytes)
   assert_eq(project.report.diagnostics.length(), 0)
   assert_eq(project.report.missing_event_patch_count, 0)

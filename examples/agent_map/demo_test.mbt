@@ -54,6 +54,11 @@ test "agent map demo generates wechat output" {
     ),
   )
   assert_true(page.plan.node_count > 12)
+  assert_eq(page.plan.scene_count, 1)
+  assert_eq(page.plan.scene_marker_count, 2)
+  assert_eq(page.plan.scene_visible_marker_count, 2)
+  assert_eq(page.plan.scene_asset_count, 1)
+  assert_eq(page.plan.degraded_scene_count, 0)
 }
 
 ///|
@@ -75,6 +80,16 @@ test "agent map demo generates a mini-program file set" {
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(has_file(project.files, "pages/index/index.data.js"))
+  assert_eq(project.manifest.pages[0].scene_count, 1)
+  assert_eq(project.manifest.pages[0].scene_marker_count, 2)
+  assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
+  assert_eq(project.manifest.pages[0].scene_asset_count, 1)
+  assert_eq(project.manifest.pages[0].degraded_scene_count, 0)
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneAssets\":1,\"degradedScenes\":0",
+    ),
+  )
   assert_true(project.summary.contains("Bunnia WeChat project"))
   assert_true(project.total_bytes > 1800)
 }
@@ -87,6 +102,16 @@ fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
     }
   }
   false
+}
+
+///|
+fn file_content(files : Array[@bunnia.WechatFile], path : String) -> String {
+  for item in files {
+    if item.path == path {
+      return item.content
+    }
+  }
+  ""
 }
 
 ///|

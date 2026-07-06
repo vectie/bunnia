@@ -50,6 +50,11 @@ pub struct RenderPlan {
   duplicate_list_key_count : Int
   canvas_count : Int
   unsupported_canvas_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_asset_count : Int
+  degraded_scene_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]
@@ -98,6 +103,11 @@ pub fn plan_for_adapter_with_budget(
   let unkeyed_list_children = unkeyed_list_child_count(root)
   let duplicate_list_keys = duplicate_list_key_count(root)
   let canvas_count = component_kind_count(root, "canvas")
+  let scenes = scene_count(root)
+  let scene_markers = scene_marker_count(root)
+  let scene_visible_markers = scene_visible_marker_count(root)
+  let scene_assets = scene_asset_count(root)
+  let degraded_scenes = degraded_scene_count(root)
   let unsupported_canvas_count = if canvas_count > 0 && !adapter.supports_canvas {
     canvas_count
   } else {
@@ -131,7 +141,7 @@ pub fn plan_for_adapter_with_budget(
       "canvas-unsupported:\{adapter.id}:\{unsupported_canvas_count}",
     )
   }
-  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} diagnostics=\{diagnostics.length()}"
+  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} scenes=\{scenes} scene_markers=\{scene_visible_markers}/\{scene_markers} scene_assets=\{scene_assets} degraded_scenes=\{degraded_scenes} diagnostics=\{diagnostics.length()}"
   {
     platform: adapter.platform,
     adapter,
@@ -146,6 +156,11 @@ pub fn plan_for_adapter_with_budget(
     duplicate_list_key_count: duplicate_list_keys,
     canvas_count,
     unsupported_canvas_count,
+    scene_count: scenes,
+    scene_marker_count: scene_markers,
+    scene_visible_marker_count: scene_visible_markers,
+    scene_asset_count: scene_assets,
+    degraded_scene_count: degraded_scenes,
     component_kinds: components,
     event_messages: messages,
     diagnostics,
@@ -270,6 +285,42 @@ fn attr_equals(root : Node, name : String, value : String) -> Bool {
 }
 
 ///|
+fn attr_value(root : Node, name : String) -> String {
+  for item in root.attrs {
+    if item.name == name {
+      return item.value
+    }
+  }
+  ""
+}
+
+///|
+fn attr_int(root : Node, name : String) -> Int? {
+  let value = attr_value(root, name)
+  if value == "" {
+    None
+  } else {
+    parse_non_negative_int(value)
+  }
+}
+
+///|
+fn parse_non_negative_int(value : String) -> Int? {
+  let mut total = 0
+  if value.length() == 0 {
+    return None
+  }
+  for i in 0..<value.length() {
+    let code = value[i].to_int()
+    if code < 48 || code > 57 {
+      return None
+    }
+    total = total * 10 + (code - 48)
+  }
+  Some(total)
+}
+
+///|
 fn class_contains(root : Node, value : String) -> Bool {
   for item in root.attrs {
     if item.name == "class" && item.value.contains(value) {
@@ -277,6 +328,90 @@ fn class_contains(root : Node, value : String) -> Bool {
     }
   }
   false
+}
+
+///|
+fn is_scene_root(root : Node) -> Bool {
+  attr_value(root, "data-scene-id") != ""
+}
+
+///|
+fn scene_count(root : Node) -> Int {
+  let mut total = if is_scene_root(root) { 1 } else { 0 }
+  for child in root.children {
+    total += scene_count(child)
+  }
+  total
+}
+
+///|
+fn scene_marker_count(root : Node) -> Int {
+  if is_scene_root(root) {
+    match attr_int(root, "data-markers-total") {
+      Some(value) => value
+      None => rendered_scene_marker_count(root)
+    }
+  } else {
+    let mut total = 0
+    for child in root.children {
+      total += scene_marker_count(child)
+    }
+    total
+  }
+}
+
+///|
+fn scene_visible_marker_count(root : Node) -> Int {
+  if is_scene_root(root) {
+    match attr_int(root, "data-markers-visible") {
+      Some(value) => value
+      None => rendered_scene_marker_count(root)
+    }
+  } else {
+    let mut total = 0
+    for child in root.children {
+      total += scene_visible_marker_count(child)
+    }
+    total
+  }
+}
+
+///|
+fn rendered_scene_marker_count(root : Node) -> Int {
+  let mut total = if attr_value(root, "data-marker-id") != "" { 1 } else { 0 }
+  for child in root.children {
+    total += rendered_scene_marker_count(child)
+  }
+  total
+}
+
+///|
+fn scene_asset_count(root : Node) -> Int {
+  let mut total = if is_scene_root(root) {
+    match attr_int(root, "data-scene-assets") {
+      Some(value) => value
+      None => 0
+    }
+  } else {
+    0
+  }
+  for child in root.children {
+    total += scene_asset_count(child)
+  }
+  total
+}
+
+///|
+fn degraded_scene_count(root : Node) -> Int {
+  let mut total = if attr_equals(root, "data-scene-degraded", "true") {
+    1
+  } else {
+    0
+  }
+  for child in root.children {
+    total += degraded_scene_count(child)
+  }
+  total
 }
 
 ///|

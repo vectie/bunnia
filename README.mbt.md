@@ -195,6 +195,9 @@ cannot support them.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+Generic render plans and generated route manifests also report scene count,
+visible/total marker count, scene asset count, and degraded scene count, so map
+pressure is visible even before product-specific profiling is wired in.
 Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.
