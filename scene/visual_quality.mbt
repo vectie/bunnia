@@ -6,6 +6,9 @@ pub struct SceneVisualQualityBudget {
   max_markers_without_tap : Int
   max_markers_without_asset_ref : Int
   max_unresolved_asset_refs : Int
+  min_hit_width : Int
+  min_hit_height : Int
+  max_small_hit_targets : Int
 } derive(Debug, Eq)
 
 ///|
@@ -17,6 +20,7 @@ pub struct SceneVisualQualityPlan {
   markers_without_tap_count : Int
   markers_without_asset_ref_count : Int
   unresolved_asset_ref_count : Int
+  small_hit_target_count : Int
   degraded : Bool
   diagnostics : Array[String]
   summary : String
@@ -30,6 +34,9 @@ pub fn scene_visual_quality_budget(
   max_markers_without_tap~ : Int,
   max_markers_without_asset_ref~ : Int,
   max_unresolved_asset_refs~ : Int,
+  min_hit_width? : Int = 44,
+  min_hit_height? : Int = 44,
+  max_small_hit_targets? : Int = 0,
 ) -> SceneVisualQualityBudget {
   {
     min_width,
@@ -38,6 +45,9 @@ pub fn scene_visual_quality_budget(
     max_markers_without_tap,
     max_markers_without_asset_ref,
     max_unresolved_asset_refs,
+    min_hit_width,
+    min_hit_height,
+    max_small_hit_targets,
   }
 }
 
@@ -50,6 +60,9 @@ pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget {
     max_markers_without_tap: 0,
     max_markers_without_asset_ref: 0,
     max_unresolved_asset_refs: 0,
+    min_hit_width: 44,
+    min_hit_height: 44,
+    max_small_hit_targets: 0,
   }
 }
 
@@ -107,11 +120,12 @@ fn plan_scene_visual_quality_from_plans(
     markers_without_tap_count,
     markers_without_asset_ref_count,
     unresolved_asset_ref_count,
-  ) = marker_quality_counts(input)
+    small_hit_target_count,
+  ) = marker_quality_counts(input, quality_budget)
   push_scene_size_diagnostics(input, quality_budget, diagnostics)
   push_marker_quality_diagnostics(
     markers_without_status_count, markers_without_tap_count, markers_without_asset_ref_count,
-    unresolved_asset_ref_count, quality_budget, diagnostics,
+    unresolved_asset_ref_count, small_hit_target_count, quality_budget, diagnostics,
   )
   push_prefixed_quality_diagnostics(
     "render",
@@ -133,18 +147,23 @@ fn plan_scene_visual_quality_from_plans(
     markers_without_tap_count,
     markers_without_asset_ref_count,
     unresolved_asset_ref_count,
+    small_hit_target_count,
     degraded,
     diagnostics,
-    summary: "Bunnia scene visual quality plan: markers=\{scene_marker_count(input)} missing_status=\{markers_without_status_count} missing_tap=\{markers_without_tap_count} missing_assets=\{markers_without_asset_ref_count} unresolved_assets=\{unresolved_asset_ref_count} degraded=\{degraded} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia scene visual quality plan: markers=\{scene_marker_count(input)} missing_status=\{markers_without_status_count} missing_tap=\{markers_without_tap_count} missing_assets=\{markers_without_asset_ref_count} unresolved_assets=\{unresolved_asset_ref_count} small_hit_targets=\{small_hit_target_count} degraded=\{degraded} diagnostics=\{diagnostics.length()}",
   }
 }
 
 ///|
-fn marker_quality_counts(input : Scene) -> (Int, Int, Int, Int) {
+fn marker_quality_counts(
+  input : Scene,
+  budget : SceneVisualQualityBudget,
+) -> (Int, Int, Int, Int, Int) {
   let mut markers_without_status_count = 0
   let mut markers_without_tap_count = 0
   let mut markers_without_asset_ref_count = 0
   let mut unresolved_asset_ref_count = 0
+  let mut small_hit_target_count = 0
   for scene_layer in input.layers {
     for scene_marker in scene_layer.markers {
       if scene_marker.status == "" {
@@ -158,11 +177,18 @@ fn marker_quality_counts(input : Scene) -> (Int, Int, Int, Int) {
       } else if !has_asset(input.assets, scene_marker.asset_ref) {
         unresolved_asset_ref_count += 1
       }
+      if scene_marker.tap_message != "" &&
+        (
+          scene_marker.hit_width < budget.min_hit_width ||
+          scene_marker.hit_height < budget.min_hit_height
+        ) {
+        small_hit_target_count += 1
+      }
     }
   }
   (
     markers_without_status_count, markers_without_tap_count, markers_without_asset_ref_count,
-    unresolved_asset_ref_count,
+    unresolved_asset_ref_count, small_hit_target_count,
   )
 }
 
@@ -190,6 +216,7 @@ fn push_marker_quality_diagnostics(
   markers_without_tap_count : Int,
   markers_without_asset_ref_count : Int,
   unresolved_asset_ref_count : Int,
+  small_hit_target_count : Int,
   budget : SceneVisualQualityBudget,
   diagnostics : Array[String],
 ) -> Unit {
@@ -211,6 +238,11 @@ fn push_marker_quality_diagnostics(
   if unresolved_asset_ref_count > budget.max_unresolved_asset_refs {
     diagnostics.push(
       "scene-unresolved-asset-refs:\{unresolved_asset_ref_count}/\{budget.max_unresolved_asset_refs}",
+    )
+  }
+  if small_hit_target_count > budget.max_small_hit_targets {
+    diagnostics.push(
+      "scene-small-hit-targets:\{small_hit_target_count}/\{budget.max_small_hit_targets}",
     )
   }
 }

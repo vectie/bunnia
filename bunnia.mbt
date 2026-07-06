@@ -1191,8 +1191,20 @@ pub fn marker(
   status? : String = "",
   tap_message? : String = "",
   asset_ref? : String = "",
+  hit_width? : Int = 44,
+  hit_height? : Int = 44,
 ) -> SceneMarker {
-  @scene.marker(id~, label~, x~, y~, status~, tap_message~, asset_ref~)
+  @scene.marker(
+    id~,
+    label~,
+    x~,
+    y~,
+    status~,
+    tap_message~,
+    asset_ref~,
+    hit_width~,
+    hit_height~,
+  )
 }
 
 ///|
@@ -1355,6 +1367,9 @@ pub fn scene_visual_quality_budget(
   max_markers_without_tap~ : Int,
   max_markers_without_asset_ref~ : Int,
   max_unresolved_asset_refs~ : Int,
+  min_hit_width? : Int = 44,
+  min_hit_height? : Int = 44,
+  max_small_hit_targets? : Int = 0,
 ) -> SceneVisualQualityBudget {
   @scene.scene_visual_quality_budget(
     min_width~,
@@ -1363,6 +1378,9 @@ pub fn scene_visual_quality_budget(
     max_markers_without_tap~,
     max_markers_without_asset_ref~,
     max_unresolved_asset_refs~,
+    min_hit_width~,
+    min_hit_height~,
+    max_small_hit_targets~,
   )
 }
 

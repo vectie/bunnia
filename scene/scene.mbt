@@ -21,6 +21,8 @@ pub struct SceneMarker {
   status : String
   tap_message : String
   asset_ref : String
+  hit_width : Int
+  hit_height : Int
 } derive(Debug, Eq)
 
 ///|
@@ -62,8 +64,10 @@ pub fn marker(
   status? : String = "",
   tap_message? : String = "",
   asset_ref? : String = "",
+  hit_width? : Int = 44,
+  hit_height? : Int = 44,
 ) -> SceneMarker {
-  { id, label, x, y, status, tap_message, asset_ref }
+  { id, label, x, y, status, tap_message, asset_ref, hit_width, hit_height }
 }
 
 ///|
@@ -204,6 +208,8 @@ fn marker_view(input : SceneMarker, assets : Array[SceneAsset]) -> @core.Node {
         @core.data("y", input.y.to_string()),
         @core.data("status", input.status),
         @core.data("asset-ref", input.asset_ref),
+        @core.data("hit-width", input.hit_width.to_string()),
+        @core.data("hit-height", input.hit_height.to_string()),
       ],
       events~,
       children~,
@@ -261,7 +267,7 @@ fn scene_style(size : SceneSize) -> String {
 
 ///|
 fn marker_style(input : SceneMarker) -> String {
-  "left: \{input.x}rpx; top: \{input.y}rpx;"
+  "left: \{input.x}rpx; top: \{input.y}rpx; min-width: \{input.hit_width}rpx; min-height: \{input.hit_height}rpx;"
 }
 
 ///|

@@ -568,6 +568,9 @@ Current evidence:
 - Scene visual quality plans check scene size, marker status, tap targets,
   marker asset references, unresolved assets, degraded output, and underlying
   render/asset diagnostics.
+- Scene markers expose explicit hit-target dimensions in generated markup, and
+  visual quality plans flag tappable markers whose hit area is too small for
+  reliable mobile interaction.
 - Generic status overlays can wrap scene, list, dashboard, or feed surfaces so
   stale, error, retry, cancelled, and degraded states remain visible without
   rebuilding the underlying surface model.

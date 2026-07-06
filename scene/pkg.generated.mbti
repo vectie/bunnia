@@ -19,7 +19,7 @@ pub fn image_asset(String, String, Int) -> SceneAsset
 
 pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
 
-pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String) -> SceneMarker
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String, hit_width? : Int, hit_height? : Int) -> SceneMarker
 
 pub fn plan_scene_assets(Array[SceneAsset]) -> SceneAssetPlan
 
@@ -71,7 +71,7 @@ pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> SceneV
 
 pub fn scene_visible_marker_count(Scene, SceneViewport) -> Int
 
-pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int) -> SceneVisualQualityBudget
+pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> SceneVisualQualityBudget
 
 pub fn select_scene_marker(String, String) -> @core.Patch
 
@@ -152,6 +152,8 @@ pub struct SceneMarker {
   status : String
   tap_message : String
   asset_ref : String
+  hit_width : Int
+  hit_height : Int
 } derive(Eq, @debug.Debug)
 
 pub(all) enum SceneQualityLevel {
@@ -230,6 +232,9 @@ pub struct SceneVisualQualityBudget {
   max_markers_without_tap : Int
   max_markers_without_asset_ref : Int
   max_unresolved_asset_refs : Int
+  min_hit_width : Int
+  min_hit_height : Int
+  max_small_hit_targets : Int
 } derive(Eq, @debug.Debug)
 
 pub struct SceneVisualQualityPlan {
@@ -240,6 +245,7 @@ pub struct SceneVisualQualityPlan {
   markers_without_tap_count : Int
   markers_without_asset_ref_count : Int
   unresolved_asset_ref_count : Int
+  small_hit_target_count : Int
   degraded : Bool
   diagnostics : Array[String]
   summary : String

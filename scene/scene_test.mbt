@@ -141,6 +141,34 @@ test "viewport scene view renders only spatially visible markers" {
 }
 
 ///|
+test "scene markers expose stable hit target dimensions" {
+  let root = static_scene_view(
+    scene("hit-map", scene_size(320, 240), [
+      layer("markers", 1, [
+        marker(
+          id="tap-a",
+          label="Tap A",
+          x=24,
+          y=32,
+          tap_message="select-a",
+          hit_width=64,
+          hit_height=56,
+        ),
+      ]),
+    ]),
+  )
+  let marker_node = root.children[0].children[0]
+  assert_eq(attr_value(marker_node.attrs, "data-hit-width"), "64")
+  assert_eq(attr_value(marker_node.attrs, "data-hit-height"), "56")
+  assert_true(
+    attr_value(marker_node.attrs, "style").contains("min-width: 64rpx"),
+  )
+  assert_true(
+    attr_value(marker_node.attrs, "style").contains("min-height: 56rpx"),
+  )
+}
+
+///|
 test "scene visual quality plan keeps complete maps clean" {
   let input = fixture_scene(4)
   let plan = plan_scene_visual_quality(input)
@@ -149,6 +177,7 @@ test "scene visual quality plan keeps complete maps clean" {
   assert_eq(plan.markers_without_tap_count, 0)
   assert_eq(plan.markers_without_asset_ref_count, 0)
   assert_eq(plan.unresolved_asset_ref_count, 0)
+  assert_eq(plan.small_hit_target_count, 0)
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.degraded, false)
   assert_true(plan.summary.contains("missing_status=0"))
@@ -180,6 +209,7 @@ test "scene visual quality plan reports weak map surfaces" {
   assert_eq(plan.markers_without_tap_count, 1)
   assert_eq(plan.markers_without_asset_ref_count, 1)
   assert_eq(plan.unresolved_asset_ref_count, 1)
+  assert_eq(plan.small_hit_target_count, 0)
   assert_eq(plan.degraded, true)
   assert_true(plan.diagnostics.contains("scene-width-under-min:120/320"))
   assert_true(plan.diagnostics.contains("scene-height-under-min:80/240"))
@@ -190,4 +220,32 @@ test "scene visual quality plan reports weak map surfaces" {
   assert_true(
     plan.diagnostics.contains("render:scene-marker-count-over-budget:2/1"),
   )
+}
+
+///|
+test "scene visual quality plan reports small tappable hit targets" {
+  let input = scene(
+    "touch-map",
+    scene_size(320, 240),
+    [
+      layer("markers", 1, [
+        marker(
+          id="small",
+          label="Small",
+          x=24,
+          y=32,
+          status="review",
+          tap_message="select-small",
+          asset_ref="pin",
+          hit_width=32,
+          hit_height=40,
+        ),
+      ]),
+    ],
+    assets=[sprite_asset("pin", "/assets/pin.png", 2048)],
+  )
+  let plan = plan_scene_visual_quality(input)
+  assert_eq(plan.small_hit_target_count, 1)
+  assert_true(plan.diagnostics.contains("scene-small-hit-targets:1/0"))
+  assert_true(plan.summary.contains("small_hit_targets=1"))
 }

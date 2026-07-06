@@ -135,6 +135,9 @@ profiles before adding platform-specific rendering.
 Use `@bunnia.plan_scene_visual_quality(...)` for a checklist covering scene
 size, marker status, tap targets, asset references, unresolved assets, and
 degraded output.
+Markers carry stable `data-hit-width` and `data-hit-height` attributes, and
+visual quality plans flag tappable markers with hit targets below the configured
+minimum so map interactions stay usable on mobile.
 
 Use `@bunnia.surface_status_badge(...)` and
 `@bunnia.surface_status_overlay(...)` for loading, stale, error, retry,

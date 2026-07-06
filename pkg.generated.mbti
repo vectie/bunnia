@@ -238,7 +238,7 @@ pub fn[Item] list(Array[Item], (Item) -> @core.Node) -> @core.Node
 
 pub fn login(String, String) -> @effects.Effect
 
-pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String) -> @scene.SceneMarker
+pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String, hit_width? : Int, hit_height? : Int) -> @scene.SceneMarker
 
 pub fn max_depth(@core.Node) -> Int
 
@@ -428,7 +428,7 @@ pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> @scene
 
 pub fn scene_visible_marker_count(@scene.Scene, @scene.SceneViewport) -> Int
 
-pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int) -> @scene.SceneVisualQualityBudget
+pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> @scene.SceneVisualQualityBudget
 
 pub fn scroll_view(Array[@core.Node]) -> @core.Node
 
