@@ -336,6 +336,8 @@ Current evidence:
   static rendering, and scene-specific marker status/selection patch helpers.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
   effects on a target that does not advertise cloud support.
+- Render plans can be produced directly from a `PlatformAdapter` and now report
+  canvas usage plus unsupported canvas diagnostics for constrained targets.
 - Generic surface-status badges and overlays cover loading, ready, stale,
   error, retry, cancelled, and degraded states without hardcoding a product
   widget.

@@ -52,6 +52,10 @@ pub fn patch_budget(max_patches~ : Int, max_patch_bytes~ : Int) -> PatchBudget
 
 pub fn plan(Node, Platform) -> RenderPlan
 
+pub fn plan_for_adapter(Node, PlatformAdapter) -> RenderPlan
+
+pub fn plan_for_adapter_with_budget(Node, PlatformAdapter, RenderBudget) -> RenderPlan
+
 pub fn plan_patches(Array[Patch]) -> PatchPlan
 
 pub fn plan_patches_with_budget(Array[Patch], PatchBudget) -> PatchPlan
@@ -198,6 +202,8 @@ pub struct RenderPlan {
   list_visible_count : Int
   unkeyed_list_child_count : Int
   duplicate_list_key_count : Int
+  canvas_count : Int
+  unsupported_canvas_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]

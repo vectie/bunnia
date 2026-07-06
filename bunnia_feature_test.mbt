@@ -455,6 +455,31 @@ test "render budgets report large app pressure early" {
 }
 
 ///|
+test "render plans report canvas capability pressure through adapters" {
+  let root = @bunnia.page([
+    @bunnia.canvas("surface-canvas"),
+    @bunnia.view([@bunnia.canvas("overlay-canvas")]),
+  ])
+  let constrained = @bunnia.platform_adapter(
+    platform=@bunnia.wechat(),
+    id="wechat-no-canvas",
+    page_component="page",
+    tap_event="bindtap",
+    supports_canvas=false,
+  )
+  let supported = @bunnia.plan(root, @bunnia.wechat())
+  let unsupported = @bunnia.plan_for_adapter(root, constrained)
+  assert_eq(supported.canvas_count, 2)
+  assert_eq(supported.unsupported_canvas_count, 0)
+  assert_eq(unsupported.canvas_count, 2)
+  assert_eq(unsupported.unsupported_canvas_count, 2)
+  assert_true(
+    unsupported.diagnostics.contains("canvas-unsupported:wechat-no-canvas:2"),
+  )
+  assert_true(unsupported.summary.contains("unsupported_canvas=2"))
+}
+
+///|
 test "wechat generator emits page files with targeted event routing" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),

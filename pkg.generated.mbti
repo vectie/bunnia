@@ -274,6 +274,10 @@ pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.Back
 
 pub fn plan_effects_for_platform(Array[@effects.Effect], @core.Platform) -> @effects.EffectPlan
 
+pub fn plan_for_adapter(@core.Node, @core.PlatformAdapter) -> @core.RenderPlan
+
+pub fn plan_for_adapter_with_budget(@core.Node, @core.PlatformAdapter, @core.RenderBudget) -> @core.RenderPlan
+
 pub fn plan_patches(Array[@core.Patch]) -> @core.PatchPlan
 
 pub fn plan_patches_with_budget(Array[@core.Patch], @core.PatchBudget) -> @core.PatchPlan

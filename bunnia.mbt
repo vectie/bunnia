@@ -572,12 +572,26 @@ pub fn plan(root : Node, platform : Platform) -> RenderPlan {
 }
 
 ///|
+pub fn plan_for_adapter(root : Node, adapter : PlatformAdapter) -> RenderPlan {
+  @core.plan_for_adapter(root, adapter)
+}
+
+///|
 pub fn plan_with_budget(
   root : Node,
   platform : Platform,
   budget : RenderBudget,
 ) -> RenderPlan {
   @core.plan_with_budget(root, platform, budget)
+}
+
+///|
+pub fn plan_for_adapter_with_budget(
+  root : Node,
+  adapter : PlatformAdapter,
+  budget : RenderBudget,
+) -> RenderPlan {
+  @core.plan_for_adapter_with_budget(root, adapter, budget)
 }
 
 ///|

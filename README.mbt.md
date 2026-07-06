@@ -125,6 +125,9 @@ the same visible/total diagnostics as other large surfaces.
 Render plans also report `unkeyed_list_children` and
 `duplicate_list_keys`. Keep repeated rows uniquely keyed so large lists, feeds,
 and traces can update predictably.
+Render plans also count canvas nodes and can be planned against a custom
+`PlatformAdapter`, so unsupported canvas capability is visible before choosing a
+generator.
 
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report

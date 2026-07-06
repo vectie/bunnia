@@ -38,6 +38,8 @@ pub struct RenderPlan {
   list_visible_count : Int
   unkeyed_list_child_count : Int
   duplicate_list_key_count : Int
+  canvas_count : Int
+  unsupported_canvas_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]
@@ -55,15 +57,28 @@ pub fn plan(root : Node, platform : Platform) -> RenderPlan {
 }
 
 ///|
+pub fn plan_for_adapter(root : Node, adapter : PlatformAdapter) -> RenderPlan {
+  plan_for_adapter_with_budget(root, adapter, default_render_budget())
+}
+
+///|
 pub fn plan_with_budget(
   root : Node,
   platform : Platform,
   budget : RenderBudget,
 ) -> RenderPlan {
+  plan_for_adapter_with_budget(root, adapter(platform), budget)
+}
+
+///|
+pub fn plan_for_adapter_with_budget(
+  root : Node,
+  adapter : PlatformAdapter,
+  budget : RenderBudget,
+) -> RenderPlan {
   let components : Array[String] = []
   let messages : Array[String] = []
   collect_node(root, components, messages)
-  let adapter = adapter(platform)
   let count = node_count(root)
   let depth = max_depth(root)
   let windowed_lists = windowed_list_count(root)
@@ -71,6 +86,12 @@ pub fn plan_with_budget(
   let visible_items = list_visible_count(root)
   let unkeyed_list_children = unkeyed_list_child_count(root)
   let duplicate_list_keys = duplicate_list_key_count(root)
+  let canvas_count = component_kind_count(root, "canvas")
+  let unsupported_canvas_count = if canvas_count > 0 && !adapter.supports_canvas {
+    canvas_count
+  } else {
+    0
+  }
   let diagnostics : Array[String] = []
   if count > budget.max_nodes {
     diagnostics.push("node-count-over-budget:\{count}/\{budget.max_nodes}")
@@ -89,9 +110,14 @@ pub fn plan_with_budget(
   if duplicate_list_keys > 0 {
     diagnostics.push("list-child-duplicate-key:\{duplicate_list_keys}")
   }
-  let summary = "Bunnia render plan: \{platform_id(platform)} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} diagnostics=\{diagnostics.length()}"
+  if unsupported_canvas_count > 0 {
+    diagnostics.push(
+      "canvas-unsupported:\{adapter.id}:\{unsupported_canvas_count}",
+    )
+  }
+  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} diagnostics=\{diagnostics.length()}"
   {
-    platform,
+    platform: adapter.platform,
     adapter,
     root_kind: root.kind,
     node_count: count,
@@ -101,11 +127,22 @@ pub fn plan_with_budget(
     list_visible_count: visible_items,
     unkeyed_list_child_count: unkeyed_list_children,
     duplicate_list_key_count: duplicate_list_keys,
+    canvas_count,
+    unsupported_canvas_count,
     component_kinds: components,
     event_messages: messages,
     diagnostics,
     summary,
   }
+}
+
+///|
+fn component_kind_count(root : Node, kind : String) -> Int {
+  let mut total = if root.kind == kind { 1 } else { 0 }
+  for child in root.children {
+    total += component_kind_count(child, kind)
+  }
+  total
 }
 
 ///|
