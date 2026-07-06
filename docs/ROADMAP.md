@@ -1007,10 +1007,11 @@ Current evidence:
   A generated `.github/workflows/ci.yml` installs MoonBit and runs the same script,
   keeping local and hosted CI on one command path. The
   generated `ci-plan` lists the starter's check, test, interface, format,
-  product-neutral boundary check, platform-limits, inspect, snapshot, and
-  explicit strict build commands, prints actionable diagnostic lines, and can
-  emit the same workflow as a deterministic `sh` script with `--script`, plus the active
-  inspection/profile-gate thresholds and current diagnostic count.
+  guarded git diff checks, product-neutral boundary check, platform-limits,
+  inspect, snapshot, and explicit strict build commands, prints actionable
+  diagnostic lines, and can emit the same workflow as a deterministic `sh`
+  script with `--script`, plus the active inspection/profile-gate thresholds
+  and current diagnostic count.
   Starter `help` is also no-write, unknown starter commands fail before writing
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while

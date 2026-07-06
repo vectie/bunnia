@@ -400,7 +400,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"# \\{target_support.summary}\")\n" +
   "  println(\"\")\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"# Bunnia starter CI plan: steps=9 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=11 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    println(\"echo 'Bunnia starter CI plan diagnostics:'\")\n" +
   "    for item in target_support.diagnostics {\n" +
   "      println(\"echo '\\{item}'\")\n" +
@@ -414,7 +414,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"# Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}\")\n" +
   "    println(\"# \\{inspection_gate.summary}\")\n" +
   "    println(\"# \\{profile_gate.summary}\")\n" +
   "    println(\"\")\n" +
@@ -430,6 +430,10 @@ fn cmd_main_mbt() -> String {
   "      println(\"moon info\")\n" +
   "      println(\"echo '==> fmt'\")\n" +
   "      println(\"moon fmt\")\n" +
+  "      println(\"echo '==> diff-check'\")\n" +
+  "      println(\"if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then git diff --check -- .; else printf '%s\\\\n' 'skip=diff-check reason=no-git-worktree'; fi\")\n" +
+  "      println(\"echo '==> diff-clean'\")\n" +
+  "      println(\"if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then git diff --exit-code -- .; else printf '%s\\\\n' 'skip=diff-clean reason=no-git-worktree'; fi\")\n" +
   "      println(\"echo '==> boundary'\")\n" +
   "      println(\"sh scripts/validate_boundaries.sh\")\n" +
   "      println(\"echo '==> limits'\")\n" +
@@ -454,7 +458,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"strict=\\{strict}\")\n" +
   "  println(target_support.summary)\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"Bunnia starter CI plan: steps=9 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=11 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    print_target_diagnostics(target_support)\n" +
   "  } else {\n" +
   "    let project = @app.starter_wechat_project()\n" +
@@ -464,7 +468,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}\")\n" +
   "    println(inspection_gate.summary)\n" +
   "    println(profile_gate.summary)\n" +
   "    for item in project.report.diagnostics {\n" +
@@ -485,6 +489,8 @@ fn cmd_main_mbt() -> String {
   "    println(\"step=test command=moon test\")\n" +
   "    println(\"step=info command=moon info\")\n" +
   "    println(\"step=fmt command=moon fmt\")\n" +
+  "    println(\"step=diff-check command=git diff --check -- .\")\n" +
+  "    println(\"step=diff-clean command=git diff --exit-code -- .\")\n" +
   "    println(\"step=boundary command=sh scripts/validate_boundaries.sh\")\n" +
   "    println(\"step=limits command=moon run cmd/main -- limits --target \\{target_support.target}\")\n" +
   "    println(\"step=inspect command=moon run cmd/main -- inspect --target \\{target_support.target}\\{strict_flag}\")\n" +
@@ -795,6 +801,8 @@ fn readme(name : String) -> String {
   "moon test\n" +
   "moon info\n" +
   "moon fmt\n" +
+  "git diff --check -- .\n" +
+  "git diff --exit-code -- .\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- ci-plan --script --strict\n" +
   "sh scripts/ci.sh\n" +

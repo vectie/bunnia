@@ -209,12 +209,32 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=diff-check command=git diff --check -- .",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=diff-clean command=git diff --exit-code -- .",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "skip=diff-check reason=no-git-worktree",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "skip=diff-clean reason=no-git-worktree",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "let diagnostics = project.report.diagnostics.length()",
     ),
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}",
+      "Bunnia starter CI plan: steps=11 diagnostics=\\{diagnostics}",
     ),
   )
   assert_true(
@@ -443,6 +463,14 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(file_content(plan.files, "README.mbt.md").contains("moon info"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("moon fmt"))
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains("git diff --check -- ."),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "git diff --exit-code -- .",
+    ),
+  )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("sh scripts/ci.sh"),
   )
