@@ -48,6 +48,7 @@ test "wenyu proof slice keeps updates and assets bounded" {
   let backend = @bunnia.plan_backend_contract(demo_backend_contract())
   let scene = demo_scene_render_plan()
   let quality = demo_scene_visual_quality_plan()
+  let communication = demo_communication_plan()
   assert_eq(patches.patches.length(), 2)
   assert_true(patches.total_estimated_bytes < 128)
   assert_eq(asset_plan.assets.length(), 1)
@@ -61,6 +62,10 @@ test "wenyu proof slice keeps updates and assets bounded" {
   assert_eq(scene.diagnostics.length(), 0)
   assert_eq(quality.diagnostics.length(), 0)
   assert_eq(quality.degraded, false)
+  assert_eq(communication.total_count, 2)
+  assert_eq(communication.unresolved_review_count, 1)
+  assert_eq(communication.artifact_ref_count, 1)
+  assert_eq(communication.diagnostics.length(), 0)
 }
 
 ///|

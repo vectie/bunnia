@@ -4,6 +4,7 @@ package "vectie/bunnia/examples/wenyu_overview"
 import {
   "moonbitlang/core/debug",
   "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/agent",
   "vectie/bunnia/core",
   "vectie/bunnia/effects",
   "vectie/bunnia/scene",
@@ -17,6 +18,8 @@ pub fn dashboard_metric(id~ : String, label~ : String, value~ : String, status~ 
 pub fn demo_asset_plan() -> @scene.SceneAssetPlan
 
 pub fn demo_backend_contract() -> @effects.BackendContract
+
+pub fn demo_communication_plan() -> @agent.CommunicationPlan
 
 pub fn demo_patch_plan() -> @core.PatchPlan
 

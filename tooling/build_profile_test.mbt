@@ -54,6 +54,24 @@ test "build profile aggregates normal project signals" {
   let profile = profile_wechat_project(
     project,
     patches,
+    communication_plans=[
+      @agent.plan_communications([
+        @agent.message_event(
+          id="comm-open",
+          thread_id="thread-profile",
+          from_actor_id="agent-a",
+          text="Opened.",
+        ),
+        @agent.review_request(
+          id="comm-review",
+          thread_id="thread-profile",
+          from_actor_id="agent-a",
+          to_actor_id="operator",
+          text="Approve?",
+          artifact_ref="artifact://profile",
+        ),
+      ]),
+    ],
     agent_delta_plans=[
       @agent.plan_agent_deltas([
         @agent.append_stream_chunk_delta(
@@ -105,6 +123,10 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.effect_count, 0)
   assert_eq(profile.cloud_function_count, 0)
   assert_eq(profile.stream_effect_count, 0)
+  assert_eq(profile.communication_count, 2)
+  assert_eq(profile.communication_visible_count, 2)
+  assert_eq(profile.communication_unresolved_review_count, 1)
+  assert_eq(profile.communication_artifact_ref_count, 1)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 0)
   assert_eq(profile.diagnostics.length(), 0)
@@ -116,6 +138,9 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("max_first_screen="))
   assert_true(profile.summary.contains("max_update_payload="))
   assert_true(profile.summary.contains("effects=0"))
+  assert_true(profile.summary.contains("communications=2/2"))
+  assert_true(profile.summary.contains("communication_unresolved_reviews=1"))
+  assert_true(profile.summary.contains("communication_artifacts=1"))
   assert_true(profile.summary.contains("agent_deltas=2"))
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
@@ -213,6 +238,33 @@ test "build profile prefixes diagnostics by budget source" {
         @core.TikTok,
       ),
     ],
+    communication_plans=[
+      @agent.plan_communications_with_budget(
+        [
+          @agent.review_request(
+            id="comm-review",
+            thread_id="thread-profile",
+            from_actor_id="agent-a",
+            to_actor_id="operator",
+            text="Approve?",
+            artifact_ref="artifact://profile",
+          ),
+          @agent.tool_result(
+            id="comm-tool",
+            thread_id="thread-profile",
+            from_actor_id="agent-a",
+            text="Ready.",
+            artifact_ref="artifact://profile",
+          ),
+        ],
+        @agent.communication_budget(
+          max_visible_count=1,
+          max_review_request_count=0,
+          max_unresolved_review_count=0,
+          max_artifact_ref_count=1,
+        ),
+      ),
+    ],
     agent_delta_plans=[
       @agent.plan_agent_deltas([
         @agent.append_stream_chunk_delta(
@@ -232,6 +284,10 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.effect_count, 2)
   assert_eq(profile.cloud_function_count, 1)
   assert_eq(profile.stream_effect_count, 1)
+  assert_eq(profile.communication_count, 2)
+  assert_eq(profile.communication_visible_count, 1)
+  assert_eq(profile.communication_unresolved_review_count, 1)
+  assert_eq(profile.communication_artifact_ref_count, 2)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 1)
   assert_true(
@@ -241,6 +297,16 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_true(
     profile.diagnostics.contains("agent-delta:agent-stream-chunk-duplicate:1"),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "communication:communication-visible-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "communication:communication-unresolved-reviews-over-budget:1/0",
+    ),
   )
   assert_true(
     profile.diagnostics.contains(

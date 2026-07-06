@@ -42,8 +42,9 @@ phase-by-phase implementation plan.
   and degraded states.
 - `program`: pure `Program[Model, Msg]` update/view boundary with pending
   effects and patch plans.
-- `agent`: lightweight message, review, artifact-link, and run-status UI
-  primitives, plus generic communication threads and traces.
+- `agent`: lightweight message, review, artifact-link, run-status, and
+  communication planning primitives, plus generic communication threads and
+  traces.
 - `scene`: static stylised map model with layers, markers, asset manifests,
   hit targets, and bounded updates.
 - `effects`: typed frontend effect descriptions, platform support planning,
@@ -117,6 +118,12 @@ For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report
 `windowed_lists` plus visible/total item counts, which keeps first output
 bounded while preserving scale diagnostics.
+
+For large agentic traces, use `@bunnia.plan_communications(...)` or
+`@bunnia.plan_filtered_communications(...)` before rendering. Communication
+plans report visible/total rows, unresolved review pressure, artifact-bearing
+rows, and budget diagnostics; build profiles aggregate those signals in the
+normal CLI summary.
 
 For long agent conversations, use `@bunnia.windowed_message_feed(...)` and
 `@bunnia.windowed_communication_trace(...)` so chat rows and action traces keep

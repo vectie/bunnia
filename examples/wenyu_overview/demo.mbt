@@ -132,6 +132,14 @@ pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
 }
 
 ///|
+pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
+  @bunnia.plan_communications_with_budget(
+    demo_communications(demo_projection()),
+    @bunnia.communication_budget(max_visible_count=8),
+  )
+}
+
+///|
 pub fn large_scene_render_plan(building_count : Int) -> @bunnia.SceneRenderPlan {
   @bunnia.plan_scene_render_viewport(
     large_scene(building_count),
@@ -286,7 +294,12 @@ fn markers_from_buildings(
 
 ///|
 fn trace_view(input : WenyuProjection) -> @bunnia.Node {
-  @bunnia.communication_trace([
+  @bunnia.communication_trace(demo_communications(input))
+}
+
+///|
+fn demo_communications(input : WenyuProjection) -> Array[@bunnia.Communication] {
+  [
     @bunnia.message_event(
       id="trace-snapshot",
       thread_id=input.id,
@@ -301,7 +314,7 @@ fn trace_view(input : WenyuProjection) -> @bunnia.Node {
       text="Review suggested building state before dispatch.",
       artifact_ref="artifact://wenyu-overview",
     ),
-  ])
+  ]
 }
 
 ///|

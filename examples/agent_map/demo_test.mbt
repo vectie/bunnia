@@ -60,6 +60,18 @@ test "agent map demo exposes bounded agent deltas" {
 }
 
 ///|
+test "agent map demo exposes communication pressure" {
+  let plan = demo_communication_plan()
+  assert_eq(plan.total_count, 3)
+  assert_eq(plan.filtered_count, 3)
+  assert_eq(plan.visible_count, 3)
+  assert_eq(plan.unresolved_review_count, 1)
+  assert_eq(plan.artifact_ref_count, 2)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("unresolved_reviews=1"))
+}
+
+///|
 test "agent map demo exposes scene profile signals" {
   let scene = demo_scene_render_plan()
   let assets = demo_asset_plan()

@@ -292,6 +292,32 @@ test "communication trace renders structured agent interactions" {
     @bunnia.communication_kind_id(@bunnia.communication_tool_result()),
     "tool-result",
   )
+  let plan = @bunnia.plan_filtered_communications(
+    [
+      @bunnia.message_event(
+        id="comm-message",
+        thread_id="thread-route",
+        from_actor_id="agent-planner",
+        text="Planner opened the route thread.",
+      ),
+      @bunnia.review_request(
+        id="comm-review",
+        thread_id="thread-route",
+        from_actor_id="agent-planner",
+        to_actor_id="operator",
+        text="Approve route dispatch?",
+        artifact_ref="artifact://route-plan",
+      ),
+    ],
+    @bunnia.communication_filter(thread_id="thread-route"),
+    budget=@bunnia.communication_budget(max_visible_count=1),
+  )
+  assert_eq(plan.filtered_count, 2)
+  assert_eq(plan.visible_count, 1)
+  assert_eq(plan.unresolved_review_count, 1)
+  assert_true(
+    plan.diagnostics.contains("communication-visible-over-budget:2/1"),
+  )
 }
 
 ///|

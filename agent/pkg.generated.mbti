@@ -11,6 +11,8 @@ pub fn actor(id~ : String, label~ : String, kind? : ActorKind) -> Actor
 
 pub fn agent_delta_kind_id(AgentDeltaKind) -> String
 
+pub fn all_communication_filter() -> CommunicationFilter
+
 pub fn append_communication_delta(String, Communication) -> AgentDelta
 
 pub fn append_message_delta(String, Message) -> AgentDelta
@@ -23,11 +25,19 @@ pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, tex
 
 pub fn communication(id~ : String, thread_id~ : String, kind~ : CommunicationKind, from_actor_id~ : String, to_actor_id? : String, text~ : String, artifact_ref? : String, timestamp? : String, status? : RunStatus, open_message? : String) -> Communication
 
+pub fn communication_budget(max_visible_count? : Int, max_review_request_count? : Int, max_unresolved_review_count? : Int, max_artifact_ref_count? : Int) -> CommunicationBudget
+
+pub fn communication_filter(thread_id? : String, actor_id? : String, kind_id? : String, include_resolved_reviews? : Bool) -> CommunicationFilter
+
 pub fn communication_kind_id(CommunicationKind) -> String
 
 pub fn communication_row(Communication) -> @core.Node
 
 pub fn communication_trace(Array[Communication]) -> @core.Node
+
+pub fn default_communication_budget() -> CommunicationBudget
+
+pub fn filter_communications(Array[Communication], CommunicationFilter) -> Array[Communication]
 
 pub fn handoff(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, open_message? : String) -> Communication
 
@@ -42,6 +52,12 @@ pub fn message_row(Message) -> @core.Node
 pub fn plan_agent_deltas(Array[AgentDelta]) -> AgentDeltaPlan
 
 pub fn plan_agent_deltas_with_budget(Array[AgentDelta], @core.PatchBudget) -> AgentDeltaPlan
+
+pub fn plan_communications(Array[Communication]) -> CommunicationPlan
+
+pub fn plan_communications_with_budget(Array[Communication], CommunicationBudget) -> CommunicationPlan
+
+pub fn plan_filtered_communications(Array[Communication], CommunicationFilter, budget? : CommunicationBudget) -> CommunicationPlan
 
 pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
 
@@ -125,6 +141,20 @@ pub struct Communication {
   open_message : String
 } derive(Eq, @debug.Debug)
 
+pub struct CommunicationBudget {
+  max_visible_count : Int
+  max_review_request_count : Int
+  max_unresolved_review_count : Int
+  max_artifact_ref_count : Int
+} derive(Eq, @debug.Debug)
+
+pub struct CommunicationFilter {
+  thread_id : String
+  actor_id : String
+  kind_id : String
+  include_resolved_reviews : Bool
+} derive(Eq, @debug.Debug)
+
 pub(all) enum CommunicationKind {
   MessageEvent
   Handoff
@@ -133,6 +163,25 @@ pub(all) enum CommunicationKind {
   Approval
   ToolResult
   RecoveryNotice
+} derive(Eq, @debug.Debug)
+
+pub struct CommunicationPlan {
+  total_count : Int
+  filtered_count : Int
+  visible_count : Int
+  hidden_count : Int
+  visible_items : Array[Communication]
+  review_request_count : Int
+  unresolved_review_count : Int
+  handoff_count : Int
+  broadcast_count : Int
+  tool_result_count : Int
+  recovery_notice_count : Int
+  artifact_ref_count : Int
+  running_count : Int
+  failed_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct Message {

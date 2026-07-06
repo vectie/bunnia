@@ -24,6 +24,8 @@ pub fn agent_stream_endpoint(String, String, String, String) -> @effects.Backend
 
 pub fn alipay() -> @core.Platform
 
+pub fn all_communication_filter() -> @agent.CommunicationFilter
+
 pub fn append_communication_delta(String, @agent.Communication) -> @agent.AgentDelta
 
 pub fn append_json(String, String) -> @core.Patch
@@ -120,6 +122,10 @@ pub fn communication_approval() -> @agent.CommunicationKind
 
 pub fn communication_broadcast() -> @agent.CommunicationKind
 
+pub fn communication_budget(max_visible_count? : Int, max_review_request_count? : Int, max_unresolved_review_count? : Int, max_artifact_ref_count? : Int) -> @agent.CommunicationBudget
+
+pub fn communication_filter(thread_id? : String, actor_id? : String, kind_id? : String, include_resolved_reviews? : Bool) -> @agent.CommunicationFilter
+
 pub fn communication_handoff() -> @agent.CommunicationKind
 
 pub fn communication_kind_id(@agent.CommunicationKind) -> String
@@ -143,6 +149,8 @@ pub fn custom(String, Array[@core.Attr], Array[@core.Node]) -> @core.Node
 pub fn data(String, String) -> @core.Attr
 
 pub fn default_backend_budget() -> @effects.BackendBudget
+
+pub fn default_communication_budget() -> @agent.CommunicationBudget
 
 pub fn default_patch_budget() -> @core.PatchBudget
 
@@ -187,6 +195,8 @@ pub fn endpoint_thread_load() -> @effects.BackendEndpointKind
 pub fn endpoint_tool_ack() -> @effects.BackendEndpointKind
 
 pub fn event(String, String) -> @core.EventBinding
+
+pub fn filter_communications(Array[@agent.Communication], @agent.CommunicationFilter) -> Array[@agent.Communication]
 
 pub fn form(String, Array[@core.Node]) -> @core.Node
 
@@ -272,7 +282,13 @@ pub fn plan_backend_contract(@effects.BackendContract) -> @effects.BackendPlan
 
 pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.BackendBudget) -> @effects.BackendPlan
 
+pub fn plan_communications(Array[@agent.Communication]) -> @agent.CommunicationPlan
+
+pub fn plan_communications_with_budget(Array[@agent.Communication], @agent.CommunicationBudget) -> @agent.CommunicationPlan
+
 pub fn plan_effects_for_platform(Array[@effects.Effect], @core.Platform) -> @effects.EffectPlan
+
+pub fn plan_filtered_communications(Array[@agent.Communication], @agent.CommunicationFilter, budget? : @agent.CommunicationBudget) -> @agent.CommunicationPlan
 
 pub fn plan_for_adapter(@core.Node, @core.PlatformAdapter) -> @core.RenderPlan
 
@@ -320,7 +336,7 @@ pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_static_surface() -> @scene.SceneSurfacePreference
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
@@ -607,7 +623,13 @@ pub using @tooling {type BuildProfile}
 
 pub using @agent {type Communication}
 
+pub using @agent {type CommunicationBudget}
+
+pub using @agent {type CommunicationFilter}
+
 pub using @agent {type CommunicationKind}
+
+pub using @agent {type CommunicationPlan}
 
 pub using @effects {type Effect}
 

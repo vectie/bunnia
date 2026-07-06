@@ -327,6 +327,9 @@ Current evidence:
 - Generic communication records now cover threads, handoffs, broadcasts, review
   requests, approvals, tool results, and recovery notices without importing a
   product-specific agent runtime.
+- Communication plans can filter traces by thread, actor, or communication
+  kind while reporting visible/hidden rows, unresolved review pressure,
+  artifact-bearing rows, and budget diagnostics.
 - Agent deltas now represent append-only message, communication, streaming
   chunk, run-status, and review-state updates as bounded patch plans.
 - Scene thread links connect map markers to communication threads with compact
@@ -692,6 +695,9 @@ Current evidence:
   remote-loading work is driven by measured asset pressure.
 - Build profiles expose agent-delta counts and duplicate streaming chunk
   diagnostics so large agentic feeds are measured during normal builds.
+- Build profiles expose communication visible/total counts, unresolved review
+  pressure, artifact references, and communication diagnostics so agent-heavy
+  pages are measurable from the CLI.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

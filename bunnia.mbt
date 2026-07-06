@@ -68,6 +68,15 @@ pub type Message = @agent.Message
 pub type Communication = @agent.Communication
 
 ///|
+pub type CommunicationFilter = @agent.CommunicationFilter
+
+///|
+pub type CommunicationBudget = @agent.CommunicationBudget
+
+///|
+pub type CommunicationPlan = @agent.CommunicationPlan
+
+///|
 pub type ReviewAction = @agent.ReviewAction
 
 ///|
@@ -933,6 +942,76 @@ pub fn windowed_communication_trace(
   offset? : Int = 0,
 ) -> Node {
   @agent.windowed_communication_trace(items, total_count~, offset~)
+}
+
+///|
+pub fn communication_filter(
+  thread_id? : String = "",
+  actor_id? : String = "",
+  kind_id? : String = "",
+  include_resolved_reviews? : Bool = true,
+) -> CommunicationFilter {
+  @agent.communication_filter(
+    thread_id~,
+    actor_id~,
+    kind_id~,
+    include_resolved_reviews~,
+  )
+}
+
+///|
+pub fn all_communication_filter() -> CommunicationFilter {
+  @agent.all_communication_filter()
+}
+
+///|
+pub fn communication_budget(
+  max_visible_count? : Int = 80,
+  max_review_request_count? : Int = 32,
+  max_unresolved_review_count? : Int = 16,
+  max_artifact_ref_count? : Int = 32,
+) -> CommunicationBudget {
+  @agent.communication_budget(
+    max_visible_count~,
+    max_review_request_count~,
+    max_unresolved_review_count~,
+    max_artifact_ref_count~,
+  )
+}
+
+///|
+pub fn default_communication_budget() -> CommunicationBudget {
+  @agent.default_communication_budget()
+}
+
+///|
+pub fn filter_communications(
+  items : Array[Communication],
+  filter : CommunicationFilter,
+) -> Array[Communication] {
+  @agent.filter_communications(items, filter)
+}
+
+///|
+pub fn plan_communications(items : Array[Communication]) -> CommunicationPlan {
+  @agent.plan_communications(items)
+}
+
+///|
+pub fn plan_communications_with_budget(
+  items : Array[Communication],
+  budget : CommunicationBudget,
+) -> CommunicationPlan {
+  @agent.plan_communications_with_budget(items, budget)
+}
+
+///|
+pub fn plan_filtered_communications(
+  items : Array[Communication],
+  filter : CommunicationFilter,
+  budget? : CommunicationBudget = @agent.default_communication_budget(),
+) -> CommunicationPlan {
+  @agent.plan_filtered_communications(items, filter, budget~)
 }
 
 ///|
@@ -2229,6 +2308,7 @@ pub fn profile_wechat_project(
   project : WechatProject,
   patches : PatchPlan,
   effect_plans? : Array[EffectPlan] = [],
+  communication_plans? : Array[CommunicationPlan] = [],
   agent_delta_plans? : Array[AgentDeltaPlan] = [],
   backend_plans? : Array[BackendPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
@@ -2240,6 +2320,7 @@ pub fn profile_wechat_project(
     project,
     patches,
     effect_plans~,
+    communication_plans~,
     agent_delta_plans~,
     backend_plans~,
     asset_plans~,

@@ -115,6 +115,36 @@ pub fn demo_agent_delta_plan() -> @bunnia.AgentDeltaPlan {
 }
 
 ///|
+pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
+  @bunnia.plan_communications_with_budget(
+    [
+      @bunnia.message_event(
+        id="comm-planner-opened",
+        thread_id="thread-overview",
+        from_actor_id="agent-planner",
+        text="Planner opened the active scene thread.",
+      ),
+      @bunnia.review_request(
+        id="comm-route-review",
+        thread_id="thread-overview",
+        from_actor_id="agent-planner",
+        to_actor_id="operator",
+        text="Review the suggested route before dispatch.",
+        artifact_ref="artifact://scene-report",
+      ),
+      @bunnia.tool_result(
+        id="comm-route-tool",
+        thread_id="thread-overview",
+        from_actor_id="agent-planner",
+        text="Route inspection produced a scene report.",
+        artifact_ref="artifact://scene-report",
+      ),
+    ],
+    @bunnia.communication_budget(max_visible_count=8),
+  )
+}
+
+///|
 pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
   @bunnia.plan_scene_render(demo_scene())
 }
