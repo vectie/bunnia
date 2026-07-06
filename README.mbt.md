@@ -166,6 +166,10 @@ build, and snapshot commands that contributors should run before review. Pass
 `--render-budget` to make render pressure stricter or looser than generated
 file-size gates. Unknown budget profile names and unsupported targets are
 printed as CI-plan diagnostics before contributors copy the generated commands.
+The CI plan also prints the inspection-gate thresholds derived from the selected
+budget profile, including route-risk, scene asset, and remote scene asset
+ceilings, so strict map-heavy and agent-heavy route checks are reviewable before
+the commands run.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

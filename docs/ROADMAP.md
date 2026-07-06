@@ -873,6 +873,9 @@ Current evidence:
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
+- CI plans print the selected inspection-gate thresholds for route risk, scene
+  assets, and remote scene assets, so strict map-heavy and agent-heavy route
+  checks are visible before the commands run.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
   WeChat target limits visible while Alipay/TikTok generators stay deferred.

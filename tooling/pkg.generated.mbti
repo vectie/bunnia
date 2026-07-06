@@ -117,6 +117,10 @@ pub struct CiPlan {
   target : String
   budget_profile : String
   render_budget_profile : String
+  inspection_max_route_risk_score : Int
+  inspection_max_scene_assets : Int
+  inspection_max_scene_remote_assets : Int
+  inspection_gate_summary : String
   examples : Array[String]
   snapshot_dir : String
   step_count : Int
