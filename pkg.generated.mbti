@@ -109,6 +109,8 @@ pub fn default_render_budget() -> @core.RenderBudget
 
 pub fn default_scene_asset_budget() -> @scene.SceneAssetBudget
 
+pub fn default_wechat_build_budget() -> @wechat.WechatBuildBudget
+
 pub fn default_wechat_runtime() -> @wechat.WechatRuntime
 
 pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
@@ -243,6 +245,10 @@ pub fn remove_path(String) -> @core.Patch
 
 pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> @core.RenderBudget
 
+pub fn report_wechat_project(@wechat.WechatProject, @wechat.WechatRuntime) -> @wechat.WechatBuildReport
+
+pub fn report_wechat_project_with_budget(@wechat.WechatProject, @wechat.WechatRuntime, @wechat.WechatBuildBudget) -> @wechat.WechatBuildReport
+
 pub fn request(String, String, String) -> @effects.Effect
 
 pub fn retry(String, String) -> @effects.Effect
@@ -353,6 +359,8 @@ pub fn view_with_attrs(Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
 pub fn wechat() -> @core.Platform
 
+pub fn wechat_build_budget(max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> @wechat.WechatBuildBudget
+
 pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatch
 
 pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
@@ -441,6 +449,10 @@ pub using @scene {type SceneSize}
 pub using @program {type Step}
 
 pub using @agent {type Thread}
+
+pub using @wechat {type WechatBuildBudget}
+
+pub using @wechat {type WechatBuildReport}
 
 pub using @wechat {type WechatEventPatch}
 

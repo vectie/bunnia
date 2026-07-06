@@ -32,6 +32,7 @@ pub struct WechatProject {
   page : WechatPage
   files : Array[WechatFile]
   total_bytes : Int
+  report : WechatBuildReport
   summary : String
 } derive(Debug, Eq)
 
@@ -83,12 +84,14 @@ pub fn generate_project_with_runtime(
     wechat_file("\{route}.json", page.json),
   ]
   let total = total_file_bytes(files)
+  let report = report_files(files, runtime, default_build_budget())
   {
     name,
     route,
     page,
     files,
     total_bytes: total,
+    report,
     summary: "Bunnia WeChat project: files=\{files.length()} bytes=\{total} route=\{route}",
   }
 }

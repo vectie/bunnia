@@ -8,6 +8,10 @@ import {
 }
 
 // Values
+pub fn build_budget(max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> WechatBuildBudget
+
+pub fn default_build_budget() -> WechatBuildBudget
+
 pub fn default_runtime() -> WechatRuntime
 
 pub fn event_patch(String, Array[@core.Patch]) -> WechatEventPatch
@@ -24,11 +28,37 @@ pub fn generate_request_adapter(@effects.BackendContract) -> String
 
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
+pub fn report_project(WechatProject, WechatRuntime) -> WechatBuildReport
+
+pub fn report_project_with_budget(WechatProject, WechatRuntime, WechatBuildBudget) -> WechatBuildReport
+
 pub fn runtime(initial_data_json? : String, event_patches? : Array[WechatEventPatch]) -> WechatRuntime
 
 // Errors
 
 // Types and methods
+pub struct WechatBuildBudget {
+  max_files : Int
+  max_total_bytes : Int
+  max_wxml_bytes : Int
+  max_wxss_bytes : Int
+  max_js_bytes : Int
+  max_initial_data_bytes : Int
+  max_event_patch_bytes : Int
+} derive(Eq, @debug.Debug)
+
+pub struct WechatBuildReport {
+  file_count : Int
+  total_bytes : Int
+  wxml_bytes : Int
+  wxss_bytes : Int
+  js_bytes : Int
+  initial_data_bytes : Int
+  event_patch_bytes : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
 pub struct WechatEventPatch {
   message : String
   patches : Array[@core.Patch]
@@ -53,6 +83,7 @@ pub struct WechatProject {
   page : WechatPage
   files : Array[WechatFile]
   total_bytes : Int
+  report : WechatBuildReport
   summary : String
 } derive(Eq, @debug.Debug)
 

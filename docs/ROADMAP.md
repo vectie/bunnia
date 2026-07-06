@@ -355,6 +355,15 @@ Acceptance checks:
 - Generated JS uses targeted `setData` paths for simple updates.
 - Generated WXML avoids avoidable wrapper depth for common controls.
 
+Current evidence:
+
+- WeChat projects include a build report with file count, total bytes, WXML,
+  WXSS, JS, initial-data, event-patch bytes, diagnostics, and summary text.
+- The CLI prints the render plan, project summary, build report, patch plan, and
+  generated output directory.
+- Tests force budget regressions for generated files, initial data, and event
+  patch payloads.
+
 Do not build yet:
 
 - Full app packaging/upload automation.
@@ -560,6 +569,13 @@ Acceptance checks:
 - CI can fail on budget regressions once budgets are agreed.
 - Diagnostics make it possible to spot size and update-payload regressions
   before opening the target mini-app IDE.
+
+Current evidence:
+
+- `moon run cmd/main` writes the sample WeChat project and reports render,
+  file-size, initial-data, event-patch, and patch-plan summaries.
+- WeChat build reports are deterministic and tested through the public
+  `@bunnia` facade.
 
 ## Phase 8: Production Readiness
 

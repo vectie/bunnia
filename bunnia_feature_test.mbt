@@ -373,9 +373,65 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(has_file(project.files, "pages/home/home.wxss"))
   assert_true(has_file(project.files, "pages/home/home.js"))
   assert_true(has_file(project.files, "pages/home/home.json"))
+  assert_eq(project.report.file_count, 7)
+  assert_eq(project.report.total_bytes, project.total_bytes)
+  assert_true(project.report.wxml_bytes > 0)
+  assert_true(project.report.wxss_bytes > 0)
+  assert_true(project.report.js_bytes > 0)
+  assert_eq(project.report.diagnostics.length(), 0)
   assert_true(
     file_content(project.files, "app.json").contains("pages/home/home"),
   )
+}
+
+///|
+test "wechat build reports catch generated-output budget regressions" {
+  let root = @bunnia.page([
+    @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
+  ])
+  let runtime = @bunnia.wechat_runtime(initial_data_json="{\"counter\":0}", event_patches=[
+    @bunnia.wechat_event_patch("open-detail", [
+      @bunnia.set_json("counter", "1"),
+      @bunnia.set_string("backend.open-detail.state", "ready"),
+    ]),
+  ])
+  let project = @bunnia.generate_wechat_project_with_runtime(
+    name="Demo",
+    root~,
+    runtime~,
+  )
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    runtime,
+    @bunnia.wechat_build_budget(
+      max_files=1,
+      max_total_bytes=128,
+      max_wxml_bytes=8,
+      max_wxss_bytes=8,
+      max_js_bytes=8,
+      max_initial_data_bytes=4,
+      max_event_patch_bytes=4,
+    ),
+  )
+  assert_eq(report.file_count, 7)
+  assert_eq(report.initial_data_bytes, 13)
+  assert_true(report.event_patch_bytes > 4)
+  assert_eq(report.diagnostics.length(), 7)
+  assert_true(report.diagnostics.contains("wechat-file-count-over-budget:7/1"))
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-total-bytes-over-budget:\{report.total_bytes}/128",
+    ),
+  )
+  assert_true(
+    report.diagnostics.contains("wechat-initial-data-bytes-over-budget:13/4"),
+  )
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-event-patch-bytes-over-budget:\{report.event_patch_bytes}/4",
+    ),
+  )
+  assert_true(project.report.summary.contains("Bunnia WeChat build report"))
 }
 
 ///|

@@ -59,8 +59,9 @@ moon run cmd/main
 
 This writes a WeChat Mini Program file set to
 `_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
-event-to-patch dispatch for review buttons and map markers. Use `--out` to
-choose another directory:
+event-to-patch dispatch for review buttons and map markers. The command also
+prints render, file-size, initial-data, and event-patch budget summaries. Use
+`--out` to choose another directory:
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map
@@ -125,6 +126,24 @@ test {
   let output = @bunnia.generate_wechat_page("Trace", @bunnia.page([trace]))
   assert_true(output.wxml.contains("bunnia-communication-handoff"))
   assert_true(output.wxml.contains("open-review"))
+}
+```
+
+```mbt check
+///|
+test {
+  let runtime = @bunnia.wechat_runtime(initial_data_json="{\"counter\":0}", event_patches=[
+    @bunnia.wechat_event_patch("open-detail", [@bunnia.set_json("counter", "1")]),
+  ])
+  let project = @bunnia.generate_wechat_project_with_runtime(
+    name="Budgeted",
+    root=@bunnia.page([@bunnia.button("Open", "open-detail")]),
+    runtime~,
+  )
+  let report = @bunnia.report_wechat_project(project, runtime)
+  assert_eq(report.file_count, 7)
+  assert_true(report.initial_data_bytes > 0)
+  assert_true(report.event_patch_bytes > 0)
 }
 ```
 

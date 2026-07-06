@@ -8,6 +8,8 @@ fn main {
   write_project(output_dir, project)
   println(project.page.plan.summary)
   println(project.summary)
+  println(project.report.summary)
+  print_diagnostics(project.report.diagnostics)
   println(patches.summary)
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
@@ -42,6 +44,13 @@ fn join_path(left : String, right : String) -> String {
     "\{left}\{right}"
   } else {
     "\{left}/\{right}"
+  }
+}
+
+///|
+fn print_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("diagnostic=\{item}")
   }
 }
 

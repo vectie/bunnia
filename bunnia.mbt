@@ -125,6 +125,12 @@ pub type WechatEventPatch = @wechat.WechatEventPatch
 pub type WechatRuntime = @wechat.WechatRuntime
 
 ///|
+pub type WechatBuildBudget = @wechat.WechatBuildBudget
+
+///|
+pub type WechatBuildReport = @wechat.WechatBuildReport
+
+///|
 pub type WechatFile = @wechat.WechatFile
 
 ///|
@@ -1327,4 +1333,47 @@ pub fn generate_wechat_set_data_call(patches : Array[Patch]) -> String {
 ///|
 pub fn generate_wechat_request_adapter(contract : BackendContract) -> String {
   @wechat.generate_request_adapter(contract)
+}
+
+///|
+pub fn default_wechat_build_budget() -> WechatBuildBudget {
+  @wechat.default_build_budget()
+}
+
+///|
+pub fn wechat_build_budget(
+  max_files~ : Int,
+  max_total_bytes~ : Int,
+  max_wxml_bytes~ : Int,
+  max_wxss_bytes~ : Int,
+  max_js_bytes~ : Int,
+  max_initial_data_bytes~ : Int,
+  max_event_patch_bytes~ : Int,
+) -> WechatBuildBudget {
+  @wechat.build_budget(
+    max_files~,
+    max_total_bytes~,
+    max_wxml_bytes~,
+    max_wxss_bytes~,
+    max_js_bytes~,
+    max_initial_data_bytes~,
+    max_event_patch_bytes~,
+  )
+}
+
+///|
+pub fn report_wechat_project(
+  project : WechatProject,
+  runtime : WechatRuntime,
+) -> WechatBuildReport {
+  @wechat.report_project(project, runtime)
+}
+
+///|
+pub fn report_wechat_project_with_budget(
+  project : WechatProject,
+  runtime : WechatRuntime,
+  budget : WechatBuildBudget,
+) -> WechatBuildReport {
+  @wechat.report_project_with_budget(project, runtime, budget)
 }
