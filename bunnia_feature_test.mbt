@@ -1709,9 +1709,13 @@ test "scaffold project exposes starter files through facade" {
     name="mini_agent",
     module_name="local/mini_agent",
   )
-  assert_eq(scaffold.files.length(), 12)
+  assert_eq(scaffold.files.length(), 13)
   assert_eq(scaffold.module_name, "local/mini_agent")
   assert_true(scaffold.summary.contains("Bunnia scaffold"))
+  assert_eq(
+    scaffold_file_content(scaffold.files, "README.md"),
+    scaffold_file_content(scaffold.files, "README.mbt.md"),
+  )
   assert_true(
     scaffold_file_content(scaffold.files, "agent_feed.mbt").contains(
       "windowed_message_feed",

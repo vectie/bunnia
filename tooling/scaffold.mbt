@@ -18,6 +18,7 @@ pub fn scaffold_project(
   module_name? : String = "",
 ) -> ScaffoldPlan {
   let module_id = if module_name == "" { "local/\{name}" } else { module_name }
+  let readme_content = readme(name)
   let files = [
     scaffold_file("moon.mod", moon_mod(module_id)),
     scaffold_file("moon.pkg", moon_pkg()),
@@ -30,7 +31,8 @@ pub fn scaffold_project(
     scaffold_file("quality.mbt", quality_mbt()),
     scaffold_file("wechat.mbt", wechat_mbt(name)),
     scaffold_file("app_test.mbt", app_test_mbt()),
-    scaffold_file("README.mbt.md", readme(name)),
+    scaffold_file("README.mbt.md", readme_content),
+    scaffold_file("README.md", readme_content),
   ]
   {
     name,
