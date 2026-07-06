@@ -351,6 +351,9 @@ Current evidence:
 - Generic render plans now report scene count, visible/total marker count,
   scene asset count, and degraded scene count, making map pressure visible
   before adapter-specific generation.
+- Render budgets can now diagnose scene marker count and degraded scene count
+  directly, so strict builds can fail oversized map routes before adapter
+  generation or mini-app preview.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
   effects on a target that does not advertise cloud support.
 - Render plans can be produced directly from a `PlatformAdapter` and now report

@@ -599,6 +599,8 @@ pub fn render_budget(
   max_events~ : Int,
   max_initial_data_bytes~ : Int,
   max_unwindowed_list_children? : Int = 64,
+  max_scene_markers? : Int = 600,
+  max_degraded_scenes? : Int = 0,
 ) -> RenderBudget {
   @core.render_budget(
     max_nodes~,
@@ -606,6 +608,8 @@ pub fn render_budget(
     max_events~,
     max_initial_data_bytes~,
     max_unwindowed_list_children~,
+    max_scene_markers~,
+    max_degraded_scenes~,
   )
 }
 

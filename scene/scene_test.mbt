@@ -120,6 +120,9 @@ test "budgeted scene view caps visible markers and preserves stable events" {
   assert_eq(render.scene_visible_marker_count, 4)
   assert_eq(render.scene_asset_count, 1)
   assert_eq(render.degraded_scene_count, 1)
+  assert_true(
+    render.diagnostics.contains("scene-degraded-count-over-budget:1/0"),
+  )
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))
   assert_true(render.summary.contains("scene_markers=4/12"))
@@ -146,6 +149,9 @@ test "viewport scene view renders only spatially visible markers" {
   assert_eq(render.scene_visible_marker_count, 4)
   assert_eq(render.scene_asset_count, 1)
   assert_eq(render.degraded_scene_count, 1)
+  assert_true(
+    render.diagnostics.contains("scene-degraded-count-over-budget:1/0"),
+  )
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))
   assert_true(!render.event_messages.contains("select-marker-8"))

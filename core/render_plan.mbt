@@ -5,6 +5,8 @@ pub struct RenderBudget {
   max_events : Int
   max_initial_data_bytes : Int
   max_unwindowed_list_children : Int
+  max_scene_markers : Int
+  max_degraded_scenes : Int
 } derive(Debug, Eq)
 
 ///|
@@ -15,6 +17,8 @@ pub fn default_render_budget() -> RenderBudget {
     max_events: 160,
     max_initial_data_bytes: 65536,
     max_unwindowed_list_children: 64,
+    max_scene_markers: 600,
+    max_degraded_scenes: 0,
   }
 }
 
@@ -25,6 +29,8 @@ pub fn render_budget(
   max_events~ : Int,
   max_initial_data_bytes~ : Int,
   max_unwindowed_list_children? : Int = 64,
+  max_scene_markers? : Int = 600,
+  max_degraded_scenes? : Int = 0,
 ) -> RenderBudget {
   {
     max_nodes,
@@ -32,6 +38,8 @@ pub fn render_budget(
     max_events,
     max_initial_data_bytes,
     max_unwindowed_list_children,
+    max_scene_markers,
+    max_degraded_scenes,
   }
 }
 
@@ -139,6 +147,16 @@ pub fn plan_for_adapter_with_budget(
   if unsupported_canvas_count > 0 {
     diagnostics.push(
       "canvas-unsupported:\{adapter.id}:\{unsupported_canvas_count}",
+    )
+  }
+  if scene_markers > budget.max_scene_markers {
+    diagnostics.push(
+      "scene-marker-count-over-budget:\{scene_markers}/\{budget.max_scene_markers}",
+    )
+  }
+  if degraded_scenes > budget.max_degraded_scenes {
+    diagnostics.push(
+      "scene-degraded-count-over-budget:\{degraded_scenes}/\{budget.max_degraded_scenes}",
     )
   }
   let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} scenes=\{scenes} scene_markers=\{scene_visible_markers}/\{scene_markers} scene_assets=\{scene_assets} degraded_scenes=\{degraded_scenes} diagnostics=\{diagnostics.length()}"

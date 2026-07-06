@@ -714,6 +714,37 @@ test "render plans diagnose large non-windowed repeated surfaces" {
 }
 
 ///|
+test "render budgets diagnose scene marker pressure" {
+  let surface = @bunnia.static_scene_view(
+    @bunnia.scene("budget-map", @bunnia.scene_size(640, 420), [
+      @bunnia.layer("markers", 1, [
+        @bunnia.marker(id="a", label="A", x=16, y=16),
+        @bunnia.marker(id="b", label="B", x=32, y=32),
+        @bunnia.marker(id="c", label="C", x=48, y=48),
+      ]),
+    ]),
+  )
+  let plan = @bunnia.plan_with_budget(
+    @bunnia.page([surface]),
+    @bunnia.wechat(),
+    @bunnia.render_budget(
+      max_nodes=64,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=1024,
+      max_scene_markers=2,
+    ),
+  )
+  assert_eq(plan.scene_count, 1)
+  assert_eq(plan.scene_marker_count, 3)
+  assert_eq(plan.scene_visible_marker_count, 3)
+  assert_eq(plan.scene_asset_count, 0)
+  assert_eq(plan.degraded_scene_count, 0)
+  assert_true(plan.diagnostics.contains("scene-marker-count-over-budget:3/2"))
+  assert_true(plan.summary.contains("scene_markers=3/3"))
+}
+
+///|
 test "effect constructors cover mini-app backend capabilities" {
   let effects = [
     @bunnia.storage("save-draft", "storage:draft", "draft"),

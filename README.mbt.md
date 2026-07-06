@@ -198,6 +198,9 @@ visible/total marker counts so large maps can stay spatially bounded.
 Generic render plans and generated route manifests also report scene count,
 visible/total marker count, scene asset count, and degraded scene count, so map
 pressure is visible even before product-specific profiling is wired in.
+`@bunnia.render_budget(...)` can gate scene marker count and degraded scene
+count directly, which lets strict builds catch oversized map routes without a
+separate scene-specific planner.
 Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.
