@@ -40,6 +40,7 @@ test "build profile aggregates normal project signals" {
   )
   assert_eq(profile.name, "Profile Fixture")
   assert_eq(profile.route, "pages/profile/index")
+  assert_eq(profile.page_count, 1)
   assert_eq(profile.file_count, 7)
   assert_eq(profile.backend_endpoint_count, 1)
   assert_eq(profile.scene_marker_count, 1)
@@ -47,6 +48,7 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_package_bytes, 1024)
   assert_eq(profile.diagnostics.length(), 0)
   assert_true(profile.summary.contains("backend_endpoints=1"))
+  assert_true(profile.summary.contains("pages=1"))
   assert_true(profile.summary.contains("scene_markers=1"))
 }
 
@@ -98,10 +100,14 @@ test "build profile prefixes diagnostics by budget source" {
     scene_plans=[scene],
   )
   assert_true(
-    profile.diagnostics.contains("render:node-count-over-budget:1802/800"),
+    profile.diagnostics.contains(
+      "render:pages/large/index:node-count-over-budget:1802/800",
+    ),
   )
   assert_true(
-    profile.diagnostics.contains("render:event-count-over-budget:900/160"),
+    profile.diagnostics.contains(
+      "render:pages/large/index:event-count-over-budget:900/160",
+    ),
   )
   assert_true(
     contains_prefix(

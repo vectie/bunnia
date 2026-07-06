@@ -190,6 +190,8 @@ pub fn generate_wechat_page_with_runtime(String, @core.Node, @wechat.WechatRunti
 
 pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.Node) -> @wechat.WechatProject
 
+pub fn generate_wechat_project_from_pages(name~ : String, pages~ : Array[@wechat.WechatProjectPage]) -> @wechat.WechatProject
+
 pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime) -> @wechat.WechatProject
 
 pub fn generate_wechat_request_adapter(@effects.BackendContract) -> String
@@ -436,9 +438,11 @@ pub fn view_with_attrs(Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
 pub fn wechat() -> @core.Platform
 
-pub fn wechat_build_budget(max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> @wechat.WechatBuildBudget
+pub fn wechat_build_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> @wechat.WechatBuildBudget
 
 pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatch
+
+pub fn wechat_project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : @wechat.WechatRuntime) -> @wechat.WechatProjectPage
 
 pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
 
@@ -564,6 +568,8 @@ pub using @wechat {type WechatFile}
 pub using @wechat {type WechatPage}
 
 pub using @wechat {type WechatProject}
+
+pub using @wechat {type WechatProjectPage}
 
 pub using @wechat {type WechatRuntime}
 

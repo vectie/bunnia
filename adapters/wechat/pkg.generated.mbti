@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn build_budget(max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> WechatBuildBudget
+pub fn build_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int) -> WechatBuildBudget
 
 pub fn default_build_budget() -> WechatBuildBudget
 
@@ -22,13 +22,19 @@ pub fn generate_page_with_runtime(String, @core.Node, WechatRuntime) -> WechatPa
 
 pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> WechatProject
 
+pub fn generate_project_from_pages(name~ : String, pages~ : Array[WechatProjectPage]) -> WechatProject
+
 pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime) -> WechatProject
 
 pub fn generate_request_adapter(@effects.BackendContract) -> String
 
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
+pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime) -> WechatProjectPage
+
 pub fn report_project(WechatProject, WechatRuntime) -> WechatBuildReport
+
+pub fn report_project_pages(Array[WechatFile], Array[WechatProjectPage], WechatBuildBudget) -> WechatBuildReport
 
 pub fn report_project_with_budget(WechatProject, WechatRuntime, WechatBuildBudget) -> WechatBuildReport
 
@@ -38,6 +44,7 @@ pub fn runtime(initial_data_json? : String, event_patches? : Array[WechatEventPa
 
 // Types and methods
 pub struct WechatBuildBudget {
+  max_pages : Int
   max_files : Int
   max_total_bytes : Int
   max_wxml_bytes : Int
@@ -48,6 +55,7 @@ pub struct WechatBuildBudget {
 } derive(Eq, @debug.Debug)
 
 pub struct WechatBuildReport {
+  page_count : Int
   file_count : Int
   total_bytes : Int
   wxml_bytes : Int
@@ -81,10 +89,19 @@ pub struct WechatProject {
   name : String
   route : String
   page : WechatPage
+  pages : Array[WechatProjectPage]
+  page_count : Int
   files : Array[WechatFile]
   total_bytes : Int
   report : WechatBuildReport
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct WechatProjectPage {
+  name : String
+  route : String
+  page : WechatPage
+  runtime : WechatRuntime
 } derive(Eq, @debug.Debug)
 
 pub struct WechatRuntime {

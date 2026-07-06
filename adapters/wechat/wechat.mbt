@@ -20,6 +20,14 @@ pub struct WechatRuntime {
 } derive(Debug, Eq)
 
 ///|
+pub struct WechatProjectPage {
+  name : String
+  route : String
+  page : WechatPage
+  runtime : WechatRuntime
+} derive(Debug, Eq)
+
+///|
 pub struct WechatFile {
   path : String
   content : String
@@ -30,6 +38,8 @@ pub struct WechatProject {
   name : String
   route : String
   page : WechatPage
+  pages : Array[WechatProjectPage]
+  page_count : Int
   files : Array[WechatFile]
   total_bytes : Int
   report : WechatBuildReport
@@ -73,26 +83,58 @@ pub fn generate_project_with_runtime(
   root~ : @core.Node,
   runtime~ : WechatRuntime,
 ) -> WechatProject {
-  let page = generate_page_with_runtime(name, root, runtime)
-  let files = [
-    wechat_file("app.json", app_json(route)),
-    wechat_file("project.config.json", project_config_json(name)),
-    wechat_file("sitemap.json", sitemap_json()),
-    wechat_file("\{route}.wxml", page.wxml),
-    wechat_file("\{route}.wxss", page.wxss),
-    wechat_file("\{route}.js", page.js),
-    wechat_file("\{route}.json", page.json),
-  ]
-  let total = total_file_bytes(files)
-  let report = report_files(files, runtime, default_build_budget())
+  generate_project_from_pages(name~, pages=[
+    project_page(name~, route~, root~, runtime~),
+  ])
+}
+
+///|
+pub fn project_page(
+  name~ : String,
+  route~ : String,
+  root~ : @core.Node,
+  runtime? : WechatRuntime = default_runtime(),
+) -> WechatProjectPage {
   {
     name,
     route,
-    page,
+    page: generate_page_with_runtime(name, root, runtime),
+    runtime,
+  }
+}
+
+///|
+pub fn generate_project_from_pages(
+  name~ : String,
+  pages~ : Array[WechatProjectPage],
+) -> WechatProject {
+  if pages.length() == 0 {
+    panic()
+  }
+  let entry = pages[0]
+  let files = [
+    wechat_file("app.json", app_json(pages)),
+    wechat_file("project.config.json", project_config_json(name)),
+    wechat_file("sitemap.json", sitemap_json()),
+  ]
+  for item in pages {
+    files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
+    files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
+    files.push(wechat_file("\{item.route}.js", item.page.js))
+    files.push(wechat_file("\{item.route}.json", item.page.json))
+  }
+  let total = total_file_bytes(files)
+  let report = report_project_pages(files, pages, default_build_budget())
+  {
+    name,
+    route: entry.route,
+    page: entry.page,
+    pages,
+    page_count: pages.length(),
     files,
     total_bytes: total,
     report,
-    summary: "Bunnia WeChat project: files=\{files.length()} bytes=\{total} route=\{route}",
+    summary: "Bunnia WeChat project: pages=\{pages.length()} files=\{files.length()} bytes=\{total} route=\{entry.route}",
   }
 }
 
@@ -195,15 +237,31 @@ fn total_file_bytes(files : Array[WechatFile]) -> Int {
 }
 
 ///|
-fn app_json(route : String) -> String {
+fn app_json(pages : Array[WechatProjectPage]) -> String {
   "{\n" +
-  "  \"pages\": [\"\{escape_json(route)}\"],\n" +
+  "  \"pages\": \{page_routes_json(pages)},\n" +
   "  \"window\": {\n" +
   "    \"navigationBarTitleText\": \"Bunnia\",\n" +
   "    \"navigationBarBackgroundColor\": \"#ffffff\",\n" +
   "    \"navigationBarTextStyle\": \"black\"\n" +
   "  }\n" +
   "}\n"
+}
+
+///|
+fn page_routes_json(pages : Array[WechatProjectPage]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<pages.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(pages[i].route))
+    out.write_string("\"")
+  }
+  out.write_string("]")
+  out.to_string()
 }
 
 ///|

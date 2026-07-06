@@ -22,6 +22,7 @@ test "wenyu proof slice generates a separate mini-program route" {
   let project = demo_wechat_project()
   assert_eq(project.files.length(), 7)
   assert_eq(project.route, "pages/wenyu/index")
+  assert_eq(project.page_count, 1)
   assert_true(project.report.total_bytes == project.total_bytes)
   assert_eq(project.report.diagnostics.length(), 0)
   assert_true(project.page.json.contains("Wenyu Overview"))

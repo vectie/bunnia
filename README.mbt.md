@@ -80,6 +80,12 @@ moon run cmd/main -- build --target wechat --strict
 `--strict` fails the command when render, generated-file, patch, or
 build-profile diagnostics are present.
 
+The WeChat generator also supports multi-page projects through
+`@bunnia.wechat_project_page(...)` and
+`@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page
+count, generated file sizes, initial data bytes, and event patch bytes so large
+apps can catch route-level growth early.
+
 Generate a standalone starter project with:
 
 ```bash

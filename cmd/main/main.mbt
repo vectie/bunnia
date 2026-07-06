@@ -249,11 +249,21 @@ fn should_fail_build(
 ) -> Bool {
   strict &&
   (
-    project.page.plan.diagnostics.length() > 0 ||
+    project_has_render_diagnostics(project) ||
     project.report.diagnostics.length() > 0 ||
     patches.diagnostics.length() > 0 ||
     profile.diagnostics.length() > 0
   )
+}
+
+///|
+fn project_has_render_diagnostics(project : @bunnia.WechatProject) -> Bool {
+  for page in project.pages {
+    if page.page.plan.diagnostics.length() > 0 {
+      return true
+    }
+  }
+  false
 }
 
 ///|

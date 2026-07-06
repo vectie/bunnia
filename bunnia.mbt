@@ -164,6 +164,9 @@ pub type WechatBuildReport = @wechat.WechatBuildReport
 pub type WechatFile = @wechat.WechatFile
 
 ///|
+pub type WechatProjectPage = @wechat.WechatProjectPage
+
+///|
 pub type WechatProject = @wechat.WechatProject
 
 ///|
@@ -1568,6 +1571,24 @@ pub fn generate_wechat_project_with_runtime(
 }
 
 ///|
+pub fn wechat_project_page(
+  name~ : String,
+  route~ : String,
+  root~ : Node,
+  runtime? : WechatRuntime = @wechat.default_runtime(),
+) -> WechatProjectPage {
+  @wechat.project_page(name~, route~, root~, runtime~)
+}
+
+///|
+pub fn generate_wechat_project_from_pages(
+  name~ : String,
+  pages~ : Array[WechatProjectPage],
+) -> WechatProject {
+  @wechat.generate_project_from_pages(name~, pages~)
+}
+
+///|
 pub fn default_wechat_runtime() -> WechatRuntime {
   @wechat.default_runtime()
 }
@@ -1605,6 +1626,7 @@ pub fn default_wechat_build_budget() -> WechatBuildBudget {
 
 ///|
 pub fn wechat_build_budget(
+  max_pages~ : Int,
   max_files~ : Int,
   max_total_bytes~ : Int,
   max_wxml_bytes~ : Int,
@@ -1614,6 +1636,7 @@ pub fn wechat_build_budget(
   max_event_patch_bytes~ : Int,
 ) -> WechatBuildBudget {
   @wechat.build_budget(
+    max_pages~,
     max_files~,
     max_total_bytes~,
     max_wxml_bytes~,

@@ -2,6 +2,7 @@
 pub struct BuildProfile {
   name : String
   route : String
+  page_count : Int
   node_count : Int
   component_count : Int
   event_count : Int
@@ -27,7 +28,7 @@ pub fn profile_wechat_project(
   scene_plans? : Array[@scene.SceneRenderPlan] = [],
 ) -> BuildProfile {
   let diagnostics : Array[String] = []
-  push_prefixed(diagnostics, "render", project.page.plan.diagnostics)
+  push_page_render_diagnostics(diagnostics, project.pages)
   push_prefixed(diagnostics, "wechat", project.report.diagnostics)
   push_prefixed(diagnostics, "patch", patches.diagnostics)
   let backend_endpoint_count = collect_backend_diagnostics(
@@ -40,9 +41,10 @@ pub fn profile_wechat_project(
   {
     name: project.name,
     route: project.route,
-    node_count: project.page.plan.node_count,
-    component_count: project.page.plan.component_kinds.length(),
-    event_count: project.page.plan.event_messages.length(),
+    page_count: project.page_count,
+    node_count: page_node_count(project.pages),
+    component_count: page_component_count(project.pages),
+    event_count: page_event_count(project.pages),
     file_count: project.report.file_count,
     total_bytes: project.report.total_bytes,
     initial_data_bytes: project.report.initial_data_bytes,
@@ -75,7 +77,46 @@ fn profile_summary(
   scene_package_bytes : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} nodes=\{project.page.plan.node_count} components=\{project.page.plan.component_kinds.length()} events=\{project.page.plan.event_messages.length()} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+}
+
+///|
+fn push_page_render_diagnostics(
+  diagnostics : Array[String],
+  pages : Array[@wechat.WechatProjectPage],
+) -> Unit {
+  for page in pages {
+    for item in page.page.plan.diagnostics {
+      diagnostics.push("render:\{page.route}:\{item}")
+    }
+  }
+}
+
+///|
+fn page_node_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.node_count
+  }
+  total
+}
+
+///|
+fn page_component_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.component_kinds.length()
+  }
+  total
+}
+
+///|
+fn page_event_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.event_messages.length()
+  }
+  total
 }
 
 ///|

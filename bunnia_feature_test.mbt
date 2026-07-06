@@ -369,7 +369,10 @@ test "wechat project generator emits deterministic mini-program files" {
   )
   assert_eq(project.files.length(), 7)
   assert_eq(project.route, "pages/home/home")
+  assert_eq(project.page_count, 1)
+  assert_eq(project.pages.length(), 1)
   assert_true(project.summary.contains("files=7"))
+  assert_true(project.report.summary.contains("pages=1"))
   assert_true(project.total_bytes > project.page.wxml.length())
   assert_true(has_file(project.files, "app.json"))
   assert_true(has_file(project.files, "project.config.json"))
@@ -379,6 +382,7 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(has_file(project.files, "pages/home/home.js"))
   assert_true(has_file(project.files, "pages/home/home.json"))
   assert_eq(project.report.file_count, 7)
+  assert_eq(project.report.page_count, 1)
   assert_eq(project.report.total_bytes, project.total_bytes)
   assert_true(project.report.wxml_bytes > 0)
   assert_true(project.report.wxss_bytes > 0)
@@ -387,6 +391,70 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(
     file_content(project.files, "app.json").contains("pages/home/home"),
   )
+}
+
+///|
+test "wechat project generator supports multiple app routes" {
+  let home = @bunnia.wechat_project_page(
+    name="Home",
+    route="pages/home/home",
+    root=@bunnia.page([
+      @bunnia.view([
+        @bunnia.text("Home"),
+        @bunnia.button("Open Chat", "open-chat"),
+      ]),
+    ]),
+    runtime=@bunnia.wechat_runtime(initial_data_json="{\"home\":true}", event_patches=[
+      @bunnia.wechat_event_patch("open-chat", [
+        @bunnia.set_string("nav.intent", "chat"),
+      ]),
+    ]),
+  )
+  let chat = @bunnia.wechat_project_page(
+    name="Chat",
+    route="pages/chat/index",
+    root=@bunnia.page([
+      @bunnia.message_feed([
+        @bunnia.message(
+          id="msg-1",
+          actor_id="agent",
+          thread_id="thread-main",
+          text="Ready.",
+        ),
+      ]),
+    ]),
+    runtime=@bunnia.wechat_runtime(initial_data_json="{\"chat\":true}"),
+  )
+  let project = @bunnia.generate_wechat_project_from_pages(name="Multi Route", pages=[
+    home, chat,
+  ])
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    @bunnia.wechat_build_budget(
+      max_pages=1,
+      max_files=16,
+      max_total_bytes=262144,
+      max_wxml_bytes=65536,
+      max_wxss_bytes=65536,
+      max_js_bytes=65536,
+      max_initial_data_bytes=65536,
+      max_event_patch_bytes=8192,
+    ),
+  )
+  assert_eq(project.page_count, 2)
+  assert_eq(project.pages.length(), 2)
+  assert_eq(project.route, "pages/home/home")
+  assert_eq(project.files.length(), 11)
+  assert_true(project.summary.contains("pages=2"))
+  assert_true(has_file(project.files, "pages/chat/index.wxml"))
+  assert_true(
+    file_content(project.files, "app.json").contains("pages/chat/index"),
+  )
+  assert_eq(project.report.page_count, 2)
+  assert_eq(project.report.initial_data_bytes, 26)
+  assert_true(project.report.event_patch_bytes > 0)
+  assert_true(report.diagnostics.contains("wechat-page-count-over-budget:2/1"))
 }
 
 ///|
@@ -409,6 +477,7 @@ test "wechat build reports catch generated-output budget regressions" {
     project,
     runtime,
     @bunnia.wechat_build_budget(
+      max_pages=1,
       max_files=1,
       max_total_bytes=128,
       max_wxml_bytes=8,

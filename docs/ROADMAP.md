@@ -360,7 +360,10 @@ Acceptance checks:
 Current evidence:
 
 - WeChat projects include a build report with file count, total bytes, WXML,
-  WXSS, JS, initial-data, event-patch bytes, diagnostics, and summary text.
+  WXSS, JS, page count, initial-data, event-patch bytes, diagnostics, and
+  summary text.
+- The WeChat generator supports multi-page projects through route-scoped page
+  descriptors while preserving the one-page API for small examples.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, and event
@@ -603,7 +606,7 @@ Acceptance checks:
 Current evidence:
 
 - `moon run cmd/main` writes the sample WeChat project and reports render,
-  file-size, initial-data, event-patch, and patch-plan summaries.
+  page-count, file-size, initial-data, event-patch, and patch-plan summaries.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, backend, scene asset, and

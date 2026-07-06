@@ -22,6 +22,7 @@ pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
 pub struct BuildProfile {
   name : String
   route : String
+  page_count : Int
   node_count : Int
   component_count : Int
   event_count : Int
