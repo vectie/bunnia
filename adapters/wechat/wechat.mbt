@@ -77,6 +77,8 @@ pub struct WechatManifestPage {
   backend_event_count : Int
   backend_stream_count : Int
   backend_review_count : Int
+  backend_cancel_count : Int
+  backend_retry_count : Int
   scene_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
@@ -588,9 +590,13 @@ fn manifest_pages(
 ) -> Array[WechatManifestPage] {
   let output : Array[WechatManifestPage] = []
   for item in pages {
-    let (backend_events, backend_streams, backend_reviews) = page_backend_pressure(
-      item, backend_contract,
-    )
+    let (
+      backend_events,
+      backend_streams,
+      backend_reviews,
+      backend_cancels,
+      backend_retries,
+    ) = page_backend_pressure(item, backend_contract)
     let diagnostics = page_manifest_diagnostics(item)
     output.push({
       name: item.name,
@@ -608,6 +614,8 @@ fn manifest_pages(
       backend_event_count: backend_events,
       backend_stream_count: backend_streams,
       backend_review_count: backend_reviews,
+      backend_cancel_count: backend_cancels,
+      backend_retry_count: backend_retries,
       scene_count: item.page.plan.scene_count,
       scene_marker_count: item.page.plan.scene_marker_count,
       scene_visible_marker_count: item.page.plan.scene_visible_marker_count,
@@ -839,12 +847,14 @@ fn page_manifest_diagnostics(page : WechatProjectPage) -> Array[String] {
 fn page_backend_pressure(
   page : WechatProjectPage,
   contract : @effects.BackendContract?,
-) -> (Int, Int, Int) {
+) -> (Int, Int, Int, Int, Int) {
   match contract {
     Some(value) => {
       let mut event_count = 0
       let mut stream_count = 0
       let mut review_count = 0
+      let mut cancel_count = 0
+      let mut retry_count = 0
       for endpoint in value.endpoints {
         if page.page.plan.event_messages.contains(endpoint.id) {
           event_count += 1
@@ -854,11 +864,17 @@ fn page_backend_pressure(
           if endpoint.requires_review {
             review_count += 1
           }
+          if endpoint.kind is @effects.AgentOperationCancel {
+            cancel_count += 1
+          }
+          if endpoint.kind is @effects.AgentOperationRetry {
+            retry_count += 1
+          }
         }
       }
-      (event_count, stream_count, review_count)
+      (event_count, stream_count, review_count, cancel_count, retry_count)
     }
-    None => (0, 0, 0)
+    None => (0, 0, 0, 0, 0)
   }
 }
 
@@ -912,6 +928,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"backendEvents\":\{item.backend_event_count}," +
   "\"backendStreams\":\{item.backend_stream_count}," +
   "\"backendReviews\":\{item.backend_review_count}," +
+  "\"backendCancels\":\{item.backend_cancel_count}," +
+  "\"backendRetries\":\{item.backend_retry_count}," +
   "\"scenes\":\{item.scene_count}," +
   "\"sceneMarkers\":\{item.scene_marker_count}," +
   "\"sceneVisibleMarkers\":\{item.scene_visible_marker_count}," +

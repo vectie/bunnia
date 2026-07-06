@@ -302,6 +302,8 @@ test "wechat manifests attribute reachable backend pressure per route" {
       @core.button("Send", "send-agent"),
       @core.button("Stream", "stream-agent"),
       @core.button("Review", "review-agent"),
+      @core.button("Cancel", "cancel-agent"),
+      @core.button("Retry", "retry-agent"),
     ]),
     runtime=runtime(event_patches=[
       event_patch("send-agent", [
@@ -312,6 +314,12 @@ test "wechat manifests attribute reachable backend pressure per route" {
       ]),
       event_patch("review-agent", [
         @core.set_string("backend.review-agent.state", "loading"),
+      ]),
+      event_patch("cancel-agent", [
+        @core.set_string("backend.cancel-agent.state", "loading"),
+      ]),
+      event_patch("retry-agent", [
+        @core.set_string("backend.retry-agent.state", "loading"),
       ]),
     ]),
   )
@@ -325,6 +333,12 @@ test "wechat manifests attribute reachable backend pressure per route" {
     @effects.review_decision_endpoint(
       "review-agent", "/agent/review", "reviewDecision", "reviewResult",
     ),
+    @effects.agent_cancel_endpoint(
+      "cancel-agent", "/agent/cancel", "runCancel", "cancelResult",
+    ),
+    @effects.agent_retry_endpoint(
+      "retry-agent", "/agent/retry", "runRetry", "retryResult",
+    ),
     @effects.status_load_endpoint("unused-status", "/status", "status"),
   ])
   let project = generate_project_from_pages_with_backend(
@@ -335,12 +349,16 @@ test "wechat manifests attribute reachable backend pressure per route" {
   assert_eq(project.manifest.pages[0].backend_event_count, 0)
   assert_eq(project.manifest.pages[0].backend_stream_count, 0)
   assert_eq(project.manifest.pages[0].backend_review_count, 0)
-  assert_eq(project.manifest.pages[1].backend_event_count, 3)
+  assert_eq(project.manifest.pages[0].backend_cancel_count, 0)
+  assert_eq(project.manifest.pages[0].backend_retry_count, 0)
+  assert_eq(project.manifest.pages[1].backend_event_count, 5)
   assert_eq(project.manifest.pages[1].backend_stream_count, 1)
   assert_eq(project.manifest.pages[1].backend_review_count, 1)
+  assert_eq(project.manifest.pages[1].backend_cancel_count, 1)
+  assert_eq(project.manifest.pages[1].backend_retry_count, 1)
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"backendEvents\":3,\"backendStreams\":1,\"backendReviews\":1",
+      "\"backendEvents\":5,\"backendStreams\":1,\"backendReviews\":1,\"backendCancels\":1,\"backendRetries\":1",
     ),
   )
 }

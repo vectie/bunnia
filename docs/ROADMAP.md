@@ -823,6 +823,8 @@ Current evidence:
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review
   counts so agentic request pressure is visible beside route payload budgets.
+- Generated manifests expose route-level backend cancel and retry counts, so
+  long-running agent recovery pressure is attributable from generated output.
 - Generated manifests expose route-level scene count, visible/total marker
   count, scene asset count, degraded scene count, and render-budget limits so
   map-heavy routes are attributable beside payload and backend budgets.

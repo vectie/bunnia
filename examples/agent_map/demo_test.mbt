@@ -143,6 +143,8 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].backend_event_count, 3)
   assert_eq(project.manifest.pages[0].backend_stream_count, 0)
   assert_eq(project.manifest.pages[0].backend_review_count, 0)
+  assert_eq(project.manifest.pages[0].backend_cancel_count, 1)
+  assert_eq(project.manifest.pages[0].backend_retry_count, 1)
   assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
   assert_true(project.page.js.contains("__bunniaEventPatches"))
   assert_true(has_file(project.files, "bunnia.runtime.js"))
