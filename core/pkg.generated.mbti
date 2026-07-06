@@ -173,6 +173,7 @@ pub struct RenderPlan {
   list_total_count : Int
   list_visible_count : Int
   unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]

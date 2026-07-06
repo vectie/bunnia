@@ -316,8 +316,9 @@ Current evidence:
   preserving total item counts in render plans and generated manifests.
 - Agent feeds and communication traces can use dedicated windowed helpers, so
   long conversations expose visible/total counts without expanding every row.
-- Render plans diagnose unkeyed repeated rows, making list/feed/trace identity
-  problems visible before they become large-app update regressions.
+- Render plans diagnose missing and duplicate repeated-row keys, making
+  list/feed/trace identity problems visible before they become large-app update
+  regressions.
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event

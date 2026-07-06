@@ -368,11 +368,25 @@ test "render plans diagnose unkeyed repeated surface rows" {
     ]),
     @bunnia.wechat(),
   )
+  let duplicate = @bunnia.plan(
+    @bunnia.page([
+      @bunnia.list(["agent", "map"], value => {
+        @bunnia.keyed("same-row", @bunnia.view([@bunnia.text(value)]))
+      }),
+    ]),
+    @bunnia.wechat(),
+  )
   assert_eq(keyed.unkeyed_list_child_count, 0)
+  assert_eq(keyed.duplicate_list_key_count, 0)
   assert_eq(keyed.diagnostics.length(), 0)
   assert_eq(unkeyed.unkeyed_list_child_count, 2)
+  assert_eq(unkeyed.duplicate_list_key_count, 0)
   assert_true(unkeyed.diagnostics.contains("list-child-missing-key:2"))
   assert_true(unkeyed.summary.contains("unkeyed_list_children=2"))
+  assert_eq(duplicate.unkeyed_list_child_count, 0)
+  assert_eq(duplicate.duplicate_list_key_count, 1)
+  assert_true(duplicate.diagnostics.contains("list-child-duplicate-key:1"))
+  assert_true(duplicate.summary.contains("duplicate_list_keys=1"))
 }
 
 ///|
@@ -582,6 +596,7 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].list_total_count, 24)
   assert_eq(project.manifest.pages[1].list_visible_count, 1)
   assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
+  assert_eq(project.manifest.pages[1].duplicate_list_key_count, 0)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),
@@ -594,6 +609,11 @@ test "wechat project generator supports multiple app routes" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"unkeyedListChildren\":0",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"duplicateListKeys\":0",
     ),
   )
   assert_eq(project.report.page_count, 2)

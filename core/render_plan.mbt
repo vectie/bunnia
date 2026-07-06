@@ -37,6 +37,7 @@ pub struct RenderPlan {
   list_total_count : Int
   list_visible_count : Int
   unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]
@@ -69,6 +70,7 @@ pub fn plan_with_budget(
   let total_items = list_total_count(root)
   let visible_items = list_visible_count(root)
   let unkeyed_list_children = unkeyed_list_child_count(root)
+  let duplicate_list_keys = duplicate_list_key_count(root)
   let diagnostics : Array[String] = []
   if count > budget.max_nodes {
     diagnostics.push("node-count-over-budget:\{count}/\{budget.max_nodes}")
@@ -84,7 +86,10 @@ pub fn plan_with_budget(
   if unkeyed_list_children > 0 {
     diagnostics.push("list-child-missing-key:\{unkeyed_list_children}")
   }
-  let summary = "Bunnia render plan: \{platform_id(platform)} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unkeyed_list_children=\{unkeyed_list_children} diagnostics=\{diagnostics.length()}"
+  if duplicate_list_keys > 0 {
+    diagnostics.push("list-child-duplicate-key:\{duplicate_list_keys}")
+  }
+  let summary = "Bunnia render plan: \{platform_id(platform)} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} diagnostics=\{diagnostics.length()}"
   {
     platform,
     adapter,
@@ -95,11 +100,45 @@ pub fn plan_with_budget(
     list_total_count: total_items,
     list_visible_count: visible_items,
     unkeyed_list_child_count: unkeyed_list_children,
+    duplicate_list_key_count: duplicate_list_keys,
     component_kinds: components,
     event_messages: messages,
     diagnostics,
     summary,
   }
+}
+
+///|
+fn duplicate_list_key_count(root : Node) -> Int {
+  let mut total = if is_repeated_surface(root) {
+    immediate_duplicate_key_count(root)
+  } else {
+    0
+  }
+  for child in root.children {
+    total += duplicate_list_key_count(child)
+  }
+  total
+}
+
+///|
+fn immediate_duplicate_key_count(root : Node) -> Int {
+  let mut total = 0
+  for i in 0..<root.children.length() {
+    let child = root.children[i]
+    if child.key != "" && child.kind != "text" {
+      let mut seen = false
+      for j in 0..<i {
+        if root.children[j].key == child.key {
+          seen = true
+        }
+      }
+      if seen {
+        total += 1
+      }
+    }
+  }
+  total
 }
 
 ///|

@@ -99,8 +99,9 @@ For long agent conversations, use `@bunnia.windowed_message_feed(...)` and
 `@bunnia.windowed_communication_trace(...)` so chat rows and action traces keep
 the same visible/total diagnostics as other large surfaces.
 
-Render plans also report `unkeyed_list_children`. Keep repeated rows keyed so
-large lists, feeds, and traces can update predictably.
+Render plans also report `unkeyed_list_children` and
+`duplicate_list_keys`. Keep repeated rows uniquely keyed so large lists, feeds,
+and traces can update predictably.
 
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report

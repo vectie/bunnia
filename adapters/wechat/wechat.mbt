@@ -51,6 +51,7 @@ pub struct WechatManifestPage {
   list_total_count : Int
   list_visible_count : Int
   unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
   component_count : Int
   event_count : Int
   initial_data_bytes : Int
@@ -329,6 +330,7 @@ fn manifest_pages(
       list_total_count: item.page.plan.list_total_count,
       list_visible_count: item.page.plan.list_visible_count,
       unkeyed_list_child_count: item.page.plan.unkeyed_list_child_count,
+      duplicate_list_key_count: item.page.plan.duplicate_list_key_count,
       component_count: item.page.plan.component_kinds.length(),
       event_count: item.page.plan.event_messages.length(),
       initial_data_bytes: item.runtime.initial_data_json.length(),
@@ -441,6 +443,7 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"listTotal\":\{item.list_total_count}," +
   "\"listVisible\":\{item.list_visible_count}," +
   "\"unkeyedListChildren\":\{item.unkeyed_list_child_count}," +
+  "\"duplicateListKeys\":\{item.duplicate_list_key_count}," +
   "\"components\":\{item.component_count}," +
   "\"events\":\{item.event_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
