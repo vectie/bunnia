@@ -927,6 +927,9 @@ Current evidence:
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
   WeChat target limits visible while Alipay/TikTok generators stay deferred.
+- Platform limit reports now distinguish generator status as `available`,
+  `deferred`, or `unknown`, so known future targets remain explicit without
+  turning Phase 6 adapters on.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running

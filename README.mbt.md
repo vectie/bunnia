@@ -151,9 +151,10 @@ moon run cmd/main -- limits --target wechat
 ```
 
 `limits` prints the active platform adapter's component mappings, tap-event
-mapping, canvas/cloud/stream capabilities, and whether the target has a
-generator in this phase. Alipay and TikTok can be inspected as deferred targets
-without enabling their generators.
+mapping, canvas/cloud/stream capabilities, and explicit generator status. The
+status is `available` for the active WeChat generator, `deferred` for known
+targets such as Alipay and TikTok, and `unknown` for unsupported target ids.
+This keeps Phase 6 room visible without enabling those generators.
 
 To print the canonical local/CI workflow for the active examples:
 
@@ -267,9 +268,12 @@ choosing a generator.
 ///|
 test {
   let limits = @bunnia.platform_limits(target="wechat")
+  assert_eq(limits.generator_status_id, "available")
   assert_eq(limits.generator_available, true)
   assert_eq(limits.event_mappings[0].platform_event, "bindtap")
   assert_true(limits.summary.contains("components=9"))
+  let deferred = @bunnia.platform_limits(target="alipay")
+  assert_eq(deferred.generator_status_id, "deferred")
 }
 ```
 

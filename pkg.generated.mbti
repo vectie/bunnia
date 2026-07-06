@@ -404,6 +404,10 @@ pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core
 
 pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> @core.PlatformAdapter
 
+pub fn platform_generator_available(@tooling.PlatformGeneratorStatus) -> Bool
+
+pub fn platform_generator_status_id(@tooling.PlatformGeneratorStatus) -> String
+
 pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
@@ -812,6 +816,8 @@ pub using @core {type PlatformAdapter}
 pub using @tooling {type PlatformComponentMapping}
 
 pub using @tooling {type PlatformEventMapping}
+
+pub using @tooling {type PlatformGeneratorStatus}
 
 pub using @tooling {type PlatformLimitsReport}
 

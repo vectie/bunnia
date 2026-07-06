@@ -11,10 +11,33 @@ pub struct PlatformEventMapping {
 } derive(Debug, Eq)
 
 ///|
+pub(all) enum PlatformGeneratorStatus {
+  GeneratorAvailable
+  GeneratorDeferred
+  TargetUnknown
+} derive(Debug, Eq)
+
+///|
+pub fn platform_generator_status_id(status : PlatformGeneratorStatus) -> String {
+  match status {
+    GeneratorAvailable => "available"
+    GeneratorDeferred => "deferred"
+    TargetUnknown => "unknown"
+  }
+}
+
+///|
+pub fn platform_generator_available(status : PlatformGeneratorStatus) -> Bool {
+  status is GeneratorAvailable
+}
+
+///|
 pub struct PlatformLimitsReport {
   target : String
   label : String
   adapter : @core.PlatformAdapter
+  generator_status : PlatformGeneratorStatus
+  generator_status_id : String
   generator_available : Bool
   component_mappings : Array[PlatformComponentMapping]
   event_mappings : Array[PlatformEventMapping]
@@ -28,7 +51,9 @@ pub struct PlatformLimitsReport {
 ///|
 pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
   let (adapter, label, known) = adapter_for_target(target)
-  let generator_available = target == "wechat"
+  let generator_status = generator_status_for_target(known, target == "wechat")
+  let generator_status_id = platform_generator_status_id(generator_status)
+  let generator_available = platform_generator_available(generator_status)
   let diagnostics : Array[String] = []
   if !known {
     diagnostics.push("platform-target-unknown:\{target}")
@@ -43,6 +68,8 @@ pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
     target,
     label,
     adapter,
+    generator_status,
+    generator_status_id,
     generator_available,
     component_mappings,
     event_mappings,
@@ -50,7 +77,7 @@ pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
     supports_cloud: adapter.supports_cloud,
     supports_stream: adapter.supports_stream,
     diagnostics,
-    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} generator_status=\{generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -61,6 +88,12 @@ pub fn platform_limits_for_adapter(
 ) -> PlatformLimitsReport {
   let target = adapter.id
   let label = @core.platform_label(adapter.platform)
+  let generator_status = if generator_available {
+    GeneratorAvailable
+  } else {
+    GeneratorDeferred
+  }
+  let generator_status_id = platform_generator_status_id(generator_status)
   let diagnostics : Array[String] = []
   if !generator_available {
     diagnostics.push("platform-generator-deferred:\{target}")
@@ -73,6 +106,8 @@ pub fn platform_limits_for_adapter(
     target,
     label,
     adapter,
+    generator_status,
+    generator_status_id,
     generator_available,
     component_mappings,
     event_mappings,
@@ -80,7 +115,21 @@ pub fn platform_limits_for_adapter(
     supports_cloud: adapter.supports_cloud,
     supports_stream: adapter.supports_stream,
     diagnostics,
-    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} generator_status=\{generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
+  }
+}
+
+///|
+fn generator_status_for_target(
+  known : Bool,
+  generator_available : Bool,
+) -> PlatformGeneratorStatus {
+  if !known {
+    TargetUnknown
+  } else if generator_available {
+    GeneratorAvailable
+  } else {
+    GeneratorDeferred
   }
 }
 

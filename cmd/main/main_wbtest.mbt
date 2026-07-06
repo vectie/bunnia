@@ -232,6 +232,7 @@ test "limits command exposes platform mappings and deferred targets" {
   let report = platform_limits_from_args(args)
   assert_eq(command_from_args(args), "limits")
   assert_eq(report.target, "wechat")
+  assert_eq(report.generator_status_id, "available")
   assert_eq(report.generator_available, true)
   assert_eq(report.supports_canvas, true)
   assert_eq(report.component_mappings.length(), 9)
@@ -241,6 +242,7 @@ test "limits command exposes platform mappings and deferred targets" {
     "node", "main.js", "limits", "--target", "tiktok",
   ])
   assert_eq(deferred.target, "tiktok")
+  assert_eq(deferred.generator_status_id, "deferred")
   assert_eq(deferred.generator_available, false)
   assert_true(
     deferred.diagnostics.contains("platform-generator-deferred:tiktok"),

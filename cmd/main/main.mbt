@@ -678,6 +678,7 @@ fn print_platform_limits(report : @bunnia.PlatformLimitsReport) -> Unit {
   println("target=\{report.target}")
   println(report.summary)
   print_diagnostics(report.diagnostics)
+  println("generator_status=\{report.generator_status_id}")
   println(
     "capability=canvas:\{report.supports_canvas} cloud:\{report.supports_cloud} stream:\{report.supports_stream} generator:\{report.generator_available}",
   )

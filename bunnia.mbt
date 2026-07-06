@@ -275,6 +275,9 @@ pub type PlatformComponentMapping = @tooling.PlatformComponentMapping
 pub type PlatformEventMapping = @tooling.PlatformEventMapping
 
 ///|
+pub type PlatformGeneratorStatus = @tooling.PlatformGeneratorStatus
+
+///|
 pub type PlatformLimitsReport = @tooling.PlatformLimitsReport
 
 ///|
@@ -3094,6 +3097,16 @@ pub fn platform_limits_for_adapter(
   generator_available? : Bool = false,
 ) -> PlatformLimitsReport {
   @tooling.platform_limits_for_adapter(adapter, generator_available~)
+}
+
+///|
+pub fn platform_generator_status_id(status : PlatformGeneratorStatus) -> String {
+  @tooling.platform_generator_status_id(status)
+}
+
+///|
+pub fn platform_generator_available(status : PlatformGeneratorStatus) -> Bool {
+  @tooling.platform_generator_available(status)
 }
 
 ///|

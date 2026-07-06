@@ -22,6 +22,18 @@ test "bunnia keeps mini-app platform adapters separate" {
   assert_eq(wechat.tap_event, "bindtap")
   assert_eq(alipay.tap_event, "onTap")
   assert_eq(tiktok.component_prefix, "tt:")
+  let wechat_limits = @bunnia.platform_limits(target="wechat")
+  let alipay_limits = @bunnia.platform_limits(target="alipay")
+  assert_eq(wechat_limits.generator_status_id, "available")
+  assert_eq(alipay_limits.generator_status_id, "deferred")
+  assert_eq(
+    @bunnia.platform_generator_status_id(alipay_limits.generator_status),
+    "deferred",
+  )
+  assert_eq(
+    @bunnia.platform_generator_available(alipay_limits.generator_status),
+    false,
+  )
 }
 
 ///|

@@ -31,6 +31,10 @@ pub fn inspection_budget_for_profile(String) -> ProjectInspectionBudget
 
 pub fn is_named_budget_profile(String) -> Bool
 
+pub fn platform_generator_available(PlatformGeneratorStatus) -> Bool
+
+pub fn platform_generator_status_id(PlatformGeneratorStatus) -> String
+
 pub fn platform_limits(target? : String) -> PlatformLimitsReport
 
 pub fn platform_limits_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> PlatformLimitsReport
@@ -226,10 +230,18 @@ pub struct PlatformEventMapping {
   platform_event : String
 } derive(Eq, @debug.Debug)
 
+pub(all) enum PlatformGeneratorStatus {
+  GeneratorAvailable
+  GeneratorDeferred
+  TargetUnknown
+} derive(Eq, @debug.Debug)
+
 pub struct PlatformLimitsReport {
   target : String
   label : String
   adapter : @core.PlatformAdapter
+  generator_status : PlatformGeneratorStatus
+  generator_status_id : String
   generator_available : Bool
   component_mappings : Array[PlatformComponentMapping]
   event_mappings : Array[PlatformEventMapping]
