@@ -31,6 +31,8 @@ test "build profile includes route initial-data render-budget diagnostics" {
     ),
   )
   let profile = profile_wechat_project(project, @core.plan_patches([]))
+  assert_eq(profile.route_diagnostic_route_count, 1)
+  assert_eq(profile.route_diagnostic_count, 1)
   assert_true(
     profile.diagnostics.contains(
       "wechat:wechat-route-initial-data-over-render-budget:pages/profile-initial/index:30/8",
@@ -59,6 +61,8 @@ test "build profile derives route diagnostics from manifest pages once" {
   let render_diagnostic = "render:\{route}:event-count-over-budget:1/0"
   let missing_patch_diagnostic = "wechat:wechat-event-without-patch:\{route}:open"
   let orphan_patch_diagnostic = "wechat:wechat-patch-without-event:\{route}:close"
+  assert_eq(profile.route_diagnostic_route_count, 1)
+  assert_eq(profile.route_diagnostic_count, 4)
   assert_eq(count_occurrence(profile.diagnostics, render_diagnostic), 1)
   assert_eq(count_occurrence(profile.diagnostics, missing_patch_diagnostic), 1)
   assert_eq(count_occurrence(profile.diagnostics, orphan_patch_diagnostic), 1)
@@ -224,6 +228,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_surface_fallback_count, 0)
   assert_eq(profile.scene_quality_issue_count, 0)
   assert_eq(profile.degraded_scene_count, 0)
+  assert_eq(profile.route_diagnostic_route_count, 0)
+  assert_eq(profile.route_diagnostic_count, 0)
   assert_eq(profile.effect_count, 0)
   assert_eq(profile.cloud_function_count, 0)
   assert_eq(profile.stream_effect_count, 0)
@@ -277,6 +283,8 @@ test "build profile aggregates normal project signals" {
   )
   assert_true(profile.summary.contains("scene_surface_fallbacks=0"))
   assert_true(profile.summary.contains("scene_quality_issues=0"))
+  assert_true(profile.summary.contains("route_diagnostic_routes=0"))
+  assert_true(profile.summary.contains("route_diagnostics=0"))
 }
 
 ///|

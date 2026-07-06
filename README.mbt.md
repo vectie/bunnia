@@ -114,7 +114,8 @@ the same generated-output report and diagnostic lines that strict builds
 evaluate. If `--render-budget` is set separately, snapshots record that profile
 too. Snapshots also include route-scoped manifest diagnostics, so a CI diff can
 point directly at the generated page that owns a render, payload, or interaction
-issue.
+issue. The same snapshot records route diagnostic counts, making route pressure
+visible even before reading the diagnostic lines.
 
 The snapshot records route, budget profile, size budgets, profile summary, and
 per-file byte/checksum lines without committing the full generated mini-program.
@@ -176,7 +177,9 @@ For large agentic traces, use `@bunnia.plan_communications(...)` or
 `@bunnia.plan_filtered_communications(...)` before rendering. Communication
 plans report visible/total rows, unresolved review pressure, artifact-bearing
 rows, and budget diagnostics; build profiles aggregate those signals in the
-normal CLI summary.
+normal CLI summary. Build profiles also carry route diagnostic route/count
+fields from the generated manifest so large apps can rank problematic routes
+from tooling output.
 
 For long agent conversations, use `@bunnia.windowed_message_feed(...)` and
 `@bunnia.windowed_communication_trace(...)` so chat rows and action traces keep

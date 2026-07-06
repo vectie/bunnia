@@ -768,6 +768,9 @@ Current evidence:
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.
+- Build profiles and generator snapshots carry manifest-derived route
+  diagnostic route/count fields, so CI artifacts can identify route pressure
+  without re-parsing every diagnostic line.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review

@@ -19,6 +19,8 @@ pub struct GeneratedSnapshot {
   total_bytes : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  route_diagnostic_route_count : Int
+  route_diagnostic_count : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]
   summary : String
@@ -57,9 +59,11 @@ pub fn snapshot_wechat_project_with_report(
   for item in project.files {
     files.push(snapshot_file(item))
   }
+  let route_diagnostic_route_count = project.manifest.diagnostic_route_count
+  let route_diagnostic_count = project.manifest.diagnostic_count
   let diagnostic_count = report.diagnostics.length() +
     profile.diagnostics.length()
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} diagnostics=\{diagnostic_count}"
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
     target, example, budget_profile, render_budget_profile, project, report, profile,
     files, summary,
@@ -76,6 +80,8 @@ pub fn snapshot_wechat_project_with_report(
     total_bytes: project.total_bytes,
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
+    route_diagnostic_route_count,
+    route_diagnostic_count,
     diagnostic_count,
     files,
     summary,
@@ -130,6 +136,16 @@ fn snapshot_content(
     out,
     "diagnostics",
     (report.diagnostics.length() + profile.diagnostics.length()).to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "route_diagnostic_routes",
+    project.manifest.diagnostic_route_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "route_diagnostics",
+    project.manifest.diagnostic_count.to_string(),
   )
   write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)

@@ -23,12 +23,18 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.route, "pages/snapshot/index")
   assert_eq(snapshot.file_count, project.files.length())
   assert_eq(snapshot.total_bytes, project.total_bytes)
+  assert_eq(snapshot.route_diagnostic_route_count, 0)
+  assert_eq(snapshot.route_diagnostic_count, 0)
   assert_eq(snapshot.diagnostic_count, 0)
   assert_true(snapshot.summary.contains("files=10"))
+  assert_true(snapshot.summary.contains("route_diagnostic_routes=0"))
+  assert_true(snapshot.summary.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
   assert_true(snapshot.content.contains("render_budget_profile=default"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("route_diagnostic_routes=0"))
+  assert_true(snapshot.content.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
   assert_true(
@@ -117,6 +123,8 @@ test "generated snapshots can record active build report diagnostics" {
   )
   assert_eq(snapshot.budget_profile, "tiny")
   assert_eq(snapshot.render_budget_profile, "tiny-render")
+  assert_eq(snapshot.route_diagnostic_route_count, 0)
+  assert_eq(snapshot.route_diagnostic_count, 0)
   assert_eq(snapshot.diagnostic_count, report.diagnostics.length())
   assert_true(snapshot.diagnostic_count > 0)
   assert_true(snapshot.summary.contains("diagnostics="))
@@ -156,6 +164,12 @@ test "generated snapshots include route-scoped manifest diagnostics" {
     project,
     profile_wechat_project(project, @core.plan_patches([])),
   )
+  assert_eq(snapshot.route_diagnostic_route_count, 1)
+  assert_eq(snapshot.route_diagnostic_count, 2)
+  assert_true(snapshot.summary.contains("route_diagnostic_routes=1"))
+  assert_true(snapshot.summary.contains("route_diagnostics=2"))
+  assert_true(snapshot.content.contains("route_diagnostic_routes=1"))
+  assert_true(snapshot.content.contains("route_diagnostics=2"))
   assert_true(
     snapshot.content.contains(
       "route_diagnostics:\n- pages/route-diagnostics/index",

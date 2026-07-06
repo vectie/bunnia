@@ -84,6 +84,8 @@ pub struct BuildProfile {
   scene_surface_fallback_count : Int
   scene_quality_issue_count : Int
   degraded_scene_count : Int
+  route_diagnostic_route_count : Int
+  route_diagnostic_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)
@@ -116,6 +118,8 @@ pub struct GeneratedSnapshot {
   total_bytes : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  route_diagnostic_route_count : Int
+  route_diagnostic_count : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]
   summary : String

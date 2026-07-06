@@ -57,6 +57,8 @@ pub struct BuildProfile {
   scene_surface_fallback_count : Int
   scene_quality_issue_count : Int
   degraded_scene_count : Int
+  route_diagnostic_route_count : Int
+  route_diagnostic_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -198,6 +200,8 @@ pub fn profile_wechat_project(
     scene_surface_fallback_count,
     scene_quality_issue_count,
     degraded_scene_count,
+    route_diagnostic_route_count: project.manifest.diagnostic_route_count,
+    route_diagnostic_count: project.manifest.diagnostic_count,
     diagnostics,
     summary: profile_summary(
       project,
@@ -240,6 +244,8 @@ pub fn profile_wechat_project(
       scene_surface_fallback_count,
       scene_quality_issue_count,
       degraded_scene_count,
+      project.manifest.diagnostic_route_count,
+      project.manifest.diagnostic_count,
       diagnostics.length(),
     ),
   }
@@ -287,9 +293,11 @@ fn profile_summary(
   scene_surface_fallback_count : Int,
   scene_quality_issue_count : Int,
   degraded_scene_count : Int,
+  route_diagnostic_route_count : Int,
+  route_diagnostic_count : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unwindowed_list_children=\{page_unwindowed_list_child_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} communications=\{communication_visible_count}/\{communication_count} communication_unresolved_reviews=\{communication_unresolved_review_count} communication_artifacts=\{communication_artifact_ref_count} tool_results=\{tool_result_visible_count}/\{tool_result_count} tool_result_pending_acks=\{tool_result_pending_ack_count} tool_result_missing_acks=\{tool_result_missing_ack_count} tool_result_artifacts=\{tool_result_artifact_ref_count} agent_deltas=\{agent_delta_count} agent_duplicate_stream_chunks=\{agent_duplicate_stream_chunk_count} backend_endpoints=\{backend_endpoint_count} backend_streams=\{backend_streaming_count} backend_reviews=\{backend_review_required_count} snapshot_deltas=\{snapshot_delta_count} snapshot_sections=\{snapshot_section_update_count} snapshot_appends=\{snapshot_append_item_count} snapshot_full_replaces=\{snapshot_full_replace_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_threads=\{scene_thread_visible_link_count}/\{scene_thread_link_count} scene_thread_unread=\{scene_thread_unread_total} scene_thread_orphans=\{scene_thread_orphan_link_count} scene_cameras=\{scene_camera_count} scene_camera_clamped=\{scene_camera_clamped_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unwindowed_list_children=\{page_unwindowed_list_child_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} communications=\{communication_visible_count}/\{communication_count} communication_unresolved_reviews=\{communication_unresolved_review_count} communication_artifacts=\{communication_artifact_ref_count} tool_results=\{tool_result_visible_count}/\{tool_result_count} tool_result_pending_acks=\{tool_result_pending_ack_count} tool_result_missing_acks=\{tool_result_missing_ack_count} tool_result_artifacts=\{tool_result_artifact_ref_count} agent_deltas=\{agent_delta_count} agent_duplicate_stream_chunks=\{agent_duplicate_stream_chunk_count} backend_endpoints=\{backend_endpoint_count} backend_streams=\{backend_streaming_count} backend_reviews=\{backend_review_required_count} snapshot_deltas=\{snapshot_delta_count} snapshot_sections=\{snapshot_section_update_count} snapshot_appends=\{snapshot_append_item_count} snapshot_full_replaces=\{snapshot_full_replace_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_threads=\{scene_thread_visible_link_count}/\{scene_thread_link_count} scene_thread_unread=\{scene_thread_unread_total} scene_thread_orphans=\{scene_thread_orphan_link_count} scene_cameras=\{scene_camera_count} scene_camera_clamped=\{scene_camera_clamped_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} diagnostics=\{diagnostic_count}"
 }
 
 ///|
