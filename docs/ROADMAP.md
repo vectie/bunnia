@@ -916,6 +916,8 @@ Current evidence:
 - `moon run cmd/main -- ci-plan --script` emits the same workflow as a
   deterministic `sh` script, including diagnostic-only failure output for
   unsupported targets or unknown budget profiles.
+- `.github/workflows/ci.yml` installs MoonBit and runs the generated CI-plan
+  script, keeping local and hosted framework checks on the same command path.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.

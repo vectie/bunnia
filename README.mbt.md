@@ -172,6 +172,9 @@ moon run cmd/main -- ci-plan
 moon run cmd/main -- ci-plan --script
 ```
 
+The repository GitHub Actions workflow in `.github/workflows/ci.yml` generates
+the same script and runs it, so local and hosted CI use the same command list.
+
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
 the check, test, interface, format, platform-limits, route inspection, strict
 build, and snapshot commands that contributors should run before review. Pass
