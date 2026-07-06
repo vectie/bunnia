@@ -667,6 +667,11 @@ pub fn review_action(
 }
 
 ///|
+pub fn review_action_enabled(action : ReviewAction) -> Bool {
+  @agent.review_action_enabled(action)
+}
+
+///|
 pub fn thread(
   id~ : String,
   title~ : String,
@@ -1033,6 +1038,11 @@ pub fn review_rejected() -> ReviewState {
 ///|
 pub fn review_cancelled() -> ReviewState {
   @agent.CancelledReview
+}
+
+///|
+pub fn review_failed() -> ReviewState {
+  @agent.FailedReview
 }
 
 ///|

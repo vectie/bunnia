@@ -22,6 +22,7 @@ pub(all) enum ReviewState {
   Approved
   Rejected
   CancelledReview
+  FailedReview
 } derive(Debug, Eq)
 
 ///|
@@ -76,6 +77,11 @@ pub fn review_action(
   state? : ReviewState = Pending,
 ) -> ReviewAction {
   { id, label, state, approve_message, reject_message }
+}
+
+///|
+pub fn review_action_enabled(action : ReviewAction) -> Bool {
+  action.state is Pending
 }
 
 ///|
@@ -136,18 +142,48 @@ pub fn windowed_message_feed(
 
 ///|
 pub fn review_controls(action : ReviewAction) -> @core.Node {
+  let enabled = review_action_enabled(action)
   @core.view_with_attrs(
     [
       @core.class_name("bunnia-review \{review_state_class(action.state)}"),
       @core.data("review-id", action.id),
       @core.data("review-state", review_state_id(action.state)),
+      @core.data("review-enabled", enabled.to_string()),
     ],
     [
       @core.text(action.label),
-      @core.button("Approve", action.approve_message),
-      @core.button("Reject", action.reject_message),
+      review_button("Approve", action.approve_message, enabled),
+      review_button("Reject", action.reject_message, enabled),
     ],
   )
+}
+
+///|
+fn review_button(
+  label : String,
+  message : String,
+  enabled : Bool,
+) -> @core.Node {
+  let attrs = [
+    @core.class_name(
+      "bunnia-review-button \{review_button_disabled_class(enabled)}",
+    ),
+  ]
+  if !enabled {
+    attrs.push(@core.attr("disabled", "true"))
+    attrs.push(@core.data("disabled", "true"))
+  }
+  let events = if enabled { [@core.tap(message)] } else { [] }
+  @core.node(kind="button", attrs~, events~, children=[@core.text(label)])
+}
+
+///|
+fn review_button_disabled_class(enabled : Bool) -> String {
+  if enabled {
+    "bunnia-review-button-enabled"
+  } else {
+    "bunnia-review-button-disabled"
+  }
 }
 
 ///|
@@ -185,6 +221,7 @@ pub fn review_state_id(state : ReviewState) -> String {
     Approved => "approved"
     Rejected => "rejected"
     CancelledReview => "cancelled"
+    FailedReview => "failed"
   }
 }
 

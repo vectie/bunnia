@@ -807,9 +807,13 @@ fn default_wxss() -> String {
   ".bunnia-surface-state-cancelled { border-color: #64748b; }\n" +
   ".bunnia-surface-state-degraded { border-color: #7c3aed; }\n" +
   ".bunnia-review { display: flex; gap: 12rpx; align-items: center; padding: 16rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; }\n" +
+  ".bunnia-review-button { min-height: 56rpx; padding: 8rpx 14rpx; border: 1rpx solid #94a3b8; border-radius: 8rpx; background: #ffffff; color: #111827; font-size: 24rpx; line-height: 1.35; }\n" +
+  ".bunnia-review-button-disabled { color: #64748b; background: #f1f5f9; }\n" +
   ".bunnia-review-pending { border-color: #d97706; }\n" +
   ".bunnia-review-approved { border-color: #16a34a; }\n" +
   ".bunnia-review-rejected { border-color: #dc2626; }\n" +
+  ".bunnia-review-cancelled { border-color: #64748b; }\n" +
+  ".bunnia-review-failed { border-color: #dc2626; background: #fef2f2; }\n" +
   ".bunnia-scene { position: relative; overflow: hidden; max-width: 100%; border: 1rpx solid #d1d5db; border-radius: 8rpx; background: #eef6f3; box-sizing: border-box; }\n" +
   ".bunnia-scene-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }\n" +
   ".bunnia-scene-marker { position: absolute; transform: translate(-50%, -50%); min-width: 120rpx; min-height: 56rpx; padding: 10rpx 14rpx; border: 2rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 24rpx; line-height: 1.4; text-align: center; }\n" +

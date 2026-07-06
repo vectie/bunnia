@@ -292,6 +292,47 @@ test "communication trace renders structured agent interactions" {
 }
 
 ///|
+test "review controls disable resolved and failed agent actions" {
+  let pending = @bunnia.review_action(
+    id="route-review",
+    label="Route review",
+    approve_message="approve-route",
+    reject_message="reject-route",
+  )
+  let failed = @bunnia.review_action(
+    id="route-review-failed",
+    label="Route review failed",
+    approve_message="approve-failed-route",
+    reject_message="reject-failed-route",
+    state=@bunnia.review_failed(),
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Review Controls",
+    @bunnia.page([
+      @bunnia.review_controls(pending),
+      @bunnia.review_controls(failed),
+    ]),
+  )
+  let failed_delta = @bunnia.set_review_state_delta(
+    "reviews.route.state",
+    @bunnia.review_failed(),
+  )
+  let plan = @bunnia.plan_agent_deltas([failed_delta])
+  assert_eq(@bunnia.review_action_enabled(pending), true)
+  assert_eq(@bunnia.review_action_enabled(failed), false)
+  assert_eq(@bunnia.review_state_id(@bunnia.review_failed()), "failed")
+  assert_true(output.wxml.contains("data-review-enabled=\"true\""))
+  assert_true(output.wxml.contains("data-review-enabled=\"false\""))
+  assert_true(output.wxml.contains("bunnia-review-failed"))
+  assert_true(output.wxml.contains("bunnia-review-button-disabled"))
+  assert_true(output.wxml.contains("disabled=\"true\""))
+  assert_true(output.plan.event_messages.contains("approve-route"))
+  assert_true(!output.plan.event_messages.contains("approve-failed-route"))
+  assert_eq(plan.patch_plan.patches.length(), 1)
+  assert_eq(plan.patch_plan.patches[0].value_json, "\"failed\"")
+}
+
+///|
 test "surface statuses wrap large panels without changing their model" {
   let scene = @bunnia.scene("status-map", @bunnia.scene_size(320, 240), [
     @bunnia.layer("actors", 1, [

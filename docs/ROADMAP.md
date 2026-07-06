@@ -339,6 +339,9 @@ Current evidence:
 - Generic surface-status badges and overlays cover loading, ready, stale,
   error, retry, cancelled, and degraded states without hardcoding a product
   widget.
+- Review controls now render pending actions as active controls and resolved,
+  cancelled, or failed actions as disabled controls while keeping review-state
+  updates as bounded patches.
 
 Do not build yet:
 

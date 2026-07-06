@@ -47,6 +47,8 @@ pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : Strin
 
 pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : ReviewState) -> ReviewAction
 
+pub fn review_action_enabled(ReviewAction) -> Bool
+
 pub fn review_controls(ReviewAction) -> @core.Node
 
 pub fn review_request(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> Communication
@@ -152,6 +154,7 @@ pub(all) enum ReviewState {
   Approved
   Rejected
   CancelledReview
+  FailedReview
 } derive(Eq, @debug.Debug)
 
 pub(all) enum RunStatus {

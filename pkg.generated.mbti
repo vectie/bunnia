@@ -330,6 +330,8 @@ pub fn retry(String, String) -> @effects.Effect
 
 pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : @agent.ReviewState) -> @agent.ReviewAction
 
+pub fn review_action_enabled(@agent.ReviewAction) -> Bool
+
 pub fn review_approved() -> @agent.ReviewState
 
 pub fn review_cancelled() -> @agent.ReviewState
@@ -337,6 +339,8 @@ pub fn review_cancelled() -> @agent.ReviewState
 pub fn review_controls(@agent.ReviewAction) -> @core.Node
 
 pub fn review_decision_endpoint(String, String, String, String) -> @effects.BackendEndpoint
+
+pub fn review_failed() -> @agent.ReviewState
 
 pub fn review_not_required() -> @agent.ReviewState
 
