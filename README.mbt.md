@@ -132,7 +132,9 @@ moon run cmd/main -- ci-plan
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
 the check, test, interface, format, strict build, and snapshot commands that
 contributors should run before review. Pass `--render-budget` to make render
-pressure stricter or looser than generated file-size gates.
+pressure stricter or looser than generated file-size gates. Unknown budget
+profile names are printed as CI-plan diagnostics before contributors copy the
+generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

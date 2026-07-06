@@ -104,6 +104,7 @@ pub struct CiPlan {
   snapshot_dir : String
   step_count : Int
   steps : Array[CiPlanStep]
+  diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)
 

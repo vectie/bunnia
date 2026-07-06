@@ -14,6 +14,7 @@ pub struct CiPlan {
   snapshot_dir : String
   step_count : Int
   steps : Array[CiPlanStep]
+  diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
 
@@ -30,6 +31,9 @@ pub fn ci_plan(
   } else {
     render_budget_profile
   }
+  let diagnostics = ci_plan_diagnostics(
+    budget_profile, active_render_budget_profile,
+  )
   let steps : Array[CiPlanStep] = []
   steps.push(ci_step("check", "moon check", "type-check every package"))
   steps.push(ci_step("test", "moon test", "run framework and example tests"))
@@ -67,8 +71,24 @@ pub fn ci_plan(
     snapshot_dir,
     step_count: steps.length(),
     steps,
-    summary: "Bunnia CI plan: target=\{target} budget=\{budget_profile} render_budget=\{active_render_budget_profile} examples=\{examples.length()} steps=\{steps.length()} snapshot_dir=\{snapshot_dir}",
+    diagnostics,
+    summary: "Bunnia CI plan: target=\{target} budget=\{budget_profile} render_budget=\{active_render_budget_profile} examples=\{examples.length()} steps=\{steps.length()} diagnostics=\{diagnostics.length()} snapshot_dir=\{snapshot_dir}",
   }
+}
+
+///|
+fn ci_plan_diagnostics(
+  budget_profile : String,
+  render_budget_profile : String,
+) -> Array[String] {
+  let output : Array[String] = []
+  if !is_named_budget_profile(budget_profile) {
+    output.push("ci-budget-profile-unknown:\{budget_profile}")
+  }
+  if !is_named_budget_profile(render_budget_profile) {
+    output.push("ci-render-budget-profile-unknown:\{render_budget_profile}")
+  }
+  output
 }
 
 ///|

@@ -6,6 +6,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.render_budget_profile, "tight")
   assert_eq(plan.examples.length(), 2)
   assert_eq(plan.step_count, 10)
+  assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.steps[0].name, "check")
   assert_eq(plan.steps[0].command, "moon check")
   assert_eq(plan.steps[1].command, "moon test")
@@ -21,6 +22,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.steps[9].command.contains("wenyu_overview.snapshot.txt"))
   assert_true(plan.summary.contains("examples=2"))
   assert_true(plan.summary.contains("render_budget=tight"))
+  assert_true(plan.summary.contains("diagnostics=0"))
   assert_true(plan.summary.contains("steps=10"))
 }
 
@@ -35,6 +37,7 @@ test "ci plan can target one example and custom budgets" {
   )
   assert_eq(plan.step_count, 8)
   assert_eq(plan.examples.length(), 1)
+  assert_eq(plan.diagnostics.length(), 0)
   assert_true(plan.summary.contains("budget=tiny"))
   assert_true(plan.summary.contains("render_budget=tight"))
   assert_true(
@@ -48,4 +51,19 @@ test "ci plan can target one example and custom budgets" {
     ),
   )
   assert_true(plan.steps[7].command.contains("--render-budget tight"))
+}
+
+///|
+test "ci plan diagnoses unknown budget profiles" {
+  let plan = ci_plan(
+    budget_profile="oversized",
+    render_budget_profile="microscopic",
+    examples=["agent_map"],
+  )
+  assert_eq(plan.diagnostics.length(), 2)
+  assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
+  assert_true(
+    plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),
+  )
+  assert_true(plan.summary.contains("diagnostics=2"))
 }

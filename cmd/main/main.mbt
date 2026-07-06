@@ -449,6 +449,7 @@ fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   println("budget=\{plan.budget_profile}")
   println("render_budget=\{plan.render_budget_profile}")
   println(plan.summary)
+  print_diagnostics(plan.diagnostics)
   for step in plan.steps {
     println("step=\{step.name} command=\{step.command}")
   }
