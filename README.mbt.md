@@ -49,6 +49,19 @@ phase-by-phase implementation plan.
   controls, patches, and a static map surface.
 - root package: small `@bunnia` facade for app authors.
 
+## Generate The Demo
+
+```bash
+moon run cmd/main
+```
+
+This writes a WeChat Mini Program file set to
+`_build/bunnia/wechat/agent_map`. Use `--out` to choose another directory:
+
+```bash
+moon run cmd/main -- --out /tmp/bunnia-agent-map
+```
+
 ```mbt check
 ///|
 test {
