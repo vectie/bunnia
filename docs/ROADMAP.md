@@ -673,6 +673,9 @@ Current evidence:
 - Viewported anchored overlays render only in-viewport thread badges while
   preserving total link counts, so cameraed maps do not ship offscreen agent
   communication badges in the first screen.
+- Viewport-aware scene thread plans align profile and budget signals with the
+  rendered overlay, so offscreen agent communication remains measurable without
+  counting as first-screen badge work.
 - Scene thread plans make agentic map overlays budgeted, including unread
   pressure and orphan-link diagnostics when a thread points at a missing marker
   or region.

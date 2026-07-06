@@ -281,8 +281,11 @@ pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
 
 ///|
 pub fn demo_scene_thread_plan() -> @bunnia.SceneThreadPlan {
-  @bunnia.plan_scene_threads_with_budget(
-    demo_scene(),
+  let scene = demo_scene()
+  let camera_plan = @bunnia.plan_scene_camera(scene, demo_camera())
+  @bunnia.plan_scene_threads_viewport_with_budget(
+    scene,
+    camera_plan.viewport,
     demo_scene_thread_links(),
     @bunnia.scene_thread_budget(max_visible_links=8, max_unread_total=8),
   )

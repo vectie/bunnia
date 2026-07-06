@@ -54,8 +54,52 @@ pub fn plan_scene_threads_with_budget(
   links : Array[SceneThreadLink],
   budget : SceneThreadBudget,
 ) -> SceneThreadPlan {
-  let visible_link_count = clamp_visible_count(
+  plan_scene_threads_with_visible_pool_count(
+    input,
+    links,
+    budget,
     links.length(),
+  )
+}
+
+///|
+pub fn plan_scene_threads_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+) -> SceneThreadPlan {
+  plan_scene_threads_viewport_with_budget(
+    input,
+    viewport,
+    links,
+    default_scene_thread_budget(),
+  )
+}
+
+///|
+pub fn plan_scene_threads_viewport_with_budget(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+  budget : SceneThreadBudget,
+) -> SceneThreadPlan {
+  plan_scene_threads_with_visible_pool_count(
+    input,
+    links,
+    budget,
+    scene_thread_links_in_viewport_count(input, viewport, links),
+  )
+}
+
+///|
+fn plan_scene_threads_with_visible_pool_count(
+  input : Scene,
+  links : Array[SceneThreadLink],
+  budget : SceneThreadBudget,
+  visible_pool_count : Int,
+) -> SceneThreadPlan {
+  let visible_link_count = clamp_visible_count(
+    visible_pool_count,
     budget.max_visible_links,
   )
   let unread_total = scene_thread_unread_total(links)
@@ -65,7 +109,7 @@ pub fn plan_scene_threads_with_budget(
     links,
   )
   let diagnostics = scene_thread_diagnostics(
-    link_count=links.length(),
+    link_count=visible_pool_count,
     visible_link_count~,
     unread_total~,
     orphan_link_count~,
@@ -176,6 +220,95 @@ fn scene_thread_orphan_link_count(
     }
   }
   count
+}
+
+///|
+fn scene_thread_links_in_viewport_count(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+) -> Int {
+  let mut count = 0
+  for link in links {
+    if scene_thread_plan_anchor_in_viewport(
+        scene_thread_plan_anchor(input, link),
+        viewport,
+      ) {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn scene_thread_plan_anchor(
+  input : Scene,
+  link : SceneThreadLink,
+) -> (Int, Int)? {
+  if link.scene_id != input.id {
+    None
+  } else {
+    match link.subject_kind {
+      "marker" => scene_thread_plan_marker_anchor(input, link.subject_id)
+      "region" => scene_thread_plan_region_anchor(input, link.subject_id)
+      _ => None
+    }
+  }
+}
+
+///|
+fn scene_thread_plan_anchor_in_viewport(
+  anchor : (Int, Int)?,
+  viewport : SceneViewport,
+) -> Bool {
+  match anchor {
+    Some((x, y)) =>
+      x >= viewport.x &&
+      y >= viewport.y &&
+      x < viewport.x + viewport.width &&
+      y < viewport.y + viewport.height
+    None => false
+  }
+}
+
+///|
+fn scene_thread_plan_marker_anchor(
+  input : Scene,
+  marker_id : String,
+) -> (Int, Int)? {
+  for scene_layer in input.layers {
+    for scene_marker in scene_layer.markers {
+      if scene_marker.id == marker_id {
+        return Some(
+          (
+            scene_marker.x + scene_marker.hit_width / 2,
+            scene_marker.y + scene_marker.hit_height / 2,
+          ),
+        )
+      }
+    }
+  }
+  None
+}
+
+///|
+fn scene_thread_plan_region_anchor(
+  input : Scene,
+  region_id : String,
+) -> (Int, Int)? {
+  for scene_layer in input.layers {
+    for scene_region in scene_layer.regions {
+      if scene_region.id == region_id {
+        return Some(
+          (
+            scene_region.x + scene_region.width / 2,
+            scene_region.y + scene_region.height / 2,
+          ),
+        )
+      }
+    }
+  }
+  None
 }
 
 ///|

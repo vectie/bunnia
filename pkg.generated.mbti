@@ -366,6 +366,10 @@ pub fn plan_scene_surface_for_platform(@scene.Scene, @core.Platform, preference?
 
 pub fn plan_scene_threads(@scene.Scene, Array[@scene.SceneThreadLink]) -> @scene.SceneThreadPlan
 
+pub fn plan_scene_threads_viewport(@scene.Scene, @scene.SceneViewport, Array[@scene.SceneThreadLink]) -> @scene.SceneThreadPlan
+
+pub fn plan_scene_threads_viewport_with_budget(@scene.Scene, @scene.SceneViewport, Array[@scene.SceneThreadLink], @scene.SceneThreadBudget) -> @scene.SceneThreadPlan
+
 pub fn plan_scene_threads_with_budget(@scene.Scene, Array[@scene.SceneThreadLink], @scene.SceneThreadBudget) -> @scene.SceneThreadPlan
 
 pub fn plan_scene_visual_quality(@scene.Scene) -> @scene.SceneVisualQualityPlan

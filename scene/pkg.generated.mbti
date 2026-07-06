@@ -53,6 +53,10 @@ pub fn plan_scene_surface_for_platform(Scene, @core.Platform, preference? : Scen
 
 pub fn plan_scene_threads(Scene, Array[SceneThreadLink]) -> SceneThreadPlan
 
+pub fn plan_scene_threads_viewport(Scene, SceneViewport, Array[SceneThreadLink]) -> SceneThreadPlan
+
+pub fn plan_scene_threads_viewport_with_budget(Scene, SceneViewport, Array[SceneThreadLink], SceneThreadBudget) -> SceneThreadPlan
+
 pub fn plan_scene_threads_with_budget(Scene, Array[SceneThreadLink], SceneThreadBudget) -> SceneThreadPlan
 
 pub fn plan_scene_visual_quality(Scene) -> SceneVisualQualityPlan

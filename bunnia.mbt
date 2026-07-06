@@ -1796,6 +1796,25 @@ pub fn plan_scene_threads_with_budget(
 }
 
 ///|
+pub fn plan_scene_threads_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+) -> SceneThreadPlan {
+  @scene.plan_scene_threads_viewport(input, viewport, links)
+}
+
+///|
+pub fn plan_scene_threads_viewport_with_budget(
+  input : Scene,
+  viewport : SceneViewport,
+  links : Array[SceneThreadLink],
+  budget : SceneThreadBudget,
+) -> SceneThreadPlan {
+  @scene.plan_scene_threads_viewport_with_budget(input, viewport, links, budget)
+}
+
+///|
 pub fn scene_render_budget(
   max_layers~ : Int,
   max_markers~ : Int,
