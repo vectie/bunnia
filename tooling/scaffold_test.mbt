@@ -56,11 +56,29 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "cmd/main/main.mbt").contains("print_ci_plan"),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "inspection_gate.summary",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "build --out _build/wechat",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("starter_snapshot"),
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "print_inspect_result",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("inspection_gate"),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "inspection_gate_diagnostics",
     ),
   )
   assert_true(
@@ -100,6 +118,23 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "quality.mbt").contains("strict_render_plan"),
   )
   assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn backend_plan()"),
+  )
+  assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn effect_plan()"),
+  )
+  assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn build_profile"),
+  )
+  assert_true(
+    file_content(plan.files, "quality.mbt").contains(
+      "pub fn project_inspection",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn inspection_gate"),
+  )
+  assert_true(
     file_content(plan.files, "quality.mbt").contains(
       "render_budget_for_profile",
     ),
@@ -108,8 +143,14 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "wechat.mbt").contains("starter_wechat_project"),
   )
   assert_true(
+    file_content(plan.files, "wechat.mbt").contains("starter_backend_contract"),
+  )
+  assert_true(
+    file_content(plan.files, "wechat.mbt").contains("agent_message_endpoint"),
+  )
+  assert_true(
     file_content(plan.files, "wechat.mbt").contains(
-      "generate_wechat_project_with_runtime_and_budget",
+      "generate_wechat_project_with_runtime_and_budget_and_backend",
     ),
   )
   assert_true(
@@ -122,6 +163,12 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "app_test.mbt").contains("clean wechat output"),
   )
   assert_true(
+    file_content(plan.files, "app_test.mbt").contains("backend_event_count"),
+  )
+  assert_true(
+    file_content(plan.files, "app_test.mbt").contains("inspection_gate"),
+  )
+  assert_true(
     file_content(plan.files, "updates.mbt").contains(
       "append_stream_chunk_delta",
     ),
@@ -129,10 +176,18 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains("inspection gates"),
+  )
   assert_true(file_content(plan.files, "README.mbt.md").contains("inspect"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("snapshot"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("ci-plan"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "build --out _build/wechat",
+    ),
+  )
   assert_true(plan.summary.contains("files=12"))
 }
 

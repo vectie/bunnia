@@ -90,8 +90,10 @@ fn cmd_main_mbt() -> String {
   "    println(project.summary)\n" +
   "    println(project.manifest.summary)\n" +
   "    println(project.report.summary)\n" +
+  "    let inspection_gate = @app.inspection_gate(project)\n" +
+  "    println(inspection_gate.summary)\n" +
   "    if command == \"inspect\" {\n" +
-  "      print_inspect_result(project)\n" +
+  "      print_inspect_result(project, inspection_gate)\n" +
   "    } else if command == \"snapshot\" {\n" +
   "      let snapshot = starter_snapshot(project)\n" +
   "      let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
@@ -104,7 +106,7 @@ fn cmd_main_mbt() -> String {
   "      }\n" +
   "      println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
   "    }\n" +
-  "    if should_fail(strict, project) {\n" +
+  "    if should_fail(strict, project, inspection_gate) {\n" +
   "      println(\"build_failed=diagnostics\")\n" +
   "      panic()\n" +
   "    }\n" +
@@ -148,15 +150,20 @@ fn cmd_main_mbt() -> String {
   "  args.contains(\"--strict\") || args.contains(\"--fail-on-diagnostics\")\n" +
   "}\n\n" +
   "///|\n" +
-  "fn should_fail(strict : Bool, project : @bunnia.WechatProject) -> Bool {\n" +
+  "fn should_fail(\n" +
+  "  strict : Bool,\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
+  ") -> Bool {\n" +
   "  strict && (\n" +
   "    project.report.diagnostics.length() > 0 ||\n" +
-  "    project.manifest.diagnostic_count > 0\n" +
+  "    project.manifest.diagnostic_count > 0 ||\n" +
+  "    inspection_gate.diagnostics.length() > 0\n" +
   "  )\n" +
   "}\n\n" +
   "///|\n" +
   "fn starter_snapshot(project : @bunnia.WechatProject) -> @bunnia.GeneratedSnapshot {\n" +
-  "  let profile = @bunnia.profile_wechat_project(project, @app.patch_plan())\n" +
+  "  let profile = @app.build_profile(project)\n" +
   "  @bunnia.snapshot_wechat_project_with_report(\n" +
   "    target=\"wechat\",\n" +
   "    example=\"starter\",\n" +
@@ -168,10 +175,18 @@ fn cmd_main_mbt() -> String {
   "  )\n" +
   "}\n\n" +
   "///|\n" +
-  "fn print_inspect_result(project : @bunnia.WechatProject) -> Unit {\n" +
-  "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} diagnostics=\\{project.manifest.diagnostic_count}\")\n" +
+  "fn print_inspect_result(\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
+  ") -> Unit {\n" +
+  "  let inspection = @app.project_inspection(project)\n" +
+  "  println(inspection.summary)\n" +
+  "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} risk_route=\\{inspection.top_route} risk_score=\\{inspection.risk_score} diagnostics=\\{project.manifest.diagnostic_count} inspection_gate_diagnostics=\\{inspection_gate.diagnostics.length()}\")\n" +
   "  for page in project.manifest.pages {\n" +
-  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
+  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} backend_events=\\{page.backend_event_count} backend_streams=\\{page.backend_stream_count} backend_reviews=\\{page.backend_review_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
+  "  }\n" +
+  "  for item in inspection_gate.diagnostics {\n" +
+  "    println(\"inspection_diagnostic=\\{item}\")\n" +
   "  }\n" +
   "  for file in project.manifest.files {\n" +
   "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
@@ -180,14 +195,17 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn print_ci_plan(strict : Bool) -> Unit {\n" +
   "  let strict_flag = if strict { \" --strict\" } else { \"\" }\n" +
+  "  let project = @app.starter_wechat_project()\n" +
+  "  let inspection_gate = @app.inspection_gate(project)\n" +
   "  println(\"command=ci-plan\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
   "  println(\"Bunnia starter CI plan: steps=5 diagnostics=0\")\n" +
+  "  println(inspection_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
   "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
   "  println(\"step=snapshot command=moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
-  "  println(\"step=build command=moon run cmd/main -- --out _build/wechat\\{strict_flag}\")\n" +
+  "  println(\"step=build command=moon run cmd/main -- build --out _build/wechat\\{strict_flag}\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
@@ -329,11 +347,61 @@ fn quality_mbt() -> String {
   "    @bunnia.wechat(),\n" +
   "    @bunnia.render_budget_for_profile(\"tight\"),\n" +
   "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn effect_plan() -> @bunnia.EffectPlan {\n" +
+  "  @bunnia.plan_backend_effects_for_platform(\n" +
+  "    starter_backend_contract(),\n" +
+  "    @bunnia.wechat(),\n" +
+  "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn backend_plan() -> @bunnia.BackendPlan {\n" +
+  "  @bunnia.plan_backend_contract(starter_backend_contract())\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn build_profile(project : @bunnia.WechatProject) -> @bunnia.BuildProfile {\n" +
+  "  @bunnia.profile_wechat_project(\n" +
+  "    project,\n" +
+  "    patch_plan(),\n" +
+  "    effect_plans=[effect_plan()],\n" +
+  "    backend_plans=[backend_plan()],\n" +
+  "    scene_plans=[scene_render_plan()],\n" +
+  "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn project_inspection(\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  ") -> @bunnia.ProjectInspection {\n" +
+  "  @bunnia.inspect_wechat_project(\n" +
+  "    target=\"wechat\",\n" +
+  "    example=\"starter\",\n" +
+  "    project,\n" +
+  "    project.report,\n" +
+  "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn inspection_gate(\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  ") -> @bunnia.ProjectInspectionGate {\n" +
+  "  @bunnia.gate_project_inspection(\n" +
+  "    project_inspection(project),\n" +
+  "    @bunnia.inspection_budget_for_profile(\"tight\"),\n" +
+  "    budget_profile=\"tight\",\n" +
+  "  )\n" +
   "}\n"
 }
 
 ///|
 fn wechat_mbt(name : String) -> String {
+  "///|\n" +
+  "pub fn starter_backend_contract() -> @bunnia.BackendContract {\n" +
+  "  @bunnia.backend_contract(id=\"starter-backend\", endpoints=[\n" +
+  "    @bunnia.agent_message_endpoint(\n" +
+  "      \"refresh\", \"/agent/message\", \"refreshDraft\", \"refreshResult\",\n" +
+  "    ),\n" +
+  "  ])\n" +
+  "}\n\n" +
   "///|\n" +
   "pub fn starter_wechat_runtime() -> @bunnia.WechatRuntime {\n" +
   "  @bunnia.wechat_runtime(\n" +
@@ -347,12 +415,13 @@ fn wechat_mbt(name : String) -> String {
   "}\n\n" +
   "///|\n" +
   "pub fn starter_wechat_project() -> @bunnia.WechatProject {\n" +
-  "  @bunnia.generate_wechat_project_with_runtime_and_budget(\n" +
+  "  @bunnia.generate_wechat_project_with_runtime_and_budget_and_backend(\n" +
   "    name=\"\{escape_mbt(name)}\",\n" +
   "    route=\"pages/index/index\",\n" +
   "    root=view(),\n" +
   "    runtime=starter_wechat_runtime(),\n" +
   "    render_budget=@bunnia.render_budget_for_profile(\"tight\"),\n" +
+  "    backend_contract=starter_backend_contract(),\n" +
   "  )\n" +
   "}\n\n" +
   "///|\n" +
@@ -395,6 +464,9 @@ fn app_test_mbt() -> String {
   "  assert_eq(project.report.missing_event_patch_count, 0)\n" +
   "  assert_eq(project.report.orphan_event_patch_count, 0)\n" +
   "  assert_eq(project.manifest.pages[0].scene_count, 1)\n" +
+  "  assert_eq(project.manifest.pages[0].backend_event_count, 1)\n" +
+  "  assert_eq(backend_plan().endpoint_count, 1)\n" +
+  "  assert_eq(inspection_gate(project).diagnostics.length(), 0)\n" +
   "  assert_true(project.files.length() > 0)\n" +
   "}\n"
 }
@@ -403,14 +475,14 @@ fn app_test_mbt() -> String {
 fn readme(name : String) -> String {
   "# \{name}\n\n" +
   "A Bunnia mini-app starter generated by `bunnia init`.\n\n" +
-  "The starter keeps app view, agent feed, scene model, bounded updates, budget checks, WeChat generation, a local build command, and starter tests in separate files so the app can grow without mixing product code into the framework.\n\n" +
+  "The starter keeps app view, agent feed, scene model, bounded updates, backend contract, inspection gates, WeChat generation, a local build command, and starter tests in separate files so the app can grow without mixing product code into the framework.\n\n" +
   "```bash\n" +
   "moon check\n" +
   "moon test\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
-  "moon run cmd/main -- --out _build/wechat --strict\n" +
+  "moon run cmd/main -- build --out _build/wechat --strict\n" +
   "```\n"
 }
 
