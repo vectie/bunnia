@@ -540,7 +540,7 @@ test "build render budget can fail map-heavy routes before preview" {
     wechat_build_budget_from_args(["node", "main.js"]),
   )
   assert_true(
-    project.page.plan.diagnostics.contains("node-count-over-budget:44/8"),
+    project.page.plan.diagnostics.contains("node-count-over-budget:50/8"),
   )
   assert_true(
     report.diagnostics.contains(

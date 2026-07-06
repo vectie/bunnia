@@ -36,7 +36,17 @@ pub fn demo_view() -> @bunnia.Node {
       acknowledge_message="ack-route-tool",
     ),
   )
-  let map = @bunnia.static_scene_view_with_camera(demo_scene(), demo_camera())
+  let thread_links = demo_scene_thread_links()
+  let map = @bunnia.view_with_attrs(
+    [@bunnia.class_name("bunnia-scene-with-threads")],
+    [
+      @bunnia.static_scene_view_with_camera(demo_scene(), demo_camera()),
+      @bunnia.windowed_scene_thread_overlay(
+        thread_links,
+        total_count=thread_links.length(),
+      ),
+    ],
+  )
   @bunnia.page([
     @bunnia.view_with_attrs([@bunnia.class_name("demo-shell")], [
       @bunnia.text("Agent Map"),
@@ -107,6 +117,14 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     ]),
     @bunnia.wechat_event_patch("zoom-map-in", [
       @bunnia.set_scene_camera_zoom("ops-map", 150),
+    ]),
+    @bunnia.wechat_event_patch("open-thread-zone-a", [
+      @bunnia.select_scene_region_thread("ops-map", "zone-a", "thread-overview"),
+    ]),
+    @bunnia.wechat_event_patch("open-thread-zone-b", [
+      @bunnia.select_scene_marker_thread(
+        "ops-map", "agent-b", "thread-overview",
+      ),
     ]),
   ])
 }
@@ -341,17 +359,17 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 ///|
 fn demo_scene_thread_links() -> Array[@bunnia.SceneThreadLink] {
   [
-    @bunnia.scene_thread_link(
+    @bunnia.scene_region_thread_link(
       id="thread-zone-a-link",
       scene_id="ops-map",
-      marker_id="agent-a",
+      region_id="zone-a",
       thread_id="thread-overview",
       subject_ref="scene://ops-map/zone-a",
       status="stable",
       unread_count=0,
       open_message="open-thread-zone-a",
     ),
-    @bunnia.scene_thread_link(
+    @bunnia.scene_marker_thread_link(
       id="thread-zone-b-link",
       scene_id="ops-map",
       marker_id="agent-b",

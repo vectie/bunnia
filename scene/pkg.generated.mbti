@@ -79,9 +79,13 @@ pub fn scene_camera_from_viewport(String, SceneViewport, zoom_percent? : Int) ->
 
 pub fn scene_marker_count(Scene) -> Int
 
+pub fn scene_marker_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
+
 pub fn scene_quality_id(SceneQualityLevel) -> String
 
 pub fn scene_region_count(Scene) -> Int
+
+pub fn scene_region_thread_link(id~ : String, scene_id~ : String, region_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
 
 pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int, max_regions? : Int) -> SceneRenderBudget
 
@@ -93,7 +97,7 @@ pub fn scene_surface_preference_id(SceneSurfacePreference) -> String
 
 pub fn scene_thread_budget(max_visible_links? : Int, max_unread_total? : Int, max_orphan_links? : Int, max_links_without_open_message? : Int) -> SceneThreadBudget
 
-pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
+pub fn scene_thread_link(id~ : String, scene_id~ : String, subject_kind~ : String, subject_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
 
 pub fn scene_thread_overlay(Array[SceneThreadLink]) -> @core.Node
 
@@ -107,9 +111,13 @@ pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_mark
 
 pub fn select_scene_marker(String, String) -> @core.Patch
 
+pub fn select_scene_marker_thread(String, String, String) -> @core.Patch
+
 pub fn select_scene_region(String, String) -> @core.Patch
 
-pub fn select_scene_thread(String, String, String) -> @core.Patch
+pub fn select_scene_region_thread(String, String, String) -> @core.Patch
+
+pub fn select_scene_thread(String, String, String, String) -> @core.Patch
 
 pub fn set_scene_camera(String, SceneCamera) -> @core.Patch
 
@@ -314,7 +322,8 @@ pub struct SceneThreadBudget {
 pub struct SceneThreadLink {
   id : String
   scene_id : String
-  marker_id : String
+  subject_kind : String
+  subject_id : String
   thread_id : String
   subject_ref : String
   status : String

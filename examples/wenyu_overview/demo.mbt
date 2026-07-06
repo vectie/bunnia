@@ -341,7 +341,7 @@ fn demo_scene_thread_links(
   input : WenyuProjection,
 ) -> Array[@bunnia.SceneThreadLink] {
   [
-    @bunnia.scene_thread_link(
+    @bunnia.scene_marker_thread_link(
       id="thread-\{input.selected_building}",
       scene_id="wenyu-map",
       marker_id=input.selected_building,

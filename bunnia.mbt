@@ -1610,7 +1610,8 @@ pub fn static_scene_view_with_camera(
 pub fn scene_thread_link(
   id~ : String,
   scene_id~ : String,
-  marker_id~ : String,
+  subject_kind~ : String,
+  subject_id~ : String,
   thread_id~ : String,
   subject_ref? : String = "",
   status? : String = "",
@@ -1620,7 +1621,54 @@ pub fn scene_thread_link(
   @scene.scene_thread_link(
     id~,
     scene_id~,
+    subject_kind~,
+    subject_id~,
+    thread_id~,
+    subject_ref~,
+    status~,
+    unread_count~,
+    open_message~,
+  )
+}
+
+///|
+pub fn scene_marker_thread_link(
+  id~ : String,
+  scene_id~ : String,
+  marker_id~ : String,
+  thread_id~ : String,
+  subject_ref? : String = "",
+  status? : String = "",
+  unread_count? : Int = 0,
+  open_message? : String = "",
+) -> SceneThreadLink {
+  @scene.scene_marker_thread_link(
+    id~,
+    scene_id~,
     marker_id~,
+    thread_id~,
+    subject_ref~,
+    status~,
+    unread_count~,
+    open_message~,
+  )
+}
+
+///|
+pub fn scene_region_thread_link(
+  id~ : String,
+  scene_id~ : String,
+  region_id~ : String,
+  thread_id~ : String,
+  subject_ref? : String = "",
+  status? : String = "",
+  unread_count? : Int = 0,
+  open_message? : String = "",
+) -> SceneThreadLink {
+  @scene.scene_region_thread_link(
+    id~,
+    scene_id~,
+    region_id~,
     thread_id~,
     subject_ref~,
     status~,
@@ -1966,10 +2014,29 @@ pub fn set_scene_camera_viewport(
 ///|
 pub fn select_scene_thread(
   scene_id : String,
+  subject_kind : String,
+  subject_id : String,
+  thread_id : String,
+) -> Patch {
+  @scene.select_scene_thread(scene_id, subject_kind, subject_id, thread_id)
+}
+
+///|
+pub fn select_scene_marker_thread(
+  scene_id : String,
   marker_id : String,
   thread_id : String,
 ) -> Patch {
-  @scene.select_scene_thread(scene_id, marker_id, thread_id)
+  @scene.select_scene_marker_thread(scene_id, marker_id, thread_id)
+}
+
+///|
+pub fn select_scene_region_thread(
+  scene_id : String,
+  region_id : String,
+  thread_id : String,
+) -> Patch {
+  @scene.select_scene_region_thread(scene_id, region_id, thread_id)
 }
 
 ///|

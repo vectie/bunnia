@@ -1,9 +1,8 @@
 ///|
 fn thread_plan_scene() -> Scene {
   scene("thread-map", scene_size(320, 240), [
-    layer("markers", 1, [
-      marker(id="zone-a", label="A", x=20, y=30),
-      marker(id="zone-b", label="B", x=80, y=90),
+    layer("subjects", 1, [marker(id="agent-a", label="A", x=20, y=30)], regions=[
+      region(id="zone-b", label="B", x=60, y=70, width=120, height=80),
     ]),
   ])
 }
@@ -11,18 +10,18 @@ fn thread_plan_scene() -> Scene {
 ///|
 test "scene thread plans summarize map communication links" {
   let plan = plan_scene_threads(thread_plan_scene(), [
-    scene_thread_link(
+    scene_marker_thread_link(
       id="link-a",
       scene_id="thread-map",
-      marker_id="zone-a",
+      marker_id="agent-a",
       thread_id="thread-a",
       unread_count=0,
       open_message="open-thread-a",
     ),
-    scene_thread_link(
+    scene_region_thread_link(
       id="link-b",
       scene_id="thread-map",
-      marker_id="zone-b",
+      region_id="zone-b",
       thread_id="thread-b",
       unread_count=3,
       open_message="open-thread-b",
@@ -46,18 +45,18 @@ test "scene thread plans report visibility unread and orphan pressure" {
   let plan = plan_scene_threads_with_budget(
     thread_plan_scene(),
     [
-      scene_thread_link(
+      scene_marker_thread_link(
         id="link-a",
         scene_id="thread-map",
-        marker_id="zone-a",
+        marker_id="agent-a",
         thread_id="thread-a",
         unread_count=7,
         open_message="open-thread-a",
       ),
-      scene_thread_link(
+      scene_region_thread_link(
         id="link-orphan",
         scene_id="thread-map",
-        marker_id="missing-zone",
+        region_id="missing-zone",
         thread_id="thread-missing",
         unread_count=5,
       ),

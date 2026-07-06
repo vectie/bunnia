@@ -160,7 +160,7 @@ test "build profile aggregates normal project signals" {
   )
   let quality = @scene.plan_scene_visual_quality(scene_input)
   let threads = @scene.plan_scene_threads(scene_input, [
-    @scene.scene_thread_link(
+    @scene.scene_marker_thread_link(
       id="thread-a",
       scene_id="map",
       marker_id="a",
@@ -416,7 +416,7 @@ test "build profile prefixes diagnostics by budget source" {
       @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
     ]),
     [
-      @scene.scene_thread_link(
+      @scene.scene_marker_thread_link(
         id="thread-a",
         scene_id="map",
         marker_id="a",
@@ -424,7 +424,7 @@ test "build profile prefixes diagnostics by budget source" {
         unread_count=9,
         open_message="open-thread-a",
       ),
-      @scene.scene_thread_link(
+      @scene.scene_marker_thread_link(
         id="thread-orphan",
         scene_id="map",
         marker_id="missing",

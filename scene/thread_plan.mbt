@@ -170,7 +170,8 @@ fn scene_thread_orphan_link_count(
 ) -> Int {
   let mut count = 0
   for link in links {
-    if link.scene_id != input.id || !scene_has_marker(input, link.marker_id) {
+    if link.scene_id != input.id ||
+      !scene_has_subject(input, link.subject_kind, link.subject_id) {
       count += 1
     }
   }
@@ -178,10 +179,35 @@ fn scene_thread_orphan_link_count(
 }
 
 ///|
+fn scene_has_subject(
+  input : Scene,
+  subject_kind : String,
+  subject_id : String,
+) -> Bool {
+  match subject_kind {
+    "marker" => scene_has_marker(input, subject_id)
+    "region" => scene_has_region(input, subject_id)
+    _ => false
+  }
+}
+
+///|
 fn scene_has_marker(input : Scene, marker_id : String) -> Bool {
   for scene_layer in input.layers {
     for scene_marker in scene_layer.markers {
       if scene_marker.id == marker_id {
+        return true
+      }
+    }
+  }
+  false
+}
+
+///|
+fn scene_has_region(input : Scene, region_id : String) -> Bool {
+  for scene_layer in input.layers {
+    for scene_region in scene_layer.regions {
+      if scene_region.id == region_id {
         return true
       }
     }

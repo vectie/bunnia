@@ -218,23 +218,25 @@ test "scene assets render sprites and report asset budgets" {
 }
 
 ///|
-test "scene thread links connect map markers to agent communication cheaply" {
+test "scene thread links connect map subjects to agent communication cheaply" {
   let scene = @bunnia.scene("ops-map", @bunnia.scene_size(640, 480), [
-    @bunnia.layer("regions", 1, [
-      @bunnia.marker(
+    @bunnia.layer("regions", 1, [], regions=[
+      @bunnia.region(
         id="zone-a",
         label="Zone A",
         x=160,
         y=180,
+        width=180,
+        height=120,
         status="review",
         tap_message="select-zone-a",
       ),
     ]),
   ])
-  let link = @bunnia.scene_thread_link(
+  let link = @bunnia.scene_region_thread_link(
     id="link-zone-a",
     scene_id="ops-map",
-    marker_id="zone-a",
+    region_id="zone-a",
     thread_id="thread-zone-a",
     subject_ref="scene://ops-map/zone-a",
     status="review",
@@ -256,7 +258,7 @@ test "scene thread links connect map markers to agent communication cheaply" {
     @bunnia.scene_thread_budget(max_visible_links=4, max_unread_total=8),
   )
   let patches = @bunnia.plan_patches([
-    @bunnia.select_scene_thread("ops-map", "zone-a", "thread-zone-a"),
+    @bunnia.select_scene_region_thread("ops-map", "zone-a", "thread-zone-a"),
     @bunnia.set_scene_thread_unread("ops-map", "thread-zone-a", 0),
     @bunnia.set_scene_thread_status("ops-map", "thread-zone-a", "running"),
     @bunnia.append_scene_thread_link("scenes.ops-map.threadLinks", link),
@@ -266,7 +268,8 @@ test "scene thread links connect map markers to agent communication cheaply" {
   assert_eq(output.plan.list_visible_count, 1)
   assert_true(output.wxml.contains("bunnia-scene-with-threads"))
   assert_true(output.wxml.contains("bunnia-scene-thread-overlay"))
-  assert_true(output.wxml.contains("data-marker-id=\"zone-a\""))
+  assert_true(output.wxml.contains("data-subject-kind=\"region\""))
+  assert_true(output.wxml.contains("data-subject-id=\"zone-a\""))
   assert_true(output.wxml.contains("data-thread-id=\"thread-zone-a\""))
   assert_true(
     output.wxml.contains("data-subject-ref=\"scene://ops-map/zone-a\""),
@@ -283,6 +286,9 @@ test "scene thread links connect map markers to agent communication cheaply" {
   assert_eq(patches.patches.length(), 4)
   assert_true(
     patches.patches[0].value_json.contains("\"threadId\":\"thread-zone-a\""),
+  )
+  assert_true(
+    patches.patches[0].value_json.contains("\"subjectKind\":\"region\""),
   )
   assert_eq(patches.patches[1].value_json, "0")
   assert_eq(patches.patches[2].value_json, "\"running\"")

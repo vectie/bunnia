@@ -290,10 +290,12 @@ Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.
 
-For agentic map surfaces, use `@bunnia.scene_thread_link(...)` plus
-`@bunnia.plan_scene_threads(...)` to keep marker-thread badges measurable.
-Scene thread plans report visible/total links, unread pressure, orphan marker
-links, and missing open actions before the mini-app output grows.
+For agentic map surfaces, use `@bunnia.scene_marker_thread_link(...)`,
+`@bunnia.scene_region_thread_link(...)`, or the generic
+`@bunnia.scene_thread_link(...)` plus `@bunnia.plan_scene_threads(...)` to keep
+scene-subject badges measurable. Scene thread plans report visible/total links,
+unread pressure, orphan marker/region links, and missing open actions before
+the mini-app output grows.
 Use `@bunnia.plan_scene_surface_for_platform(...)` to make the intended
 static/canvas/lightweight surface mode and any fallback explicit in build
 profiles before adding platform-specific rendering.

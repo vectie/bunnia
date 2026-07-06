@@ -340,12 +340,12 @@ Current evidence:
   artifact-bearing rows, and budget diagnostics.
 - Agent deltas now represent append-only message, communication, streaming
   chunk, run-status, and review-state updates as bounded patch plans.
-- Scene thread links connect map markers to communication threads with compact
-  badges and bounded patches for selected thread, unread count, status, and new
-  thread links.
-- Scene thread plans report visible/total marker-thread links, unread pressure,
-  orphan marker links, and missing open actions so agentic map overlays remain
-  measurable before rendering.
+- Scene thread links connect map subjects, including markers and first-class
+  regions, to communication threads with compact badges and bounded patches for
+  selected thread, unread count, status, and new thread links.
+- Scene thread plans report visible/total subject-thread links, unread
+  pressure, orphan marker/region links, and missing open actions so agentic map
+  overlays remain measurable before rendering.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
 - Generic render plans now report scene count, visible/total marker count,
@@ -668,7 +668,8 @@ Current evidence:
   markers, preserving visible/total counts and cheap patches for map-heavy
   agentic UIs.
 - Scene thread plans make agentic map overlays budgeted, including unread
-  pressure and orphan-link diagnostics when a thread points at a missing marker.
+  pressure and orphan-link diagnostics when a thread points at a missing marker
+  or region.
 - Scene surface plans make static, canvas, and lightweight rendering intent
   explicit and report fallback when a platform cannot honor the requested mode.
 

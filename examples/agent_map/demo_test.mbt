@@ -6,6 +6,11 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("bunnia-scene-region"))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
+  assert_true(page.wxml.contains("bunnia-scene-thread-overlay"))
+  assert_true(page.wxml.contains("data-subject-kind=\"region\""))
+  assert_true(page.wxml.contains("data-subject-id=\"zone-a\""))
+  assert_true(page.wxml.contains("data-subject-kind=\"marker\""))
+  assert_true(page.wxml.contains("data-subject-id=\"agent-b\""))
   assert_true(page.wxml.contains("bunnia-status-review"))
   assert_true(page.wxml.contains("bunnia-tool-result-card"))
   assert_true(page.wxml.contains("data-tool-result-id=\"route-tool-result\""))
@@ -30,6 +35,8 @@ test "agent map demo generates wechat output" {
   assert_true(page.js.contains("\"ack-route-tool\""))
   assert_true(page.js.contains("\"pan-map-east\""))
   assert_true(page.js.contains("\"zoom-map-in\""))
+  assert_true(page.js.contains("\"open-thread-zone-a\""))
+  assert_true(page.js.contains("\"open-thread-zone-b\""))
   assert_true(
     page.js.contains(
       "{kind:\"set\",path:\"scenes.ops-map.selectedRegion\",value:\"zone-b\"}",
@@ -60,7 +67,12 @@ test "agent map demo generates wechat output" {
       "{kind:\"set\",path:\"scenes.ops-map.camera.zoomPercent\",value:150}",
     ),
   )
+  assert_true(page.js.contains("\"subjectKind\":\"region\""))
+  assert_true(page.js.contains("\"subjectId\":\"agent-b\""))
   assert_true(page.plan.node_count > 12)
+  assert_eq(page.plan.windowed_list_count, 1)
+  assert_eq(page.plan.list_total_count, 2)
+  assert_eq(page.plan.list_visible_count, 2)
   assert_eq(page.plan.scene_count, 1)
   assert_eq(page.plan.scene_marker_count, 2)
   assert_eq(page.plan.scene_visible_marker_count, 2)

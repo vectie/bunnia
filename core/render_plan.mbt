@@ -374,7 +374,9 @@ fn class_contains(root : Node, value : String) -> Bool {
 
 ///|
 fn is_scene_root(root : Node) -> Bool {
-  attr_value(root, "data-scene-id") != ""
+  attr_value(root, "data-scene-id") != "" &&
+  attr_value(root, "data-scene-width") != "" &&
+  attr_value(root, "data-scene-height") != ""
 }
 
 ///|
