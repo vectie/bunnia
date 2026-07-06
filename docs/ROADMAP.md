@@ -938,6 +938,10 @@ Current evidence:
 - Platform limit reports now distinguish generator status as `available`,
   `deferred`, or `unknown`, so known future targets remain explicit without
   turning Phase 6 adapters on.
+- Platform target support is now a reusable tooling/facade record consumed by
+  limits, CI-plan diagnostics, and build-style CLI commands, so deferred or
+  unknown targets fail before the WeChat generator path can write misleading
+  artifacts.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running

@@ -18,6 +18,19 @@ pub(all) enum PlatformGeneratorStatus {
 } derive(Debug, Eq)
 
 ///|
+pub struct PlatformTargetSupport {
+  target : String
+  label : String
+  adapter : @core.PlatformAdapter
+  known : Bool
+  generator_status : PlatformGeneratorStatus
+  generator_status_id : String
+  generator_available : Bool
+  diagnostics : Array[String]
+  summary : String
+} derive(Debug, Eq)
+
+///|
 pub fn platform_generator_status_id(status : PlatformGeneratorStatus) -> String {
   match status {
     GeneratorAvailable => "available"
@@ -29,6 +42,63 @@ pub fn platform_generator_status_id(status : PlatformGeneratorStatus) -> String 
 ///|
 pub fn platform_generator_available(status : PlatformGeneratorStatus) -> Bool {
   status is GeneratorAvailable
+}
+
+///|
+pub fn platform_target_support(
+  target? : String = "wechat",
+) -> PlatformTargetSupport {
+  let (adapter, label, known) = adapter_for_target(target)
+  let generator_status = generator_status_for_target(known, target == "wechat")
+  platform_target_support_from_parts(
+    target, label, adapter, known, generator_status,
+  )
+}
+
+///|
+pub fn platform_target_support_for_adapter(
+  adapter : @core.PlatformAdapter,
+  generator_available? : Bool = false,
+) -> PlatformTargetSupport {
+  let target = adapter.id
+  let label = @core.platform_label(adapter.platform)
+  let generator_status = if generator_available {
+    GeneratorAvailable
+  } else {
+    GeneratorDeferred
+  }
+  platform_target_support_from_parts(
+    target, label, adapter, true, generator_status,
+  )
+}
+
+///|
+fn platform_target_support_from_parts(
+  target : String,
+  label : String,
+  adapter : @core.PlatformAdapter,
+  known : Bool,
+  generator_status : PlatformGeneratorStatus,
+) -> PlatformTargetSupport {
+  let generator_status_id = platform_generator_status_id(generator_status)
+  let generator_available = platform_generator_available(generator_status)
+  let diagnostics : Array[String] = []
+  if !known {
+    diagnostics.push("platform-target-unknown:\{target}")
+  } else if !generator_available {
+    diagnostics.push("platform-generator-deferred:\{target}")
+  }
+  {
+    target,
+    label,
+    adapter,
+    known,
+    generator_status,
+    generator_status_id,
+    generator_available,
+    diagnostics,
+    summary: "Bunnia platform target: target=\{target} label=\{label} known=\{known} generator=\{generator_available} generator_status=\{generator_status_id} diagnostics=\{diagnostics.length()}",
+  }
 }
 
 ///|
@@ -50,34 +120,32 @@ pub struct PlatformLimitsReport {
 
 ///|
 pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
-  let (adapter, label, known) = adapter_for_target(target)
-  let generator_status = generator_status_for_target(known, target == "wechat")
-  let generator_status_id = platform_generator_status_id(generator_status)
-  let generator_available = platform_generator_available(generator_status)
-  let diagnostics : Array[String] = []
-  if !known {
-    diagnostics.push("platform-target-unknown:\{target}")
-  } else if !generator_available {
-    diagnostics.push("platform-generator-deferred:\{target}")
-  }
+  platform_limits_from_support(platform_target_support(target~))
+}
+
+///|
+fn platform_limits_from_support(
+  support : PlatformTargetSupport,
+) -> PlatformLimitsReport {
+  let adapter = support.adapter
   let component_mappings = platform_component_mappings(adapter)
   let event_mappings = [
     { bunnia_event: "tap", platform_event: adapter.tap_event },
   ]
   {
-    target,
-    label,
+    target: support.target,
+    label: support.label,
     adapter,
-    generator_status,
-    generator_status_id,
-    generator_available,
+    generator_status: support.generator_status,
+    generator_status_id: support.generator_status_id,
+    generator_available: support.generator_available,
     component_mappings,
     event_mappings,
     supports_canvas: adapter.supports_canvas,
     supports_cloud: adapter.supports_cloud,
     supports_stream: adapter.supports_stream,
-    diagnostics,
-    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} generator_status=\{generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
+    diagnostics: support.diagnostics,
+    summary: "Bunnia platform limits: target=\{support.target} label=\{support.label} generator=\{support.generator_available} generator_status=\{support.generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{support.diagnostics.length()}",
   }
 }
 
@@ -86,37 +154,9 @@ pub fn platform_limits_for_adapter(
   adapter : @core.PlatformAdapter,
   generator_available? : Bool = false,
 ) -> PlatformLimitsReport {
-  let target = adapter.id
-  let label = @core.platform_label(adapter.platform)
-  let generator_status = if generator_available {
-    GeneratorAvailable
-  } else {
-    GeneratorDeferred
-  }
-  let generator_status_id = platform_generator_status_id(generator_status)
-  let diagnostics : Array[String] = []
-  if !generator_available {
-    diagnostics.push("platform-generator-deferred:\{target}")
-  }
-  let component_mappings = platform_component_mappings(adapter)
-  let event_mappings = [
-    { bunnia_event: "tap", platform_event: adapter.tap_event },
-  ]
-  {
-    target,
-    label,
-    adapter,
-    generator_status,
-    generator_status_id,
-    generator_available,
-    component_mappings,
-    event_mappings,
-    supports_canvas: adapter.supports_canvas,
-    supports_cloud: adapter.supports_cloud,
-    supports_stream: adapter.supports_stream,
-    diagnostics,
-    summary: "Bunnia platform limits: target=\{target} label=\{label} generator=\{generator_available} generator_status=\{generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{diagnostics.length()}",
-  }
+  platform_limits_from_support(
+    platform_target_support_for_adapter(adapter, generator_available~),
+  )
 }
 
 ///|

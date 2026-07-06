@@ -268,6 +268,10 @@ test "inspect command exposes generated artifact metrics without output path" {
 ///|
 test "limits command exposes platform mappings and deferred targets" {
   let args = ["node", "main.js", "limits", "--target", "wechat"]
+  let support = target_support_from_args(args)
+  assert_eq(support.target, "wechat")
+  assert_eq(support.generator_status_id, "available")
+  assert_eq(support.generator_available, true)
   let report = platform_limits_from_args(args)
   assert_eq(command_from_args(args), "limits")
   assert_eq(report.target, "wechat")
@@ -285,6 +289,15 @@ test "limits command exposes platform mappings and deferred targets" {
   assert_eq(deferred.generator_available, false)
   assert_true(
     deferred.diagnostics.contains("platform-generator-deferred:tiktok"),
+  )
+  let deferred_support = target_support_from_args([
+    "node", "main.js", "build", "--target", "tiktok",
+  ])
+  assert_eq(deferred_support.target, "tiktok")
+  assert_eq(deferred_support.generator_status_id, "deferred")
+  assert_eq(deferred_support.generator_available, false)
+  assert_true(
+    deferred_support.diagnostics.contains("platform-generator-deferred:tiktok"),
   )
 }
 
@@ -363,7 +376,11 @@ test "ci plan command reports unknown budget profiles" {
   assert_eq(plan.target, "alipay")
   assert_eq(plan.budget_profile, "oversized")
   assert_eq(plan.render_budget_profile, "microscopic")
-  assert_true(plan.diagnostics.contains("ci-target-unsupported:alipay"))
+  assert_eq(plan.target_generator_status_id, "deferred")
+  assert_eq(plan.target_generator_available, false)
+  assert_true(
+    plan.diagnostics.contains("ci-platform-generator-deferred:alipay"),
+  )
   assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
   assert_true(
     plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),

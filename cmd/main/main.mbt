@@ -364,15 +364,30 @@ fn platform_limits_from_args(
 }
 
 ///|
+fn target_support_from_args(
+  args : Array[String],
+) -> @bunnia.PlatformTargetSupport {
+  @bunnia.platform_target_support(target=target_from_args(args))
+}
+
+///|
+fn ensure_target_generator_available(
+  support : @bunnia.PlatformTargetSupport,
+) -> Unit {
+  if !support.generator_available {
+    println(support.summary)
+    print_diagnostics(support.diagnostics)
+    panic()
+  }
+}
+
+///|
 fn project_for_build(
   target : String,
   example : String,
   render_budget : @bunnia.RenderBudget,
 ) -> @bunnia.WechatProject {
-  if target != "wechat" {
-    println("unsupported target=\{target}")
-    panic()
-  }
+  ensure_target_generator_available(@bunnia.platform_target_support(target~))
   project_for_example(example, render_budget)
 }
 
@@ -393,10 +408,7 @@ fn project_for_example(
 
 ///|
 fn patches_for_build(target : String, example : String) -> @bunnia.PatchPlan {
-  if target != "wechat" {
-    println("unsupported target=\{target}")
-    panic()
-  }
+  ensure_target_generator_available(@bunnia.platform_target_support(target~))
   patches_for_example(example)
 }
 
@@ -419,10 +431,7 @@ fn profile_for_build(
   project : @bunnia.WechatProject,
   patches : @bunnia.PatchPlan,
 ) -> @bunnia.BuildProfile {
-  if target != "wechat" {
-    println("unsupported target=\{target}")
-    panic()
-  }
+  ensure_target_generator_available(@bunnia.platform_target_support(target~))
   profile_for_example(example, project, patches)
 }
 
@@ -476,6 +485,8 @@ fn profile_for_example(
 ///|
 fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let target = target_from_args(args)
+  let target_support = target_support_from_args(args)
+  ensure_target_generator_available(target_support)
   let example = example_from_args(args)
   let output_dir = output_dir_from_args(args, target, example)
   let render_budget = render_budget_from_args(args)

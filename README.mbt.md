@@ -163,7 +163,9 @@ moon run cmd/main -- limits --target wechat
 mapping, canvas/cloud/stream capabilities, and explicit generator status. The
 status is `available` for the active WeChat generator, `deferred` for known
 targets such as Alipay and TikTok, and `unknown` for unsupported target ids.
-This keeps Phase 6 room visible without enabling those generators.
+The same target-support model is reused by `ci-plan` and build-style commands,
+so deferred or unknown targets fail before WeChat artifacts are generated. This
+keeps Phase 6 room visible without enabling those generators.
 
 To print the canonical local/CI workflow for the active examples:
 

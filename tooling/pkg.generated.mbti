@@ -39,6 +39,10 @@ pub fn platform_limits(target? : String) -> PlatformLimitsReport
 
 pub fn platform_limits_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> PlatformLimitsReport
 
+pub fn platform_target_support(target? : String) -> PlatformTargetSupport
+
+pub fn platform_target_support_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> PlatformTargetSupport
+
 pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], camera_plans? : Array[@scene.SceneCameraPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn render_budget_for_profile(String) -> @core.RenderBudget
@@ -154,6 +158,9 @@ pub struct BuildProfileGate {
 
 pub struct CiPlan {
   target : String
+  target_known : Bool
+  target_generator_status_id : String
+  target_generator_available : Bool
   budget_profile : String
   render_budget_profile : String
   inspection_max_route_risk_score : Int
@@ -248,6 +255,18 @@ pub struct PlatformLimitsReport {
   supports_canvas : Bool
   supports_cloud : Bool
   supports_stream : Bool
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct PlatformTargetSupport {
+  target : String
+  label : String
+  adapter : @core.PlatformAdapter
+  known : Bool
+  generator_status : PlatformGeneratorStatus
+  generator_status_id : String
+  generator_available : Bool
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

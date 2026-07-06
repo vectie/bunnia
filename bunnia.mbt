@@ -278,6 +278,9 @@ pub type PlatformEventMapping = @tooling.PlatformEventMapping
 pub type PlatformGeneratorStatus = @tooling.PlatformGeneratorStatus
 
 ///|
+pub type PlatformTargetSupport = @tooling.PlatformTargetSupport
+
+///|
 pub type PlatformLimitsReport = @tooling.PlatformLimitsReport
 
 ///|
@@ -3089,6 +3092,21 @@ pub fn ci_plan_shell_script(plan : CiPlan) -> String {
 ///|
 pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
   @tooling.platform_limits(target~)
+}
+
+///|
+pub fn platform_target_support(
+  target? : String = "wechat",
+) -> PlatformTargetSupport {
+  @tooling.platform_target_support(target~)
+}
+
+///|
+pub fn platform_target_support_for_adapter(
+  adapter : PlatformAdapter,
+  generator_available? : Bool = false,
+) -> PlatformTargetSupport {
+  @tooling.platform_target_support_for_adapter(adapter, generator_available~)
 }
 
 ///|

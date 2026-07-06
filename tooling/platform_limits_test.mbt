@@ -1,5 +1,13 @@
 ///|
 test "platform limits report documents active WeChat mapping" {
+  let support = platform_target_support(target="wechat")
+  assert_eq(support.target, "wechat")
+  assert_eq(support.known, true)
+  assert_eq(support.generator_status_id, "available")
+  assert_eq(support.generator_available, true)
+  assert_eq(support.diagnostics.length(), 0)
+  assert_true(support.summary.contains("target=wechat"))
+  assert_true(support.summary.contains("generator_status=available"))
   let report = platform_limits(target="wechat")
   assert_eq(report.target, "wechat")
   assert_eq(report.generator_status_id, "available")
@@ -23,6 +31,14 @@ test "platform limits report documents active WeChat mapping" {
 
 ///|
 test "platform limits keep deferred targets explicit" {
+  let support = platform_target_support(target="alipay")
+  assert_eq(support.target, "alipay")
+  assert_eq(support.known, true)
+  assert_eq(support.generator_status_id, "deferred")
+  assert_eq(support.generator_available, false)
+  assert_true(
+    support.diagnostics.contains("platform-generator-deferred:alipay"),
+  )
   let report = platform_limits(target="alipay")
   assert_eq(report.target, "alipay")
   assert_eq(report.generator_status_id, "deferred")
@@ -36,6 +52,12 @@ test "platform limits keep deferred targets explicit" {
 
 ///|
 test "platform limits diagnose unknown target" {
+  let support = platform_target_support(target="unknown")
+  assert_eq(support.target, "unknown")
+  assert_eq(support.known, false)
+  assert_eq(support.generator_status_id, "unknown")
+  assert_eq(support.generator_available, false)
+  assert_true(support.diagnostics.contains("platform-target-unknown:unknown"))
   let report = platform_limits(target="unknown")
   assert_eq(report.target, "unknown")
   assert_eq(report.generator_status_id, "unknown")
@@ -57,6 +79,10 @@ test "platform limits can be derived from custom adapter" {
     supports_cloud=false,
     supports_stream=false,
   )
+  let support = platform_target_support_for_adapter(adapter)
+  assert_eq(support.target, "wechat-lite")
+  assert_eq(support.generator_status_id, "deferred")
+  assert_eq(support.generator_available, false)
   let report = platform_limits_for_adapter(adapter)
   assert_eq(report.target, "wechat-lite")
   assert_eq(report.generator_status_id, "deferred")
@@ -75,6 +101,14 @@ test "platform limits can mark custom adapters as generator backed" {
     page_component="page",
     tap_event="bindtap",
   )
+  let support = platform_target_support_for_adapter(
+    adapter,
+    generator_available=true,
+  )
+  assert_eq(support.target, "wechat-custom")
+  assert_eq(support.generator_status_id, "available")
+  assert_eq(support.generator_available, true)
+  assert_eq(support.diagnostics.length(), 0)
   let report = platform_limits_for_adapter(adapter, generator_available=true)
   assert_eq(report.target, "wechat-custom")
   assert_eq(report.generator_status_id, "available")

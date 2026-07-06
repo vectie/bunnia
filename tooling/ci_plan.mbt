@@ -8,6 +8,9 @@ pub struct CiPlanStep {
 ///|
 pub struct CiPlan {
   target : String
+  target_known : Bool
+  target_generator_status_id : String
+  target_generator_available : Bool
   budget_profile : String
   render_budget_profile : String
   inspection_max_route_risk_score : Int
@@ -48,8 +51,9 @@ pub fn ci_plan(
   } else {
     render_budget_profile
   }
+  let target_support = platform_target_support(target~)
   let diagnostics = ci_plan_diagnostics(
-    target, budget_profile, active_render_budget_profile,
+    target_support, budget_profile, active_render_budget_profile,
   )
   let inspection_budget = ci_plan_inspection_budget(budget_profile)
   let profile_budget = ci_plan_profile_budget(budget_profile)
@@ -100,6 +104,9 @@ pub fn ci_plan(
   }
   {
     target,
+    target_known: target_support.known,
+    target_generator_status_id: target_support.generator_status_id,
+    target_generator_available: target_support.generator_available,
     budget_profile,
     render_budget_profile: active_render_budget_profile,
     inspection_max_route_risk_score: inspection_budget.max_route_risk_score,
@@ -124,7 +131,7 @@ pub fn ci_plan(
     step_count: steps.length(),
     steps,
     diagnostics,
-    summary: "Bunnia CI plan: target=\{target} budget=\{budget_profile} render_budget=\{active_render_budget_profile} inspection_max_route_risk=\{inspection_budget.max_route_risk_score} inspection_max_backend_events=\{inspection_budget.max_backend_events} inspection_max_backend_streams=\{inspection_budget.max_backend_streams} inspection_max_backend_reviews=\{inspection_budget.max_backend_reviews} inspection_max_backend_cancels=\{inspection_budget.max_backend_cancels} inspection_max_backend_retries=\{inspection_budget.max_backend_retries} inspection_max_scene_assets=\{inspection_budget.max_scene_assets} inspection_max_scene_remote_assets=\{inspection_budget.max_scene_remote_assets} profile_max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} profile_max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} profile_max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} profile_max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} profile_max_degraded_scenes=\{profile_budget.max_degraded_scenes} examples=\{examples.length()} steps=\{steps.length()} diagnostics=\{diagnostics.length()} snapshot_dir=\{snapshot_dir}",
+    summary: "Bunnia CI plan: target=\{target} target_generator_status=\{target_support.generator_status_id} target_generator=\{target_support.generator_available} budget=\{budget_profile} render_budget=\{active_render_budget_profile} inspection_max_route_risk=\{inspection_budget.max_route_risk_score} inspection_max_backend_events=\{inspection_budget.max_backend_events} inspection_max_backend_streams=\{inspection_budget.max_backend_streams} inspection_max_backend_reviews=\{inspection_budget.max_backend_reviews} inspection_max_backend_cancels=\{inspection_budget.max_backend_cancels} inspection_max_backend_retries=\{inspection_budget.max_backend_retries} inspection_max_scene_assets=\{inspection_budget.max_scene_assets} inspection_max_scene_remote_assets=\{inspection_budget.max_scene_remote_assets} profile_max_agent_duplicate_stream_chunks=\{profile_budget.max_agent_duplicate_stream_chunks} profile_max_snapshot_full_replaces=\{profile_budget.max_snapshot_full_replaces} profile_max_scene_surface_fallbacks=\{profile_budget.max_scene_surface_fallbacks} profile_max_scene_quality_issues=\{profile_budget.max_scene_quality_issues} profile_max_degraded_scenes=\{profile_budget.max_degraded_scenes} examples=\{examples.length()} steps=\{steps.length()} diagnostics=\{diagnostics.length()} snapshot_dir=\{snapshot_dir}",
   }
 }
 
@@ -174,13 +181,15 @@ fn ci_plan_profile_budget(name : String) -> BuildProfileBudget {
 
 ///|
 fn ci_plan_diagnostics(
-  target : String,
+  target_support : PlatformTargetSupport,
   budget_profile : String,
   render_budget_profile : String,
 ) -> Array[String] {
   let output : Array[String] = []
-  if target != "wechat" {
-    output.push("ci-target-unsupported:\{target}")
+  if !target_support.generator_available {
+    for item in target_support.diagnostics {
+      output.push("ci-\{item}")
+    }
   }
   if !is_named_budget_profile(budget_profile) {
     output.push("ci-budget-profile-unknown:\{budget_profile}")

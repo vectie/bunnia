@@ -416,6 +416,10 @@ pub fn platform_limits(target? : String) -> @tooling.PlatformLimitsReport
 
 pub fn platform_limits_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> @tooling.PlatformLimitsReport
 
+pub fn platform_target_support(target? : String) -> @tooling.PlatformTargetSupport
+
+pub fn platform_target_support_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> @tooling.PlatformTargetSupport
+
 pub fn prefer_canvas_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
@@ -820,6 +824,8 @@ pub using @tooling {type PlatformEventMapping}
 pub using @tooling {type PlatformGeneratorStatus}
 
 pub using @tooling {type PlatformLimitsReport}
+
+pub using @tooling {type PlatformTargetSupport}
 
 pub using @program {type Program}
 
