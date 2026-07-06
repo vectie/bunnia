@@ -1196,6 +1196,11 @@ test "wechat manifest records route render diagnostics" {
     ),
   )
   assert_true(
+    project.report.diagnostics.contains(
+      "wechat-render:pages/diagnostics/index:list-child-missing-key:2",
+    ),
+  )
+  assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"unwindowedListChildren\":2",
     ),

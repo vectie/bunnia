@@ -544,6 +544,11 @@ test "build profile prefixes diagnostics by budget source" {
     ),
   )
   assert_true(
+    !profile.diagnostics.contains(
+      "wechat:wechat-render:pages/large/index:node-count-over-budget:1802/800",
+    ),
+  )
+  assert_true(
     contains_prefix(
       profile.diagnostics,
       "wechat:wechat-wxml-bytes-over-budget:",

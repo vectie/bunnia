@@ -80,7 +80,7 @@ pub fn profile_wechat_project(
 ) -> BuildProfile {
   let diagnostics : Array[String] = []
   push_page_render_diagnostics(diagnostics, project.pages)
-  push_prefixed(diagnostics, "wechat", project.report.diagnostics)
+  push_wechat_report_diagnostics(diagnostics, project.report.diagnostics)
   push_prefixed(diagnostics, "patch", patches.diagnostics)
   let (effect_count, cloud_function_count, stream_effect_count) = collect_effect_diagnostics(
     diagnostics, effect_plans,
@@ -605,6 +605,18 @@ fn collect_quality_diagnostics(
     push_prefixed(diagnostics, "scene-quality", plan.diagnostics)
   }
   (issue_count, degraded_count)
+}
+
+///|
+fn push_wechat_report_diagnostics(
+  output : Array[String],
+  diagnostics : Array[String],
+) -> Unit {
+  for item in diagnostics {
+    if !item.has_prefix("wechat-render:") {
+      output.push("wechat:\{item}")
+    }
+  }
 }
 
 ///|

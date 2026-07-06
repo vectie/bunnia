@@ -126,6 +126,7 @@ fn report_files(
   let (max_first_screen, max_update_payload) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
+  push_page_render_diagnostics(diagnostics, pages)
   let (missing_event_patch_count, orphan_event_patch_count) = push_runtime_event_diagnostics(
     diagnostics, pages,
   )
@@ -192,6 +193,18 @@ fn report_files(
     max_page_update_payload_bytes: max_update_payload,
     diagnostics,
     summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} diagnostics=\{diagnostics.length()}",
+  }
+}
+
+///|
+fn push_page_render_diagnostics(
+  diagnostics : Array[String],
+  pages : Array[WechatProjectPage],
+) -> Unit {
+  for page in pages {
+    for item in page.page.plan.diagnostics {
+      diagnostics.push("wechat-render:\{page.route}:\{item}")
+    }
   }
 }
 
