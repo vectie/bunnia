@@ -79,8 +79,12 @@ pub fn profile_wechat_project(
   quality_plans? : Array[@scene.SceneVisualQualityPlan] = [],
 ) -> BuildProfile {
   let diagnostics : Array[String] = []
-  push_page_render_diagnostics(diagnostics, project.pages)
-  push_wechat_report_diagnostics(diagnostics, project.report.diagnostics)
+  push_manifest_route_diagnostics(diagnostics, project.manifest.pages)
+  push_wechat_report_diagnostics(
+    diagnostics,
+    project.report.diagnostics,
+    project.manifest.pages,
+  )
   push_prefixed(diagnostics, "patch", patches.diagnostics)
   let (effect_count, cloud_function_count, stream_effect_count) = collect_effect_diagnostics(
     diagnostics, effect_plans,
@@ -289,15 +293,43 @@ fn profile_summary(
 }
 
 ///|
-fn push_page_render_diagnostics(
+fn push_manifest_route_diagnostics(
   diagnostics : Array[String],
-  pages : Array[@wechat.WechatProjectPage],
+  pages : Array[@wechat.WechatManifestPage],
 ) -> Unit {
   for page in pages {
-    for item in page.page.plan.diagnostics {
-      diagnostics.push("render:\{page.route}:\{item}")
+    for item in page.diagnostics {
+      push_manifest_route_diagnostic(diagnostics, item)
     }
   }
+}
+
+///|
+fn push_manifest_route_diagnostic(
+  diagnostics : Array[String],
+  item : String,
+) -> Unit {
+  let render_prefix = "wechat-render:"
+  if item.has_prefix(render_prefix) {
+    diagnostics.push(
+      "render:\{item.sub(start=render_prefix.length(), end=item.length()).to_owned()}",
+    )
+  } else {
+    diagnostics.push("wechat:\{item}")
+  }
+}
+
+///|
+fn manifest_route_diagnostic_exists(
+  pages : Array[@wechat.WechatManifestPage],
+  diagnostic : String,
+) -> Bool {
+  for page in pages {
+    if page.diagnostics.contains(diagnostic) {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -611,9 +643,10 @@ fn collect_quality_diagnostics(
 fn push_wechat_report_diagnostics(
   output : Array[String],
   diagnostics : Array[String],
+  route_pages : Array[@wechat.WechatManifestPage],
 ) -> Unit {
   for item in diagnostics {
-    if !item.has_prefix("wechat-render:") {
+    if !manifest_route_diagnostic_exists(route_pages, item) {
       output.push("wechat:\{item}")
     }
   }

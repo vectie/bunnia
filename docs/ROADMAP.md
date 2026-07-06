@@ -762,6 +762,9 @@ Current evidence:
 - Generated manifests expose route-level diagnostics for render, initial-data
   payload, and event-patch wiring issues, so generated projects remain
   debuggable without scanning aggregate CLI output.
+- Build profiles derive route diagnostics from generated manifests, keeping
+  strict-build output aligned with the inspected mini-program artifact instead
+  of rebuilding route checks in a separate tooling path.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review

@@ -39,6 +39,50 @@ test "build profile includes route initial-data render-budget diagnostics" {
 }
 
 ///|
+test "build profile derives route diagnostics from manifest pages once" {
+  let route = "pages/profile-route/index"
+  let project = @wechat.generate_project_with_runtime_and_budget(
+    name="Profile Route Diagnostics",
+    route~,
+    root=@core.page([@core.view([@core.button("Open", "open")])]),
+    runtime=@wechat.runtime(initial_data_json="{\"draft\":\"large\"}", event_patches=[
+      @wechat.event_patch("close", [@core.set_string("state.active", "close")]),
+    ]),
+    render_budget=@core.render_budget(
+      max_nodes=16,
+      max_depth=4,
+      max_events=0,
+      max_initial_data_bytes=8,
+    ),
+  )
+  let profile = profile_wechat_project(project, @core.plan_patches([]))
+  let render_diagnostic = "render:\{route}:event-count-over-budget:1/0"
+  let missing_patch_diagnostic = "wechat:wechat-event-without-patch:\{route}:open"
+  let orphan_patch_diagnostic = "wechat:wechat-patch-without-event:\{route}:close"
+  assert_eq(count_occurrence(profile.diagnostics, render_diagnostic), 1)
+  assert_eq(count_occurrence(profile.diagnostics, missing_patch_diagnostic), 1)
+  assert_eq(count_occurrence(profile.diagnostics, orphan_patch_diagnostic), 1)
+  assert_true(
+    contains_prefix(
+      profile.diagnostics,
+      "wechat:wechat-route-initial-data-over-render-budget:\{route}:",
+    ),
+  )
+  assert_eq(
+    count_prefix(
+      profile.diagnostics,
+      "wechat:wechat-route-initial-data-over-render-budget:\{route}:",
+    ),
+    1,
+  )
+  assert_true(
+    !profile.diagnostics.contains(
+      "wechat:wechat-render:\{route}:event-count-over-budget:1/0",
+    ),
+  )
+}
+
+///|
 test "build profile aggregates normal project signals" {
   let project = fixture_project()
   let patches = @core.plan_patches([@core.set_string("state.active", "open")])
@@ -644,4 +688,26 @@ fn contains_prefix(items : Array[String], prefix : String) -> Bool {
     }
   }
   false
+}
+
+///|
+fn count_occurrence(items : Array[String], expected : String) -> Int {
+  let mut count = 0
+  for item in items {
+    if item == expected {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn count_prefix(items : Array[String], prefix : String) -> Int {
+  let mut count = 0
+  for item in items {
+    if item.has_prefix(prefix) {
+      count += 1
+    }
+  }
+  count
 }
