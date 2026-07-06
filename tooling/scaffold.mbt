@@ -82,6 +82,8 @@ fn cmd_main_mbt() -> String {
   "  let strict = strict_from_args(@env.args())\n" +
   "  if command == \"ci-plan\" {\n" +
   "    print_ci_plan(strict)\n" +
+  "  } else if command == \"limits\" {\n" +
+  "    print_platform_limits(@bunnia.platform_limits(target=\"wechat\"))\n" +
   "  } else {\n" +
   "    let output_dir = output_dir_from_args(@env.args())\n" +
   "    let project = @app.starter_wechat_project()\n" +
@@ -123,6 +125,8 @@ fn cmd_main_mbt() -> String {
   "      return \"snapshot\"\n" +
   "    } else if item == \"ci-plan\" {\n" +
   "      return \"ci-plan\"\n" +
+  "    } else if item == \"limits\" {\n" +
+  "      return \"limits\"\n" +
   "    } else if item == \"build\" {\n" +
   "      return \"build\"\n" +
   "    }\n" +
@@ -210,14 +214,32 @@ fn cmd_main_mbt() -> String {
   "  let profile_gate = @app.profile_gate(project)\n" +
   "  println(\"command=ci-plan\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
-  "  println(\"Bunnia starter CI plan: steps=5 diagnostics=0\")\n" +
+  "  println(\"Bunnia starter CI plan: steps=6 diagnostics=0\")\n" +
   "  println(inspection_gate.summary)\n" +
   "  println(profile_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
+  "  println(\"step=limits command=moon run cmd/main -- limits\")\n" +
   "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
   "  println(\"step=snapshot command=moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
   "  println(\"step=build command=moon run cmd/main -- build --out _build/wechat\\{strict_flag}\")\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn print_platform_limits(report : @bunnia.PlatformLimitsReport) -> Unit {\n" +
+  "  println(\"command=limits\")\n" +
+  "  println(\"target=\\{report.target}\")\n" +
+  "  println(report.summary)\n" +
+  "  for item in report.diagnostics {\n" +
+  "    println(\"diagnostic=\\{item}\")\n" +
+  "  }\n" +
+  "  println(\"generator_status=\\{report.generator_status_id}\")\n" +
+  "  println(\"capability=canvas:\\{report.supports_canvas} cloud:\\{report.supports_cloud} stream:\\{report.supports_stream} generator:\\{report.generator_available}\")\n" +
+  "  for item in report.component_mappings {\n" +
+  "    println(\"component=\\{item.bunnia_kind} platform_component=\\{item.platform_component}\")\n" +
+  "  }\n" +
+  "  for item in report.event_mappings {\n" +
+  "    println(\"event=\\{item.bunnia_event} platform_event=\\{item.platform_event}\")\n" +
+  "  }\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
@@ -503,6 +525,7 @@ fn readme(name : String) -> String {
   "moon check\n" +
   "moon test\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
+  "moon run cmd/main -- limits\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
   "moon run cmd/main -- build --out _build/wechat --strict\n" +

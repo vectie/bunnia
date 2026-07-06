@@ -57,6 +57,19 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "print_platform_limits",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "platform_limits(target=\"wechat\")",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains("generator_status="),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "inspection_gate.summary",
     ),
   )
@@ -68,6 +81,16 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "build --out _build/wechat",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=limits command=moon run cmd/main -- limits",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "Bunnia starter CI plan: steps=6 diagnostics=0",
     ),
   )
   assert_true(
@@ -196,6 +219,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(file_content(plan.files, "README.mbt.md").contains("inspect"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("snapshot"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("ci-plan"))
+  assert_true(file_content(plan.files, "README.mbt.md").contains("limits"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(

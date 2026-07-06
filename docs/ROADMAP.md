@@ -956,8 +956,8 @@ Current evidence:
   `moon run cmd/main` writes the starter's WeChat files with optional
   `--strict` diagnostics gating or runs no-write `inspect` route/backend/map/file
   pressure checks and deterministic `snapshot` artifact generation. The
-  generated `ci-plan` lists the starter's check, test, inspect, snapshot, and
-  explicit strict build commands plus the active inspection/profile-gate
+  generated `ci-plan` lists the starter's check, test, platform-limits, inspect,
+  snapshot, and explicit strict build commands plus the active inspection/profile-gate
   thresholds, and the local `moon.work` includes the starter app plus the
   Bunnia checkout for development before registry publication.
 
