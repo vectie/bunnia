@@ -50,6 +50,17 @@ test "agent map demo keeps updates as patches" {
 }
 
 ///|
+test "agent map demo exposes snapshot deltas" {
+  let plan = demo_snapshot_delta_plan()
+  assert_eq(plan.deltas.length(), 2)
+  assert_eq(plan.section_update_count, 1)
+  assert_eq(plan.append_item_count, 1)
+  assert_eq(plan.full_snapshot_count, 0)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("appends=1"))
+}
+
+///|
 test "agent map demo exposes bounded agent deltas" {
   let plan = demo_agent_delta_plan()
   assert_eq(plan.deltas.length(), 4)

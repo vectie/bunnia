@@ -229,6 +229,7 @@ fn profile_for_example(
       backend_plans=[
         @bunnia.plan_backend_contract(@wenyu.demo_backend_contract()),
       ],
+      snapshot_plans=[@wenyu.demo_snapshot_delta_plan()],
       asset_plans=[@wenyu.demo_asset_plan()],
       thread_plans=[@wenyu.demo_scene_thread_plan()],
       scene_plans=[@wenyu.demo_scene_render_plan()],
@@ -241,6 +242,7 @@ fn profile_for_example(
       patches,
       communication_plans=[@demo.demo_communication_plan()],
       agent_delta_plans=[@demo.demo_agent_delta_plan()],
+      snapshot_plans=[@demo.demo_snapshot_delta_plan()],
       asset_plans=[@demo.demo_asset_plan()],
       thread_plans=[@demo.demo_scene_thread_plan()],
       scene_plans=[@demo.demo_scene_render_plan()],

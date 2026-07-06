@@ -81,6 +81,19 @@ pub fn demo_patch_plan() -> @bunnia.PatchPlan {
 }
 
 ///|
+pub fn demo_snapshot_delta_plan() -> @bunnia.SnapshotDeltaPlan {
+  @bunnia.plan_snapshot_deltas([
+    @bunnia.set_snapshot_section_delta(
+      "wenyu-overview", "selectedBuilding", "\"building-dock\"",
+    ),
+    @bunnia.set_snapshot_section_delta("wenyu-overview", "status", "\"review\""),
+    @bunnia.append_snapshot_item_delta(
+      "wenyu-overview", "communications", "trace-review", "{\"id\":\"trace-review\",\"kind\":\"review-request\"}",
+    ),
+  ])
+}
+
+///|
 pub fn demo_backend_contract() -> @bunnia.BackendContract {
   @bunnia.backend_contract(id="wenyu-backend", endpoints=[
     @bunnia.snapshot_load_endpoint("load-snapshot", "/snapshot", "projection"),

@@ -523,6 +523,9 @@ Current evidence:
 - Generic snapshot deltas can set sections, append stable-id items, remove
   sections, or explicitly flag full-snapshot replacement while reusing patch
   budgets.
+- Build profiles now report snapshot delta count, section update count, append
+  count, and full-snapshot replacements so backend refresh pressure is visible
+  beside render, agent, and scene budgets.
 - Long chat and communication surfaces can render bounded visible windows while
   keeping append-friendly patch targets for additional messages or trace rows.
 - The WeChat request adapter generator emits `wx.request` helper code from a
@@ -705,6 +708,8 @@ Current evidence:
   pages are measurable from the CLI.
 - Build profiles expose scene-thread link counts, unread totals, and orphan-link
   diagnostics so map-heavy agentic overlays are measured during normal builds.
+- Build profiles expose snapshot-delta counts and full-replacement diagnostics
+  so backend refresh regressions can be caught without opening the mini-app IDE.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

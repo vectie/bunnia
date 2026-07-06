@@ -48,10 +48,10 @@ phase-by-phase implementation plan.
 - `scene`: static stylised map model with layers, markers, asset manifests,
   hit targets, thread-link plans, and bounded updates.
 - `effects`: typed frontend effect descriptions, platform support planning,
-  cancel/retry helpers, and backend contract paths.
+  snapshot-delta planning, cancel/retry helpers, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
 - `tooling`: build-profile diagnostics that aggregate render, WeChat, patch,
-  backend, agent-delta, asset, and scene budget signals.
+  backend, snapshot-delta, agent-delta, asset, and scene budget signals.
 - `examples/agent_map`: small downstream example combining agentic UI, review
   controls, patches, and a static map surface.
 - `examples/wenyu_overview`: product-shaped proof slice that keeps Wenyu
@@ -168,8 +168,10 @@ underlying list, dashboard, feed, or scene model.
 
 For backend refreshes, use `@bunnia.plan_snapshot_deltas(...)` to turn section
 updates, append-only items, and removals into bounded patches. Full snapshot
-replacement is still representable for bootstrap paths, but plans flag it so
-large mini-apps do not accidentally refresh whole pages.
+replacement is still representable for bootstrap paths, but plans flag it.
+Build profiles report snapshot delta counts, section updates, append pressure,
+and full replacements so large mini-apps do not accidentally refresh whole
+pages.
 
 Generate a standalone starter project with:
 

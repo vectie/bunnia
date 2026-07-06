@@ -87,6 +87,18 @@ pub fn demo_patch_plan() -> @bunnia.PatchPlan {
 }
 
 ///|
+pub fn demo_snapshot_delta_plan() -> @bunnia.SnapshotDeltaPlan {
+  @bunnia.plan_snapshot_deltas([
+    @bunnia.set_snapshot_section_delta(
+      "agent-map", "selectedZone", "\"zone-b\"",
+    ),
+    @bunnia.append_snapshot_item_delta(
+      "agent-map", "messages", "msg-agent-progress", "{\"id\":\"msg-agent-progress\",\"text\":\"Planner marked Review Dock as active.\"}",
+    ),
+  ])
+}
+
+///|
 pub fn demo_agent_delta_plan() -> @bunnia.AgentDeltaPlan {
   @bunnia.plan_agent_deltas([
     @bunnia.append_message_delta(

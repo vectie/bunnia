@@ -37,6 +37,8 @@ pub fn demo_scene_thread_plan() -> @scene.SceneThreadPlan
 
 pub fn demo_scene_visual_quality_plan() -> @scene.SceneVisualQualityPlan
 
+pub fn demo_snapshot_delta_plan() -> @effects.SnapshotDeltaPlan
+
 pub fn demo_view() -> @core.Node
 
 pub fn demo_wechat_page() -> @wechat.WechatPage

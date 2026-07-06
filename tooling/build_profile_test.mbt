@@ -96,6 +96,16 @@ test "build profile aggregates normal project signals" {
       ]),
     ],
     backend_plans=[backend],
+    snapshot_plans=[
+      @effects.plan_snapshot_deltas([
+        @effects.set_snapshot_section_delta(
+          "profile", "summary", "{\"ready\":true}",
+        ),
+        @effects.append_snapshot_item_delta(
+          "profile", "messages", "msg-1", "{\"id\":\"msg-1\"}",
+        ),
+      ]),
+    ],
     asset_plans=[assets],
     thread_plans=[threads],
     scene_plans=[scene],
@@ -144,6 +154,10 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.communication_artifact_ref_count, 1)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 0)
+  assert_eq(profile.snapshot_delta_count, 2)
+  assert_eq(profile.snapshot_section_update_count, 1)
+  assert_eq(profile.snapshot_append_item_count, 1)
+  assert_eq(profile.snapshot_full_replace_count, 0)
   assert_eq(profile.diagnostics.length(), 0)
   assert_true(profile.summary.contains("backend_endpoints=1"))
   assert_true(profile.summary.contains("pages=1"))
@@ -158,6 +172,10 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("communication_artifacts=1"))
   assert_true(profile.summary.contains("agent_deltas=2"))
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
+  assert_true(profile.summary.contains("snapshot_deltas=2"))
+  assert_true(profile.summary.contains("snapshot_sections=1"))
+  assert_true(profile.summary.contains("snapshot_appends=1"))
+  assert_true(profile.summary.contains("snapshot_full_replaces=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
   assert_true(profile.summary.contains("scene_deferred_assets=0"))
   assert_true(profile.summary.contains("scene_threads=1/1"))
@@ -322,6 +340,20 @@ test "build profile prefixes diagnostics by budget source" {
       ]),
     ],
     backend_plans=[backend],
+    snapshot_plans=[
+      @effects.plan_snapshot_deltas_with_budget(
+        [
+          @effects.replace_snapshot_delta("profile", "{\"all\":true}"),
+          @effects.append_snapshot_item_delta(
+            "profile", "messages", "msg-1", "{\"id\":\"msg-1\"}",
+          ),
+          @effects.append_snapshot_item_delta(
+            "profile", "messages", "msg-1", "{\"id\":\"msg-1\"}",
+          ),
+        ],
+        @core.patch_budget(max_patches=2, max_patch_bytes=64),
+      ),
+    ],
     asset_plans=[assets],
     thread_plans=[thread_plan],
     scene_plans=[scene],
@@ -341,6 +373,10 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.scene_thread_visible_link_count, 1)
   assert_eq(profile.scene_thread_unread_total, 12)
   assert_eq(profile.scene_thread_orphan_link_count, 1)
+  assert_eq(profile.snapshot_delta_count, 3)
+  assert_eq(profile.snapshot_section_update_count, 0)
+  assert_eq(profile.snapshot_append_item_count, 2)
+  assert_eq(profile.snapshot_full_replace_count, 1)
   assert_true(
     profile.diagnostics.contains(
       "effect:effect-cloud-function-unsupported:tiktok:1",
@@ -371,6 +407,17 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_true(
     profile.diagnostics.contains("scene-threads:scene-thread-orphan-links:1/0"),
+  )
+  assert_true(
+    profile.diagnostics.contains("snapshot:snapshot-delta-full-replace:profile"),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "snapshot:snapshot-delta-duplicate-item:profile.messages:msg-1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains("snapshot:patch-count-over-budget:3/2"),
   )
   assert_true(
     profile.diagnostics.contains(

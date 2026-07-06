@@ -28,6 +28,10 @@ pub struct BuildProfile {
   agent_delta_count : Int
   agent_duplicate_stream_chunk_count : Int
   backend_endpoint_count : Int
+  snapshot_delta_count : Int
+  snapshot_section_update_count : Int
+  snapshot_append_item_count : Int
+  snapshot_full_replace_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
   scene_asset_count : Int
@@ -55,6 +59,7 @@ pub fn profile_wechat_project(
   communication_plans? : Array[@agent.CommunicationPlan] = [],
   agent_delta_plans? : Array[@agent.AgentDeltaPlan] = [],
   backend_plans? : Array[@effects.BackendPlan] = [],
+  snapshot_plans? : Array[@effects.SnapshotDeltaPlan] = [],
   asset_plans? : Array[@scene.SceneAssetPlan] = [],
   thread_plans? : Array[@scene.SceneThreadPlan] = [],
   scene_plans? : Array[@scene.SceneRenderPlan] = [],
@@ -80,6 +85,12 @@ pub fn profile_wechat_project(
   let backend_endpoint_count = collect_backend_diagnostics(
     diagnostics, backend_plans,
   )
+  let (
+    snapshot_delta_count,
+    snapshot_section_update_count,
+    snapshot_append_item_count,
+    snapshot_full_replace_count,
+  ) = collect_snapshot_diagnostics(diagnostics, snapshot_plans)
   let (scene_asset_count, scene_package_bytes, scene_deferred_asset_count) = collect_asset_diagnostics(
     diagnostics, asset_plans,
   )
@@ -130,6 +141,10 @@ pub fn profile_wechat_project(
     agent_delta_count,
     agent_duplicate_stream_chunk_count,
     backend_endpoint_count,
+    snapshot_delta_count,
+    snapshot_section_update_count,
+    snapshot_append_item_count,
+    snapshot_full_replace_count,
     scene_marker_count,
     scene_visible_marker_count,
     scene_asset_count,
@@ -159,6 +174,10 @@ pub fn profile_wechat_project(
       agent_delta_count,
       agent_duplicate_stream_chunk_count,
       backend_endpoint_count,
+      snapshot_delta_count,
+      snapshot_section_update_count,
+      snapshot_append_item_count,
+      snapshot_full_replace_count,
       scene_marker_count,
       scene_visible_marker_count,
       scene_asset_count,
@@ -193,6 +212,10 @@ fn profile_summary(
   agent_delta_count : Int,
   agent_duplicate_stream_chunk_count : Int,
   backend_endpoint_count : Int,
+  snapshot_delta_count : Int,
+  snapshot_section_update_count : Int,
+  snapshot_append_item_count : Int,
+  snapshot_full_replace_count : Int,
   scene_marker_count : Int,
   scene_visible_marker_count : Int,
   scene_asset_count : Int,
@@ -210,7 +233,7 @@ fn profile_summary(
   degraded_scene_count : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} communications=\{communication_visible_count}/\{communication_count} communication_unresolved_reviews=\{communication_unresolved_review_count} communication_artifacts=\{communication_artifact_ref_count} agent_deltas=\{agent_delta_count} agent_duplicate_stream_chunks=\{agent_duplicate_stream_chunk_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_threads=\{scene_thread_visible_link_count}/\{scene_thread_link_count} scene_thread_unread=\{scene_thread_unread_total} scene_thread_orphans=\{scene_thread_orphan_link_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} communications=\{communication_visible_count}/\{communication_count} communication_unresolved_reviews=\{communication_unresolved_review_count} communication_artifacts=\{communication_artifact_ref_count} agent_deltas=\{agent_delta_count} agent_duplicate_stream_chunks=\{agent_duplicate_stream_chunk_count} backend_endpoints=\{backend_endpoint_count} snapshot_deltas=\{snapshot_delta_count} snapshot_sections=\{snapshot_section_update_count} snapshot_appends=\{snapshot_append_item_count} snapshot_full_replaces=\{snapshot_full_replace_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_deferred_assets=\{scene_deferred_asset_count} scene_threads=\{scene_thread_visible_link_count}/\{scene_thread_link_count} scene_thread_unread=\{scene_thread_unread_total} scene_thread_orphans=\{scene_thread_orphan_link_count} scene_surfaces=static:\{scene_static_surface_count},canvas:\{scene_canvas_surface_count},lightweight:\{scene_lightweight_surface_count} scene_surface_fallbacks=\{scene_surface_fallback_count} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -365,6 +388,25 @@ fn collect_backend_diagnostics(
     push_prefixed(diagnostics, "backend", plan.diagnostics)
   }
   total
+}
+
+///|
+fn collect_snapshot_diagnostics(
+  diagnostics : Array[String],
+  plans : Array[@effects.SnapshotDeltaPlan],
+) -> (Int, Int, Int, Int) {
+  let mut delta_count = 0
+  let mut section_update_count = 0
+  let mut append_item_count = 0
+  let mut full_replace_count = 0
+  for plan in plans {
+    delta_count += plan.deltas.length()
+    section_update_count += plan.section_update_count
+    append_item_count += plan.append_item_count
+    full_replace_count += plan.full_snapshot_count
+    push_prefixed(diagnostics, "snapshot", plan.diagnostics)
+  }
+  (delta_count, section_update_count, append_item_count, full_replace_count)
 }
 
 ///|

@@ -5,6 +5,7 @@ import {
   "vectie/bunnia/adapters/wechat",
   "vectie/bunnia/agent",
   "vectie/bunnia/core",
+  "vectie/bunnia/effects",
   "vectie/bunnia/scene",
 }
 
@@ -26,6 +27,8 @@ pub fn demo_scene_surface_plan() -> @scene.SceneSurfacePlan
 pub fn demo_scene_thread_plan() -> @scene.SceneThreadPlan
 
 pub fn demo_scene_visual_quality_plan() -> @scene.SceneVisualQualityPlan
+
+pub fn demo_snapshot_delta_plan() -> @effects.SnapshotDeltaPlan
 
 pub fn demo_view() -> @core.Node
 
