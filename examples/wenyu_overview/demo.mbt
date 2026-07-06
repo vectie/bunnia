@@ -121,6 +121,15 @@ pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
 }
 
 ///|
+pub fn demo_scene_thread_plan() -> @bunnia.SceneThreadPlan {
+  @bunnia.plan_scene_threads_with_budget(
+    demo_scene(demo_projection()),
+    demo_scene_thread_links(demo_projection()),
+    @bunnia.scene_thread_budget(max_visible_links=8, max_unread_total=16),
+  )
+}
+
+///|
 pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
   @bunnia.plan_scene_visual_quality_viewport(
     demo_scene(demo_projection()),
@@ -295,6 +304,24 @@ fn markers_from_buildings(
 ///|
 fn trace_view(input : WenyuProjection) -> @bunnia.Node {
   @bunnia.communication_trace(demo_communications(input))
+}
+
+///|
+fn demo_scene_thread_links(
+  input : WenyuProjection,
+) -> Array[@bunnia.SceneThreadLink] {
+  [
+    @bunnia.scene_thread_link(
+      id="thread-\{input.selected_building}",
+      scene_id="wenyu-map",
+      marker_id=input.selected_building,
+      thread_id=input.id,
+      subject_ref="scene://wenyu-map/\{input.selected_building}",
+      status=input.status,
+      unread_count=1,
+      open_message="open-wenyu-thread",
+    ),
+  ]
 }
 
 ///|

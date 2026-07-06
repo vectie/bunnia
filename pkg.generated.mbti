@@ -160,6 +160,8 @@ pub fn default_scene_asset_budget() -> @scene.SceneAssetBudget
 
 pub fn default_scene_render_budget() -> @scene.SceneRenderBudget
 
+pub fn default_scene_thread_budget() -> @scene.SceneThreadBudget
+
 pub fn default_scene_visual_quality_budget() -> @scene.SceneVisualQualityBudget
 
 pub fn default_wechat_build_budget() -> @wechat.WechatBuildBudget
@@ -312,6 +314,10 @@ pub fn plan_scene_surface(@scene.Scene, @core.PlatformAdapter, preference? : @sc
 
 pub fn plan_scene_surface_for_platform(@scene.Scene, @core.Platform, preference? : @scene.SceneSurfacePreference, budget? : @scene.SceneRenderBudget) -> @scene.SceneSurfacePlan
 
+pub fn plan_scene_threads(@scene.Scene, Array[@scene.SceneThreadLink]) -> @scene.SceneThreadPlan
+
+pub fn plan_scene_threads_with_budget(@scene.Scene, Array[@scene.SceneThreadLink], @scene.SceneThreadBudget) -> @scene.SceneThreadPlan
+
 pub fn plan_scene_visual_quality(@scene.Scene) -> @scene.SceneVisualQualityPlan
 
 pub fn plan_scene_visual_quality_viewport(@scene.Scene, @scene.SceneViewport, @scene.SceneRenderBudget, @scene.SceneAssetBudget, @scene.SceneVisualQualityBudget) -> @scene.SceneVisualQualityPlan
@@ -336,7 +342,7 @@ pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_static_surface() -> @scene.SceneSurfacePreference
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
@@ -439,6 +445,8 @@ pub fn scene_render_mode_id(@scene.SceneRenderMode) -> String
 pub fn scene_size(Int, Int) -> @scene.SceneSize
 
 pub fn scene_surface_preference_id(@scene.SceneSurfacePreference) -> String
+
+pub fn scene_thread_budget(max_visible_links? : Int, max_unread_total? : Int, max_orphan_links? : Int, max_links_without_open_message? : Int) -> @scene.SceneThreadBudget
 
 pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> @scene.SceneThreadLink
 
@@ -705,7 +713,11 @@ pub using @scene {type SceneSurfacePlan}
 
 pub using @scene {type SceneSurfacePreference}
 
+pub using @scene {type SceneThreadBudget}
+
 pub using @scene {type SceneThreadLink}
+
+pub using @scene {type SceneThreadPlan}
 
 pub using @scene {type SceneViewport}
 

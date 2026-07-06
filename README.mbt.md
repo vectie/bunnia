@@ -46,7 +46,7 @@ phase-by-phase implementation plan.
   communication planning primitives, plus generic communication threads and
   traces.
 - `scene`: static stylised map model with layers, markers, asset manifests,
-  hit targets, and bounded updates.
+  hit targets, thread-link plans, and bounded updates.
 - `effects`: typed frontend effect descriptions, platform support planning,
   cancel/retry helpers, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
@@ -143,6 +143,11 @@ generator.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+
+For agentic map surfaces, use `@bunnia.scene_thread_link(...)` plus
+`@bunnia.plan_scene_threads(...)` to keep marker-thread badges measurable.
+Scene thread plans report visible/total links, unread pressure, orphan marker
+links, and missing open actions before the mini-app output grows.
 Use `@bunnia.plan_scene_surface_for_platform(...)` to make the intended
 static/canvas/lightweight surface mode and any fallback explicit in build
 profiles before adding platform-specific rendering.

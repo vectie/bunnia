@@ -159,6 +159,15 @@ pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
 }
 
 ///|
+pub fn demo_scene_thread_plan() -> @bunnia.SceneThreadPlan {
+  @bunnia.plan_scene_threads_with_budget(
+    demo_scene(),
+    demo_scene_thread_links(),
+    @bunnia.scene_thread_budget(max_visible_links=8, max_unread_total=8),
+  )
+}
+
+///|
 pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
   @bunnia.plan_scene_assets(demo_scene_assets())
 }
@@ -202,4 +211,30 @@ fn demo_scene() -> @bunnia.Scene {
 ///|
 fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
   [@bunnia.sprite_asset("zone-pin", "/assets/zone-pin.png", 2048)]
+}
+
+///|
+fn demo_scene_thread_links() -> Array[@bunnia.SceneThreadLink] {
+  [
+    @bunnia.scene_thread_link(
+      id="thread-zone-a-link",
+      scene_id="ops-map",
+      marker_id="zone-a",
+      thread_id="thread-overview",
+      subject_ref="scene://ops-map/zone-a",
+      status="stable",
+      unread_count=0,
+      open_message="open-thread-zone-a",
+    ),
+    @bunnia.scene_thread_link(
+      id="thread-zone-b-link",
+      scene_id="ops-map",
+      marker_id="zone-b",
+      thread_id="thread-overview",
+      subject_ref="scene://ops-map/zone-b",
+      status="review",
+      unread_count=2,
+      open_message="open-thread-zone-b",
+    ),
+  ]
 }

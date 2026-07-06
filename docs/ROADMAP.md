@@ -335,6 +335,9 @@ Current evidence:
 - Scene thread links connect map markers to communication threads with compact
   badges and bounded patches for selected thread, unread count, status, and new
   thread links.
+- Scene thread plans report visible/total marker-thread links, unread pressure,
+  orphan marker links, and missing open actions so agentic map overlays remain
+  measurable before rendering.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
@@ -591,6 +594,8 @@ Current evidence:
 - Static scenes can render windowed communication-thread badges beside map
   markers, preserving visible/total counts and cheap patches for map-heavy
   agentic UIs.
+- Scene thread plans make agentic map overlays budgeted, including unread
+  pressure and orphan-link diagnostics when a thread points at a missing marker.
 - Scene surface plans make static, canvas, and lightweight rendering intent
   explicit and report fallback when a platform cannot honor the requested mode.
 
@@ -698,6 +703,8 @@ Current evidence:
 - Build profiles expose communication visible/total counts, unresolved review
   pressure, artifact references, and communication diagnostics so agent-heavy
   pages are measurable from the CLI.
+- Build profiles expose scene-thread link counts, unread totals, and orphan-link
+  diagnostics so map-heavy agentic overlays are measured during normal builds.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

@@ -13,6 +13,8 @@ pub fn default_scene_asset_budget() -> SceneAssetBudget
 
 pub fn default_scene_render_budget() -> SceneRenderBudget
 
+pub fn default_scene_thread_budget() -> SceneThreadBudget
+
 pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget
 
 pub fn image_asset(String, String, Int) -> SceneAsset
@@ -34,6 +36,10 @@ pub fn plan_scene_render_with_budget(Scene, SceneRenderBudget) -> SceneRenderPla
 pub fn plan_scene_surface(Scene, @core.PlatformAdapter, preference? : SceneSurfacePreference, budget? : SceneRenderBudget) -> SceneSurfacePlan
 
 pub fn plan_scene_surface_for_platform(Scene, @core.Platform, preference? : SceneSurfacePreference, budget? : SceneRenderBudget) -> SceneSurfacePlan
+
+pub fn plan_scene_threads(Scene, Array[SceneThreadLink]) -> SceneThreadPlan
+
+pub fn plan_scene_threads_with_budget(Scene, Array[SceneThreadLink], SceneThreadBudget) -> SceneThreadPlan
 
 pub fn plan_scene_visual_quality(Scene) -> SceneVisualQualityPlan
 
@@ -62,6 +68,8 @@ pub fn scene_render_mode_id(SceneRenderMode) -> String
 pub fn scene_size(Int, Int) -> SceneSize
 
 pub fn scene_surface_preference_id(SceneSurfacePreference) -> String
+
+pub fn scene_thread_budget(max_visible_links? : Int, max_unread_total? : Int, max_orphan_links? : Int, max_links_without_open_message? : Int) -> SceneThreadBudget
 
 pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
 
@@ -209,6 +217,13 @@ pub(all) enum SceneSurfacePreference {
   PreferLightweightSurface
 } derive(Eq, @debug.Debug)
 
+pub struct SceneThreadBudget {
+  max_visible_links : Int
+  max_unread_total : Int
+  max_orphan_links : Int
+  max_links_without_open_message : Int
+} derive(Eq, @debug.Debug)
+
 pub struct SceneThreadLink {
   id : String
   scene_id : String
@@ -218,6 +233,19 @@ pub struct SceneThreadLink {
   status : String
   unread_count : Int
   open_message : String
+} derive(Eq, @debug.Debug)
+
+pub struct SceneThreadPlan {
+  scene_id : String
+  total_link_count : Int
+  visible_link_count : Int
+  hidden_link_count : Int
+  unread_total : Int
+  links_with_unread_count : Int
+  orphan_link_count : Int
+  links_without_open_message_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneViewport {

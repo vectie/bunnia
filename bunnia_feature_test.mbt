@@ -186,6 +186,11 @@ test "scene thread links connect map markers to agent communication cheaply" {
     ),
   ])
   let output = @bunnia.generate_wechat_page("Agentic Map", root)
+  let thread_plan = @bunnia.plan_scene_threads_with_budget(
+    scene,
+    [link],
+    @bunnia.scene_thread_budget(max_visible_links=4, max_unread_total=8),
+  )
   let patches = @bunnia.plan_patches([
     @bunnia.select_scene_thread("ops-map", "zone-a", "thread-zone-a"),
     @bunnia.set_scene_thread_unread("ops-map", "thread-zone-a", 0),
@@ -205,6 +210,12 @@ test "scene thread links connect map markers to agent communication cheaply" {
   assert_true(output.wxml.contains("data-unread-count=\"3\""))
   assert_true(output.plan.event_messages.contains("select-zone-a"))
   assert_true(output.plan.event_messages.contains("open-thread-zone-a"))
+  assert_eq(thread_plan.total_link_count, 1)
+  assert_eq(thread_plan.visible_link_count, 1)
+  assert_eq(thread_plan.unread_total, 3)
+  assert_eq(thread_plan.orphan_link_count, 0)
+  assert_eq(thread_plan.diagnostics.length(), 0)
+  assert_true(thread_plan.summary.contains("links=1/1"))
   assert_eq(patches.patches.length(), 4)
   assert_true(
     patches.patches[0].value_json.contains("\"threadId\":\"thread-zone-a\""),

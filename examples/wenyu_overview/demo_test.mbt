@@ -49,6 +49,7 @@ test "wenyu proof slice keeps updates and assets bounded" {
   let scene = demo_scene_render_plan()
   let quality = demo_scene_visual_quality_plan()
   let communication = demo_communication_plan()
+  let threads = demo_scene_thread_plan()
   assert_eq(patches.patches.length(), 2)
   assert_true(patches.total_estimated_bytes < 128)
   assert_eq(asset_plan.assets.length(), 1)
@@ -66,6 +67,11 @@ test "wenyu proof slice keeps updates and assets bounded" {
   assert_eq(communication.unresolved_review_count, 1)
   assert_eq(communication.artifact_ref_count, 1)
   assert_eq(communication.diagnostics.length(), 0)
+  assert_eq(threads.total_link_count, 1)
+  assert_eq(threads.visible_link_count, 1)
+  assert_eq(threads.unread_total, 1)
+  assert_eq(threads.orphan_link_count, 0)
+  assert_eq(threads.diagnostics.length(), 0)
 }
 
 ///|

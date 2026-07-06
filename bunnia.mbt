@@ -113,6 +113,12 @@ pub type SceneMarker = @scene.SceneMarker
 pub type SceneThreadLink = @scene.SceneThreadLink
 
 ///|
+pub type SceneThreadBudget = @scene.SceneThreadBudget
+
+///|
+pub type SceneThreadPlan = @scene.SceneThreadPlan
+
+///|
 pub type SceneLayer = @scene.SceneLayer
 
 ///|
@@ -1407,6 +1413,43 @@ pub fn static_scene_with_windowed_threads(
 }
 
 ///|
+pub fn scene_thread_budget(
+  max_visible_links? : Int = 80,
+  max_unread_total? : Int = 999,
+  max_orphan_links? : Int = 0,
+  max_links_without_open_message? : Int = 0,
+) -> SceneThreadBudget {
+  @scene.scene_thread_budget(
+    max_visible_links~,
+    max_unread_total~,
+    max_orphan_links~,
+    max_links_without_open_message~,
+  )
+}
+
+///|
+pub fn default_scene_thread_budget() -> SceneThreadBudget {
+  @scene.default_scene_thread_budget()
+}
+
+///|
+pub fn plan_scene_threads(
+  input : Scene,
+  links : Array[SceneThreadLink],
+) -> SceneThreadPlan {
+  @scene.plan_scene_threads(input, links)
+}
+
+///|
+pub fn plan_scene_threads_with_budget(
+  input : Scene,
+  links : Array[SceneThreadLink],
+  budget : SceneThreadBudget,
+) -> SceneThreadPlan {
+  @scene.plan_scene_threads_with_budget(input, links, budget)
+}
+
+///|
 pub fn scene_render_budget(
   max_layers~ : Int,
   max_markers~ : Int,
@@ -2312,6 +2355,7 @@ pub fn profile_wechat_project(
   agent_delta_plans? : Array[AgentDeltaPlan] = [],
   backend_plans? : Array[BackendPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
+  thread_plans? : Array[SceneThreadPlan] = [],
   scene_plans? : Array[SceneRenderPlan] = [],
   surface_plans? : Array[SceneSurfacePlan] = [],
   quality_plans? : Array[SceneVisualQualityPlan] = [],
@@ -2324,6 +2368,7 @@ pub fn profile_wechat_project(
     agent_delta_plans~,
     backend_plans~,
     asset_plans~,
+    thread_plans~,
     scene_plans~,
     surface_plans~,
     quality_plans~,

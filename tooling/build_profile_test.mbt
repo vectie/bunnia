@@ -51,6 +51,16 @@ test "build profile aggregates normal project signals" {
     @core.Wechat,
   )
   let quality = @scene.plan_scene_visual_quality(scene_input)
+  let threads = @scene.plan_scene_threads(scene_input, [
+    @scene.scene_thread_link(
+      id="thread-a",
+      scene_id="map",
+      marker_id="a",
+      thread_id="comm-thread-a",
+      unread_count=2,
+      open_message="open-thread-a",
+    ),
+  ])
   let profile = profile_wechat_project(
     project,
     patches,
@@ -87,6 +97,7 @@ test "build profile aggregates normal project signals" {
     ],
     backend_plans=[backend],
     asset_plans=[assets],
+    thread_plans=[threads],
     scene_plans=[scene],
     surface_plans=[surface],
     quality_plans=[quality],
@@ -114,6 +125,10 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
   assert_eq(profile.scene_deferred_asset_count, 0)
+  assert_eq(profile.scene_thread_link_count, 1)
+  assert_eq(profile.scene_thread_visible_link_count, 1)
+  assert_eq(profile.scene_thread_unread_total, 2)
+  assert_eq(profile.scene_thread_orphan_link_count, 0)
   assert_eq(profile.scene_static_surface_count, 1)
   assert_eq(profile.scene_canvas_surface_count, 0)
   assert_eq(profile.scene_lightweight_surface_count, 0)
@@ -145,6 +160,9 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
   assert_true(profile.summary.contains("scene_deferred_assets=0"))
+  assert_true(profile.summary.contains("scene_threads=1/1"))
+  assert_true(profile.summary.contains("scene_thread_unread=2"))
+  assert_true(profile.summary.contains("scene_thread_orphans=0"))
   assert_true(
     profile.summary.contains("scene_surfaces=static:1,canvas:0,lightweight:0"),
   )
@@ -226,6 +244,34 @@ test "build profile prefixes diagnostics by budget source" {
     ),
     @scene.default_scene_visual_quality_budget(),
   )
+  let thread_plan = @scene.plan_scene_threads_with_budget(
+    @scene.scene("map", @scene.scene_size(320, 240), [
+      @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
+    ]),
+    [
+      @scene.scene_thread_link(
+        id="thread-a",
+        scene_id="map",
+        marker_id="a",
+        thread_id="comm-thread-a",
+        unread_count=9,
+        open_message="open-thread-a",
+      ),
+      @scene.scene_thread_link(
+        id="thread-orphan",
+        scene_id="map",
+        marker_id="missing",
+        thread_id="comm-thread-missing",
+        unread_count=3,
+      ),
+    ],
+    @scene.scene_thread_budget(
+      max_visible_links=1,
+      max_unread_total=8,
+      max_orphan_links=0,
+      max_links_without_open_message=0,
+    ),
+  )
   let profile = profile_wechat_project(
     project,
     patches,
@@ -277,6 +323,7 @@ test "build profile prefixes diagnostics by budget source" {
     ],
     backend_plans=[backend],
     asset_plans=[assets],
+    thread_plans=[thread_plan],
     scene_plans=[scene],
     surface_plans=[constrained_surface],
     quality_plans=[quality],
@@ -290,6 +337,10 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.communication_artifact_ref_count, 2)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 1)
+  assert_eq(profile.scene_thread_link_count, 2)
+  assert_eq(profile.scene_thread_visible_link_count, 1)
+  assert_eq(profile.scene_thread_unread_total, 12)
+  assert_eq(profile.scene_thread_orphan_link_count, 1)
   assert_true(
     profile.diagnostics.contains(
       "effect:effect-cloud-function-unsupported:tiktok:1",
@@ -307,6 +358,19 @@ test "build profile prefixes diagnostics by budget source" {
     profile.diagnostics.contains(
       "communication:communication-unresolved-reviews-over-budget:1/0",
     ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-threads:scene-thread-links-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-threads:scene-thread-unread-over-budget:12/8",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains("scene-threads:scene-thread-orphan-links:1/0"),
   )
   assert_true(
     profile.diagnostics.contains(

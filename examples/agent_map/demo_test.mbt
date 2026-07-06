@@ -75,6 +75,7 @@ test "agent map demo exposes communication pressure" {
 test "agent map demo exposes scene profile signals" {
   let scene = demo_scene_render_plan()
   let assets = demo_asset_plan()
+  let threads = demo_scene_thread_plan()
   let quality = demo_scene_visual_quality_plan()
   assert_eq(scene.layer_count, 1)
   assert_eq(scene.marker_count, 2)
@@ -83,6 +84,11 @@ test "agent map demo exposes scene profile signals" {
   assert_eq(assets.assets.length(), 1)
   assert_eq(assets.package_bytes, 2048)
   assert_eq(assets.diagnostics.length(), 0)
+  assert_eq(threads.total_link_count, 2)
+  assert_eq(threads.visible_link_count, 2)
+  assert_eq(threads.unread_total, 2)
+  assert_eq(threads.orphan_link_count, 0)
+  assert_eq(threads.diagnostics.length(), 0)
   assert_eq(quality.diagnostics.length(), 0)
   assert_eq(quality.degraded, false)
 }
