@@ -56,6 +56,29 @@ test "watch command shares build flags and supports once mode" {
 }
 
 ///|
+test "snapshot command accepts generated output and snapshot paths" {
+  let args = [
+    "node", "main.js", "snapshot", "--target", "wechat", "--example", "agent_map",
+    "--out", "/tmp/bunnia-generated", "--snapshot-out", "/tmp/bunnia-agent-map.snapshot.txt",
+  ]
+  assert_eq(command_from_args(args), "snapshot")
+  assert_eq(target_from_args(args), "wechat")
+  assert_eq(example_from_args(args), "agent_map")
+  assert_eq(
+    output_dir_from_args(args, target_from_args(args), example_from_args(args)),
+    "/tmp/bunnia-generated",
+  )
+  assert_eq(
+    snapshot_output_path_from_args(
+      args,
+      target_from_args(args),
+      example_from_args(args),
+    ),
+    "/tmp/bunnia-agent-map.snapshot.txt",
+  )
+}
+
+///|
 test "init command builds a scaffold plan" {
   let args = [
     "node", "main.js", "init", "--name", "agent_demo", "--module", "local/agent_demo",

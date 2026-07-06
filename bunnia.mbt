@@ -212,6 +212,12 @@ pub type WechatProject = @wechat.WechatProject
 pub type BuildProfile = @tooling.BuildProfile
 
 ///|
+pub type GeneratedSnapshotFile = @tooling.GeneratedSnapshotFile
+
+///|
+pub type GeneratedSnapshot = @tooling.GeneratedSnapshot
+
+///|
 pub type ScaffoldFile = @tooling.ScaffoldFile
 
 ///|
@@ -2116,6 +2122,16 @@ pub fn profile_wechat_project(
     scene_plans~,
     quality_plans~,
   )
+}
+
+///|
+pub fn snapshot_wechat_project(
+  target~ : String,
+  example~ : String,
+  project : WechatProject,
+  profile : BuildProfile,
+) -> GeneratedSnapshot {
+  @tooling.snapshot_wechat_project(target~, example~, project, profile)
 }
 
 ///|

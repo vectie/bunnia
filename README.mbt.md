@@ -91,6 +91,16 @@ moon run cmd/main -- watch --target wechat --example agent_map --strict
 Use `--once` with `watch` to run the same generation path once in CI or smoke
 tests without starting a long-running file watcher.
 
+For deterministic generator review in CI, write a compact generated-output
+snapshot:
+
+```bash
+moon run cmd/main -- snapshot --target wechat --example agent_map --strict
+```
+
+The snapshot records route, size budgets, profile summary, and per-file
+byte/checksum lines without committing the full generated mini-program.
+
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
 `@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page

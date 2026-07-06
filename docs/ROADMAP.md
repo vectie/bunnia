@@ -673,6 +673,9 @@ Current evidence:
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running
   process.
+- `moon run cmd/main -- snapshot` writes a compact deterministic generator
+  snapshot with route, budget, profile, and per-file byte/checksum lines for CI
+  diffing without committing full generated mini-program outputs.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
   windowed agentic message feed, surface status overlay, render-plan helper, and

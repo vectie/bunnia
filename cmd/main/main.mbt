@@ -45,6 +45,8 @@ fn command_from_args(args : Array[String]) -> String {
       return "init"
     } else if item == "watch" {
       return "watch"
+    } else if item == "snapshot" {
+      return "snapshot"
     }
   }
   default_command()
@@ -138,6 +140,20 @@ fn output_dir_from_args(
     }
   }
   default_output_dir_for_build(target, example)
+}
+
+///|
+fn snapshot_output_path_from_args(
+  args : Array[String],
+  target : String,
+  example : String,
+) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--snapshot-out" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "_build/bunnia/snapshots/\{target}/\{example}.snapshot.txt"
 }
 
 ///|
@@ -243,6 +259,18 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   print_build_result(
     command, target, example, output_dir, project, patches, profile,
   )
+  if command == "snapshot" {
+    let snapshot = @bunnia.snapshot_wechat_project(
+      target~,
+      example~,
+      project,
+      profile,
+    )
+    let snapshot_path = snapshot_output_path_from_args(args, target, example)
+    write_text_file(snapshot_path, snapshot.content)
+    println(snapshot.summary)
+    println("snapshot=\{snapshot_path}")
+  }
   if should_fail_build(strict, project, patches, profile) {
     println("build_failed=diagnostics")
     panic()

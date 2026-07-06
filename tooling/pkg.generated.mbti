@@ -16,6 +16,8 @@ pub fn scaffold_file(String, String) -> ScaffoldFile
 
 pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
 
+pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, BuildProfile) -> GeneratedSnapshot
+
 // Errors
 
 // Types and methods
@@ -50,6 +52,29 @@ pub struct BuildProfile {
   degraded_scene_count : Int
   diagnostics : Array[String]
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct GeneratedSnapshot {
+  target : String
+  example : String
+  project_name : String
+  route : String
+  page_count : Int
+  file_count : Int
+  total_bytes : Int
+  max_first_screen_bytes : Int
+  max_update_payload_bytes : Int
+  diagnostic_count : Int
+  files : Array[GeneratedSnapshotFile]
+  summary : String
+  content : String
+} derive(Eq, @debug.Debug)
+
+pub struct GeneratedSnapshotFile {
+  path : String
+  kind : String
+  bytes : Int
+  checksum : Int
 } derive(Eq, @debug.Debug)
 
 pub struct ScaffoldFile {
