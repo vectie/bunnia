@@ -32,6 +32,11 @@ pub struct ProjectInspection {
   total_diagnostics : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  max_backend_event_count : Int
+  max_backend_stream_count : Int
+  max_backend_review_count : Int
+  max_backend_cancel_count : Int
+  max_backend_retry_count : Int
   max_scene_marker_count : Int
   max_scene_region_count : Int
   max_scene_asset_count : Int
@@ -108,6 +113,11 @@ pub fn inspect_wechat_project(
   let routes : Array[RouteInspection] = []
   let mut top_route = ""
   let mut top_score = -1
+  let mut max_backend_events = 0
+  let mut max_backend_streams = 0
+  let mut max_backend_reviews = 0
+  let mut max_backend_cancels = 0
+  let mut max_backend_retries = 0
   let mut max_scene_markers = 0
   let mut max_scene_regions = 0
   let mut max_scene_assets = 0
@@ -119,6 +129,21 @@ pub fn inspect_wechat_project(
     if inspection.risk_score > top_score {
       top_route = inspection.route
       top_score = inspection.risk_score
+    }
+    if inspection.backend_event_count > max_backend_events {
+      max_backend_events = inspection.backend_event_count
+    }
+    if inspection.backend_stream_count > max_backend_streams {
+      max_backend_streams = inspection.backend_stream_count
+    }
+    if inspection.backend_review_count > max_backend_reviews {
+      max_backend_reviews = inspection.backend_review_count
+    }
+    if inspection.backend_cancel_count > max_backend_cancels {
+      max_backend_cancels = inspection.backend_cancel_count
+    }
+    if inspection.backend_retry_count > max_backend_retries {
+      max_backend_retries = inspection.backend_retry_count
     }
     if inspection.scene_visible_marker_count > max_scene_markers {
       max_scene_markers = inspection.scene_visible_marker_count
@@ -146,12 +171,17 @@ pub fn inspect_wechat_project(
     total_diagnostics,
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
+    max_backend_event_count: max_backend_events,
+    max_backend_stream_count: max_backend_streams,
+    max_backend_review_count: max_backend_reviews,
+    max_backend_cancel_count: max_backend_cancels,
+    max_backend_retry_count: max_backend_retries,
     max_scene_marker_count: max_scene_markers,
     max_scene_region_count: max_scene_regions,
     max_scene_asset_count: max_scene_assets,
     max_scene_remote_asset_count: max_scene_remote_assets,
     risk_score: top_score,
-    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets}",
+    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_backend_events=\{max_backend_events} max_backend_streams=\{max_backend_streams} max_backend_reviews=\{max_backend_reviews} max_backend_cancels=\{max_backend_cancels} max_backend_retries=\{max_backend_retries} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets}",
   }
 }
 
@@ -204,10 +234,20 @@ fn route_risk_score(page : @wechat.WechatManifestPage) -> Int {
   page.update_payload_bytes * 4 +
   page.node_count * 16 +
   page.event_count * 64 +
+  route_backend_pressure_score(page) +
   page.scene_visible_marker_count * 32 +
   page.scene_visible_region_count * 48 +
   route_scene_asset_count(page) * 128 +
   route_scene_remote_asset_count(page) * 256
+}
+
+///|
+fn route_backend_pressure_score(page : @wechat.WechatManifestPage) -> Int {
+  page.backend_event_count * 96 +
+  page.backend_stream_count * 192 +
+  page.backend_review_count * 160 +
+  page.backend_cancel_count * 128 +
+  page.backend_retry_count * 128
 }
 
 ///|

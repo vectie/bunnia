@@ -819,6 +819,9 @@ Current evidence:
 - Route inspection and generator snapshots print backend event, stream, review,
   cancel, and retry counts, so agentic recovery pressure is reviewable without
   opening generated manifest JSON.
+- Route risk scoring now weights backend event, stream, review, cancel, and
+  retry pressure, so high-operation agent routes can surface as optimization
+  targets even when their visual tree is small.
 - Generator snapshots also carry inspection gate summaries and diagnostics, so
   strict route-pressure failures are reviewable from the deterministic snapshot
   artifact.

@@ -32,6 +32,9 @@ test "project inspection identifies the heaviest clean route" {
   assert_eq(inspection.route_count, 2)
   assert_eq(inspection.top_route, "pages/ops/index")
   assert_eq(inspection.total_diagnostics, 0)
+  assert_eq(inspection.max_backend_event_count, 0)
+  assert_eq(inspection.max_backend_cancel_count, 0)
+  assert_eq(inspection.max_backend_retry_count, 0)
   assert_eq(inspection.max_scene_asset_count, 0)
   assert_eq(inspection.max_scene_remote_asset_count, 0)
   assert_eq(inspection.routes[1].diagnostics, 0)
@@ -41,6 +44,7 @@ test "project inspection identifies the heaviest clean route" {
   assert_eq(inspection.routes[1].backend_retry_count, 0)
   assert_true(inspection.routes[1].risk_score > inspection.routes[0].risk_score)
   assert_true(inspection.summary.contains("top_route=pages/ops/index"))
+  assert_true(inspection.summary.contains("max_backend_cancels=0"))
   assert_true(inspection.summary.contains("max_scene_assets=0"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=0"))
   assert_true(inspection.routes[1].summary.contains("risk_score="))
@@ -89,9 +93,24 @@ test "project inspection reports backend recovery pressure" {
   assert_eq(inspection.routes[0].backend_review_count, 0)
   assert_eq(inspection.routes[0].backend_cancel_count, 1)
   assert_eq(inspection.routes[0].backend_retry_count, 1)
+  assert_eq(inspection.max_backend_event_count, 2)
+  assert_eq(inspection.max_backend_stream_count, 0)
+  assert_eq(inspection.max_backend_review_count, 0)
+  assert_eq(inspection.max_backend_cancel_count, 1)
+  assert_eq(inspection.max_backend_retry_count, 1)
+  let route = inspection.routes[0]
+  let base_risk_score = route.diagnostics * 1000000 +
+    route.first_screen_bytes +
+    route.update_payload_bytes * 4 +
+    route.node_count * 16 +
+    route.event_count * 64
+  assert_eq(route.risk_score, base_risk_score + 448)
   assert_true(inspection.routes[0].summary.contains("backend_events=2"))
   assert_true(inspection.routes[0].summary.contains("backend_cancels=1"))
   assert_true(inspection.routes[0].summary.contains("backend_retries=1"))
+  assert_true(inspection.summary.contains("max_backend_events=2"))
+  assert_true(inspection.summary.contains("max_backend_cancels=1"))
+  assert_true(inspection.summary.contains("max_backend_retries=1"))
 }
 
 ///|
