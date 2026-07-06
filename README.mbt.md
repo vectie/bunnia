@@ -360,8 +360,9 @@ for deterministic generated-output artifacts, plus a no-write `limits` mode for
 WeChat platform capabilities and deferred target generator status. It also prints a local
 `ci-plan` with check, test, interface, format, platform-limits, inspect,
 snapshot, strict build commands, and the active inspection/profile-gate
-thresholds. Starter tests check render budgets, scene output, bounded patches,
-backend visibility, profile gates, and clean WeChat event wiring. The command
+thresholds. Its summary reports the current generated-output and gate
+diagnostic count. Starter tests check render budgets, scene output, bounded
+patches, backend visibility, profile gates, and clean WeChat event wiring. The command
 also writes a local `moon.work` that includes the starter app and the current
 Bunnia checkout for pre-registry development.
 

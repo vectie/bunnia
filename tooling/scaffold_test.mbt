@@ -103,7 +103,12 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "Bunnia starter CI plan: steps=8 diagnostics=0",
+      "let diagnostics = project.report.diagnostics.length()",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}",
     ),
   )
   assert_true(

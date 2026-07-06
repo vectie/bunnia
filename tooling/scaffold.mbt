@@ -221,9 +221,13 @@ fn cmd_main_mbt() -> String {
   "  let project = @app.starter_wechat_project()\n" +
   "  let inspection_gate = @app.inspection_gate(project)\n" +
   "  let profile_gate = @app.profile_gate(project)\n" +
+  "  let diagnostics = project.report.diagnostics.length() +\n" +
+  "    project.manifest.diagnostic_count +\n" +
+  "    inspection_gate.diagnostics.length() +\n" +
+  "    profile_gate.diagnostics.length()\n" +
   "  println(\"command=ci-plan\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
-  "  println(\"Bunnia starter CI plan: steps=8 diagnostics=0\")\n" +
+  "  println(\"Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}\")\n" +
   "  println(inspection_gate.summary)\n" +
   "  println(profile_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
