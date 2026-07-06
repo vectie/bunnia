@@ -135,10 +135,11 @@ moon run cmd/main -- inspect --target wechat --example agent_map --budget tight 
 `inspect` prints the same render, manifest, report, patch, profile, and
 snapshot summaries as the build path, then adds a project inspection summary,
 the highest-risk route, one route-inspection line per generated page, one
-`route=...` manifest line per generated page, and one `file=...` line per
-generated artifact. This is intended for quick checks of first-screen bytes,
-update payloads, scene marker pressure, diagnostic counts, file kinds, file
-bytes, and checksums before opening WeChat DevTools.
+`route=...` manifest line per generated page, route-scoped `scene_asset=...`
+lines, and one `file=...` line per generated artifact. This is intended for
+quick checks of first-screen bytes, update payloads, scene marker and asset
+pressure, diagnostic counts, file kinds, file bytes, and checksums before
+opening WeChat DevTools.
 
 To inspect component mapping and platform capability limits:
 
@@ -175,6 +176,10 @@ Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
 bytes, generated file sizes, first-screen/update byte estimates, and
 route-scoped render diagnostics.
+Generated manifests also include route-scoped scene asset references and an
+app-level `sceneAssets` list derived from neutral `data-asset-*` attributes, so
+map-heavy pages can review packaged and remote asset usage without importing
+scene-specific code in the WeChat adapter.
 Generated projects also include shared `bunnia.runtime.js` and `app.wxss`
 files plus route-local `*.data.js` payload modules, so page files keep only
 route structure and runtime glue instead of duplicating helpers, default

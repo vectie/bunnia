@@ -187,6 +187,10 @@ test "inspect command exposes generated artifact metrics without output path" {
   assert_true(inspection.summary.contains("risk_score="))
   assert_eq(project.manifest.pages[0].scene_marker_count, 2)
   assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
+  assert_eq(project.manifest.pages[0].scene_assets.length(), 1)
+  assert_eq(project.manifest.pages[0].scene_assets[0].id, "zone-pin")
+  assert_eq(project.manifest.scene_asset_count, 1)
+  assert_true(project.manifest.summary.contains("scene_assets=1"))
 }
 
 ///|

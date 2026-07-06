@@ -113,6 +113,65 @@ test "wechat projects share default styles at app level" {
 }
 
 ///|
+test "wechat manifests expose route scene asset references" {
+  let scene_asset = @core.node(kind="image", attrs=[
+    @core.class_name("bunnia-scene-sprite"),
+    @core.attr("src", "https://cdn.example.test/agent.png"),
+    @core.attr("alt", "Agent"),
+    @core.data("asset-id", "agent"),
+    @core.data("asset-kind", "remote-image"),
+    @core.data("asset-remote", "true"),
+  ])
+  let duplicate = @core.node(kind="image", attrs=[
+    @core.class_name("bunnia-scene-sprite"),
+    @core.attr("src", "https://cdn.example.test/agent.png"),
+    @core.attr("alt", "Agent duplicate"),
+    @core.data("asset-id", "agent"),
+    @core.data("asset-kind", "remote-image"),
+    @core.data("asset-remote", "true"),
+  ])
+  let project = generate_project(
+    name="Scene Asset Manifest",
+    route="pages/assets/index",
+    root=@core.page([
+      @core.view([
+        scene_asset,
+        duplicate,
+        @core.image("/assets/general.png", "general image"),
+      ]),
+    ]),
+  )
+  assert_eq(project.page.scene_assets.length(), 1)
+  assert_eq(project.page.scene_assets[0].id, "agent")
+  assert_eq(project.page.scene_assets[0].kind, "remote-image")
+  assert_eq(
+    project.page.scene_assets[0].src,
+    "https://cdn.example.test/agent.png",
+  )
+  assert_eq(project.page.scene_assets[0].remote, true)
+  assert_eq(project.manifest.scene_asset_count, 1)
+  assert_eq(project.manifest.scene_remote_asset_count, 1)
+  assert_eq(project.manifest.scene_assets.length(), 1)
+  assert_eq(project.manifest.pages[0].scene_assets.length(), 1)
+  assert_eq(
+    project.manifest.pages[0].scene_assets[0].route,
+    "pages/assets/index",
+  )
+  assert_true(project.manifest.summary.contains("scene_assets=1"))
+  assert_true(project.manifest.summary.contains("scene_remote_assets=1"))
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"sceneAssetRefs\":[{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"sceneAssets\": [{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true}]",
+    ),
+  )
+}
+
+///|
 test "wechat projects can package backend request adapter" {
   let project = generate_project_with_runtime_and_backend(
     name="Backend Split",

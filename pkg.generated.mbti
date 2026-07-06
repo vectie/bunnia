@@ -859,6 +859,8 @@ pub using @wechat {type WechatManifestFile}
 
 pub using @wechat {type WechatManifestPage}
 
+pub using @wechat {type WechatManifestSceneAsset}
+
 pub using @wechat {type WechatPage}
 
 pub using @wechat {type WechatProject}
@@ -868,6 +870,8 @@ pub using @wechat {type WechatProjectManifest}
 pub using @wechat {type WechatProjectPage}
 
 pub using @wechat {type WechatRuntime}
+
+pub using @wechat {type WechatSceneAsset}
 
 // Traits
 

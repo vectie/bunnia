@@ -637,6 +637,9 @@ Current evidence:
 - Scene asset policies can flag remote map assets that are insecure or outside
   approved domains, so package-splitting decisions remain deployable on
   mini-app platforms.
+- Generated WeChat manifests expose route-scoped scene asset references and an
+  app-level scene asset list, so asset/package pressure is reviewable from
+  generated output without coupling the adapter to scene internals.
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
 - Scene render plans report mode, quality level, layer count, marker count,
@@ -788,6 +791,8 @@ Current evidence:
 - Generated manifests expose route-level scene count, visible/total marker
   count, scene asset count, degraded scene count, and render-budget limits so
   map-heavy routes are attributable beside payload and backend budgets.
+- Generated manifests include route-scoped scene asset ids, kinds, sources, and
+  remote flags, and `inspect` prints those refs beside the owning route.
 - Build reports and profiles surface route initial-data render-budget
   diagnostics, keeping large agent/chat payloads visible beside generated-size
   budgets.

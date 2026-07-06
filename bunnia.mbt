@@ -236,7 +236,13 @@ pub type WechatBuildReport = @wechat.WechatBuildReport
 pub type WechatFile = @wechat.WechatFile
 
 ///|
+pub type WechatSceneAsset = @wechat.WechatSceneAsset
+
+///|
 pub type WechatManifestFile = @wechat.WechatManifestFile
+
+///|
+pub type WechatManifestSceneAsset = @wechat.WechatManifestSceneAsset
 
 ///|
 pub type WechatManifestPage = @wechat.WechatManifestPage

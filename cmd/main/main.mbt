@@ -538,6 +538,11 @@ fn print_inspect_result(
     println(
       "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_assets=\{page.scene_asset_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
     )
+    for asset in page.scene_assets {
+      println(
+        "scene_asset=\{asset.route}:\{asset.id} kind=\{asset.kind} src=\{asset.src} remote=\{asset.remote}",
+      )
+    }
     for item in page.diagnostics {
       println("route_diagnostic=\{page.route}:\{item}")
     }

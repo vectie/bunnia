@@ -87,7 +87,12 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].degraded_scene_count, 0)
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneAssets\":1,\"degradedScenes\":0",
+      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneAssets\":1,\"sceneAssetRefs\":[{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"sceneAssets\": [{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
     ),
   )
   assert_true(project.summary.contains("Bunnia WeChat project"))

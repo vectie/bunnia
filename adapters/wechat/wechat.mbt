@@ -6,6 +6,15 @@ pub struct WechatPage {
   json : String
   plan : @core.RenderPlan
   render_budget : @core.RenderBudget
+  scene_assets : Array[WechatSceneAsset]
+} derive(Debug, Eq)
+
+///|
+pub struct WechatSceneAsset {
+  id : String
+  kind : String
+  src : String
+  remote : Bool
 } derive(Debug, Eq)
 
 ///|
@@ -43,6 +52,15 @@ pub struct WechatManifestFile {
 } derive(Debug, Eq)
 
 ///|
+pub struct WechatManifestSceneAsset {
+  route : String
+  id : String
+  kind : String
+  src : String
+  remote : Bool
+} derive(Debug, Eq)
+
+///|
 pub struct WechatManifestPage {
   name : String
   route : String
@@ -63,6 +81,7 @@ pub struct WechatManifestPage {
   scene_marker_count : Int
   scene_visible_marker_count : Int
   scene_asset_count : Int
+  scene_assets : Array[WechatManifestSceneAsset]
   degraded_scene_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
@@ -85,10 +104,13 @@ pub struct WechatProjectManifest {
   page_count : Int
   app_file_count : Int
   app_total_bytes : Int
+  scene_asset_count : Int
+  scene_remote_asset_count : Int
   diagnostic_route_count : Int
   diagnostic_count : Int
   pages : Array[WechatManifestPage]
   files : Array[WechatManifestFile]
+  scene_assets : Array[WechatManifestSceneAsset]
   summary : String
 } derive(Debug, Eq)
 
@@ -140,6 +162,7 @@ pub fn generate_page_with_runtime_and_budget(
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
     render_budget,
+    scene_assets: collect_scene_assets(root),
   }
 }
 
@@ -158,6 +181,7 @@ fn generate_project_page_with_runtime(
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
     render_budget,
+    scene_assets: collect_scene_assets(root),
   }
 }
 
@@ -384,6 +408,7 @@ fn project_page_with_backend_js(
       json: item.page.json,
       plan: item.page.plan,
       render_budget: item.page.render_budget,
+      scene_assets: item.page.scene_assets,
     },
     runtime: item.runtime,
   }
@@ -518,6 +543,8 @@ fn project_manifest(
   let app_total = total_file_bytes(files)
   let manifest_files = manifest_files(files)
   let manifest_pages = manifest_pages(pages, files, backend_contract)
+  let scene_assets = manifest_scene_assets(manifest_pages)
+  let scene_remote_asset_count = manifest_remote_scene_asset_count(scene_assets)
   let diagnostic_route_count = manifest_diagnostic_route_count(manifest_pages)
   let diagnostic_count = manifest_diagnostic_count(manifest_pages)
   {
@@ -526,11 +553,14 @@ fn project_manifest(
     page_count: pages.length(),
     app_file_count: files.length(),
     app_total_bytes: app_total,
+    scene_asset_count: scene_assets.length(),
+    scene_remote_asset_count,
     diagnostic_route_count,
     diagnostic_count,
     pages: manifest_pages,
     files: manifest_files,
-    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
+    scene_assets,
+    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} scene_assets=\{scene_assets.length()} scene_remote_assets=\{scene_remote_asset_count} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
   }
 }
 
@@ -580,6 +610,7 @@ fn manifest_pages(
       scene_marker_count: item.page.plan.scene_marker_count,
       scene_visible_marker_count: item.page.plan.scene_visible_marker_count,
       scene_asset_count: item.page.plan.scene_asset_count,
+      scene_assets: page_manifest_scene_assets(item),
       degraded_scene_count: item.page.plan.degraded_scene_count,
       missing_event_patch_count: page_missing_event_patch_count(item),
       orphan_event_patch_count: page_orphan_event_patch_count(item),
@@ -596,6 +627,49 @@ fn manifest_pages(
     })
   }
   output
+}
+
+///|
+fn page_manifest_scene_assets(
+  page : WechatProjectPage,
+) -> Array[WechatManifestSceneAsset] {
+  let output : Array[WechatManifestSceneAsset] = []
+  for item in page.page.scene_assets {
+    output.push({
+      route: page.route,
+      id: item.id,
+      kind: item.kind,
+      src: item.src,
+      remote: item.remote,
+    })
+  }
+  output
+}
+
+///|
+fn manifest_scene_assets(
+  pages : Array[WechatManifestPage],
+) -> Array[WechatManifestSceneAsset] {
+  let output : Array[WechatManifestSceneAsset] = []
+  for page in pages {
+    for item in page.scene_assets {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn manifest_remote_scene_asset_count(
+  items : Array[WechatManifestSceneAsset],
+) -> Int {
+  let mut total = 0
+  for item in items {
+    if item.remote {
+      total += 1
+    }
+  }
+  total
 }
 
 ///|
@@ -792,10 +866,13 @@ fn manifest_json(input : WechatProjectManifest) -> String {
   "  \"pageCount\": \{input.page_count},\n" +
   "  \"appFileCount\": \{input.app_file_count},\n" +
   "  \"appTotalBytes\": \{input.app_total_bytes},\n" +
+  "  \"sceneAssetCount\": \{input.scene_asset_count},\n" +
+  "  \"sceneRemoteAssetCount\": \{input.scene_remote_asset_count},\n" +
   "  \"diagnosticRouteCount\": \{input.diagnostic_route_count},\n" +
   "  \"diagnosticCount\": \{input.diagnostic_count},\n" +
   "  \"pages\": \{manifest_pages_json(input.pages)},\n" +
-  "  \"files\": \{manifest_files_json(input.files)}\n" +
+  "  \"files\": \{manifest_files_json(input.files)},\n" +
+  "  \"sceneAssets\": \{manifest_scene_assets_json(input.scene_assets)}\n" +
   "}\n"
 }
 
@@ -835,6 +912,7 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"sceneMarkers\":\{item.scene_marker_count}," +
   "\"sceneVisibleMarkers\":\{item.scene_visible_marker_count}," +
   "\"sceneAssets\":\{item.scene_asset_count}," +
+  "\"sceneAssetRefs\":\{manifest_scene_assets_json(item.scene_assets)}," +
   "\"degradedScenes\":\{item.degraded_scene_count}," +
   "\"missingEventPatches\":\{item.missing_event_patch_count}," +
   "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
@@ -848,6 +926,33 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"diagnostics\":\{strings_json(item.diagnostics)}," +
   "\"diagnosticCount\":\{item.diagnostic_count}," +
   "\"status\":\"\{escape_json(item.status)}\"" +
+  "}"
+}
+
+///|
+fn manifest_scene_assets_json(
+  items : Array[WechatManifestSceneAsset],
+) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string(manifest_scene_asset_json(items[i]))
+  }
+  out.write_string("]")
+  out.to_string()
+}
+
+///|
+fn manifest_scene_asset_json(item : WechatManifestSceneAsset) -> String {
+  "{" +
+  "\"route\":\"\{escape_json(item.route)}\"," +
+  "\"id\":\"\{escape_json(item.id)}\"," +
+  "\"kind\":\"\{escape_json(item.kind)}\"," +
+  "\"src\":\"\{escape_json(item.src)}\"," +
+  "\"remote\":\{item.remote}" +
   "}"
 }
 
@@ -973,6 +1078,52 @@ fn patches_to_operations(patches : Array[@core.Patch]) -> String {
   }
   out.write_string("]")
   out.to_string()
+}
+
+///|
+fn collect_scene_assets(root : @core.Node) -> Array[WechatSceneAsset] {
+  let output : Array[WechatSceneAsset] = []
+  collect_scene_assets_into(output, root)
+  output
+}
+
+///|
+fn collect_scene_assets_into(
+  output : Array[WechatSceneAsset],
+  root : @core.Node,
+) -> Unit {
+  let id = attr_value(root.attrs, "data-asset-id")
+  if id != "" && !scene_asset_seen(output, id) {
+    output.push({
+      id,
+      kind: attr_value(root.attrs, "data-asset-kind"),
+      src: attr_value(root.attrs, "src"),
+      remote: attr_value(root.attrs, "data-asset-remote") == "true",
+    })
+  }
+  for child in root.children {
+    collect_scene_assets_into(output, child)
+  }
+}
+
+///|
+fn scene_asset_seen(items : Array[WechatSceneAsset], id : String) -> Bool {
+  for item in items {
+    if item.id == id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn attr_value(attrs : Array[@core.Attr], name : String) -> String {
+  for item in attrs {
+    if item.name == name {
+      return item.value
+    }
+  }
+  ""
 }
 
 ///|
