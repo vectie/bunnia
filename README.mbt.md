@@ -122,9 +122,9 @@ visible even before reading the diagnostic lines. Snapshots also record the
 highest-risk route and per-route inspection lines, so CI diffs can show which
 page should be optimized first.
 
-The snapshot records route, budget profile, size budgets, profile summary, and
-per-route risk, per-file byte/checksum lines without committing the full
-generated mini-program.
+The snapshot records route, budget profile, size budgets, profile summary,
+per-route risk, route-scoped scene asset references, and per-file
+byte/checksum lines without committing the full generated mini-program.
 
 To inspect route and file pressure without writing generated files:
 

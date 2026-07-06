@@ -25,6 +25,8 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.total_bytes, project.total_bytes)
   assert_eq(snapshot.route_diagnostic_route_count, 0)
   assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.scene_asset_count, 0)
+  assert_eq(snapshot.scene_remote_asset_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
   assert_eq(snapshot.diagnostic_count, 0)
@@ -33,6 +35,8 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("risk_score="))
   assert_true(snapshot.summary.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.summary.contains("route_diagnostics=0"))
+  assert_true(snapshot.summary.contains("scene_assets=0"))
+  assert_true(snapshot.summary.contains("scene_remote_assets=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
   assert_true(snapshot.content.contains("render_budget_profile=default"))
@@ -41,6 +45,8 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("risk_score="))
   assert_true(snapshot.content.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.content.contains("route_diagnostics=0"))
+  assert_true(snapshot.content.contains("scene_assets=0"))
+  assert_true(snapshot.content.contains("scene_remote_assets=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
   assert_true(
@@ -51,6 +57,7 @@ test "generated snapshots record deterministic file pressure" {
       "route_inspections:\n- pages/snapshot/index status=ok",
     ),
   )
+  assert_true(snapshot.content.contains("scene_assets:\nroute_diagnostics:"))
   assert_true(
     snapshot.content.contains(
       "route_diagnostics:\nreport_diagnostics:\nprofile_diagnostics:",
@@ -65,6 +72,54 @@ test "generated snapshots record deterministic file pressure" {
   )
   assert_true(snapshot.content.contains("checksum="))
   assert_true(!snapshot.content.contains("checksum=-"))
+}
+
+///|
+test "generated snapshots expose route scene asset references" {
+  let project = @wechat.generate_project(
+    name="Snapshot Scene Assets",
+    route="pages/assets/index",
+    root=@core.page([
+      @core.node(kind="image", attrs=[
+        @core.class_name("bunnia-scene-sprite"),
+        @core.attr("src", "/assets/agent.png"),
+        @core.attr("alt", "Agent"),
+        @core.data("asset-id", "agent"),
+        @core.data("asset-kind", "sprite"),
+        @core.data("asset-remote", "false"),
+      ]),
+      @core.node(kind="image", attrs=[
+        @core.class_name("bunnia-scene-pin"),
+        @core.attr("src", "https://cdn.example.test/pin.png"),
+        @core.attr("alt", "Pin"),
+        @core.data("asset-id", "pin"),
+        @core.data("asset-kind", "remote-image"),
+        @core.data("asset-remote", "true"),
+      ]),
+    ]),
+  )
+  let snapshot = snapshot_wechat_project(
+    target="wechat",
+    example="snapshot_scene_assets",
+    project,
+    profile_wechat_project(project, @core.plan_patches([])),
+  )
+  assert_eq(snapshot.scene_asset_count, 2)
+  assert_eq(snapshot.scene_remote_asset_count, 1)
+  assert_true(snapshot.summary.contains("scene_assets=2"))
+  assert_true(snapshot.summary.contains("scene_remote_assets=1"))
+  assert_true(snapshot.content.contains("scene_assets=2"))
+  assert_true(snapshot.content.contains("scene_remote_assets=1"))
+  assert_true(
+    snapshot.content.contains(
+      "scene_assets:\n- pages/assets/index:agent kind=sprite src=/assets/agent.png remote=false",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "- pages/assets/index:pin kind=remote-image src=https://cdn.example.test/pin.png remote=true",
+    ),
+  )
 }
 
 ///|

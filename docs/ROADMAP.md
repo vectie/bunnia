@@ -793,6 +793,9 @@ Current evidence:
   map-heavy routes are attributable beside payload and backend budgets.
 - Generated manifests include route-scoped scene asset ids, kinds, sources, and
   remote flags, and `inspect` prints those refs beside the owning route.
+- Generator snapshots carry manifest-derived scene asset counts plus
+  route-scoped scene asset ids, kinds, sources, and remote flags, so map-heavy
+  package and CDN pressure is reviewable in CI artifacts.
 - Build reports and profiles surface route initial-data render-budget
   diagnostics, keeping large agent/chat payloads visible beside generated-size
   budgets.
@@ -864,9 +867,9 @@ Current evidence:
   on changes; `--once` keeps the same path testable without a long-running
   process.
 - `moon run cmd/main -- snapshot` writes a compact deterministic generator
-  snapshot with route, budget, route risk, route diagnostics, profile, and
-  per-file byte/checksum lines for CI diffing without committing full generated
-  mini-program outputs.
+  snapshot with route, budget, route risk, route diagnostics, scene asset
+  references, profile, and per-file byte/checksum lines for CI diffing without
+  committing full generated mini-program outputs.
 - Snapshot artifacts record the active build report from the selected
   generated-output budget profile, including route, report, and profile
   diagnostic lines for CI diffs.
