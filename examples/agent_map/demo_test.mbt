@@ -4,6 +4,7 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("Agent Map"))
   assert_true(page.wxml.contains("select-zone-b"))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
+  assert_true(page.wxml.contains("bunnia-scene-sprite"))
   assert_true(page.wxml.contains("bunnia-status-review"))
   assert_true(page.wxml.contains("style=\"left: 420rpx; top: 260rpx;\""))
   assert_true(page.wxml.contains("data-run-status=\"waiting-review\""))
@@ -49,8 +50,15 @@ test "agent map demo keeps updates as patches" {
 ///|
 test "agent map demo exposes scene profile signals" {
   let scene = demo_scene_render_plan()
+  let assets = demo_asset_plan()
+  let quality = demo_scene_visual_quality_plan()
   assert_eq(scene.layer_count, 1)
   assert_eq(scene.marker_count, 2)
-  assert_eq(scene.asset_count, 0)
+  assert_eq(scene.asset_count, 1)
   assert_eq(scene.diagnostics.length(), 0)
+  assert_eq(assets.assets.length(), 1)
+  assert_eq(assets.package_bytes, 2048)
+  assert_eq(assets.diagnostics.length(), 0)
+  assert_eq(quality.diagnostics.length(), 0)
+  assert_eq(quality.degraded, false)
 }

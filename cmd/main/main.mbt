@@ -230,11 +230,16 @@ fn profile_for_example(
       ],
       asset_plans=[@wenyu.demo_asset_plan()],
       scene_plans=[@wenyu.demo_scene_render_plan()],
+      quality_plans=[@wenyu.demo_scene_visual_quality_plan()],
     )
   } else if example == "agent_map" {
-    @bunnia.profile_wechat_project(project, patches, scene_plans=[
-      @demo.demo_scene_render_plan(),
-    ])
+    @bunnia.profile_wechat_project(
+      project,
+      patches,
+      asset_plans=[@demo.demo_asset_plan()],
+      scene_plans=[@demo.demo_scene_render_plan()],
+      quality_plans=[@demo.demo_scene_visual_quality_plan()],
+    )
   } else {
     println("unsupported example=\{example}")
     panic()

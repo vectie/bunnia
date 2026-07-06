@@ -26,6 +26,8 @@ pub struct BuildProfile {
   scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
+  scene_quality_issue_count : Int
+  degraded_scene_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -38,6 +40,7 @@ pub fn profile_wechat_project(
   backend_plans? : Array[@effects.BackendPlan] = [],
   asset_plans? : Array[@scene.SceneAssetPlan] = [],
   scene_plans? : Array[@scene.SceneRenderPlan] = [],
+  quality_plans? : Array[@scene.SceneVisualQualityPlan] = [],
 ) -> BuildProfile {
   let diagnostics : Array[String] = []
   push_page_render_diagnostics(diagnostics, project.pages)
@@ -54,6 +57,9 @@ pub fn profile_wechat_project(
   )
   let (scene_marker_count, scene_visible_marker_count) = collect_scene_diagnostics(
     diagnostics, scene_plans,
+  )
+  let (scene_quality_issue_count, degraded_scene_count) = collect_quality_diagnostics(
+    diagnostics, quality_plans,
   )
   {
     name: project.name,
@@ -82,6 +88,8 @@ pub fn profile_wechat_project(
     scene_visible_marker_count,
     scene_asset_count,
     scene_package_bytes,
+    scene_quality_issue_count,
+    degraded_scene_count,
     diagnostics,
     summary: profile_summary(
       project,
@@ -94,6 +102,8 @@ pub fn profile_wechat_project(
       scene_visible_marker_count,
       scene_asset_count,
       scene_package_bytes,
+      scene_quality_issue_count,
+      degraded_scene_count,
       diagnostics.length(),
     ),
   }
@@ -111,9 +121,11 @@ fn profile_summary(
   scene_visible_marker_count : Int,
   scene_asset_count : Int,
   scene_package_bytes : Int,
+  scene_quality_issue_count : Int,
+  degraded_scene_count : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} effects=\{effect_count} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} scene_quality_issues=\{scene_quality_issue_count} degraded_scenes=\{degraded_scene_count} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -262,6 +274,23 @@ fn collect_scene_diagnostics(
     push_prefixed(diagnostics, "scene-render", plan.diagnostics)
   }
   (markers, visible_markers)
+}
+
+///|
+fn collect_quality_diagnostics(
+  diagnostics : Array[String],
+  plans : Array[@scene.SceneVisualQualityPlan],
+) -> (Int, Int) {
+  let mut issue_count = 0
+  let mut degraded_count = 0
+  for plan in plans {
+    issue_count += plan.diagnostics.length()
+    if plan.degraded {
+      degraded_count += 1
+    }
+    push_prefixed(diagnostics, "scene-quality", plan.diagnostics)
+  }
+  (issue_count, degraded_count)
 }
 
 ///|

@@ -92,25 +92,47 @@ pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
 }
 
 ///|
+pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
+  @bunnia.plan_scene_assets(demo_scene_assets())
+}
+
+///|
+pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
+  @bunnia.plan_scene_visual_quality(demo_scene())
+}
+
+///|
 fn demo_scene() -> @bunnia.Scene {
-  @bunnia.scene("ops-map", @bunnia.scene_size(720, 520), [
-    @bunnia.layer("zones", 1, [
-      @bunnia.marker(
-        id="zone-a",
-        label="North Gate",
-        x=96,
-        y=144,
-        status="stable",
-        tap_message="select-zone-a",
-      ),
-      @bunnia.marker(
-        id="zone-b",
-        label="Review Dock",
-        x=420,
-        y=260,
-        status="review",
-        tap_message="select-zone-b",
-      ),
-    ]),
-  ])
+  @bunnia.scene(
+    "ops-map",
+    @bunnia.scene_size(720, 520),
+    [
+      @bunnia.layer("zones", 1, [
+        @bunnia.marker(
+          id="zone-a",
+          label="North Gate",
+          x=96,
+          y=144,
+          status="stable",
+          tap_message="select-zone-a",
+          asset_ref="zone-pin",
+        ),
+        @bunnia.marker(
+          id="zone-b",
+          label="Review Dock",
+          x=420,
+          y=260,
+          status="review",
+          tap_message="select-zone-b",
+          asset_ref="zone-pin",
+        ),
+      ]),
+    ],
+    assets=demo_scene_assets(),
+  )
+}
+
+///|
+fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
+  [@bunnia.sprite_asset("zone-pin", "/assets/zone-pin.png", 2048)]
 }

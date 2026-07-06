@@ -110,6 +110,9 @@ and traces can update predictably.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+Use `@bunnia.plan_scene_visual_quality(...)` for a checklist covering scene
+size, marker status, tap targets, asset references, unresolved assets, and
+degraded output.
 
 Use `@bunnia.surface_status_badge(...)` and
 `@bunnia.surface_status_overlay(...)` for loading, stale, error, retry,
@@ -285,6 +288,33 @@ test {
   let output = @bunnia.generate_wechat_page("Map", @bunnia.page([map]))
   assert_true(output.wxml.contains("bunnia-scene-sprite"))
   assert_true(patches.total_estimated_bytes < 96)
+}
+```
+
+```mbt check
+///|
+test {
+  let map = @bunnia.scene(
+    "ops-map",
+    @bunnia.scene_size(640, 420),
+    [
+      @bunnia.layer("markers", 1, [
+        @bunnia.marker(
+          id="agent",
+          label="Agent",
+          x=120,
+          y=140,
+          status="running",
+          tap_message="select-agent",
+          asset_ref="agent",
+        ),
+      ]),
+    ],
+    assets=[@bunnia.sprite_asset("agent", "/assets/agent.png", 2048)],
+  )
+  let quality = @bunnia.plan_scene_visual_quality(map)
+  assert_eq(quality.degraded, false)
+  assert_eq(quality.diagnostics.length(), 0)
 }
 ```
 

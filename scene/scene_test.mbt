@@ -89,3 +89,55 @@ test "viewport scene view renders only spatially visible markers" {
   assert_true(render.event_messages.contains("select-marker-0"))
   assert_true(!render.event_messages.contains("select-marker-8"))
 }
+
+///|
+test "scene visual quality plan keeps complete maps clean" {
+  let input = fixture_scene(4)
+  let plan = plan_scene_visual_quality(input)
+  assert_eq(plan.marker_count, 4)
+  assert_eq(plan.markers_without_status_count, 0)
+  assert_eq(plan.markers_without_tap_count, 0)
+  assert_eq(plan.markers_without_asset_ref_count, 0)
+  assert_eq(plan.unresolved_asset_ref_count, 0)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_eq(plan.degraded, false)
+  assert_true(plan.summary.contains("missing_status=0"))
+}
+
+///|
+test "scene visual quality plan reports weak map surfaces" {
+  let input = scene("weak-map", scene_size(120, 80), [
+    layer("markers", 1, [
+      marker(id="a", label="A", x=10, y=20),
+      marker(
+        id="b",
+        label="B",
+        x=40,
+        y=30,
+        status="review",
+        tap_message="select-b",
+        asset_ref="missing",
+      ),
+    ]),
+  ])
+  let plan = plan_scene_visual_quality_with_budget(
+    input,
+    scene_render_budget(max_layers=1, max_markers=1, max_static_assets=0),
+    scene_asset_budget(max_assets=0, max_package_bytes=1, max_remote_assets=0),
+    default_scene_visual_quality_budget(),
+  )
+  assert_eq(plan.markers_without_status_count, 1)
+  assert_eq(plan.markers_without_tap_count, 1)
+  assert_eq(plan.markers_without_asset_ref_count, 1)
+  assert_eq(plan.unresolved_asset_ref_count, 1)
+  assert_eq(plan.degraded, true)
+  assert_true(plan.diagnostics.contains("scene-width-under-min:120/320"))
+  assert_true(plan.diagnostics.contains("scene-height-under-min:80/240"))
+  assert_true(plan.diagnostics.contains("scene-markers-without-status:1/0"))
+  assert_true(plan.diagnostics.contains("scene-markers-without-tap:1/0"))
+  assert_true(plan.diagnostics.contains("scene-markers-without-asset-ref:1/0"))
+  assert_true(plan.diagnostics.contains("scene-unresolved-asset-refs:1/0"))
+  assert_true(
+    plan.diagnostics.contains("render:scene-marker-count-over-budget:2/1"),
+  )
+}

@@ -26,17 +26,33 @@ test "build profile aggregates normal project signals" {
   let assets = @scene.plan_scene_assets([
     @scene.sprite_asset("pin", "/assets/pin.png", 1024),
   ])
-  let scene = @scene.plan_scene_render(
-    @scene.scene("map", @scene.scene_size(320, 240), [
-      @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
-    ]),
+  let scene_input = @scene.scene(
+    "map",
+    @scene.scene_size(320, 240),
+    [
+      @scene.layer("markers", 1, [
+        @scene.marker(
+          id="a",
+          label="A",
+          x=20,
+          y=20,
+          status="stable",
+          tap_message="select-a",
+          asset_ref="pin",
+        ),
+      ]),
+    ],
+    assets=[@scene.sprite_asset("pin", "/assets/pin.png", 1024)],
   )
+  let scene = @scene.plan_scene_render(scene_input)
+  let quality = @scene.plan_scene_visual_quality(scene_input)
   let profile = profile_wechat_project(
     project,
     patches,
     backend_plans=[backend],
     asset_plans=[assets],
     scene_plans=[scene],
+    quality_plans=[quality],
   )
   assert_eq(profile.name, "Profile Fixture")
   assert_eq(profile.route, "pages/profile/index")
@@ -60,6 +76,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
+  assert_eq(profile.scene_quality_issue_count, 0)
+  assert_eq(profile.degraded_scene_count, 0)
   assert_eq(profile.effect_count, 0)
   assert_eq(profile.cloud_function_count, 0)
   assert_eq(profile.stream_effect_count, 0)
@@ -73,6 +91,7 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("max_update_payload="))
   assert_true(profile.summary.contains("effects=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
+  assert_true(profile.summary.contains("scene_quality_issues=0"))
 }
 
 ///|
@@ -115,6 +134,18 @@ test "build profile prefixes diagnostics by budget source" {
     ]),
     @scene.scene_render_budget(max_layers=1, max_markers=1, max_static_assets=1),
   )
+  let quality = @scene.plan_scene_visual_quality_with_budget(
+    @scene.scene("map", @scene.scene_size(120, 80), [
+      @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
+    ]),
+    @scene.scene_render_budget(max_layers=1, max_markers=1, max_static_assets=1),
+    @scene.scene_asset_budget(
+      max_assets=0,
+      max_package_bytes=1,
+      max_remote_assets=0,
+    ),
+    @scene.default_scene_visual_quality_budget(),
+  )
   let profile = profile_wechat_project(
     project,
     patches,
@@ -130,6 +161,7 @@ test "build profile prefixes diagnostics by budget source" {
     backend_plans=[backend],
     asset_plans=[assets],
     scene_plans=[scene],
+    quality_plans=[quality],
   )
   assert_eq(profile.effect_count, 2)
   assert_eq(profile.cloud_function_count, 1)
@@ -171,6 +203,13 @@ test "build profile prefixes diagnostics by budget source" {
       "scene-render:scene-marker-count-over-budget:2/1",
     ),
   )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-quality:scene-markers-without-status:1/0",
+    ),
+  )
+  assert_true(profile.scene_quality_issue_count > 0)
+  assert_eq(profile.degraded_scene_count, 1)
   assert_true(profile.summary.contains("diagnostics="))
 }
 

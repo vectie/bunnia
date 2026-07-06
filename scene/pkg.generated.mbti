@@ -11,6 +11,8 @@ pub fn default_scene_asset_budget() -> SceneAssetBudget
 
 pub fn default_scene_render_budget() -> SceneRenderBudget
 
+pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget
+
 pub fn image_asset(String, String, Int) -> SceneAsset
 
 pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
@@ -26,6 +28,12 @@ pub fn plan_scene_render(Scene) -> SceneRenderPlan
 pub fn plan_scene_render_viewport(Scene, SceneViewport, SceneRenderBudget) -> SceneRenderPlan
 
 pub fn plan_scene_render_with_budget(Scene, SceneRenderBudget) -> SceneRenderPlan
+
+pub fn plan_scene_visual_quality(Scene) -> SceneVisualQualityPlan
+
+pub fn plan_scene_visual_quality_viewport(Scene, SceneViewport, SceneRenderBudget, SceneAssetBudget, SceneVisualQualityBudget) -> SceneVisualQualityPlan
+
+pub fn plan_scene_visual_quality_with_budget(Scene, SceneRenderBudget, SceneAssetBudget, SceneVisualQualityBudget) -> SceneVisualQualityPlan
 
 pub fn remote_image_asset(String, String) -> SceneAsset
 
@@ -50,6 +58,8 @@ pub fn scene_size(Int, Int) -> SceneSize
 pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> SceneViewport
 
 pub fn scene_visible_marker_count(Scene, SceneViewport) -> Int
+
+pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int) -> SceneVisualQualityBudget
 
 pub fn select_scene_marker(String, String) -> @core.Patch
 
@@ -159,6 +169,28 @@ pub struct SceneViewport {
   y : Int
   width : Int
   height : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneVisualQualityBudget {
+  min_width : Int
+  min_height : Int
+  max_markers_without_status : Int
+  max_markers_without_tap : Int
+  max_markers_without_asset_ref : Int
+  max_unresolved_asset_refs : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneVisualQualityPlan {
+  render_plan : SceneRenderPlan
+  asset_plan : SceneAssetPlan
+  marker_count : Int
+  markers_without_status_count : Int
+  markers_without_tap_count : Int
+  markers_without_asset_ref_count : Int
+  unresolved_asset_ref_count : Int
+  degraded : Bool
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 // Type aliases

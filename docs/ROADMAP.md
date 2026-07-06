@@ -556,6 +556,9 @@ Current evidence:
   without forcing product code to change shape.
 - Viewported static scene rendering filters markers spatially and emits
   viewport plus visible/total marker data attributes for map-heavy pages.
+- Scene visual quality plans check scene size, marker status, tap targets,
+  marker asset references, unresolved assets, degraded output, and underlying
+  render/asset diagnostics.
 - Generic status overlays can wrap scene, list, dashboard, or feed surfaces so
   stale, error, retry, cancelled, and degraded states remain visible without
   rebuilding the underlying surface model.
@@ -648,14 +651,15 @@ Current evidence:
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,
-  and scene render diagnostics into one CLI-visible summary for generated
-  examples.
+  scene render, and scene visual-quality diagnostics into one CLI-visible
+  summary for generated examples.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
-  scene asset count, and package-byte signals.
+  scene asset count, package-byte signals, visual-quality issue count, and
+  degraded-scene count.
 - The CLI accepts build-style usage, `build --target wechat`, keeps generated
   output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
   CI-style budget gates.

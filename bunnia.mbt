@@ -119,6 +119,12 @@ pub type SceneRenderBudget = @scene.SceneRenderBudget
 pub type SceneRenderPlan = @scene.SceneRenderPlan
 
 ///|
+pub type SceneVisualQualityBudget = @scene.SceneVisualQualityBudget
+
+///|
+pub type SceneVisualQualityPlan = @scene.SceneVisualQualityPlan
+
+///|
 pub type EffectKind = @effects.EffectKind
 
 ///|
@@ -1221,6 +1227,60 @@ pub fn plan_scene_render_viewport(
 }
 
 ///|
+pub fn scene_visual_quality_budget(
+  min_width~ : Int,
+  min_height~ : Int,
+  max_markers_without_status~ : Int,
+  max_markers_without_tap~ : Int,
+  max_markers_without_asset_ref~ : Int,
+  max_unresolved_asset_refs~ : Int,
+) -> SceneVisualQualityBudget {
+  @scene.scene_visual_quality_budget(
+    min_width~,
+    min_height~,
+    max_markers_without_status~,
+    max_markers_without_tap~,
+    max_markers_without_asset_ref~,
+    max_unresolved_asset_refs~,
+  )
+}
+
+///|
+pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget {
+  @scene.default_scene_visual_quality_budget()
+}
+
+///|
+pub fn plan_scene_visual_quality(input : Scene) -> SceneVisualQualityPlan {
+  @scene.plan_scene_visual_quality(input)
+}
+
+///|
+pub fn plan_scene_visual_quality_with_budget(
+  input : Scene,
+  render_budget : SceneRenderBudget,
+  asset_budget : SceneAssetBudget,
+  quality_budget : SceneVisualQualityBudget,
+) -> SceneVisualQualityPlan {
+  @scene.plan_scene_visual_quality_with_budget(
+    input, render_budget, asset_budget, quality_budget,
+  )
+}
+
+///|
+pub fn plan_scene_visual_quality_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  render_budget : SceneRenderBudget,
+  asset_budget : SceneAssetBudget,
+  quality_budget : SceneVisualQualityBudget,
+) -> SceneVisualQualityPlan {
+  @scene.plan_scene_visual_quality_viewport(
+    input, viewport, render_budget, asset_budget, quality_budget,
+  )
+}
+
+///|
 pub fn scene_marker_count(input : Scene) -> Int {
   @scene.scene_marker_count(input)
 }
@@ -1952,6 +2012,7 @@ pub fn profile_wechat_project(
   backend_plans? : Array[BackendPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
   scene_plans? : Array[SceneRenderPlan] = [],
+  quality_plans? : Array[SceneVisualQualityPlan] = [],
 ) -> BuildProfile {
   @tooling.profile_wechat_project(
     project,
@@ -1960,6 +2021,7 @@ pub fn profile_wechat_project(
     backend_plans~,
     asset_plans~,
     scene_plans~,
+    quality_plans~,
   )
 }
 

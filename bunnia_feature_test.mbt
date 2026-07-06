@@ -272,6 +272,25 @@ test "surface statuses wrap large panels without changing their model" {
 }
 
 ///|
+test "scene visual quality plans expose map readiness diagnostics" {
+  let scene = @bunnia.scene("weak-map", @bunnia.scene_size(160, 120), [
+    @bunnia.layer("markers", 1, [
+      @bunnia.marker(id="actor-a", label="Actor A", x=80, y=80),
+    ]),
+  ])
+  let plan = @bunnia.plan_scene_visual_quality(scene)
+  assert_eq(plan.marker_count, 1)
+  assert_eq(plan.markers_without_status_count, 1)
+  assert_eq(plan.markers_without_tap_count, 1)
+  assert_eq(plan.markers_without_asset_ref_count, 1)
+  assert_eq(plan.degraded, true)
+  assert_true(plan.diagnostics.contains("scene-width-under-min:160/320"))
+  assert_true(plan.diagnostics.contains("scene-height-under-min:120/240"))
+  assert_true(plan.diagnostics.contains("scene-markers-without-status:1/0"))
+  assert_true(plan.summary.contains("degraded=true"))
+}
+
+///|
 test "render budgets report large app pressure early" {
   let root = @bunnia.page([
     @bunnia.view([

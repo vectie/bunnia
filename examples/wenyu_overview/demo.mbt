@@ -94,6 +94,17 @@ pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
 }
 
 ///|
+pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
+  @bunnia.plan_scene_visual_quality_viewport(
+    demo_scene(demo_projection()),
+    demo_viewport(),
+    @bunnia.default_scene_render_budget(),
+    @bunnia.default_scene_asset_budget(),
+    @bunnia.default_scene_visual_quality_budget(),
+  )
+}
+
+///|
 pub fn large_scene_render_plan(building_count : Int) -> @bunnia.SceneRenderPlan {
   @bunnia.plan_scene_render_viewport(
     large_scene(building_count),
