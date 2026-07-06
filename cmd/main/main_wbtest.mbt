@@ -55,6 +55,16 @@ test "build command and target parse explicitly" {
 }
 
 ///|
+test "help command is explicit and does not write generated output" {
+  assert_eq(command_from_args(["node", "main.js", "help"]), "help")
+  assert_eq(command_from_args(["node", "main.js", "--help"]), "help")
+  assert_eq(command_from_args(["node", "main.js", "-h"]), "help")
+  assert_eq(command_from_args(["node", "main.js", "init", "--help"]), "help")
+  assert_eq(command_from_args(["node", "main.js", "build", "-h"]), "help")
+  assert_eq(command_writes_project_output("help"), false)
+}
+
+///|
 test "build budgets come from shared named profiles" {
   let render = render_budget_from_args(["node", "main.js", "--budget", "tight"])
   let shared_render = @bunnia.render_budget_for_profile("tight")
@@ -134,6 +144,7 @@ test "only build-like commands write generated project output" {
   assert_eq(command_writes_project_output("ci-plan"), false)
   assert_eq(command_writes_project_output("init"), false)
   assert_eq(command_writes_project_output("limits"), false)
+  assert_eq(command_writes_project_output("help"), false)
 }
 
 ///|

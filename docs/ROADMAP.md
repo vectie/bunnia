@@ -904,6 +904,9 @@ Current evidence:
 - Build and snapshot output record the selected output and render budget
   profiles, keeping strict CI artifacts traceable to the gates that produced
   them.
+- `moon run cmd/main -- help` prints a no-write command map, so contributors
+  can discover build, watch, inspect, snapshot, CI-plan, limits, and init
+  workflows without accidentally generating output.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
   format, platform-limits, route-inspect, strict-build, and generator-snapshot
   commands with the default tight generated-output and render budgets, so
@@ -961,10 +964,10 @@ Current evidence:
   prints actionable diagnostic lines, and can emit the same workflow as a
   deterministic `sh` script with `--script`, plus the active
   inspection/profile-gate thresholds and current diagnostic count.
-  Starter `limits` accepts `--target`, so WeChat reports as available while
-  Alipay/TikTok remain inspectable as deferred targets, and the local
-  `moon.work` includes the starter app plus the Bunnia checkout for development
-  before registry publication.
+  Starter `help` is also no-write, and starter `limits` accepts `--target`, so
+  WeChat reports as available while Alipay/TikTok remain inspectable as
+  deferred targets, and the local `moon.work` includes the starter app plus the
+  Bunnia checkout for development before registry publication.
 
 ## Phase 8: Production Readiness
 

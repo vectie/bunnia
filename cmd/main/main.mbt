@@ -3,7 +3,9 @@
 /// Run with `moon run cmd/main` from the project root.
 fn main {
   let command = command_from_args(@env.args())
-  if command == "init" {
+  if command == "help" {
+    print_help()
+  } else if command == "init" {
     let name = scaffold_name_from_args(@env.args())
     let output_dir = scaffold_output_dir_from_args(@env.args(), name)
     let scaffold = scaffold_from_args(@env.args(), name)
@@ -47,6 +49,9 @@ fn default_output_dir_for_build(target : String, example : String) -> String {
 
 ///|
 fn command_from_args(args : Array[String]) -> String {
+  if args.contains("help") || args.contains("--help") || args.contains("-h") {
+    return "help"
+  }
   for item in args {
     if item == "build" {
       return "build"
@@ -70,6 +75,22 @@ fn command_from_args(args : Array[String]) -> String {
 ///|
 fn command_writes_project_output(command : String) -> Bool {
   command == "build" || command == "watch"
+}
+
+///|
+fn print_help() -> Unit {
+  println("Bunnia CLI")
+  println("usage=moon run cmd/main -- <command> [options]")
+  println("command=build target=wechat writes=_build/bunnia/wechat/<example>")
+  println(
+    "command=watch target=wechat writes=_build/bunnia/wechat/<example> options=--once",
+  )
+  println("command=inspect writes=false")
+  println("command=snapshot writes=snapshot-file")
+  println("command=ci-plan writes=false options=--script")
+  println("command=limits writes=false options=--target wechat|alipay|tiktok")
+  println("command=init writes=scaffold options=--name --module --out")
+  println("options=--target --example --budget --render-budget --strict --out")
 }
 
 ///|

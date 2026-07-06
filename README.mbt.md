@@ -60,6 +60,12 @@ phase-by-phase implementation plan.
 
 ## Generate The Demo
 
+Print the CLI command map without writing generated output:
+
+```bash
+moon run cmd/main -- help
+```
+
 ```bash
 moon run cmd/main
 ```

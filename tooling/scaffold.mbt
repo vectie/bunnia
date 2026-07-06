@@ -80,7 +80,9 @@ fn cmd_main_mbt() -> String {
   "fn main {\n" +
   "  let command = command_from_args(@env.args())\n" +
   "  let strict = strict_from_args(@env.args())\n" +
-  "  if command == \"ci-plan\" {\n" +
+  "  if command == \"help\" {\n" +
+  "    print_help()\n" +
+  "  } else if command == \"ci-plan\" {\n" +
   "    if ci_script_from_args(@env.args()) {\n" +
   "      print_ci_script(strict)\n" +
   "    } else {\n" +
@@ -122,6 +124,9 @@ fn cmd_main_mbt() -> String {
   "}\n\n" +
   "///|\n" +
   "fn command_from_args(args : Array[String]) -> String {\n" +
+  "  if args.contains(\"help\") || args.contains(\"--help\") || args.contains(\"-h\") {\n" +
+  "    return \"help\"\n" +
+  "  }\n" +
   "  for item in args {\n" +
   "    if item == \"inspect\" {\n" +
   "      return \"inspect\"\n" +
@@ -136,6 +141,17 @@ fn cmd_main_mbt() -> String {
   "    }\n" +
   "  }\n" +
   "  \"build\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn print_help() -> Unit {\n" +
+  "  println(\"Bunnia starter CLI\")\n" +
+  "  println(\"usage=moon run cmd/main -- <command> [options]\")\n" +
+  "  println(\"command=build writes=_build/wechat\")\n" +
+  "  println(\"command=inspect writes=false\")\n" +
+  "  println(\"command=snapshot writes=snapshot-file\")\n" +
+  "  println(\"command=ci-plan writes=false options=--script\")\n" +
+  "  println(\"command=limits writes=false options=--target wechat|alipay|tiktok\")\n" +
+  "  println(\"options=--strict --out --snapshot-out\")\n" +
   "}\n\n" +
   "///|\n" +
   "fn target_from_args(args : Array[String]) -> String {\n" +
@@ -600,6 +616,7 @@ fn readme(name : String) -> String {
   "The starter keeps app view, agent feed, scene model, bounded updates, backend contract, inspection gates, WeChat generation, a local build command, and starter tests in separate files so the app can grow without mixing product code into the framework.\n\n" +
   "```bash\n" +
   "moon check\n" +
+  "moon run cmd/main -- help\n" +
   "moon test\n" +
   "moon info\n" +
   "moon fmt\n" +
