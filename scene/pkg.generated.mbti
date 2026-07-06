@@ -23,6 +23,8 @@ pub fn plan_scene_assets_with_budget(Array[SceneAsset], SceneAssetBudget) -> Sce
 
 pub fn plan_scene_render(Scene) -> SceneRenderPlan
 
+pub fn plan_scene_render_viewport(Scene, SceneViewport, SceneRenderBudget) -> SceneRenderPlan
+
 pub fn plan_scene_render_with_budget(Scene, SceneRenderBudget) -> SceneRenderPlan
 
 pub fn remote_image_asset(String, String) -> SceneAsset
@@ -45,6 +47,10 @@ pub fn scene_render_mode_id(SceneRenderMode) -> String
 
 pub fn scene_size(Int, Int) -> SceneSize
 
+pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> SceneViewport
+
+pub fn scene_visible_marker_count(Scene, SceneViewport) -> Int
+
 pub fn select_scene_marker(String, String) -> @core.Patch
 
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
@@ -54,6 +60,8 @@ pub fn sprite_asset(String, String, Int) -> SceneAsset
 pub fn static_scene_view(Scene) -> @core.Node
 
 pub fn static_scene_view_with_budget(Scene, SceneRenderBudget) -> @core.Node
+
+pub fn static_scene_view_with_viewport(Scene, SceneViewport, budget? : SceneRenderBudget) -> @core.Node
 
 pub fn tile_asset(String, String, Int) -> SceneAsset
 
@@ -135,12 +143,20 @@ pub struct SceneRenderPlan {
   quality : SceneQualityLevel
   layer_count : Int
   marker_count : Int
+  visible_marker_count : Int
   asset_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneSize {
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneViewport {
+  x : Int
+  y : Int
   width : Int
   height : Int
 } derive(Eq, @debug.Debug)

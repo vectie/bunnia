@@ -77,6 +77,9 @@ pub type AgentDeltaPlan = @agent.AgentDeltaPlan
 pub type SceneSize = @scene.SceneSize
 
 ///|
+pub type SceneViewport = @scene.SceneViewport
+
+///|
 pub type SceneAssetKind = @scene.SceneAssetKind
 
 ///|
@@ -866,6 +869,16 @@ pub fn scene_size(width : Int, height : Int) -> SceneSize {
 }
 
 ///|
+pub fn scene_viewport(
+  x~ : Int,
+  y~ : Int,
+  width~ : Int,
+  height~ : Int,
+) -> SceneViewport {
+  @scene.scene_viewport(x~, y~, width~, height~)
+}
+
+///|
 pub fn scene_asset(
   id~ : String,
   kind~ : SceneAssetKind,
@@ -1006,6 +1019,15 @@ pub fn static_scene_view_with_budget(
 }
 
 ///|
+pub fn static_scene_view_with_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  budget? : SceneRenderBudget = @scene.default_scene_render_budget(),
+) -> Node {
+  @scene.static_scene_view_with_viewport(input, viewport, budget~)
+}
+
+///|
 pub fn scene_render_budget(
   max_layers~ : Int,
   max_markers~ : Int,
@@ -1033,8 +1055,25 @@ pub fn plan_scene_render_with_budget(
 }
 
 ///|
+pub fn plan_scene_render_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  budget : SceneRenderBudget,
+) -> SceneRenderPlan {
+  @scene.plan_scene_render_viewport(input, viewport, budget)
+}
+
+///|
 pub fn scene_marker_count(input : Scene) -> Int {
   @scene.scene_marker_count(input)
+}
+
+///|
+pub fn scene_visible_marker_count(
+  input : Scene,
+  viewport : SceneViewport,
+) -> Int {
+  @scene.scene_visible_marker_count(input, viewport)
 }
 
 ///|

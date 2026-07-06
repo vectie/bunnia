@@ -422,6 +422,9 @@ Current evidence:
   operator request patches, and communication trace rows.
 - Large Wenyu fixtures use bounded building-list rendering, reporting visible
   and total building counts instead of expanding every building row into WXML.
+- Wenyu map rendering uses an explicit scene viewport so large synthetic maps
+  report visible/total marker counts instead of forcing all markers into first
+  output.
 - Tests verify the proof slice is generated from projection data, keeps updates
   and assets bounded, and leaves framework core packages product-neutral.
 - `moon run cmd/main -- --example wenyu_overview` generates the proof app
@@ -527,10 +530,13 @@ Current evidence:
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
 - Scene render plans report mode, quality level, layer count, marker count,
-  asset count, and diagnostics for large map-like surfaces.
+  visible/total marker count, asset count, and diagnostics for large map-like
+  surfaces.
 - Budgeted static scene rendering can cap visible markers and mark degraded
   output with stable data attributes, leaving room for a later canvas surface
   without forcing product code to change shape.
+- Viewported static scene rendering filters markers spatially and emits
+  viewport plus visible/total marker data attributes for map-heavy pages.
 
 Acceptance checks:
 

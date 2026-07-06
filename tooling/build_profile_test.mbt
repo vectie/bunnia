@@ -47,13 +47,14 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.file_count, 8)
   assert_eq(profile.backend_endpoint_count, 1)
   assert_eq(profile.scene_marker_count, 1)
+  assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
   assert_eq(profile.diagnostics.length(), 0)
   assert_true(profile.summary.contains("backend_endpoints=1"))
   assert_true(profile.summary.contains("pages=1"))
   assert_true(profile.summary.contains("list_items=0/0"))
-  assert_true(profile.summary.contains("scene_markers=1"))
+  assert_true(profile.summary.contains("scene_markers=1/1"))
 }
 
 ///|

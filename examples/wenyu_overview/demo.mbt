@@ -86,12 +86,20 @@ pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
 
 ///|
 pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
-  @bunnia.plan_scene_render(demo_scene(demo_projection()))
+  @bunnia.plan_scene_render_viewport(
+    demo_scene(demo_projection()),
+    demo_viewport(),
+    @bunnia.default_scene_render_budget(),
+  )
 }
 
 ///|
 pub fn large_scene_render_plan(building_count : Int) -> @bunnia.SceneRenderPlan {
-  @bunnia.plan_scene_render(large_scene(building_count))
+  @bunnia.plan_scene_render_viewport(
+    large_scene(building_count),
+    demo_viewport(),
+    @bunnia.default_scene_render_budget(),
+  )
 }
 
 ///|
@@ -194,7 +202,12 @@ fn review_panel(_input : WenyuProjection) -> @bunnia.Node {
 
 ///|
 fn map_view(input : WenyuProjection) -> @bunnia.Node {
-  @bunnia.static_scene_view(demo_scene(input))
+  @bunnia.static_scene_view_with_viewport(demo_scene(input), demo_viewport())
+}
+
+///|
+fn demo_viewport() -> @bunnia.SceneViewport {
+  @bunnia.scene_viewport(x=0, y=0, width=640, height=460)
 }
 
 ///|

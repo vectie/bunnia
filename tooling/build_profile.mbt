@@ -16,6 +16,7 @@ pub struct BuildProfile {
   patch_bytes : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
+  scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
   diagnostics : Array[String]
@@ -40,7 +41,9 @@ pub fn profile_wechat_project(
   let (scene_asset_count, scene_package_bytes) = collect_asset_diagnostics(
     diagnostics, asset_plans,
   )
-  let scene_marker_count = collect_scene_diagnostics(diagnostics, scene_plans)
+  let (scene_marker_count, scene_visible_marker_count) = collect_scene_diagnostics(
+    diagnostics, scene_plans,
+  )
   {
     name: project.name,
     route: project.route,
@@ -58,6 +61,7 @@ pub fn profile_wechat_project(
     patch_bytes: patches.total_estimated_bytes,
     backend_endpoint_count,
     scene_marker_count,
+    scene_visible_marker_count,
     scene_asset_count,
     scene_package_bytes,
     diagnostics,
@@ -66,6 +70,7 @@ pub fn profile_wechat_project(
       patches,
       backend_endpoint_count,
       scene_marker_count,
+      scene_visible_marker_count,
       scene_asset_count,
       scene_package_bytes,
       diagnostics.length(),
@@ -79,11 +84,12 @@ fn profile_summary(
   patches : @core.PatchPlan,
   backend_endpoint_count : Int,
   scene_marker_count : Int,
+  scene_visible_marker_count : Int,
   scene_asset_count : Int,
   scene_package_bytes : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -184,13 +190,15 @@ fn collect_asset_diagnostics(
 fn collect_scene_diagnostics(
   diagnostics : Array[String],
   plans : Array[@scene.SceneRenderPlan],
-) -> Int {
+) -> (Int, Int) {
   let mut markers = 0
+  let mut visible_markers = 0
   for plan in plans {
     markers += plan.marker_count
+    visible_markers += plan.visible_marker_count
     push_prefixed(diagnostics, "scene-render", plan.diagnostics)
   }
-  markers
+  (markers, visible_markers)
 }
 
 ///|

@@ -68,3 +68,24 @@ test "budgeted scene view caps visible markers and preserves stable events" {
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))
 }
+
+///|
+test "viewport scene view renders only spatially visible markers" {
+  let viewport = scene_viewport(x=32, y=48, width=32, height=40)
+  let root = static_scene_view_with_viewport(fixture_scene(12), viewport)
+  let plan = plan_scene_render_viewport(
+    fixture_scene(12),
+    viewport,
+    default_scene_render_budget(),
+  )
+  let render = @core.plan(root, @core.Wechat)
+  assert_eq(plan.marker_count, 12)
+  assert_eq(plan.visible_marker_count, 4)
+  assert_eq(attr_value(root.attrs, "data-viewport-x"), "32")
+  assert_eq(attr_value(root.attrs, "data-viewport-width"), "32")
+  assert_eq(attr_value(root.attrs, "data-markers-total"), "12")
+  assert_eq(attr_value(root.attrs, "data-markers-visible"), "4")
+  assert_eq(render.event_messages.length(), 4)
+  assert_true(render.event_messages.contains("select-marker-0"))
+  assert_true(!render.event_messages.contains("select-marker-8"))
+}

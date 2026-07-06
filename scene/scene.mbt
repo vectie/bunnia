@@ -5,6 +5,14 @@ pub struct SceneSize {
 } derive(Debug, Eq)
 
 ///|
+pub struct SceneViewport {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+} derive(Debug, Eq)
+
+///|
 pub struct SceneMarker {
   id : String
   label : String
@@ -33,6 +41,16 @@ pub struct Scene {
 ///|
 pub fn scene_size(width : Int, height : Int) -> SceneSize {
   { width, height }
+}
+
+///|
+pub fn scene_viewport(
+  x~ : Int,
+  y~ : Int,
+  width~ : Int,
+  height~ : Int,
+) -> SceneViewport {
+  { x, y, width, height }
 }
 
 ///|
@@ -86,6 +104,35 @@ pub fn static_scene_view_with_budget(
   scene_view(rendered, [
     @core.data("scene-mode", scene_render_mode_id(plan.mode)),
     @core.data("scene-quality", scene_quality_id(plan.quality)),
+    @core.data("markers-total", plan.marker_count.to_string()),
+    @core.data("markers-visible", scene_marker_count(rendered).to_string()),
+    @core.data(
+      "scene-degraded",
+      (plan.marker_count > scene_marker_count(rendered)).to_string(),
+    ),
+  ])
+}
+
+///|
+pub fn static_scene_view_with_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  budget? : SceneRenderBudget = default_scene_render_budget(),
+) -> @core.Node {
+  let visible = viewport_scene(input, viewport)
+  let plan = plan_scene_render_viewport(input, viewport, budget)
+  let rendered = if scene_marker_count(visible) > budget.max_markers {
+    limit_scene_markers(visible, budget.max_markers)
+  } else {
+    visible
+  }
+  scene_view(rendered, [
+    @core.data("scene-mode", scene_render_mode_id(plan.mode)),
+    @core.data("scene-quality", scene_quality_id(plan.quality)),
+    @core.data("viewport-x", viewport.x.to_string()),
+    @core.data("viewport-y", viewport.y.to_string()),
+    @core.data("viewport-width", viewport.width.to_string()),
+    @core.data("viewport-height", viewport.height.to_string()),
     @core.data("markers-total", plan.marker_count.to_string()),
     @core.data("markers-visible", scene_marker_count(rendered).to_string()),
     @core.data(
@@ -233,4 +280,27 @@ fn status_slug(status : String) -> String {
   .replace(old="_", new="-")
   .replace(old="/", new="-")
   .to_string()
+}
+
+///|
+fn viewport_scene(input : Scene, viewport : SceneViewport) -> Scene {
+  let layers : Array[SceneLayer] = []
+  for item in input.layers {
+    let markers : Array[SceneMarker] = []
+    for scene_marker in item.markers {
+      if marker_in_viewport(scene_marker, viewport) {
+        markers.push(scene_marker)
+      }
+    }
+    layers.push(layer(item.id, item.z_index, markers))
+  }
+  scene(input.id, input.size, layers, assets=input.assets)
+}
+
+///|
+fn marker_in_viewport(input : SceneMarker, viewport : SceneViewport) -> Bool {
+  input.x >= viewport.x &&
+  input.y >= viewport.y &&
+  input.x < viewport.x + viewport.width &&
+  input.y < viewport.y + viewport.height
 }

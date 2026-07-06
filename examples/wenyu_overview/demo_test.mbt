@@ -6,6 +6,9 @@ test "wenyu proof slice generates wechat output from projection" {
   assert_true(page.wxml.contains("data-building-id=\"building-dock\""))
   assert_true(page.wxml.contains("bunnia-list-windowed"))
   assert_true(page.wxml.contains("data-total-count=\"4\""))
+  assert_true(page.wxml.contains("data-viewport-width=\"640\""))
+  assert_true(page.wxml.contains("data-markers-total=\"4\""))
+  assert_true(page.wxml.contains("data-markers-visible=\"4\""))
   assert_true(page.wxml.contains("select-building-dock"))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
@@ -48,6 +51,7 @@ test "wenyu proof slice keeps updates and assets bounded" {
   assert_eq(backend.endpoint_count, 4)
   assert_eq(backend.review_required_count, 2)
   assert_eq(scene.marker_count, 4)
+  assert_eq(scene.visible_marker_count, 4)
   assert_eq(scene.asset_count, 1)
   assert_eq(scene.diagnostics.length(), 0)
 }
@@ -71,8 +75,8 @@ test "wenyu proof slice documents migration and large fixture shape" {
 test "wenyu proof slice exposes large scene pressure" {
   let scene = large_scene_render_plan(320)
   assert_eq(scene.marker_count, 320)
-  assert_eq(@bunnia.scene_quality_id(scene.quality), "lightweight")
-  assert_true(
-    scene.diagnostics.contains("scene-marker-count-over-budget:320/256"),
-  )
+  assert_eq(scene.visible_marker_count, 48)
+  assert_eq(@bunnia.scene_quality_id(scene.quality), "full")
+  assert_eq(scene.diagnostics.length(), 0)
+  assert_true(scene.summary.contains("markers=48/320"))
 }

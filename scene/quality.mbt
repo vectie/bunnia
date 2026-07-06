@@ -25,6 +25,7 @@ pub struct SceneRenderPlan {
   quality : SceneQualityLevel
   layer_count : Int
   marker_count : Int
+  visible_marker_count : Int
   asset_count : Int
   diagnostics : Array[String]
   summary : String
@@ -55,17 +56,52 @@ pub fn plan_scene_render_with_budget(
   budget : SceneRenderBudget,
 ) -> SceneRenderPlan {
   let marker_count = scene_marker_count(input)
-  let layer_count = input.layers.length()
-  let asset_count = input.assets.length()
+  plan_scene_render_counts(
+    marker_count,
+    marker_count,
+    input.layers.length(),
+    input.assets.length(),
+    budget,
+    "scene-marker-count-over-budget",
+  )
+}
+
+///|
+pub fn plan_scene_render_viewport(
+  input : Scene,
+  viewport : SceneViewport,
+  budget : SceneRenderBudget,
+) -> SceneRenderPlan {
+  let marker_count = scene_marker_count(input)
+  let visible_marker_count = scene_visible_marker_count(input, viewport)
+  plan_scene_render_counts(
+    marker_count,
+    visible_marker_count,
+    input.layers.length(),
+    input.assets.length(),
+    budget,
+    "scene-visible-marker-count-over-budget",
+  )
+}
+
+///|
+fn plan_scene_render_counts(
+  marker_count : Int,
+  visible_marker_count : Int,
+  layer_count : Int,
+  asset_count : Int,
+  budget : SceneRenderBudget,
+  marker_diagnostic : String,
+) -> SceneRenderPlan {
   let diagnostics : Array[String] = []
   if layer_count > budget.max_layers {
     diagnostics.push(
       "scene-layer-count-over-budget:\{layer_count}/\{budget.max_layers}",
     )
   }
-  if marker_count > budget.max_markers {
+  if visible_marker_count > budget.max_markers {
     diagnostics.push(
-      "scene-marker-count-over-budget:\{marker_count}/\{budget.max_markers}",
+      "\{marker_diagnostic}:\{visible_marker_count}/\{budget.max_markers}",
     )
   }
   if asset_count > budget.max_static_assets {
@@ -73,7 +109,7 @@ pub fn plan_scene_render_with_budget(
       "scene-static-assets-over-budget:\{asset_count}/\{budget.max_static_assets}",
     )
   }
-  let quality = if marker_count > budget.max_markers {
+  let quality = if visible_marker_count > budget.max_markers {
     LightweightQuality
   } else if layer_count > budget.max_layers ||
     asset_count > budget.max_static_assets {
@@ -91,9 +127,10 @@ pub fn plan_scene_render_with_budget(
     quality,
     layer_count,
     marker_count,
+    visible_marker_count,
     asset_count,
     diagnostics,
-    summary: "Bunnia scene render plan: mode=\{scene_render_mode_id(mode)} quality=\{scene_quality_id(quality)} layers=\{layer_count} markers=\{marker_count} assets=\{asset_count} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia scene render plan: mode=\{scene_render_mode_id(mode)} quality=\{scene_quality_id(quality)} layers=\{layer_count} markers=\{visible_marker_count}/\{marker_count} assets=\{asset_count} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -102,6 +139,22 @@ pub fn scene_marker_count(input : Scene) -> Int {
   let mut total = 0
   for item in input.layers {
     total += item.markers.length()
+  }
+  total
+}
+
+///|
+pub fn scene_visible_marker_count(
+  input : Scene,
+  viewport : SceneViewport,
+) -> Int {
+  let mut total = 0
+  for item in input.layers {
+    for scene_marker in item.markers {
+      if marker_in_viewport(scene_marker, viewport) {
+        total += 1
+      }
+    }
   }
   total
 }

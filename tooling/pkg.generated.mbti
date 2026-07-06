@@ -36,6 +36,7 @@ pub struct BuildProfile {
   patch_bytes : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
+  scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
   diagnostics : Array[String]
