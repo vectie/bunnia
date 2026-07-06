@@ -309,7 +309,10 @@ static/canvas/lightweight surface mode and any fallback explicit in build
 profiles before adding platform-specific rendering.
 Use `@bunnia.plan_scene_visual_quality(...)` for a checklist covering scene
 size, marker status, tap targets, asset references, unresolved assets, and
-degraded output.
+degraded output. Use `@bunnia.plan_scene_visual_quality_viewport(...)` for
+cameraed or clipped maps; it checks the viewport-sized rendered surface and
+visible objects while the embedded render plan still reports total/visible
+world geometry.
 Use `@bunnia.plan_scene_assets_with_budget(...)` to identify bundled scene
 assets that should be deferred or moved remote when package-byte budgets are
 tight. Use `@bunnia.plan_scene_assets_with_budget_and_policy(...)` when remote

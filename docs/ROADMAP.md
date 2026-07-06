@@ -664,6 +664,9 @@ Current evidence:
 - Scene visual quality plans check scene size, marker status, tap targets,
   marker asset references, unresolved assets, degraded output, and underlying
   render/asset diagnostics.
+- Viewport scene visual quality plans check the viewport-sized rendered surface
+  and visible objects while preserving total/visible world pressure in the
+  nested render plan.
 - Scene markers expose explicit hit-target dimensions in generated markup, and
   visual quality plans flag tappable markers whose hit area is too small for
   reliable mobile interaction.

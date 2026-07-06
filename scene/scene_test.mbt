@@ -249,6 +249,62 @@ test "scene visual quality plan reports weak map surfaces" {
 }
 
 ///|
+test "viewport scene visual quality ignores offscreen weak objects" {
+  let input = scene(
+    "viewport-quality-map",
+    scene_size(1200, 640),
+    [
+      layer(
+        "markers",
+        1,
+        [
+          marker(
+            id="visible",
+            label="Visible",
+            x=96,
+            y=96,
+            status="ready",
+            tap_message="select-visible",
+            asset_ref="pin",
+          ),
+          marker(id="offscreen", label="Offscreen", x=900, y=500),
+        ],
+        regions=[
+          region(
+            id="offscreen-region",
+            label="Offscreen Region",
+            x=860,
+            y=420,
+            width=120,
+            height=80,
+          ),
+        ],
+      ),
+    ],
+    assets=[sprite_asset("pin", "/assets/pin.png", 2048)],
+  )
+  let plan = plan_scene_visual_quality_viewport(
+    input,
+    scene_viewport(x=0, y=0, width=320, height=240),
+    default_scene_render_budget(),
+    default_scene_asset_budget(),
+    default_scene_visual_quality_budget(),
+  )
+  assert_eq(plan.render_plan.marker_count, 2)
+  assert_eq(plan.render_plan.visible_marker_count, 1)
+  assert_eq(plan.marker_count, 1)
+  assert_eq(plan.region_count, 0)
+  assert_eq(plan.markers_without_status_count, 0)
+  assert_eq(plan.markers_without_tap_count, 0)
+  assert_eq(plan.markers_without_asset_ref_count, 0)
+  assert_eq(plan.regions_without_status_count, 0)
+  assert_eq(plan.regions_without_tap_count, 0)
+  assert_eq(plan.degraded, false)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("markers=1"))
+}
+
+///|
 test "scene visual quality plan reports small tappable hit targets" {
   let input = scene(
     "touch-map",

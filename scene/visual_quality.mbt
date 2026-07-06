@@ -110,11 +110,26 @@ pub fn plan_scene_visual_quality_viewport(
   asset_budget : SceneAssetBudget,
   quality_budget : SceneVisualQualityBudget,
 ) -> SceneVisualQualityPlan {
+  let visible = scene_visual_quality_viewport_scene(input, viewport)
   plan_scene_visual_quality_from_plans(
-    input,
+    visible,
     plan_scene_render_viewport(input, viewport, render_budget),
-    plan_scene_assets_with_budget(input.assets, asset_budget),
+    plan_scene_assets_with_budget(visible.assets, asset_budget),
     quality_budget,
+  )
+}
+
+///|
+fn scene_visual_quality_viewport_scene(
+  input : Scene,
+  viewport : SceneViewport,
+) -> Scene {
+  let visible = viewport_scene(input, viewport)
+  scene(
+    visible.id,
+    scene_size(viewport.width, viewport.height),
+    visible.layers,
+    assets=visible.assets,
   )
 }
 
