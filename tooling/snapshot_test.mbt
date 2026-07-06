@@ -29,6 +29,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.scene_remote_asset_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
+  assert_eq(snapshot.inspection_gate_diagnostic_count, 0)
   assert_eq(snapshot.diagnostic_count, 0)
   assert_true(snapshot.summary.contains("files=10"))
   assert_true(snapshot.summary.contains("risk_route=pages/snapshot/index"))
@@ -37,6 +38,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("route_diagnostics=0"))
   assert_true(snapshot.summary.contains("scene_assets=0"))
   assert_true(snapshot.summary.contains("scene_remote_assets=0"))
+  assert_true(snapshot.summary.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
   assert_true(snapshot.content.contains("render_budget_profile=default"))
@@ -47,10 +49,16 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("scene_assets=0"))
   assert_true(snapshot.content.contains("scene_remote_assets=0"))
+  assert_true(snapshot.content.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
   assert_true(
     snapshot.content.contains("inspection=Bunnia project inspection:"),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "inspection_gate=Bunnia inspection gate: budget=default",
+    ),
   )
   assert_true(
     snapshot.content.contains(
@@ -64,6 +72,7 @@ test "generated snapshots record deterministic file pressure" {
       "route_diagnostics:\nreport_diagnostics:\nprofile_diagnostics:",
     ),
   )
+  assert_true(snapshot.content.contains("inspection_gate_diagnostics:\nfiles:"))
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("- bunnia.runtime.js kind=js bytes="))
   assert_true(snapshot.content.contains("- app.wxss kind=wxss bytes="))
@@ -203,13 +212,23 @@ test "generated snapshots can record active build report diagnostics" {
   assert_eq(snapshot.route_diagnostic_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
-  assert_eq(snapshot.diagnostic_count, report.diagnostics.length())
+  assert_true(snapshot.inspection_gate_diagnostic_count > 0)
+  assert_eq(
+    snapshot.diagnostic_count,
+    report.diagnostics.length() + snapshot.inspection_gate_diagnostic_count,
+  )
   assert_true(snapshot.diagnostic_count > 0)
   assert_true(snapshot.summary.contains("diagnostics="))
+  assert_true(snapshot.summary.contains("inspection_gate_diagnostics="))
   assert_true(snapshot.summary.contains("budget=tiny"))
   assert_true(snapshot.summary.contains("render_budget=tiny-render"))
   assert_true(
-    snapshot.content.contains("diagnostics=\{report.diagnostics.length()}"),
+    snapshot.content.contains("diagnostics=\{snapshot.diagnostic_count}"),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "inspection_gate_diagnostics=\{snapshot.inspection_gate_diagnostic_count}",
+    ),
   )
   assert_true(snapshot.content.contains("budget_profile=tiny"))
   assert_true(snapshot.content.contains("render_budget_profile=tiny-render"))
@@ -218,7 +237,12 @@ test "generated snapshots can record active build report diagnostics" {
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("route_diagnostics:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
-  assert_true(snapshot.content.contains("profile_diagnostics:\nfiles:"))
+  assert_true(snapshot.content.contains("profile_diagnostics:"))
+  assert_true(
+    snapshot.content.contains(
+      "inspection_gate_diagnostics:\n- inspection-route-risk-over-budget:pages/snapshot/index:",
+    ),
+  )
 }
 
 ///|

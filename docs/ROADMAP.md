@@ -789,6 +789,9 @@ Current evidence:
 - Generator snapshots carry the same highest-risk route and per-route
   inspection lines as the `inspect` command, so route-risk changes become
   reviewable CI artifacts without committing full generated output.
+- Generator snapshots also carry inspection gate summaries and diagnostics, so
+  strict route-pressure failures are reviewable from the deterministic snapshot
+  artifact.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review

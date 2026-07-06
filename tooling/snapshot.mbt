@@ -25,6 +25,7 @@ pub struct GeneratedSnapshot {
   scene_remote_asset_count : Int
   top_route : String
   route_risk_score : Int
+  inspection_gate_diagnostic_count : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]
   summary : String
@@ -68,12 +69,14 @@ pub fn snapshot_wechat_project_with_report(
   let scene_asset_count = project.manifest.scene_asset_count
   let scene_remote_asset_count = project.manifest.scene_remote_asset_count
   let inspection = inspect_wechat_project(target~, example~, project, report)
+  let inspection_gate = snapshot_inspection_gate(inspection, budget_profile)
   let diagnostic_count = report.diagnostics.length() +
-    profile.diagnostics.length()
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} scene_assets=\{scene_asset_count} scene_remote_assets=\{scene_remote_asset_count} diagnostics=\{diagnostic_count}"
+    profile.diagnostics.length() +
+    inspection_gate.diagnostics.length()
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} scene_assets=\{scene_asset_count} scene_remote_assets=\{scene_remote_asset_count} inspection_gate_diagnostics=\{inspection_gate.diagnostics.length()} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
     target, example, budget_profile, render_budget_profile, project, report, profile,
-    inspection, files, summary,
+    inspection, inspection_gate, files, summary,
   )
   {
     target,
@@ -93,11 +96,25 @@ pub fn snapshot_wechat_project_with_report(
     scene_remote_asset_count,
     top_route: inspection.top_route,
     route_risk_score: inspection.risk_score,
+    inspection_gate_diagnostic_count: inspection_gate.diagnostics.length(),
     diagnostic_count,
     files,
     summary,
     content,
   }
+}
+
+///|
+fn snapshot_inspection_gate(
+  inspection : ProjectInspection,
+  budget_profile : String,
+) -> ProjectInspectionGate {
+  let budget = if is_named_budget_profile(budget_profile) {
+    inspection_budget_for_profile(budget_profile)
+  } else {
+    inspection_budget_for_profile("default")
+  }
+  gate_project_inspection(inspection, budget, budget_profile~)
 }
 
 ///|
@@ -120,6 +137,7 @@ fn snapshot_content(
   report : @wechat.WechatBuildReport,
   profile : BuildProfile,
   inspection : ProjectInspection,
+  inspection_gate : ProjectInspectionGate,
   files : Array[GeneratedSnapshotFile],
   summary : String,
 ) -> String {
@@ -147,7 +165,9 @@ fn snapshot_content(
   write_snapshot_field(
     out,
     "diagnostics",
-    (report.diagnostics.length() + profile.diagnostics.length()).to_string(),
+    (report.diagnostics.length() +
+    profile.diagnostics.length() +
+    inspection_gate.diagnostics.length()).to_string(),
   )
   write_snapshot_field(
     out,
@@ -171,15 +191,26 @@ fn snapshot_content(
   )
   write_snapshot_field(out, "risk_route", inspection.top_route)
   write_snapshot_field(out, "risk_score", inspection.risk_score.to_string())
+  write_snapshot_field(
+    out,
+    "inspection_gate_diagnostics",
+    inspection_gate.diagnostics.length().to_string(),
+  )
   write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)
   write_snapshot_field(out, "inspection", inspection.summary)
+  write_snapshot_field(out, "inspection_gate", inspection_gate.summary)
   write_snapshot_field(out, "summary", summary)
   write_snapshot_route_inspections(out, inspection.routes)
   write_snapshot_scene_assets(out, project.manifest.scene_assets)
   write_snapshot_route_diagnostics(out, project.manifest.pages)
   write_snapshot_diagnostics(out, "report_diagnostics", report.diagnostics)
   write_snapshot_diagnostics(out, "profile_diagnostics", profile.diagnostics)
+  write_snapshot_diagnostics(
+    out,
+    "inspection_gate_diagnostics",
+    inspection_gate.diagnostics,
+  )
   out.write_string("files:\n")
   for item in files {
     out.write_string(
