@@ -912,10 +912,11 @@ Current evidence:
 - Unknown positional commands fail before the build pipeline runs, preventing
   command typos from silently writing stale generated output.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
-  format, platform-limits, route-inspect, strict-build, and generator-snapshot
-  commands with the default tight generated-output and render budgets, plus a
-  scaffold-smoke command that generates and validates a standalone starter, so
-  contributors can inspect the workflow without reading shell docs.
+  format, framework-boundary, platform-limits, route-inspect, strict-build, and
+  generator-snapshot commands with the default tight generated-output and
+  render budgets, plus a scaffold-smoke command that generates and validates a
+  standalone starter, so contributors can inspect the workflow without reading
+  shell docs.
 - `moon run cmd/main -- ci-plan --script` emits the same workflow as a
   deterministic `sh` script, including diagnostic-only failure output for
   unsupported targets or unknown budget profiles.
@@ -925,6 +926,10 @@ Current evidence:
 - `.githooks/pre-commit` delegates to `scripts/ci.sh`, so contributors can opt
   into the same generated check/test/interface/format/example/scaffold gate
   before committing.
+- `scripts/validate_boundaries.sh` is part of the generated CI plan and rejects
+  `vectie/moontown` dependencies or Moontown/Wenyu-specific nouns in framework
+  packages and public API summaries. Examples, docs, and CLI fixture selection
+  remain the only places that name the proof product.
 - `scripts/scaffold_smoke.sh` generates a starter through `bunnia init`, runs
   its check/test/local CI path, and verifies deferred Alipay CI/build commands
   fail before writing target artifacts, so scaffold regressions are caught by

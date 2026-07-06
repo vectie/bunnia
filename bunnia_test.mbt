@@ -51,4 +51,8 @@ test "bunnia exposes shared budget profiles" {
   let wechat = @bunnia.wechat_build_budget_for_profile("tight")
   assert_eq(wechat.max_files, 16)
   assert_eq(wechat.max_page_first_screen_bytes, 24576)
+  let plan = @bunnia.ci_plan()
+  assert_eq(plan.examples.length(), 1)
+  assert_eq(plan.examples[0], "agent_map")
+  assert_eq(plan.summary.contains("wenyu_overview"), false)
 }

@@ -3074,7 +3074,7 @@ pub fn ci_plan(
   target? : String = "wechat",
   budget_profile? : String = "tight",
   render_budget_profile? : String = "",
-  examples? : Array[String] = ["agent_map", "wenyu_overview"],
+  examples? : Array[String] = ["agent_map"],
   snapshot_dir? : String = "_build/bunnia/snapshots",
 ) -> CiPlan {
   @tooling.ci_plan(

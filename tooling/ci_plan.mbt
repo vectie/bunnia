@@ -44,7 +44,7 @@ pub fn ci_plan(
   target? : String = "wechat",
   budget_profile? : String = "tight",
   render_budget_profile? : String = "",
-  examples? : Array[String] = ["agent_map", "wenyu_overview"],
+  examples? : Array[String] = ["agent_map"],
   snapshot_dir? : String = "_build/bunnia/snapshots",
 ) -> CiPlan {
   let active_render_budget_profile = if render_budget_profile == "" {
@@ -71,6 +71,11 @@ pub fn ci_plan(
   steps.push(
     ci_step(
       "diff-clean", "git diff --exit-code", "reject uncommitted interface or formatting changes",
+    ),
+  )
+  steps.push(
+    ci_step(
+      "boundary", "sh scripts/validate_boundaries.sh", "reject product-specific framework API or dependency leaks",
     ),
   )
   steps.push(
