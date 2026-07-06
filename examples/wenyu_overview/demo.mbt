@@ -85,6 +85,16 @@ pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
 }
 
 ///|
+pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
+  @bunnia.plan_scene_render(demo_scene(demo_projection()))
+}
+
+///|
+pub fn large_scene_render_plan(building_count : Int) -> @bunnia.SceneRenderPlan {
+  @bunnia.plan_scene_render(large_scene(building_count))
+}
+
+///|
 fn header_view(input : WenyuProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [
@@ -166,14 +176,22 @@ fn review_panel(_input : WenyuProjection) -> @bunnia.Node {
 
 ///|
 fn map_view(input : WenyuProjection) -> @bunnia.Node {
-  @bunnia.static_scene_view(
-    @bunnia.scene(
-      "wenyu-map",
-      @bunnia.scene_size(640, 460),
-      [@bunnia.layer("buildings", 1, markers_from_buildings(input.buildings))],
-      assets=scene_assets(),
-    ),
+  @bunnia.static_scene_view(demo_scene(input))
+}
+
+///|
+fn demo_scene(input : WenyuProjection) -> @bunnia.Scene {
+  @bunnia.scene(
+    "wenyu-map",
+    @bunnia.scene_size(640, 460),
+    [@bunnia.layer("buildings", 1, markers_from_buildings(input.buildings))],
+    assets=scene_assets(),
   )
+}
+
+///|
+fn large_scene(building_count : Int) -> @bunnia.Scene {
+  demo_scene(large_projection(building_count))
 }
 
 ///|

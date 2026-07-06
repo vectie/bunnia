@@ -158,6 +158,9 @@ pub type WechatFile = @wechat.WechatFile
 pub type WechatProject = @wechat.WechatProject
 
 ///|
+pub type BuildProfile = @tooling.BuildProfile
+
+///|
 pub fn attr(name : String, value : String) -> Attr {
   @core.attr(name, value)
 }
@@ -1564,4 +1567,21 @@ pub fn report_wechat_project_with_budget(
   budget : WechatBuildBudget,
 ) -> WechatBuildReport {
   @wechat.report_project_with_budget(project, runtime, budget)
+}
+
+///|
+pub fn profile_wechat_project(
+  project : WechatProject,
+  patches : PatchPlan,
+  backend_plans? : Array[BackendPlan] = [],
+  asset_plans? : Array[SceneAssetPlan] = [],
+  scene_plans? : Array[SceneRenderPlan] = [],
+) -> BuildProfile {
+  @tooling.profile_wechat_project(
+    project,
+    patches,
+    backend_plans~,
+    asset_plans~,
+    scene_plans~,
+  )
 }

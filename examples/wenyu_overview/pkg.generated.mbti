@@ -26,6 +26,8 @@ pub fn demo_projection_json() -> String
 
 pub fn demo_runtime() -> @wechat.WechatRuntime
 
+pub fn demo_scene_render_plan() -> @scene.SceneRenderPlan
+
 pub fn demo_view() -> @core.Node
 
 pub fn demo_wechat_page() -> @wechat.WechatPage
@@ -33,6 +35,8 @@ pub fn demo_wechat_page() -> @wechat.WechatPage
 pub fn demo_wechat_project() -> @wechat.WechatProject
 
 pub fn large_projection(Int) -> WenyuProjection
+
+pub fn large_scene_render_plan(Int) -> @scene.SceneRenderPlan
 
 pub fn migration_notes() -> Array[String]
 

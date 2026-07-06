@@ -4,12 +4,15 @@ package "vectie/bunnia/examples/agent_map"
 import {
   "vectie/bunnia/adapters/wechat",
   "vectie/bunnia/core",
+  "vectie/bunnia/scene",
 }
 
 // Values
 pub fn demo_patch_plan() -> @core.PatchPlan
 
 pub fn demo_runtime() -> @wechat.WechatRuntime
+
+pub fn demo_scene_render_plan() -> @scene.SceneRenderPlan
 
 pub fn demo_view() -> @core.Node
 

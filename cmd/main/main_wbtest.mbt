@@ -34,8 +34,24 @@ test "build example flag selects Wenyu proof output folder" {
 test "build example flag selects Wenyu project" {
   let project = project_for_example("wenyu_overview")
   let patches = patches_for_example("wenyu_overview")
+  let profile = profile_for_example("wenyu_overview", project, patches)
   assert_eq(project.route, "pages/wenyu/index")
   assert_eq(patches.patches.length(), 2)
+  assert_eq(profile.backend_endpoint_count, 4)
+  assert_eq(profile.scene_marker_count, 4)
+  assert_eq(profile.scene_asset_count, 1)
+  assert_true(profile.summary.contains("scene_package_bytes=4096"))
+}
+
+///|
+test "build profile keeps agent map diagnostics visible" {
+  let project = project_for_example("agent_map")
+  let patches = patches_for_example("agent_map")
+  let profile = profile_for_example("agent_map", project, patches)
+  assert_eq(profile.route, "pages/index/index")
+  assert_eq(profile.scene_marker_count, 2)
+  assert_eq(profile.backend_endpoint_count, 0)
+  assert_eq(profile.diagnostics.length(), 0)
 }
 
 ///|

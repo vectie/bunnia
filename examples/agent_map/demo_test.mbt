@@ -35,3 +35,12 @@ test "agent map demo keeps updates as patches" {
   assert_eq(patches.diagnostics.length(), 0)
   assert_true(patches.total_estimated_bytes < 128)
 }
+
+///|
+test "agent map demo exposes scene profile signals" {
+  let scene = demo_scene_render_plan()
+  assert_eq(scene.layer_count, 1)
+  assert_eq(scene.marker_count, 2)
+  assert_eq(scene.asset_count, 0)
+  assert_eq(scene.diagnostics.length(), 0)
+}

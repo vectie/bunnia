@@ -5,4 +5,5 @@ import {
   "vectie/bunnia/effects",
   "vectie/bunnia/program",
   "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/tooling",
 }

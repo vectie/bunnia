@@ -24,28 +24,7 @@ pub fn demo_view() -> @bunnia.Node {
       reject_message="reject-route",
     ),
   )
-  let map = @bunnia.static_scene_view(
-    @bunnia.scene("ops-map", @bunnia.scene_size(720, 520), [
-      @bunnia.layer("zones", 1, [
-        @bunnia.marker(
-          id="zone-a",
-          label="North Gate",
-          x=96,
-          y=144,
-          status="stable",
-          tap_message="select-zone-a",
-        ),
-        @bunnia.marker(
-          id="zone-b",
-          label="Review Dock",
-          x=420,
-          y=260,
-          status="review",
-          tap_message="select-zone-b",
-        ),
-      ]),
-    ]),
-  )
+  let map = @bunnia.static_scene_view(demo_scene())
   @bunnia.page([
     @bunnia.view_with_attrs([@bunnia.class_name("demo-shell")], [
       @bunnia.text("Agent Map"),
@@ -104,5 +83,34 @@ pub fn demo_patch_plan() -> @bunnia.PatchPlan {
   @bunnia.plan_patches([
     @bunnia.set_string("__bunnia.lastMessage", "select-zone-b"),
     @bunnia.set_json("scene.zones.zone-b.status", "\"running\""),
+  ])
+}
+
+///|
+pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
+  @bunnia.plan_scene_render(demo_scene())
+}
+
+///|
+fn demo_scene() -> @bunnia.Scene {
+  @bunnia.scene("ops-map", @bunnia.scene_size(720, 520), [
+    @bunnia.layer("zones", 1, [
+      @bunnia.marker(
+        id="zone-a",
+        label="North Gate",
+        x=96,
+        y=144,
+        status="stable",
+        tap_message="select-zone-a",
+      ),
+      @bunnia.marker(
+        id="zone-b",
+        label="Review Dock",
+        x=420,
+        y=260,
+        status="review",
+        tap_message="select-zone-b",
+      ),
+    ]),
   ])
 }

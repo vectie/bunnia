@@ -599,6 +599,11 @@ Current evidence:
   file-size, initial-data, event-patch, and patch-plan summaries.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
+- Build profiles aggregate render, WeChat, patch, backend, scene asset, and
+  scene render diagnostics into one CLI-visible summary for generated examples.
+- The CLI prints build-profile summaries for both `agent_map` and
+  `wenyu_overview`, including backend endpoint count, scene marker pressure,
+  scene asset count, and package-byte signals.
 
 ## Phase 8: Production Readiness
 

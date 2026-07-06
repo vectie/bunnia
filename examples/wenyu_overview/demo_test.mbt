@@ -28,6 +28,7 @@ test "wenyu proof slice keeps updates and assets bounded" {
   let patches = demo_patch_plan()
   let asset_plan = demo_asset_plan()
   let backend = @bunnia.plan_backend_contract(demo_backend_contract())
+  let scene = demo_scene_render_plan()
   assert_eq(patches.patches.length(), 2)
   assert_true(patches.total_estimated_bytes < 128)
   assert_eq(asset_plan.assets.length(), 1)
@@ -35,6 +36,9 @@ test "wenyu proof slice keeps updates and assets bounded" {
   assert_eq(asset_plan.diagnostics.length(), 0)
   assert_eq(backend.endpoint_count, 4)
   assert_eq(backend.review_required_count, 2)
+  assert_eq(scene.marker_count, 4)
+  assert_eq(scene.asset_count, 1)
+  assert_eq(scene.diagnostics.length(), 0)
 }
 
 ///|
@@ -48,4 +52,14 @@ test "wenyu proof slice documents migration and large fixture shape" {
   assert_true(demo_projection_json().contains("\"building-dock\""))
   assert_true(migration_notes().length() >= 5)
   assert_true(migration_notes()[4].contains("building card"))
+}
+
+///|
+test "wenyu proof slice exposes large scene pressure" {
+  let scene = large_scene_render_plan(320)
+  assert_eq(scene.marker_count, 320)
+  assert_eq(@bunnia.scene_quality_id(scene.quality), "lightweight")
+  assert_true(
+    scene.diagnostics.contains("scene-marker-count-over-budget:320/256"),
+  )
 }

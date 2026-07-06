@@ -6,6 +6,7 @@ fn main {
   let output_dir = output_dir_from_args(@env.args(), example)
   let project = project_for_example(example)
   let patches = patches_for_example(example)
+  let profile = profile_for_example(example, project, patches)
   write_project(output_dir, project)
   println("example=\{example}")
   println(project.page.plan.summary)
@@ -13,6 +14,8 @@ fn main {
   println(project.report.summary)
   print_diagnostics(project.report.diagnostics)
   println(patches.summary)
+  println(profile.summary)
+  print_profile_diagnostics(profile.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
 
@@ -71,6 +74,32 @@ fn patches_for_example(example : String) -> @bunnia.PatchPlan {
 }
 
 ///|
+fn profile_for_example(
+  example : String,
+  project : @bunnia.WechatProject,
+  patches : @bunnia.PatchPlan,
+) -> @bunnia.BuildProfile {
+  if example == "wenyu_overview" {
+    @bunnia.profile_wechat_project(
+      project,
+      patches,
+      backend_plans=[
+        @bunnia.plan_backend_contract(@wenyu.demo_backend_contract()),
+      ],
+      asset_plans=[@wenyu.demo_asset_plan()],
+      scene_plans=[@wenyu.demo_scene_render_plan()],
+    )
+  } else if example == "agent_map" {
+    @bunnia.profile_wechat_project(project, patches, scene_plans=[
+      @demo.demo_scene_render_plan(),
+    ])
+  } else {
+    println("unsupported example=\{example}")
+    panic()
+  }
+}
+
+///|
 fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
   for file in project.files {
     write_text_file(join_path(output_dir, file.path), file.content)
@@ -92,6 +121,13 @@ fn join_path(left : String, right : String) -> String {
 fn print_diagnostics(items : Array[String]) -> Unit {
   for item in items {
     println("diagnostic=\{item}")
+  }
+}
+
+///|
+fn print_profile_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("profile_diagnostic=\{item}")
   }
 }
 

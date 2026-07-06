@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/tooling"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/core",
+  "vectie/bunnia/effects",
+  "vectie/bunnia/scene",
+}
+
+// Values
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> BuildProfile
+
+// Errors
+
+// Types and methods
+pub struct BuildProfile {
+  name : String
+  route : String
+  node_count : Int
+  component_count : Int
+  event_count : Int
+  file_count : Int
+  total_bytes : Int
+  initial_data_bytes : Int
+  event_patch_bytes : Int
+  patch_bytes : Int
+  backend_endpoint_count : Int
+  scene_marker_count : Int
+  scene_asset_count : Int
+  scene_package_bytes : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits

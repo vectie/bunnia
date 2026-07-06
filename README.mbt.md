@@ -47,6 +47,8 @@ phase-by-phase implementation plan.
 - `effects`: typed frontend effect descriptions for request, navigation,
   cancel, retry, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
+- `tooling`: build-profile diagnostics that aggregate render, WeChat, patch,
+  backend, asset, and scene budget signals.
 - `examples/agent_map`: small downstream example combining agentic UI, review
   controls, patches, and a static map surface.
 - `examples/wenyu_overview`: product-shaped proof slice that keeps Wenyu
@@ -62,8 +64,8 @@ moon run cmd/main
 This writes a WeChat Mini Program file set to
 `_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
 event-to-patch dispatch for review buttons and map markers. The command also
-prints render, file-size, initial-data, and event-patch budget summaries. Use
-`--out` to choose another directory:
+prints render, file-size, initial-data, event-patch, patch, and build-profile
+budget summaries. Use `--out` to choose another directory:
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map
