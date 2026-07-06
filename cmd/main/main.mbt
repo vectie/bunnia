@@ -433,14 +433,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
       target, example, budget_profile, render_budget_profile, project, report, patches,
       profile, profile_gate, snapshot, inspection, inspection_gate,
     )
-  } else {
-    write_project(output_dir, project)
-    print_build_result(
-      command, target, example, budget_profile, render_budget_profile, output_dir,
-      project, report, patches, profile, profile_gate, inspection_gate,
-    )
-  }
-  if command == "snapshot" {
+  } else if command == "snapshot" {
     let snapshot = snapshot_for_build(
       target~,
       example~,
@@ -450,10 +443,20 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
       budget_profile~,
       render_budget_profile~,
     )
+    print_snapshot_result(
+      target, example, budget_profile, render_budget_profile, project, report, patches,
+      profile, profile_gate, inspection_gate,
+    )
     let snapshot_path = snapshot_output_path_from_args(args, target, example)
     write_text_file(snapshot_path, snapshot.content)
     println(snapshot.summary)
     println("snapshot=\{snapshot_path}")
+  } else {
+    write_project(output_dir, project)
+    print_build_result(
+      command, target, example, budget_profile, render_budget_profile, output_dir,
+      project, report, patches, profile, profile_gate, inspection_gate,
+    )
   }
   if should_fail_build(
       strict, project, report, patches, profile, profile_gate, inspection_gate,
@@ -489,6 +492,38 @@ fn snapshot_for_build(
     budget_profile~,
     render_budget_profile~,
   )
+}
+
+///|
+fn print_snapshot_result(
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  patches : @bunnia.PatchPlan,
+  profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
+  inspection_gate : @bunnia.ProjectInspectionGate,
+) -> Unit {
+  println("command=snapshot")
+  println("target=\{target}")
+  println("example=\{example}")
+  println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  println(project.manifest.summary)
+  println(report.summary)
+  print_diagnostics(report.diagnostics)
+  println(patches.summary)
+  println(profile.summary)
+  print_profile_diagnostics(profile.diagnostics)
+  println(profile_gate.summary)
+  print_profile_gate_diagnostics(profile_gate.diagnostics)
+  println(inspection_gate.summary)
+  print_inspection_gate_diagnostics(inspection_gate.diagnostics)
 }
 
 ///|

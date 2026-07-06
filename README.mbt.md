@@ -108,7 +108,7 @@ Use `--once` with `watch` to run the same generation path once in CI or smoke
 tests without starting a long-running file watcher.
 
 For deterministic generator review in CI, write a compact generated-output
-snapshot:
+snapshot without writing the full generated mini-program directory:
 
 ```bash
 moon run cmd/main -- snapshot --target wechat --example agent_map --strict
