@@ -1509,11 +1509,11 @@ test "scaffold project exposes starter files through facade" {
     name="mini_agent",
     module_name="local/mini_agent",
   )
-  assert_eq(scaffold.files.length(), 4)
+  assert_eq(scaffold.files.length(), 8)
   assert_eq(scaffold.module_name, "local/mini_agent")
   assert_true(scaffold.summary.contains("Bunnia scaffold"))
   assert_true(
-    scaffold_file_content(scaffold.files, "app.mbt").contains(
+    scaffold_file_content(scaffold.files, "agent_feed.mbt").contains(
       "windowed_message_feed",
     ),
   )
@@ -1523,7 +1523,17 @@ test "scaffold project exposes starter files through facade" {
     ),
   )
   assert_true(
-    scaffold_file_content(scaffold.files, "app.mbt").contains("render_plan"),
+    scaffold_file_content(scaffold.files, "scene.mbt").contains("starter_scene"),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "updates.mbt").contains(
+      "append_stream_chunk_delta",
+    ),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "quality.mbt").contains(
+      "strict_render_plan",
+    ),
   )
   assert_true(
     scaffold_file_content(scaffold.files, "moon.pkg").contains(

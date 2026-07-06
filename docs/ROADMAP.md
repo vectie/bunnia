@@ -895,11 +895,10 @@ Current evidence:
   update-payload, scene-marker, diagnostic, and per-file byte/checksum lines
   without writing generated output.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
-  init`, generating a small standalone MoonBit package with Bunnia view,
-  windowed agentic message feed, static scene map, surface status overlay,
-  render-plan helper, scene render-plan helper, agent patch helper, and scene
-  patch starter files, plus a local `moon.work` link for development before
-  registry publication.
+  init`, generating a small standalone MoonBit package that splits app view,
+  windowed agentic message feed, static scene map, bounded updates, and budget
+  checks into separate starter files, plus a local `moon.work` link for
+  development before registry publication.
 
 ## Phase 8: Production Readiness
 

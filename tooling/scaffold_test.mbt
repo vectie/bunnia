@@ -3,10 +3,14 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 4)
+  assert_eq(plan.files.length(), 8)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
   assert_true(has_file(plan.files, "app.mbt"))
+  assert_true(has_file(plan.files, "agent_feed.mbt"))
+  assert_true(has_file(plan.files, "scene.mbt"))
+  assert_true(has_file(plan.files, "updates.mbt"))
+  assert_true(has_file(plan.files, "quality.mbt"))
   assert_true(has_file(plan.files, "README.mbt.md"))
   assert_true(
     file_content(plan.files, "moon.mod").contains("name = \"local/starter\""),
@@ -19,29 +23,42 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(file_content(plan.files, "app.mbt").contains("pub fn view()"))
   assert_true(
-    file_content(plan.files, "app.mbt").contains("windowed_message_feed"),
+    file_content(plan.files, "app.mbt").contains("starter_agent_feed"),
+  )
+  assert_true(
+    file_content(plan.files, "agent_feed.mbt").contains("windowed_message_feed"),
   )
   assert_true(
     file_content(plan.files, "app.mbt").contains("surface_status_overlay"),
   )
-  assert_true(file_content(plan.files, "app.mbt").contains("starter_scene"))
+  assert_true(file_content(plan.files, "scene.mbt").contains("starter_scene"))
   assert_true(file_content(plan.files, "app.mbt").contains("static_scene_view"))
   assert_true(
-    file_content(plan.files, "app.mbt").contains("pub fn scene_render_plan()"),
+    file_content(plan.files, "scene.mbt").contains("pub fn scene_render_plan()"),
   )
   assert_true(
-    file_content(plan.files, "app.mbt").contains("select_scene_marker"),
+    file_content(plan.files, "updates.mbt").contains("select_scene_marker"),
   )
   assert_true(
-    file_content(plan.files, "app.mbt").contains("pub fn render_plan()"),
+    file_content(plan.files, "quality.mbt").contains("pub fn render_plan()"),
   )
   assert_true(
-    file_content(plan.files, "app.mbt").contains("append_stream_chunk_delta"),
+    file_content(plan.files, "quality.mbt").contains("strict_render_plan"),
   )
   assert_true(
-    file_content(plan.files, "README.mbt.md").contains("map rendering"),
+    file_content(plan.files, "quality.mbt").contains(
+      "render_budget_for_profile",
+    ),
   )
-  assert_true(plan.summary.contains("files=4"))
+  assert_true(
+    file_content(plan.files, "updates.mbt").contains(
+      "append_stream_chunk_delta",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains("separate files"),
+  )
+  assert_true(plan.summary.contains("files=8"))
 }
 
 ///|
