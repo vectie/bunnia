@@ -115,11 +115,11 @@ pub fn inspect_wechat_project(
       top_route = inspection.route
       top_score = inspection.risk_score
     }
-    if inspection.scene_marker_count > max_scene_markers {
-      max_scene_markers = inspection.scene_marker_count
+    if inspection.scene_visible_marker_count > max_scene_markers {
+      max_scene_markers = inspection.scene_visible_marker_count
     }
-    if inspection.scene_region_count > max_scene_regions {
-      max_scene_regions = inspection.scene_region_count
+    if inspection.scene_visible_region_count > max_scene_regions {
+      max_scene_regions = inspection.scene_visible_region_count
     }
     if inspection.scene_asset_count > max_scene_assets {
       max_scene_assets = inspection.scene_asset_count
@@ -194,8 +194,8 @@ fn route_risk_score(page : @wechat.WechatManifestPage) -> Int {
   page.update_payload_bytes * 4 +
   page.node_count * 16 +
   page.event_count * 64 +
-  page.scene_marker_count * 32 +
-  page.scene_region_count * 48 +
+  page.scene_visible_marker_count * 32 +
+  page.scene_visible_region_count * 48 +
   route_scene_asset_count(page) * 128 +
   route_scene_remote_asset_count(page) * 256
 }

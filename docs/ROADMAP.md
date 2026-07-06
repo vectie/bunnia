@@ -354,9 +354,10 @@ Current evidence:
 - Generic render plans now report scene count, visible/total marker count,
   scene asset count, and degraded scene count, making map pressure visible
   before adapter-specific generation.
-- Render budgets can now diagnose scene marker count and degraded scene count
-  directly, so strict builds can fail oversized map routes before adapter
-  generation or mini-app preview.
+- Render budgets diagnose visible scene marker/region count and degraded scene
+  count directly while preserving total world counts in profiles, so strict
+  builds can fail oversized first-screen map routes without penalizing
+  offscreen scene size.
 - WeChat page/project generation can accept explicit render budgets, carrying
   route render diagnostics and the active budget limits into manifests, build
   reports, snapshots, and strict CLI gates without product-specific plumbing.

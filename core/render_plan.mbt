@@ -161,14 +161,14 @@ pub fn plan_for_adapter_with_budget(
       "canvas-unsupported:\{adapter.id}:\{unsupported_canvas_count}",
     )
   }
-  if scene_markers > budget.max_scene_markers {
+  if scene_visible_markers > budget.max_scene_markers {
     diagnostics.push(
-      "scene-marker-count-over-budget:\{scene_markers}/\{budget.max_scene_markers}",
+      "scene-marker-count-over-budget:\{scene_visible_markers}/\{budget.max_scene_markers}",
     )
   }
-  if scene_regions > budget.max_scene_regions {
+  if scene_visible_regions > budget.max_scene_regions {
     diagnostics.push(
-      "scene-region-count-over-budget:\{scene_regions}/\{budget.max_scene_regions}",
+      "scene-region-count-over-budget:\{scene_visible_regions}/\{budget.max_scene_regions}",
     )
   }
   if scene_assets > budget.max_scene_assets {

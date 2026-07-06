@@ -44,6 +44,78 @@ test "project inspection identifies the heaviest clean route" {
 }
 
 ///|
+test "project inspection scores viewported maps by visible geometry" {
+  let offscreen_markers : Array[@scene.SceneMarker] = []
+  for i in 0..<80 {
+    offscreen_markers.push(
+      @scene.marker(id="offscreen-\{i}", label="Offscreen \{i}", x=i * 32, y=24),
+    )
+  }
+  let visible_markers : Array[@scene.SceneMarker] = []
+  for i in 0..<6 {
+    visible_markers.push(
+      @scene.marker(id="visible-\{i}", label="Visible \{i}", x=i * 24, y=32),
+    )
+  }
+  let project = @wechat.generate_project_from_pages(
+    name="Inspection Scene Visibility",
+    pages=[
+      @wechat.project_page(
+        name="Large Offscreen",
+        route="pages/large-offscreen/index",
+        root=@core.page([
+          @scene.static_scene_view_with_viewport(
+            @scene.scene("large-offscreen", @scene.scene_size(3200, 640), [
+              @scene.layer("markers", 1, offscreen_markers),
+            ]),
+            @scene.scene_viewport(x=0, y=0, width=40, height=120),
+          ),
+        ]),
+      ),
+      @wechat.project_page(
+        name="Visible Work",
+        route="pages/visible-work/index",
+        root=@core.page([
+          @scene.static_scene_view(
+            @scene.scene("visible-work", @scene.scene_size(360, 240), [
+              @scene.layer("markers", 1, visible_markers),
+            ]),
+          ),
+        ]),
+      ),
+    ],
+  )
+  let inspection = inspect_wechat_project(
+    target="wechat",
+    example="inspection_scene_visibility",
+    project,
+    project.report,
+  )
+  assert_eq(inspection.routes[0].scene_marker_count, 80)
+  assert_eq(inspection.routes[0].scene_visible_marker_count, 2)
+  assert_eq(inspection.routes[1].scene_marker_count, 6)
+  assert_eq(inspection.routes[1].scene_visible_marker_count, 6)
+  assert_eq(inspection.max_scene_marker_count, 6)
+  let large_route = inspection.routes[0]
+  let visible_risk_score = large_route.diagnostics * 1000000 +
+    large_route.first_screen_bytes +
+    large_route.update_payload_bytes * 4 +
+    large_route.node_count * 16 +
+    large_route.event_count * 64 +
+    large_route.scene_visible_marker_count * 32
+  let total_risk_score = large_route.diagnostics * 1000000 +
+    large_route.first_screen_bytes +
+    large_route.update_payload_bytes * 4 +
+    large_route.node_count * 16 +
+    large_route.event_count * 64 +
+    large_route.scene_marker_count * 32
+  assert_eq(large_route.risk_score, visible_risk_score)
+  assert_true(large_route.risk_score < total_risk_score)
+  assert_true(inspection.summary.contains("max_scene_markers=6"))
+  assert_true(inspection.routes[0].summary.contains("scene_markers=2/80"))
+}
+
+///|
 test "project inspection reports route scene asset pressure" {
   let project = @wechat.generate_project_from_pages(
     name="Inspection Scene Assets",

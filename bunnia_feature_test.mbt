@@ -862,6 +862,56 @@ test "render budgets diagnose scene marker pressure" {
 }
 
 ///|
+test "render budgets gate visible viewport scene geometry" {
+  let markers : Array[@bunnia.SceneMarker] = []
+  let regions : Array[@bunnia.SceneRegion] = []
+  for i in 0..<80 {
+    markers.push(
+      @bunnia.marker(id="marker-\{i}", label="M\{i}", x=i * 16, y=24),
+    )
+    regions.push(
+      @bunnia.region(
+        id="region-\{i}",
+        label="R\{i}",
+        x=i * 32,
+        y=72,
+        width=20,
+        height=20,
+      ),
+    )
+  }
+  let scene = @bunnia.scene("large-budget-map", @bunnia.scene_size(2400, 640), [
+    @bunnia.layer("world", 1, markers, regions~),
+  ])
+  let root = @bunnia.page([
+    @bunnia.static_scene_view_with_viewport(
+      scene,
+      @bunnia.scene_viewport(x=0, y=0, width=72, height=160),
+    ),
+  ])
+  let plan = @bunnia.plan_with_budget(
+    root,
+    @bunnia.wechat(),
+    @bunnia.render_budget(
+      max_nodes=128,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=1024,
+      max_scene_markers=8,
+      max_scene_regions=4,
+    ),
+  )
+  assert_eq(plan.scene_marker_count, 80)
+  assert_eq(plan.scene_visible_marker_count, 5)
+  assert_eq(plan.scene_region_count, 80)
+  assert_eq(plan.scene_visible_region_count, 3)
+  assert_true(!plan.diagnostics.contains("scene-marker-count-over-budget:80/8"))
+  assert_true(!plan.diagnostics.contains("scene-region-count-over-budget:80/4"))
+  assert_true(plan.summary.contains("scene_markers=5/80"))
+  assert_true(plan.summary.contains("scene_regions=3/80"))
+}
+
+///|
 test "render budgets diagnose scene asset pressure" {
   let scene = @bunnia.scene(
     "asset-map",
