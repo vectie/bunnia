@@ -20,6 +20,29 @@ pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
 }
 
 ///|
+pub fn generate_set_data_call(patches : Array[@core.Patch]) -> String {
+  "this.setData(\{patches_to_object(patches)})"
+}
+
+///|
+fn patches_to_object(patches : Array[@core.Patch]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("{")
+  for i in 0..<patches.length() {
+    let item = patches[i]
+    if i > 0 {
+      out.write_string(",")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(item.path))
+    out.write_string("\":")
+    out.write_string(item.value_json)
+  }
+  out.write_string("}")
+  out.to_string()
+}
+
+///|
 fn render_node(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
   let kind = component_name(root.kind, adapter)
   if kind == "page" {

@@ -74,3 +74,22 @@ test "wechat generator emits page files with targeted event routing" {
   assert_true(output.json.contains("navigationBarTitleText"))
   assert_eq(output.plan.node_count, 5)
 }
+
+///|
+test "patch plans keep mini-app updates bounded" {
+  let patches = [
+    @bunnia.set_string("__bunnia.lastMessage", "open-detail"),
+    @bunnia.set_json("scene.markers.marker-a.status", "\"running\""),
+  ]
+  let plan = @bunnia.plan_patches_with_budget(
+    patches,
+    @bunnia.patch_budget(max_patches=1, max_patch_bytes=32),
+  )
+  assert_eq(plan.patches.length(), 2)
+  assert_eq(plan.diagnostics.length(), 2)
+  assert_true(plan.diagnostics.contains("patch-count-over-budget:2/1"))
+  let js = @bunnia.generate_wechat_set_data_call(patches)
+  assert_true(js.contains("this.setData"))
+  assert_true(js.contains("\"__bunnia.lastMessage\":\"open-detail\""))
+  assert_true(js.contains("\"scene.markers.marker-a.status\":\"running\""))
+}

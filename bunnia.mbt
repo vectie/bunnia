@@ -20,6 +20,18 @@ pub type RenderBudget = @core.RenderBudget
 pub type RenderPlan = @core.RenderPlan
 
 ///|
+pub type PatchKind = @core.PatchKind
+
+///|
+pub type Patch = @core.Patch
+
+///|
+pub type PatchBudget = @core.PatchBudget
+
+///|
+pub type PatchPlan = @core.PatchPlan
+
+///|
 pub type ActorKind = @agent.ActorKind
 
 ///|
@@ -234,6 +246,49 @@ pub fn plan_with_budget(
 }
 
 ///|
+pub fn patch_budget(max_patches~ : Int, max_patch_bytes~ : Int) -> PatchBudget {
+  @core.patch_budget(max_patches~, max_patch_bytes~)
+}
+
+///|
+pub fn default_patch_budget() -> PatchBudget {
+  @core.default_patch_budget()
+}
+
+///|
+pub fn set_json(path : String, value_json : String) -> Patch {
+  @core.set_json(path, value_json)
+}
+
+///|
+pub fn set_string(path : String, value : String) -> Patch {
+  @core.set_string(path, value)
+}
+
+///|
+pub fn append_json(path : String, value_json : String) -> Patch {
+  @core.append_json(path, value_json)
+}
+
+///|
+pub fn remove_path(path : String) -> Patch {
+  @core.remove_path(path)
+}
+
+///|
+pub fn plan_patches(patches : Array[Patch]) -> PatchPlan {
+  @core.plan_patches(patches)
+}
+
+///|
+pub fn plan_patches_with_budget(
+  patches : Array[Patch],
+  budget : PatchBudget,
+) -> PatchPlan {
+  @core.plan_patches_with_budget(patches, budget)
+}
+
+///|
 pub fn actor(
   id~ : String,
   label~ : String,
@@ -369,4 +424,9 @@ pub fn effect_chip(item : Effect) -> Node {
 ///|
 pub fn generate_wechat_page(name : String, root : Node) -> WechatPage {
   @wechat.generate_page(name, root)
+}
+
+///|
+pub fn generate_wechat_set_data_call(patches : Array[Patch]) -> String {
+  @wechat.generate_set_data_call(patches)
 }

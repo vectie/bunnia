@@ -9,6 +9,8 @@ import {
 // Values
 pub fn generate_page(String, @core.Node) -> WechatPage
 
+pub fn generate_set_data_call(Array[@core.Patch]) -> String
+
 // Errors
 
 // Types and methods

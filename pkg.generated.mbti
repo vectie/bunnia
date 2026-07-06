@@ -16,6 +16,8 @@ pub fn adapter(@core.Platform) -> @core.PlatformAdapter
 
 pub fn alipay() -> @core.Platform
 
+pub fn append_json(String, String) -> @core.Patch
+
 pub fn attr(String, String) -> @core.Attr
 
 pub fn button(String, String) -> @core.Node
@@ -30,6 +32,8 @@ pub fn custom(String, Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
 pub fn data(String, String) -> @core.Attr
 
+pub fn default_patch_budget() -> @core.PatchBudget
+
 pub fn default_render_budget() -> @core.RenderBudget
 
 pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
@@ -39,6 +43,8 @@ pub fn effect_chip(@effects.Effect) -> @core.Node
 pub fn event(String, String) -> @core.EventBinding
 
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
+
+pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
 pub fn id(String) -> @core.Attr
 
@@ -66,13 +72,21 @@ pub fn node_count(@core.Node) -> Int
 
 pub fn page(Array[@core.Node]) -> @core.Node
 
+pub fn patch_budget(max_patches~ : Int, max_patch_bytes~ : Int) -> @core.PatchBudget
+
 pub fn plan(@core.Node, @core.Platform) -> @core.RenderPlan
+
+pub fn plan_patches(Array[@core.Patch]) -> @core.PatchPlan
+
+pub fn plan_patches_with_budget(Array[@core.Patch], @core.PatchBudget) -> @core.PatchPlan
 
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
 pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
+
+pub fn remove_path(String) -> @core.Patch
 
 pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> @core.RenderBudget
 
@@ -93,6 +107,10 @@ pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer]) -> @scene.Scene
 pub fn scene_size(Int, Int) -> @scene.SceneSize
 
 pub fn scroll_view(Array[@core.Node]) -> @core.Node
+
+pub fn set_json(String, String) -> @core.Patch
+
+pub fn set_string(String, String) -> @core.Patch
 
 pub fn static_scene_view(@scene.Scene) -> @core.Node
 
@@ -130,6 +148,14 @@ pub using @core {type EventBinding}
 pub using @agent {type Message}
 
 pub using @core {type Node}
+
+pub using @core {type Patch}
+
+pub using @core {type PatchBudget}
+
+pub using @core {type PatchKind}
+
+pub using @core {type PatchPlan}
 
 pub using @core {type Platform}
 
