@@ -966,7 +966,9 @@ Current evidence:
   includes a starter `.gitignore` for generated output and MoonBit build caches. The
   starter also includes `scripts/ci.sh`, which delegates to the generated
   `ci-plan --script --strict` workflow instead of duplicating CI command lists,
-  and `bunnia init` marks generated starter scripts executable when writing them. The
+  and `bunnia init` marks generated starter scripts executable when writing them.
+  A generated `.github/workflows/ci.yml` installs MoonBit and runs the same script,
+  keeping local and hosted CI on one command path. The
   generated `ci-plan` lists the starter's check, test, interface, format,
   platform-limits, inspect, snapshot, and explicit strict build commands,
   prints actionable diagnostic lines, and can emit the same workflow as a

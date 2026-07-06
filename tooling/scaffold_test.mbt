@@ -3,7 +3,7 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 15)
+  assert_eq(plan.files.length(), 16)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
   assert_true(has_file(plan.files, "cmd/main/moon.pkg"))
@@ -19,6 +19,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(has_file(plan.files, "README.md"))
   assert_true(has_file(plan.files, ".gitignore"))
   assert_true(has_file(plan.files, "scripts/ci.sh"))
+  assert_true(has_file(plan.files, ".github/workflows/ci.yml"))
   assert_eq(
     file_content(plan.files, "README.md"),
     file_content(plan.files, "README.mbt.md"),
@@ -33,6 +34,21 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "scripts/ci.sh").contains("sh _build/bunnia-ci.sh"),
+  )
+  assert_true(
+    file_content(plan.files, ".github/workflows/ci.yml").contains(
+      "name: Bunnia CI",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, ".github/workflows/ci.yml").contains(
+      "curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, ".github/workflows/ci.yml").contains(
+      "run: sh scripts/ci.sh",
+    ),
   )
   assert_true(
     file_content(plan.files, "moon.mod").contains("name = \"local/starter\""),
@@ -344,13 +360,18 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("sh scripts/ci.sh"),
   )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      ".github/workflows/ci.yml",
+    ),
+  )
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
       "build --out _build/wechat",
     ),
   )
-  assert_true(plan.summary.contains("files=15"))
+  assert_true(plan.summary.contains("files=16"))
 }
 
 ///|

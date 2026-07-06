@@ -35,6 +35,7 @@ pub fn scaffold_project(
     scaffold_file("README.md", readme_content),
     scaffold_file(".gitignore", gitignore()),
     scaffold_file("scripts/ci.sh", ci_script()),
+    scaffold_file(".github/workflows/ci.yml", github_ci_workflow()),
   ]
   {
     name,
@@ -73,6 +74,29 @@ fn ci_script() -> String {
   "mkdir -p _build\n" +
   "moon run cmd/main -- ci-plan --script --strict > _build/bunnia-ci.sh\n" +
   "sh _build/bunnia-ci.sh\n"
+}
+
+///|
+fn github_ci_workflow() -> String {
+  "name: Bunnia CI\n\n" +
+  "on:\n" +
+  "  push:\n" +
+  "  pull_request:\n" +
+  "  workflow_dispatch:\n\n" +
+  "jobs:\n" +
+  "  bunnia:\n" +
+  "    runs-on: ubuntu-latest\n" +
+  "    permissions:\n" +
+  "      contents: read\n" +
+  "    steps:\n" +
+  "      - name: Checkout\n" +
+  "        uses: actions/checkout@v5\n" +
+  "      - name: Set up MoonBit\n" +
+  "        run: |\n" +
+  "          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash\n" +
+  "          echo \"$HOME/.moon/bin\" >> $GITHUB_PATH\n" +
+  "      - name: Run Bunnia starter CI\n" +
+  "        run: sh scripts/ci.sh\n"
 }
 
 ///|
@@ -689,6 +713,7 @@ fn readme(name : String) -> String {
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- ci-plan --script --strict\n" +
   "sh scripts/ci.sh\n" +
+  "# GitHub Actions runs the same script from .github/workflows/ci.yml\n" +
   "moon run cmd/main -- limits --target wechat\n" +
   "moon run cmd/main -- inspect --strict\n" +
   "moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt --strict\n" +
