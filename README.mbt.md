@@ -194,13 +194,13 @@ stricter or looser than generated file-size gates. Unknown budget profile names
 and unsupported targets are printed as CI-plan diagnostics before contributors
 copy the generated commands. The CI plan also prints the inspection-gate and
 profile-gate thresholds derived from the selected budget profile, including
-route-risk, backend pressure, scene-asset ceilings, packaged scene-byte
-ceilings, duplicate stream chunks, full snapshot replacements, scene thread
-orphans, clamped cameras, surface fallbacks, visual-quality issues, and
-degraded scenes. That makes strict map-heavy and agent-heavy checks reviewable
-before the commands run. Add `--script` to emit a deterministic `sh` script
-from the same plan; invalid plans print diagnostics and exit before running
-generated commands.
+route-risk, update-operation ceilings, backend pressure, scene-asset ceilings,
+packaged scene-byte ceilings, duplicate stream chunks, full snapshot
+replacements, scene thread orphans, clamped cameras, surface fallbacks,
+visual-quality issues, and degraded scenes. That makes strict map-heavy and
+agent-heavy checks reviewable before the commands run. Add `--script` to emit a
+deterministic `sh` script from the same plan; invalid plans print diagnostics
+and exit before running generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

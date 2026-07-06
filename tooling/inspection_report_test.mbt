@@ -121,6 +121,7 @@ test "project inspection reports backend recovery pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_operations=4,
       max_backend_events=4,
       max_backend_streams=1,
       max_backend_reviews=1,
@@ -136,6 +137,7 @@ test "project inspection reports backend recovery pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_operations=1,
       max_backend_events=1,
       max_backend_streams=0,
       max_backend_reviews=0,
@@ -148,6 +150,9 @@ test "project inspection reports backend recovery pressure" {
     budget_profile="agent-tiny",
   )
   assert_eq(relaxed.diagnostics.length(), 0)
+  assert_true(
+    strict.diagnostics.contains("inspection-update-operations-over-budget:2/1"),
+  )
   assert_true(relaxed.summary.contains("max_backend_events=4"))
   assert_true(
     strict.diagnostics.contains("inspection-backend-events-over-budget:2/1"),
@@ -303,6 +308,7 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_operations=4,
       max_backend_events=1,
       max_backend_streams=1,
       max_backend_reviews=1,
@@ -318,6 +324,7 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=1,
+      max_update_operations=1,
       max_backend_events=1,
       max_backend_streams=1,
       max_backend_reviews=1,

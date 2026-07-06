@@ -808,8 +808,9 @@ Current evidence:
 - Project inspection reports also expose max scene asset and remote scene asset
   pressure across routes, so map-heavy generated output can be triaged before
   opening every route manifest.
-- Named inspection gates fail strict builds when route risk, scene asset
-  pressure, or remote scene asset pressure exceed the selected budget profile.
+- Named inspection gates fail strict builds when route risk, update-operation
+  pressure, scene asset pressure, or remote scene asset pressure exceed the
+  selected budget profile.
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.
@@ -940,12 +941,13 @@ Current evidence:
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
-- CI plans print the selected inspection-gate thresholds for route risk, scene
-  assets, remote scene assets, and packaged scene bytes, so strict map-heavy
-  and agent-heavy route checks are visible before the commands run.
-- Inspection gates now carry explicit backend event, stream, review, cancel,
-  and retry ceilings, so large agentic routes can fail strict builds on
-  operation pressure before route risk becomes the only signal.
+- CI plans print the selected inspection-gate thresholds for route risk, update
+  operations, scene assets, remote scene assets, and packaged scene bytes, so
+  strict map-heavy and agent-heavy route checks are visible before the commands
+  run.
+- Inspection gates now carry explicit update-operation, backend event, stream,
+  review, cancel, and retry ceilings, so large agentic routes can fail strict
+  builds on operation pressure before route risk becomes the only signal.
 - Build-profile gates now budget duplicate stream chunks, full snapshot
   replacements, scene thread orphans, clamped scene cameras, surface fallbacks,
   visual-quality issues, and degraded scenes, so strict builds can fail
