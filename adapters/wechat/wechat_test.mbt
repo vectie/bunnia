@@ -62,9 +62,22 @@ test "wechat projects share generated patch runtime" {
     ]),
   )
   assert_true(has_file(project.files, "bunnia.runtime.js"))
+  assert_true(has_file(project.files, "pages/runtime/index.data.js"))
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
-  assert_true(project.page.js.contains("const __bunniaEventPatches"))
+  assert_true(project.page.js.contains("require('./index.data.js')"))
+  assert_true(project.page.js.contains("__bunniaInitialData"))
+  assert_true(!project.page.js.contains("const __bunniaEventPatches = {"))
   assert_true(!project.page.js.contains("function __bunniaReadPath"))
+  assert_true(
+    file_content(project.files, "pages/runtime/index.data.js").contains(
+      "const eventPatches = {\"open\":[{kind:\"set\",path:\"state.open\",value:\"yes\"}]}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/runtime/index.data.js").contains(
+      "module.exports = { initialData, eventPatches }",
+    ),
+  )
   assert_true(
     file_content(project.files, "bunnia.runtime.js").contains(
       "module.exports = { __bunniaReadPath, __bunniaApplyPatches }",
@@ -86,6 +99,10 @@ test "wechat projects share default styles at app level" {
   assert_true(file_content(project.files, "app.wxss").contains(".bunnia-scene"))
   assert_eq(project.manifest.files[4].path, "app.wxss")
   assert_eq(project.manifest.files[4].route, "")
+  assert_true(has_file(project.files, "pages/style/index.data.js"))
+  assert_eq(project.manifest.files[6].path, "pages/style/index.data.js")
+  assert_eq(project.manifest.files[6].kind, "page-data")
+  assert_eq(project.manifest.files[6].route, "pages/style/index")
 }
 
 ///|

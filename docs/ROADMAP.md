@@ -404,6 +404,9 @@ Current evidence:
   diagnostics, and generated file sizes.
 - WeChat projects now emit shared `bunnia.runtime.js` and `app.wxss` files, so
   route files do not duplicate common patch helpers or default styles per page.
+- WeChat projects now emit route-local `*.data.js` payload modules, so page
+  runtime glue stays small while initial data and event-patch tables remain
+  route-scoped and manifest-visible.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -710,6 +713,8 @@ Current evidence:
 - Generated project output splits shared patch-runtime helpers and default
   styles into app-level files, while first-screen reports still include those
   shared startup bytes.
+- Generated project output splits route payload modules from page JS, making
+  payload growth and route-level checksums visible in manifests and snapshots.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,

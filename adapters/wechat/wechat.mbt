@@ -115,13 +115,12 @@ fn generate_project_page_with_runtime(
   name : String,
   route : String,
   root : @core.Node,
-  runtime : WechatRuntime,
 ) -> WechatPage {
   let plan = @core.plan(root, @core.Wechat)
   {
     wxml: render_node(root, @core.adapter(@core.Wechat)),
     wxss: "",
-    js: project_page_js(name, route, plan, runtime),
+    js: project_page_js(name, route, plan),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
   }
@@ -158,7 +157,7 @@ pub fn project_page(
   {
     name,
     route,
-    page: generate_project_page_with_runtime(name, route, root, runtime),
+    page: generate_project_page_with_runtime(name, route, root),
     runtime,
   }
 }
@@ -184,6 +183,12 @@ pub fn generate_project_from_pages(
     if item.page.wxss != "" {
       files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
     }
+    files.push(
+      wechat_file(
+        page_payload_file_path(item.route),
+        page_payload_js(item.runtime),
+      ),
+    )
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
@@ -387,6 +392,8 @@ fn manifest_file_kind(path : String) -> String {
     "wxml"
   } else if path.has_suffix(".wxss") {
     "wxss"
+  } else if path.has_suffix(".data.js") {
+    "page-data"
   } else if path.has_suffix(".js") {
     "js"
   } else if path.has_suffix(".json") {
@@ -402,6 +409,8 @@ fn manifest_file_route(path : String) -> String {
     trim_suffix(path, ".wxml")
   } else if path.has_suffix(".wxss") && path.has_prefix("pages/") {
     trim_suffix(path, ".wxss")
+  } else if path.has_suffix(".data.js") && path.has_prefix("pages/") {
+    trim_suffix(path, ".data.js")
   } else if path.has_suffix(".js") && path.has_prefix("pages/") {
     trim_suffix(path, ".js")
   } else if path.has_suffix(".json") && path.has_prefix("pages/") {
@@ -688,7 +697,7 @@ fn page_js(
   "\n" +
   runtime_helpers_js() +
   "\n" +
-  page_definition_js(name, plan, runtime)
+  page_definition_js(name, plan, runtime.initial_data_json)
 }
 
 ///|
@@ -696,12 +705,19 @@ fn project_page_js(
   name : String,
   route : String,
   plan : @core.RenderPlan,
-  runtime : WechatRuntime,
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
-  "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
   "\n" +
-  page_definition_js(name, plan, runtime)
+  page_definition_js(name, plan, "__bunniaInitialData")
+}
+
+///|
+fn page_payload_js(runtime : WechatRuntime) -> String {
+  "const initialData = (\{runtime.initial_data_json})\n" +
+  "const eventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "\n" +
+  "module.exports = { initialData, eventPatches }\n"
 }
 
 ///|
@@ -737,7 +753,7 @@ fn runtime_helpers_js() -> String {
 fn page_definition_js(
   name : String,
   plan : @core.RenderPlan,
-  runtime : WechatRuntime,
+  initial_data_expr : String,
 ) -> String {
   "Page({\n" +
   "  data: {\n" +
@@ -748,7 +764,7 @@ fn page_definition_js(
   "      lastMessage: \"\",\n" +
   "      handledEvents: 0\n" +
   "    },\n" +
-  "    ...(\{runtime.initial_data_json})\n" +
+  "    ...(\{initial_data_expr})\n" +
   "  },\n" +
   "  __bunniaEvent(event) {\n" +
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
@@ -760,6 +776,27 @@ fn page_definition_js(
   "    ])\n" +
   "  }\n" +
   "})"
+}
+
+///|
+fn page_payload_file_path(route : String) -> String {
+  "\{route}.data.js"
+}
+
+///|
+fn page_payload_require_path(route : String) -> String {
+  "./\{route_basename(route)}.data.js"
+}
+
+///|
+fn route_basename(route : String) -> String {
+  let mut start = 0
+  for i in 0..<route.length() {
+    if route[i] == '/' {
+      start = i + 1
+    }
+  }
+  route.sub(start~, end=route.length()).to_owned()
 }
 
 ///|

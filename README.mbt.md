@@ -134,8 +134,9 @@ and file manifest with per-page node/event counts, runtime data bytes, patch
 bytes, generated file sizes, first-screen/update byte estimates, and
 route-scoped render diagnostics.
 Generated projects also include shared `bunnia.runtime.js` and `app.wxss`
-files, so page files keep only route structure, page data, and event-patch
-tables instead of duplicating runtime helpers and default styles per route.
+files plus route-local `*.data.js` payload modules, so page files keep only
+route structure and runtime glue instead of duplicating helpers, default
+styles, initial data, and event-patch tables per route.
 
 For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report
@@ -302,8 +303,8 @@ test {
     runtime~,
   )
   let report = @bunnia.report_wechat_project(project, runtime)
-  assert_eq(report.file_count, 9)
-  assert_true(project.manifest.summary.contains("app_files=8"))
+  assert_eq(report.file_count, 10)
+  assert_true(project.manifest.summary.contains("app_files=9"))
   assert_true(report.initial_data_bytes > 0)
   assert_true(report.event_patch_bytes > 0)
 }

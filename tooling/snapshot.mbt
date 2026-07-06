@@ -165,6 +165,8 @@ fn file_kind(path : String) -> String {
     "wxml"
   } else if path.has_suffix(".wxss") {
     "wxss"
+  } else if path.has_suffix(".data.js") {
+    "page-data"
   } else if path.has_suffix(".js") {
     "js"
   } else if path.has_suffix(".json") {
