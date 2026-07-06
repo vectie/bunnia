@@ -103,6 +103,39 @@ test "project inspection reports route scene asset pressure" {
   assert_true(inspection.summary.contains("max_scene_assets=2"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=2"))
   assert_true(inspection.routes[1].summary.contains("scene_remote_assets=2"))
+  let relaxed = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=100000,
+      max_scene_assets=4,
+      max_scene_remote_assets=4,
+    ),
+    budget_profile="relaxed",
+  )
+  let strict = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=1,
+      max_scene_assets=1,
+      max_scene_remote_assets=1,
+    ),
+    budget_profile="tiny",
+  )
+  assert_eq(relaxed.diagnostics.length(), 0)
+  assert_true(relaxed.summary.contains("budget=relaxed"))
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-route-risk-over-budget:pages/remote-assets/index:\{inspection.risk_score}/1",
+    ),
+  )
+  assert_true(
+    strict.diagnostics.contains("inspection-scene-assets-over-budget:2/1"),
+  )
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-remote-scene-assets-over-budget:2/1",
+    ),
+  )
 }
 
 ///|

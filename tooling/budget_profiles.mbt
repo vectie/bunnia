@@ -68,3 +68,28 @@ pub fn wechat_build_budget_for_profile(
     _ => panic()
   }
 }
+
+///|
+pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
+  match name {
+    "default" =>
+      inspection_budget(
+        max_route_risk_score=250000,
+        max_scene_assets=64,
+        max_scene_remote_assets=16,
+      )
+    "tight" =>
+      inspection_budget(
+        max_route_risk_score=50000,
+        max_scene_assets=16,
+        max_scene_remote_assets=4,
+      )
+    "tiny" =>
+      inspection_budget(
+        max_route_risk_score=1000,
+        max_scene_assets=0,
+        max_scene_remote_assets=0,
+      )
+    _ => panic()
+  }
+}

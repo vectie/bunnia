@@ -212,6 +212,8 @@ pub fn filter_communications(Array[@agent.Communication], @agent.CommunicationFi
 
 pub fn form(String, Array[@core.Node]) -> @core.Node
 
+pub fn gate_project_inspection(@tooling.ProjectInspection, @tooling.ProjectInspectionBudget, budget_profile? : String) -> @tooling.ProjectInspectionGate
+
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
 pub fn generate_wechat_page_with_runtime(String, @core.Node, @wechat.WechatRuntime) -> @wechat.WechatPage
@@ -265,6 +267,10 @@ pub fn image_asset(String, String, Int) -> @scene.SceneAsset
 pub fn input(name~ : String, value? : String, input_message? : String) -> @core.Node
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> @tooling.ProjectInspection
+
+pub fn inspection_budget(max_route_risk_score~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> @tooling.ProjectInspectionBudget
+
+pub fn inspection_budget_for_profile(String) -> @tooling.ProjectInspectionBudget
 
 pub fn is_named_budget_profile(String) -> Bool
 
@@ -762,6 +768,10 @@ pub using @tooling {type PlatformLimitsReport}
 pub using @program {type Program}
 
 pub using @tooling {type ProjectInspection}
+
+pub using @tooling {type ProjectInspectionBudget}
+
+pub using @tooling {type ProjectInspectionGate}
 
 pub using @core {type RenderBudget}
 

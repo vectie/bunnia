@@ -80,10 +80,10 @@ The same generator also accepts explicit build-style arguments:
 moon run cmd/main -- build --target wechat --strict
 ```
 
-`--strict` fails the command when render, generated-file, patch, effect, or
-build-profile diagnostics are present.
+`--strict` fails the command when render, generated-file, patch, effect,
+build-profile, or inspection-gate diagnostics are present.
 Use `--budget tight` for a stricter generated-output gate, or `--budget tiny`
-when testing that CI fails on size regressions:
+when testing that CI fails on size and route-pressure regressions:
 
 ```bash
 moon run cmd/main -- build --target wechat --strict --budget tight
@@ -93,8 +93,9 @@ The render planner uses the same named profile by default. Use
 `--render-budget tiny` to exercise render-budget failures without shrinking
 generated-output byte budgets. Named budget profiles are exposed through
 `@bunnia.render_budget_for_profile(...)` and
-`@bunnia.wechat_build_budget_for_profile(...)`, so contributors can use the
-same gates outside the CLI.
+`@bunnia.wechat_build_budget_for_profile(...)`; route-risk gates are exposed
+through `@bunnia.inspection_budget_for_profile(...)`, so contributors can use
+the same gates outside the CLI.
 
 For local iteration, watch generated output with:
 

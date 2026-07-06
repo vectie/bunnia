@@ -287,6 +287,12 @@ pub type RouteInspection = @tooling.RouteInspection
 pub type ProjectInspection = @tooling.ProjectInspection
 
 ///|
+pub type ProjectInspectionBudget = @tooling.ProjectInspectionBudget
+
+///|
+pub type ProjectInspectionGate = @tooling.ProjectInspectionGate
+
+///|
 pub type ScaffoldFile = @tooling.ScaffoldFile
 
 ///|
@@ -2701,6 +2707,33 @@ pub fn render_budget_for_profile(name : String) -> RenderBudget {
 ///|
 pub fn wechat_build_budget_for_profile(name : String) -> WechatBuildBudget {
   @tooling.wechat_build_budget_for_profile(name)
+}
+
+///|
+pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
+  @tooling.inspection_budget_for_profile(name)
+}
+
+///|
+pub fn inspection_budget(
+  max_route_risk_score~ : Int,
+  max_scene_assets~ : Int,
+  max_scene_remote_assets~ : Int,
+) -> ProjectInspectionBudget {
+  @tooling.inspection_budget(
+    max_route_risk_score~,
+    max_scene_assets~,
+    max_scene_remote_assets~,
+  )
+}
+
+///|
+pub fn gate_project_inspection(
+  inspection : ProjectInspection,
+  budget : ProjectInspectionBudget,
+  budget_profile? : String = "custom",
+) -> ProjectInspectionGate {
+  @tooling.gate_project_inspection(inspection, budget, budget_profile~)
 }
 
 ///|

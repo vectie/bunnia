@@ -33,6 +33,64 @@ pub struct ProjectInspection {
 } derive(Debug, Eq)
 
 ///|
+pub struct ProjectInspectionBudget {
+  max_route_risk_score : Int
+  max_scene_assets : Int
+  max_scene_remote_assets : Int
+} derive(Debug, Eq)
+
+///|
+pub struct ProjectInspectionGate {
+  budget_profile : String
+  max_route_risk_score : Int
+  max_scene_assets : Int
+  max_scene_remote_assets : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Debug, Eq)
+
+///|
+pub fn inspection_budget(
+  max_route_risk_score~ : Int,
+  max_scene_assets~ : Int,
+  max_scene_remote_assets~ : Int,
+) -> ProjectInspectionBudget {
+  { max_route_risk_score, max_scene_assets, max_scene_remote_assets }
+}
+
+///|
+pub fn gate_project_inspection(
+  inspection : ProjectInspection,
+  budget : ProjectInspectionBudget,
+  budget_profile? : String = "custom",
+) -> ProjectInspectionGate {
+  let diagnostics : Array[String] = []
+  if inspection.risk_score > budget.max_route_risk_score {
+    diagnostics.push(
+      "inspection-route-risk-over-budget:\{inspection.top_route}:\{inspection.risk_score}/\{budget.max_route_risk_score}",
+    )
+  }
+  if inspection.max_scene_asset_count > budget.max_scene_assets {
+    diagnostics.push(
+      "inspection-scene-assets-over-budget:\{inspection.max_scene_asset_count}/\{budget.max_scene_assets}",
+    )
+  }
+  if inspection.max_scene_remote_asset_count > budget.max_scene_remote_assets {
+    diagnostics.push(
+      "inspection-remote-scene-assets-over-budget:\{inspection.max_scene_remote_asset_count}/\{budget.max_scene_remote_assets}",
+    )
+  }
+  {
+    budget_profile,
+    max_route_risk_score: budget.max_route_risk_score,
+    max_scene_assets: budget.max_scene_assets,
+    max_scene_remote_assets: budget.max_scene_remote_assets,
+    diagnostics,
+    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} diagnostics=\{diagnostics.length()}",
+  }
+}
+
+///|
 pub fn inspect_wechat_project(
   target~ : String,
   example~ : String,

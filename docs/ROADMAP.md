@@ -778,6 +778,8 @@ Current evidence:
 - Project inspection reports also expose max scene asset and remote scene asset
   pressure across routes, so map-heavy generated output can be triaged before
   opening every route manifest.
+- Named inspection gates fail strict builds when route risk, scene asset
+  pressure, or remote scene asset pressure exceed the selected budget profile.
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.

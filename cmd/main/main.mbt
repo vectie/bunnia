@@ -392,6 +392,17 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     @bunnia.default_wechat_runtime(),
     wechat_build_budget_from_args(args),
   )
+  let inspection = @bunnia.inspect_wechat_project(
+    target~,
+    example~,
+    project,
+    report,
+  )
+  let inspection_gate = @bunnia.gate_project_inspection(
+    inspection,
+    @bunnia.inspection_budget_for_profile(budget_profile),
+    budget_profile~,
+  )
   let strict = strict_from_args(args)
   if command == "inspect" {
     let snapshot = snapshot_for_build(
@@ -405,13 +416,13 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     )
     print_inspect_result(
       target, example, budget_profile, render_budget_profile, project, report, patches,
-      profile, snapshot,
+      profile, snapshot, inspection, inspection_gate,
     )
   } else {
     write_project(output_dir, project)
     print_build_result(
       command, target, example, budget_profile, render_budget_profile, output_dir,
-      project, report, patches, profile,
+      project, report, patches, profile, inspection_gate,
     )
   }
   if command == "snapshot" {
@@ -429,7 +440,9 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     println(snapshot.summary)
     println("snapshot=\{snapshot_path}")
   }
-  if should_fail_build(strict, project, report, patches, profile) {
+  if should_fail_build(
+      strict, project, report, patches, profile, inspection_gate,
+    ) {
     println("build_failed=diagnostics")
     panic()
   }
@@ -475,6 +488,7 @@ fn print_build_result(
   report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
+  inspection_gate : @bunnia.ProjectInspectionGate,
 ) -> Unit {
   println("command=\{command}")
   println("target=\{target}")
@@ -489,6 +503,8 @@ fn print_build_result(
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
+  println(inspection_gate.summary)
+  print_inspection_gate_diagnostics(inspection_gate.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
 
@@ -503,6 +519,8 @@ fn print_inspect_result(
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
   snapshot : @bunnia.GeneratedSnapshot,
+  inspection : @bunnia.ProjectInspection,
+  inspection_gate : @bunnia.ProjectInspectionGate,
 ) -> Unit {
   println("command=inspect")
   println("target=\{target}")
@@ -517,13 +535,9 @@ fn print_inspect_result(
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
+  println(inspection_gate.summary)
+  print_inspection_gate_diagnostics(inspection_gate.diagnostics)
   println(snapshot.summary)
-  let inspection = @bunnia.inspect_wechat_project(
-    target~,
-    example~,
-    project,
-    report,
-  )
   println(inspection.summary)
   println(
     "inspect=route=\{snapshot.route} pages=\{snapshot.page_count} files=\{snapshot.file_count} bytes=\{snapshot.total_bytes} max_first_screen=\{snapshot.max_first_screen_bytes} max_update_payload=\{snapshot.max_update_payload_bytes} route_diagnostic_routes=\{snapshot.route_diagnostic_route_count} route_diagnostics=\{snapshot.route_diagnostic_count} diagnostics=\{snapshot.diagnostic_count}",
@@ -566,6 +580,13 @@ fn route_remote_scene_asset_count(page : @bunnia.WechatManifestPage) -> Int {
 }
 
 ///|
+fn print_inspection_gate_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("inspection_diagnostic=\{item}")
+  }
+}
+
+///|
 fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   println("command=ci-plan")
   println("target=\{plan.target}")
@@ -604,13 +625,15 @@ fn should_fail_build(
   report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
+  inspection_gate : @bunnia.ProjectInspectionGate,
 ) -> Bool {
   strict &&
   (
     project_has_render_diagnostics(project) ||
     report.diagnostics.length() > 0 ||
     patches.diagnostics.length() > 0 ||
-    profile.diagnostics.length() > 0
+    profile.diagnostics.length() > 0 ||
+    inspection_gate.diagnostics.length() > 0
   )
 }
 

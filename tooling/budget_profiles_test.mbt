@@ -23,4 +23,12 @@ test "named budget profiles expose render and wechat budgets" {
   assert_eq(tiny_wechat.max_files, 1)
   assert_eq(tiny_wechat.max_total_bytes, 128)
   assert_eq(tiny_wechat.max_page_first_screen_bytes, 4)
+  let tight_inspection = inspection_budget_for_profile("tight")
+  assert_eq(tight_inspection.max_route_risk_score, 50000)
+  assert_eq(tight_inspection.max_scene_assets, 16)
+  assert_eq(tight_inspection.max_scene_remote_assets, 4)
+  let tiny_inspection = inspection_budget_for_profile("tiny")
+  assert_eq(tiny_inspection.max_route_risk_score, 1000)
+  assert_eq(tiny_inspection.max_scene_assets, 0)
+  assert_eq(tiny_inspection.max_scene_remote_assets, 0)
 }

@@ -399,8 +399,17 @@ test "build example flag selects Wenyu project" {
   assert_true(profile.summary.contains("scene_cameras=0"))
   assert_true(profile.summary.contains("scene_camera_clamped=0"))
   assert_true(profile.summary.contains("scene_surfaces=static:1"))
-  assert_eq(should_fail_build(false, project, report, patches, profile), false)
-  assert_eq(should_fail_build(true, project, report, patches, profile), false)
+  let gate = inspection_gate_for_test(
+    "wechat", "wenyu_overview", project, report,
+  )
+  assert_eq(
+    should_fail_build(false, project, report, patches, profile, gate),
+    false,
+  )
+  assert_eq(
+    should_fail_build(true, project, report, patches, profile, gate),
+    false,
+  )
 }
 
 ///|
@@ -425,6 +434,10 @@ test "build profile keeps agent map diagnostics visible" {
   let bad_patches = @bunnia.plan_patches_with_budget(
     patches.patches,
     @bunnia.patch_budget(max_patches=0, max_patch_bytes=1),
+  )
+  let gate = inspection_gate_for_test("wechat", "agent_map", project, report)
+  let tiny_gate = inspection_gate_for_test_with_profile(
+    "wechat", "agent_map", project, report, "tiny",
   )
   assert_eq(profile.route, "pages/index/index")
   assert_eq(profile.scene_marker_count, 2)
@@ -478,15 +491,19 @@ test "build profile keeps agent map diagnostics visible" {
     tiny_report.diagnostics.contains("wechat-file-count-over-budget:11/1"),
   )
   assert_eq(
-    should_fail_build(false, project, report, bad_patches, profile),
+    should_fail_build(false, project, report, bad_patches, profile, gate),
     false,
   )
   assert_eq(
-    should_fail_build(true, project, report, bad_patches, profile),
+    should_fail_build(true, project, report, bad_patches, profile, gate),
     true,
   )
   assert_eq(
-    should_fail_build(true, project, tiny_report, patches, profile),
+    should_fail_build(true, project, tiny_report, patches, profile, gate),
+    true,
+  )
+  assert_eq(
+    should_fail_build(true, project, report, patches, profile, tiny_gate),
     true,
   )
 }
@@ -518,8 +535,42 @@ test "build render budget can fail map-heavy routes before preview" {
       "render:pages/index/index:scene-marker-count-over-budget:2/1",
     ),
   )
-  assert_eq(should_fail_build(false, project, report, patches, profile), false)
-  assert_eq(should_fail_build(true, project, report, patches, profile), true)
+  let gate = inspection_gate_for_test("wechat", "agent_map", project, report)
+  assert_eq(
+    should_fail_build(false, project, report, patches, profile, gate),
+    false,
+  )
+  assert_eq(
+    should_fail_build(true, project, report, patches, profile, gate),
+    true,
+  )
+}
+
+///|
+fn inspection_gate_for_test(
+  target : String,
+  example : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+) -> @bunnia.ProjectInspectionGate {
+  inspection_gate_for_test_with_profile(
+    target, example, project, report, "default",
+  )
+}
+
+///|
+fn inspection_gate_for_test_with_profile(
+  target : String,
+  example : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  budget_profile : String,
+) -> @bunnia.ProjectInspectionGate {
+  @bunnia.gate_project_inspection(
+    @bunnia.inspect_wechat_project(target~, example~, project, report),
+    @bunnia.inspection_budget_for_profile(budget_profile),
+    budget_profile~,
+  )
 }
 
 ///|
