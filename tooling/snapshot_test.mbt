@@ -25,11 +25,58 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("files=8"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("pages/snapshot/index.wxml kind=wxml"))
   assert_true(snapshot.content.contains("checksum="))
   assert_true(!snapshot.content.contains("checksum=-"))
+}
+
+///|
+test "generated snapshots can record active build report diagnostics" {
+  let project = @wechat.generate_project_with_runtime(
+    name="Snapshot Budget Fixture",
+    route="pages/snapshot/index",
+    root=@core.page([@core.button("Open", "open")]),
+    runtime=@wechat.runtime(event_patches=[
+      @wechat.event_patch("open", [@core.set_string("state.open", "yes")]),
+    ]),
+  )
+  let profile = profile_wechat_project(
+    project,
+    @core.plan_patches([@core.set_string("state.open", "yes")]),
+  )
+  let report = @wechat.report_project_with_budget(
+    project,
+    @wechat.default_runtime(),
+    @wechat.build_budget(
+      max_pages=1,
+      max_files=1,
+      max_total_bytes=128,
+      max_wxml_bytes=128,
+      max_wxss_bytes=128,
+      max_js_bytes=128,
+      max_initial_data_bytes=4,
+      max_event_patch_bytes=4,
+      max_page_first_screen_bytes=4,
+      max_page_update_payload_bytes=4,
+    ),
+  )
+  let snapshot = snapshot_wechat_project_with_report(
+    target="wechat",
+    example="snapshot_budget_fixture",
+    project,
+    report,
+    profile,
+  )
+  assert_eq(snapshot.diagnostic_count, report.diagnostics.length())
+  assert_true(snapshot.diagnostic_count > 0)
+  assert_true(snapshot.summary.contains("diagnostics="))
+  assert_true(
+    snapshot.content.contains("diagnostics=\{report.diagnostics.length()}"),
+  )
+  assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
 }
 
 ///|

@@ -2419,6 +2419,23 @@ pub fn snapshot_wechat_project(
 }
 
 ///|
+pub fn snapshot_wechat_project_with_report(
+  target~ : String,
+  example~ : String,
+  project : WechatProject,
+  report : WechatBuildReport,
+  profile : BuildProfile,
+) -> GeneratedSnapshot {
+  @tooling.snapshot_wechat_project_with_report(
+    target~,
+    example~,
+    project,
+    report,
+    profile,
+  )
+}
+
+///|
 pub fn scaffold_project(
   name~ : String,
   module_name? : String = "",

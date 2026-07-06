@@ -328,10 +328,11 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     command, target, example, output_dir, project, report, patches, profile,
   )
   if command == "snapshot" {
-    let snapshot = @bunnia.snapshot_wechat_project(
+    let snapshot = @bunnia.snapshot_wechat_project_with_report(
       target~,
       example~,
       project,
+      report,
       profile,
     )
     let snapshot_path = snapshot_output_path_from_args(args, target, example)

@@ -19,6 +19,8 @@ pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
 
 pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, BuildProfile) -> GeneratedSnapshot
 
+pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, BuildProfile) -> GeneratedSnapshot
+
 // Errors
 
 // Types and methods

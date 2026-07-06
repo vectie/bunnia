@@ -30,13 +30,32 @@ pub fn snapshot_wechat_project(
   project : @wechat.WechatProject,
   profile : BuildProfile,
 ) -> GeneratedSnapshot {
+  snapshot_wechat_project_with_report(
+    target~,
+    example~,
+    project,
+    project.report,
+    profile,
+  )
+}
+
+///|
+pub fn snapshot_wechat_project_with_report(
+  target~ : String,
+  example~ : String,
+  project : @wechat.WechatProject,
+  report : @wechat.WechatBuildReport,
+  profile : BuildProfile,
+) -> GeneratedSnapshot {
   let files : Array[GeneratedSnapshotFile] = []
   for item in project.files {
     files.push(snapshot_file(item))
   }
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} diagnostics=\{profile.diagnostics.length()}"
+  let diagnostic_count = report.diagnostics.length() +
+    profile.diagnostics.length()
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
-    target, example, project, profile, files, summary,
+    target, example, project, report, profile, files, summary,
   )
   {
     target,
@@ -46,9 +65,9 @@ pub fn snapshot_wechat_project(
     page_count: project.page_count,
     file_count: project.files.length(),
     total_bytes: project.total_bytes,
-    max_first_screen_bytes: project.report.max_page_first_screen_bytes,
-    max_update_payload_bytes: project.report.max_page_update_payload_bytes,
-    diagnostic_count: profile.diagnostics.length(),
+    max_first_screen_bytes: report.max_page_first_screen_bytes,
+    max_update_payload_bytes: report.max_page_update_payload_bytes,
+    diagnostic_count,
     files,
     summary,
     content,
@@ -70,6 +89,7 @@ fn snapshot_content(
   target : String,
   example : String,
   project : @wechat.WechatProject,
+  report : @wechat.WechatBuildReport,
   profile : BuildProfile,
   files : Array[GeneratedSnapshotFile],
   summary : String,
@@ -86,18 +106,19 @@ fn snapshot_content(
   write_snapshot_field(
     out,
     "max_first_screen",
-    project.report.max_page_first_screen_bytes.to_string(),
+    report.max_page_first_screen_bytes.to_string(),
   )
   write_snapshot_field(
     out,
     "max_update_payload",
-    project.report.max_page_update_payload_bytes.to_string(),
+    report.max_page_update_payload_bytes.to_string(),
   )
   write_snapshot_field(
     out,
     "diagnostics",
-    profile.diagnostics.length().to_string(),
+    (report.diagnostics.length() + profile.diagnostics.length()).to_string(),
   )
+  write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)
   write_snapshot_field(out, "summary", summary)
   out.write_string("files:\n")
