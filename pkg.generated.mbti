@@ -30,6 +30,8 @@ pub fn append_json(String, String) -> @core.Patch
 
 pub fn append_message_delta(String, @agent.Message) -> @agent.AgentDelta
 
+pub fn append_scene_thread_link(String, @scene.SceneThreadLink) -> @core.Patch
+
 pub fn append_snapshot_item_delta(String, String, String, String) -> @effects.SnapshotDelta
 
 pub fn append_stream_chunk_delta(String, String, String, status? : @agent.RunStatus) -> @agent.AgentDelta
@@ -400,6 +402,10 @@ pub fn scene_render_mode_id(@scene.SceneRenderMode) -> String
 
 pub fn scene_size(Int, Int) -> @scene.SceneSize
 
+pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> @scene.SceneThreadLink
+
+pub fn scene_thread_overlay(Array[@scene.SceneThreadLink]) -> @core.Node
+
 pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> @scene.SceneViewport
 
 pub fn scene_visible_marker_count(@scene.Scene, @scene.SceneViewport) -> Int
@@ -410,6 +416,8 @@ pub fn scroll_view(Array[@core.Node]) -> @core.Node
 
 pub fn select_scene_marker(String, String) -> @core.Patch
 
+pub fn select_scene_thread(String, String, String) -> @core.Patch
+
 pub fn set_json(String, String) -> @core.Patch
 
 pub fn set_review_state_delta(String, @agent.ReviewState) -> @agent.AgentDelta
@@ -417,6 +425,10 @@ pub fn set_review_state_delta(String, @agent.ReviewState) -> @agent.AgentDelta
 pub fn set_run_status_delta(String, @agent.RunStatus) -> @agent.AgentDelta
 
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_thread_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_thread_unread(String, String, Int) -> @core.Patch
 
 pub fn set_snapshot_section_delta(String, String, String) -> @effects.SnapshotDelta
 
@@ -435,6 +447,10 @@ pub fn static_scene_view(@scene.Scene) -> @core.Node
 pub fn static_scene_view_with_budget(@scene.Scene, @scene.SceneRenderBudget) -> @core.Node
 
 pub fn static_scene_view_with_viewport(@scene.Scene, @scene.SceneViewport, budget? : @scene.SceneRenderBudget) -> @core.Node
+
+pub fn static_scene_with_threads(@scene.Scene, Array[@scene.SceneThreadLink]) -> @core.Node
+
+pub fn static_scene_with_windowed_threads(@scene.Scene, Array[@scene.SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
 
 pub fn status_load_endpoint(String, String, String) -> @effects.BackendEndpoint
 
@@ -523,6 +539,8 @@ pub fn windowed_communication_trace(Array[@agent.Communication], total_count~ : 
 pub fn[Item] windowed_list(Array[Item], total_count~ : Int, offset? : Int, render~ : (Item) -> @core.Node) -> @core.Node
 
 pub fn windowed_message_feed(Array[@agent.Message], total_count~ : Int, offset? : Int) -> @core.Node
+
+pub fn windowed_scene_thread_overlay(Array[@scene.SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
 
 // Errors
 
@@ -630,6 +648,8 @@ pub using @scene {type SceneRenderMode}
 pub using @scene {type SceneRenderPlan}
 
 pub using @scene {type SceneSize}
+
+pub using @scene {type SceneThreadLink}
 
 pub using @scene {type SceneViewport}
 

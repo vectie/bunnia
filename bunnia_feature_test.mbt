@@ -151,6 +151,68 @@ test "scene assets render sprites and report asset budgets" {
 }
 
 ///|
+test "scene thread links connect map markers to agent communication cheaply" {
+  let scene = @bunnia.scene("ops-map", @bunnia.scene_size(640, 480), [
+    @bunnia.layer("regions", 1, [
+      @bunnia.marker(
+        id="zone-a",
+        label="Zone A",
+        x=160,
+        y=180,
+        status="review",
+        tap_message="select-zone-a",
+      ),
+    ]),
+  ])
+  let link = @bunnia.scene_thread_link(
+    id="link-zone-a",
+    scene_id="ops-map",
+    marker_id="zone-a",
+    thread_id="thread-zone-a",
+    subject_ref="scene://ops-map/zone-a",
+    status="review",
+    unread_count=3,
+    open_message="open-thread-zone-a",
+  )
+  let root = @bunnia.page([
+    @bunnia.static_scene_with_windowed_threads(
+      scene,
+      [link],
+      total_count=24,
+      offset=12,
+    ),
+  ])
+  let output = @bunnia.generate_wechat_page("Agentic Map", root)
+  let patches = @bunnia.plan_patches([
+    @bunnia.select_scene_thread("ops-map", "zone-a", "thread-zone-a"),
+    @bunnia.set_scene_thread_unread("ops-map", "thread-zone-a", 0),
+    @bunnia.set_scene_thread_status("ops-map", "thread-zone-a", "running"),
+    @bunnia.append_scene_thread_link("scenes.ops-map.threadLinks", link),
+  ])
+  assert_eq(output.plan.windowed_list_count, 1)
+  assert_eq(output.plan.list_total_count, 24)
+  assert_eq(output.plan.list_visible_count, 1)
+  assert_true(output.wxml.contains("bunnia-scene-with-threads"))
+  assert_true(output.wxml.contains("bunnia-scene-thread-overlay"))
+  assert_true(output.wxml.contains("data-marker-id=\"zone-a\""))
+  assert_true(output.wxml.contains("data-thread-id=\"thread-zone-a\""))
+  assert_true(
+    output.wxml.contains("data-subject-ref=\"scene://ops-map/zone-a\""),
+  )
+  assert_true(output.wxml.contains("data-unread-count=\"3\""))
+  assert_true(output.plan.event_messages.contains("select-zone-a"))
+  assert_true(output.plan.event_messages.contains("open-thread-zone-a"))
+  assert_eq(patches.patches.length(), 4)
+  assert_true(
+    patches.patches[0].value_json.contains("\"threadId\":\"thread-zone-a\""),
+  )
+  assert_eq(patches.patches[1].value_json, "0")
+  assert_eq(patches.patches[2].value_json, "\"running\"")
+  assert_true(patches.patches[3].value_json.contains("\"unreadCount\":3"))
+  assert_true(patches.total_estimated_bytes < 520)
+}
+
+///|
 test "communication trace renders structured agent interactions" {
   let thread = @bunnia.thread(
     id="thread-route",

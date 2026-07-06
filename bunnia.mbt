@@ -101,6 +101,9 @@ pub type SceneAssetPlan = @scene.SceneAssetPlan
 pub type SceneMarker = @scene.SceneMarker
 
 ///|
+pub type SceneThreadLink = @scene.SceneThreadLink
+
+///|
 pub type SceneLayer = @scene.SceneLayer
 
 ///|
@@ -1191,6 +1194,61 @@ pub fn static_scene_view_with_viewport(
 }
 
 ///|
+pub fn scene_thread_link(
+  id~ : String,
+  scene_id~ : String,
+  marker_id~ : String,
+  thread_id~ : String,
+  subject_ref? : String = "",
+  status? : String = "",
+  unread_count? : Int = 0,
+  open_message? : String = "",
+) -> SceneThreadLink {
+  @scene.scene_thread_link(
+    id~,
+    scene_id~,
+    marker_id~,
+    thread_id~,
+    subject_ref~,
+    status~,
+    unread_count~,
+    open_message~,
+  )
+}
+
+///|
+pub fn scene_thread_overlay(links : Array[SceneThreadLink]) -> Node {
+  @scene.scene_thread_overlay(links)
+}
+
+///|
+pub fn windowed_scene_thread_overlay(
+  links : Array[SceneThreadLink],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @scene.windowed_scene_thread_overlay(links, total_count~, offset~)
+}
+
+///|
+pub fn static_scene_with_threads(
+  input : Scene,
+  links : Array[SceneThreadLink],
+) -> Node {
+  @scene.static_scene_with_threads(input, links)
+}
+
+///|
+pub fn static_scene_with_windowed_threads(
+  input : Scene,
+  links : Array[SceneThreadLink],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @scene.static_scene_with_windowed_threads(input, links, total_count~, offset~)
+}
+
+///|
 pub fn scene_render_budget(
   max_layers~ : Int,
   max_markers~ : Int,
@@ -1345,6 +1403,41 @@ pub fn set_scene_marker_status(
 ///|
 pub fn select_scene_marker(scene_id : String, marker_id : String) -> Patch {
   @scene.select_scene_marker(scene_id, marker_id)
+}
+
+///|
+pub fn select_scene_thread(
+  scene_id : String,
+  marker_id : String,
+  thread_id : String,
+) -> Patch {
+  @scene.select_scene_thread(scene_id, marker_id, thread_id)
+}
+
+///|
+pub fn set_scene_thread_status(
+  scene_id : String,
+  thread_id : String,
+  status : String,
+) -> Patch {
+  @scene.set_scene_thread_status(scene_id, thread_id, status)
+}
+
+///|
+pub fn set_scene_thread_unread(
+  scene_id : String,
+  thread_id : String,
+  unread_count : Int,
+) -> Patch {
+  @scene.set_scene_thread_unread(scene_id, thread_id, unread_count)
+}
+
+///|
+pub fn append_scene_thread_link(
+  target_path : String,
+  link : SceneThreadLink,
+) -> Patch {
+  @scene.append_scene_thread_link(target_path, link)
 }
 
 ///|

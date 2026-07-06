@@ -7,6 +7,8 @@ import {
 }
 
 // Values
+pub fn append_scene_thread_link(String, SceneThreadLink) -> @core.Patch
+
 pub fn default_scene_asset_budget() -> SceneAssetBudget
 
 pub fn default_scene_render_budget() -> SceneRenderBudget
@@ -55,6 +57,10 @@ pub fn scene_render_mode_id(SceneRenderMode) -> String
 
 pub fn scene_size(Int, Int) -> SceneSize
 
+pub fn scene_thread_link(id~ : String, scene_id~ : String, marker_id~ : String, thread_id~ : String, subject_ref? : String, status? : String, unread_count? : Int, open_message? : String) -> SceneThreadLink
+
+pub fn scene_thread_overlay(Array[SceneThreadLink]) -> @core.Node
+
 pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> SceneViewport
 
 pub fn scene_visible_marker_count(Scene, SceneViewport) -> Int
@@ -63,7 +69,13 @@ pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_mark
 
 pub fn select_scene_marker(String, String) -> @core.Patch
 
+pub fn select_scene_thread(String, String, String) -> @core.Patch
+
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_thread_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_thread_unread(String, String, Int) -> @core.Patch
 
 pub fn sprite_asset(String, String, Int) -> SceneAsset
 
@@ -73,7 +85,13 @@ pub fn static_scene_view_with_budget(Scene, SceneRenderBudget) -> @core.Node
 
 pub fn static_scene_view_with_viewport(Scene, SceneViewport, budget? : SceneRenderBudget) -> @core.Node
 
+pub fn static_scene_with_threads(Scene, Array[SceneThreadLink]) -> @core.Node
+
+pub fn static_scene_with_windowed_threads(Scene, Array[SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
+
 pub fn tile_asset(String, String, Int) -> SceneAsset
+
+pub fn windowed_scene_thread_overlay(Array[SceneThreadLink], total_count~ : Int, offset? : Int) -> @core.Node
 
 // Errors
 
@@ -162,6 +180,17 @@ pub struct SceneRenderPlan {
 pub struct SceneSize {
   width : Int
   height : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneThreadLink {
+  id : String
+  scene_id : String
+  marker_id : String
+  thread_id : String
+  subject_ref : String
+  status : String
+  unread_count : Int
+  open_message : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneViewport {
