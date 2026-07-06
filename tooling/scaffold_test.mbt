@@ -24,11 +24,22 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "app.mbt").contains("surface_status_overlay"),
   )
+  assert_true(file_content(plan.files, "app.mbt").contains("starter_scene"))
+  assert_true(file_content(plan.files, "app.mbt").contains("static_scene_view"))
+  assert_true(
+    file_content(plan.files, "app.mbt").contains("pub fn scene_render_plan()"),
+  )
+  assert_true(
+    file_content(plan.files, "app.mbt").contains("select_scene_marker"),
+  )
   assert_true(
     file_content(plan.files, "app.mbt").contains("pub fn render_plan()"),
   )
   assert_true(
     file_content(plan.files, "app.mbt").contains("append_stream_chunk_delta"),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains("map rendering"),
   )
   assert_true(plan.summary.contains("files=4"))
 }

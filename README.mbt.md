@@ -265,9 +265,10 @@ Generate a standalone starter project with:
 moon run cmd/main -- init --name my_miniapp --module local/my_miniapp --out /tmp/my-miniapp
 ```
 
-The generated starter keeps agent chat first-class with a windowed message feed,
-surface status overlay, patch-plan helper, render-plan helper, and a local
-`moon.work` link to the current Bunnia checkout for pre-registry development.
+The generated starter keeps agent chat and map-heavy surfaces first-class with a
+windowed message feed, static scene map, surface status overlay, scene patch
+helper, agent patch helper, render-plan helper, and a local `moon.work` link to
+the current Bunnia checkout for pre-registry development.
 
 Generate the Wenyu proof slice with:
 
