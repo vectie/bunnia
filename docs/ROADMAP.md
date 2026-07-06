@@ -509,6 +509,8 @@ Current evidence:
   tool-result acknowledgment.
 - Backend contracts can derive request/stream effect plans, so examples avoid
   duplicating endpoint intent when profiling runtime pressure.
+- Build profiles aggregate backend endpoint, streaming, and review-required
+  counts so backend pressure is visible beside frontend payload budgets.
 - Backend loading, ready, stale, failed, timeout, malformed, and cancelled
   states can be represented as small `setData` patches.
 - Replayable backend requests and backend results are typed as data, with
@@ -698,6 +700,8 @@ Current evidence:
   summary for generated examples.
 - Example build profiles feed backend-derived effect plans into that summary,
   so request and stream pressure is visible in normal CLI output.
+- Backend stream/review counts are included in profile summaries, keeping
+  agent-operation review pressure visible during strict builds.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.

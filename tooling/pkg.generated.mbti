@@ -51,6 +51,8 @@ pub struct BuildProfile {
   agent_delta_count : Int
   agent_duplicate_stream_chunk_count : Int
   backend_endpoint_count : Int
+  backend_streaming_count : Int
+  backend_review_required_count : Int
   snapshot_delta_count : Int
   snapshot_section_update_count : Int
   snapshot_append_item_count : Int
