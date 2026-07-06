@@ -33,6 +33,7 @@ pub fn scaffold_project(
     scaffold_file("app_test.mbt", app_test_mbt()),
     scaffold_file("README.mbt.md", readme_content),
     scaffold_file("README.md", readme_content),
+    scaffold_file(".gitignore", gitignore()),
   ]
   {
     name,
@@ -57,6 +58,11 @@ fn moon_mod(module_name : String) -> String {
   "}\n\n" +
   "preferred_target = \"js\"\n\n" +
   "description = \"Bunnia mini-app starter.\"\n"
+}
+
+///|
+fn gitignore() -> String {
+  ".DS_Store\n" + "_build/\n" + "target/\n" + ".mooncakes/\n" + ".moonagent/\n"
 }
 
 ///|

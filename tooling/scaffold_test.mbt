@@ -3,7 +3,7 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 13)
+  assert_eq(plan.files.length(), 14)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
   assert_true(has_file(plan.files, "cmd/main/moon.pkg"))
@@ -17,10 +17,13 @@ test "scaffold project creates a small standalone starter" {
   assert_true(has_file(plan.files, "app_test.mbt"))
   assert_true(has_file(plan.files, "README.mbt.md"))
   assert_true(has_file(plan.files, "README.md"))
+  assert_true(has_file(plan.files, ".gitignore"))
   assert_eq(
     file_content(plan.files, "README.md"),
     file_content(plan.files, "README.mbt.md"),
   )
+  assert_true(file_content(plan.files, ".gitignore").contains("_build/"))
+  assert_true(file_content(plan.files, ".gitignore").contains(".mooncakes/"))
   assert_true(
     file_content(plan.files, "moon.mod").contains("name = \"local/starter\""),
   )
@@ -334,7 +337,7 @@ test "scaffold project creates a small standalone starter" {
       "build --out _build/wechat",
     ),
   )
-  assert_true(plan.summary.contains("files=13"))
+  assert_true(plan.summary.contains("files=14"))
 }
 
 ///|

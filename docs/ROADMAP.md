@@ -962,7 +962,8 @@ Current evidence:
   `--strict` diagnostics gating or runs no-write `inspect` route/backend/map/file
   pressure checks and deterministic `snapshot` artifact generation. The
   scaffold writes both `README.mbt.md` and `README.md` from the same content, so
-  documentation stays testable by MoonBit while remaining visible on GitHub. The
+  documentation stays testable by MoonBit while remaining visible on GitHub, and
+  includes a starter `.gitignore` for generated output and MoonBit build caches. The
   generated `ci-plan` lists the starter's check, test, interface, format,
   platform-limits, inspect, snapshot, and explicit strict build commands,
   prints actionable diagnostic lines, and can emit the same workflow as a
