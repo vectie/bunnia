@@ -6,6 +6,8 @@ pub struct SceneVisualQualityBudget {
   max_markers_without_tap : Int
   max_markers_without_asset_ref : Int
   max_unresolved_asset_refs : Int
+  max_regions_without_status : Int
+  max_regions_without_tap : Int
   min_hit_width : Int
   min_hit_height : Int
   max_small_hit_targets : Int
@@ -16,10 +18,13 @@ pub struct SceneVisualQualityPlan {
   render_plan : SceneRenderPlan
   asset_plan : SceneAssetPlan
   marker_count : Int
+  region_count : Int
   markers_without_status_count : Int
   markers_without_tap_count : Int
   markers_without_asset_ref_count : Int
   unresolved_asset_ref_count : Int
+  regions_without_status_count : Int
+  regions_without_tap_count : Int
   small_hit_target_count : Int
   degraded : Bool
   diagnostics : Array[String]
@@ -34,6 +39,8 @@ pub fn scene_visual_quality_budget(
   max_markers_without_tap~ : Int,
   max_markers_without_asset_ref~ : Int,
   max_unresolved_asset_refs~ : Int,
+  max_regions_without_status? : Int = 0,
+  max_regions_without_tap? : Int = 0,
   min_hit_width? : Int = 44,
   min_hit_height? : Int = 44,
   max_small_hit_targets? : Int = 0,
@@ -45,6 +52,8 @@ pub fn scene_visual_quality_budget(
     max_markers_without_tap,
     max_markers_without_asset_ref,
     max_unresolved_asset_refs,
+    max_regions_without_status,
+    max_regions_without_tap,
     min_hit_width,
     min_hit_height,
     max_small_hit_targets,
@@ -60,6 +69,8 @@ pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget {
     max_markers_without_tap: 0,
     max_markers_without_asset_ref: 0,
     max_unresolved_asset_refs: 0,
+    max_regions_without_status: 0,
+    max_regions_without_tap: 0,
     min_hit_width: 44,
     min_hit_height: 44,
     max_small_hit_targets: 0,
@@ -120,12 +131,17 @@ fn plan_scene_visual_quality_from_plans(
     markers_without_tap_count,
     markers_without_asset_ref_count,
     unresolved_asset_ref_count,
+    regions_without_status_count,
+    regions_without_tap_count,
     small_hit_target_count,
-  ) = marker_quality_counts(input, quality_budget)
+  ) = scene_quality_counts(input, quality_budget)
   push_scene_size_diagnostics(input, quality_budget, diagnostics)
   push_marker_quality_diagnostics(
     markers_without_status_count, markers_without_tap_count, markers_without_asset_ref_count,
     unresolved_asset_ref_count, small_hit_target_count, quality_budget, diagnostics,
+  )
+  push_region_quality_diagnostics(
+    regions_without_status_count, regions_without_tap_count, quality_budget, diagnostics,
   )
   push_prefixed_quality_diagnostics(
     "render",
@@ -143,26 +159,31 @@ fn plan_scene_visual_quality_from_plans(
     render_plan,
     asset_plan,
     marker_count: scene_marker_count(input),
+    region_count: scene_region_count(input),
     markers_without_status_count,
     markers_without_tap_count,
     markers_without_asset_ref_count,
     unresolved_asset_ref_count,
+    regions_without_status_count,
+    regions_without_tap_count,
     small_hit_target_count,
     degraded,
     diagnostics,
-    summary: "Bunnia scene visual quality plan: markers=\{scene_marker_count(input)} missing_status=\{markers_without_status_count} missing_tap=\{markers_without_tap_count} missing_assets=\{markers_without_asset_ref_count} unresolved_assets=\{unresolved_asset_ref_count} small_hit_targets=\{small_hit_target_count} degraded=\{degraded} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia scene visual quality plan: markers=\{scene_marker_count(input)} regions=\{scene_region_count(input)} missing_status=\{markers_without_status_count} missing_tap=\{markers_without_tap_count} missing_assets=\{markers_without_asset_ref_count} unresolved_assets=\{unresolved_asset_ref_count} region_missing_status=\{regions_without_status_count} region_missing_tap=\{regions_without_tap_count} small_hit_targets=\{small_hit_target_count} degraded=\{degraded} diagnostics=\{diagnostics.length()}",
   }
 }
 
 ///|
-fn marker_quality_counts(
+fn scene_quality_counts(
   input : Scene,
   budget : SceneVisualQualityBudget,
-) -> (Int, Int, Int, Int, Int) {
+) -> (Int, Int, Int, Int, Int, Int, Int) {
   let mut markers_without_status_count = 0
   let mut markers_without_tap_count = 0
   let mut markers_without_asset_ref_count = 0
   let mut unresolved_asset_ref_count = 0
+  let mut regions_without_status_count = 0
+  let mut regions_without_tap_count = 0
   let mut small_hit_target_count = 0
   for scene_layer in input.layers {
     for scene_marker in scene_layer.markers {
@@ -185,10 +206,19 @@ fn marker_quality_counts(
         small_hit_target_count += 1
       }
     }
+    for scene_region in scene_layer.regions {
+      if scene_region.status == "" {
+        regions_without_status_count += 1
+      }
+      if scene_region.tap_message == "" {
+        regions_without_tap_count += 1
+      }
+    }
   }
   (
     markers_without_status_count, markers_without_tap_count, markers_without_asset_ref_count,
-    unresolved_asset_ref_count, small_hit_target_count,
+    unresolved_asset_ref_count, regions_without_status_count, regions_without_tap_count,
+    small_hit_target_count,
   )
 }
 
@@ -243,6 +273,25 @@ fn push_marker_quality_diagnostics(
   if small_hit_target_count > budget.max_small_hit_targets {
     diagnostics.push(
       "scene-small-hit-targets:\{small_hit_target_count}/\{budget.max_small_hit_targets}",
+    )
+  }
+}
+
+///|
+fn push_region_quality_diagnostics(
+  regions_without_status_count : Int,
+  regions_without_tap_count : Int,
+  budget : SceneVisualQualityBudget,
+  diagnostics : Array[String],
+) -> Unit {
+  if regions_without_status_count > budget.max_regions_without_status {
+    diagnostics.push(
+      "scene-regions-without-status:\{regions_without_status_count}/\{budget.max_regions_without_status}",
+    )
+  }
+  if regions_without_tap_count > budget.max_regions_without_tap {
+    diagnostics.push(
+      "scene-regions-without-tap:\{regions_without_tap_count}/\{budget.max_regions_without_tap}",
     )
   }
 }

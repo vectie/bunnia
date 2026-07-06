@@ -89,6 +89,8 @@ pub struct BuildProfile {
   snapshot_full_replace_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
   scene_remote_asset_count : Int
@@ -203,6 +205,7 @@ pub struct ProjectInspection {
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
   max_scene_marker_count : Int
+  max_scene_region_count : Int
   max_scene_asset_count : Int
   max_scene_remote_asset_count : Int
   risk_score : Int
@@ -234,6 +237,8 @@ pub struct RouteInspection {
   event_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
   risk_score : Int

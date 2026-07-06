@@ -45,8 +45,8 @@ phase-by-phase implementation plan.
 - `agent`: lightweight message, review, artifact-link, run-status, and
   communication planning primitives, plus generic communication threads and
   traces.
-- `scene`: static stylised map model with layers, markers, asset manifests,
-  hit targets, thread-link plans, and bounded updates.
+- `scene`: static stylised map model with layers, selectable regions, markers,
+  asset manifests, hit targets, thread-link plans, and bounded updates.
 - `effects`: typed frontend effect descriptions, platform support planning,
   snapshot-delta planning, cancel/retry helpers, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
@@ -66,7 +66,7 @@ moon run cmd/main
 
 This writes a WeChat Mini Program file set to
 `_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
-event-to-patch dispatch for review buttons and map markers. The command also
+event-to-patch dispatch for review buttons, map regions, and map markers. The command also
 prints render, file-size, initial-data, event-patch, patch, agent-delta, and
 build-profile budget summaries. Use `--out` to choose another directory:
 
@@ -272,14 +272,15 @@ test {
 
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
-visible/total marker counts so large maps can stay spatially bounded.
+visible/total marker and region counts so large maps can stay spatially bounded.
 Generic render plans and generated route manifests also report scene count,
-visible/total marker count, scene asset count, and degraded scene count, so map
+visible/total marker count, visible/total region count, scene asset count, and
+degraded scene count, so map
 pressure is visible even before product-specific profiling is wired in. Route
 manifests include the render-budget limits used for generation, which keeps
 budget failures explainable from generated output alone.
-`@bunnia.render_budget(...)` can gate scene marker count, scene asset reference
-count, and degraded scene count directly, which lets strict builds catch
+`@bunnia.render_budget(...)` can gate scene marker count, scene region count,
+scene asset reference count, and degraded scene count directly, which lets strict builds catch
 oversized map routes without a separate scene-specific planner. WeChat
 generation APIs also accept explicit render budgets, so route manifests and
 build reports carry those render diagnostics into normal build output. For
@@ -499,6 +500,18 @@ test {
       "overview",
       @bunnia.scene_size(640, 480),
       [
+        @bunnia.layer("districts", 1, [], regions=[
+          @bunnia.region(
+            id="district-a",
+            label="District A",
+            x=48,
+            y=64,
+            width=240,
+            height=160,
+            status="review",
+            tap_message="select-district-a",
+          ),
+        ]),
         @bunnia.layer("actors", 10, [
           @bunnia.marker(
             id="actor-a",
@@ -515,9 +528,11 @@ test {
     ),
   )
   let patches = @bunnia.plan_patches([
+    @bunnia.select_scene_region("overview", "district-a"),
     @bunnia.set_scene_marker_status("overview", "actor-a", "selected"),
   ])
   let output = @bunnia.generate_wechat_page("Map", @bunnia.page([map]))
+  assert_true(output.wxml.contains("data-region-id=\"district-a\""))
   assert_true(output.wxml.contains("bunnia-scene-sprite"))
   assert_true(patches.total_estimated_bytes < 96)
 }

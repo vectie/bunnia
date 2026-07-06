@@ -83,12 +83,12 @@ pub fn demo_wechat_project_with_render_budget(
 pub fn demo_runtime() -> @bunnia.WechatRuntime {
   @bunnia.wechat_runtime(initial_data_json=demo_initial_data_json(), event_patches=[
     @bunnia.wechat_event_patch("select-zone-a", [
-      @bunnia.set_string("scene.selectedZone", "zone-a"),
-      @bunnia.set_json("scene.zones.zone-a.status", "\"selected\""),
+      @bunnia.select_scene_region("ops-map", "zone-a"),
+      @bunnia.set_scene_region_status("ops-map", "zone-a", "selected"),
     ]),
     @bunnia.wechat_event_patch("select-zone-b", [
-      @bunnia.set_string("scene.selectedZone", "zone-b"),
-      @bunnia.set_json("scene.zones.zone-b.status", "\"running\""),
+      @bunnia.select_scene_region("ops-map", "zone-b"),
+      @bunnia.set_scene_region_status("ops-map", "zone-b", "running"),
     ]),
     @bunnia.wechat_event_patch("approve-route", [
       @bunnia.set_json("review.routeReview", "\"approved\""),
@@ -113,14 +113,14 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"scenes\":{\"ops-map\":{\"camera\":{\"x\":0,\"y\":0,\"width\":520,\"height\":360,\"zoomPercent\":100}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
+  "{\"scenes\":{\"ops-map\":{\"selectedRegion\":\"\",\"regions\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}},\"camera\":{\"x\":0,\"y\":0,\"width\":520,\"height\":360,\"zoomPercent\":100}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
 }
 
 ///|
 pub fn demo_patch_plan() -> @bunnia.PatchPlan {
   @bunnia.plan_patches([
     @bunnia.set_string("__bunnia.lastMessage", "select-zone-b"),
-    @bunnia.set_json("scene.zones.zone-b.status", "\"running\""),
+    @bunnia.set_scene_region_status("ops-map", "zone-b", "running"),
   ])
 }
 
@@ -281,21 +281,43 @@ fn demo_scene() -> @bunnia.Scene {
     "ops-map",
     @bunnia.scene_size(720, 520),
     [
-      @bunnia.layer("zones", 1, [
-        @bunnia.marker(
+      @bunnia.layer("zones", 1, [], regions=[
+        @bunnia.region(
           id="zone-a",
           label="North Gate",
-          x=96,
-          y=144,
+          x=64,
+          y=96,
+          width=220,
+          height=160,
           status="stable",
+          tap_message="select-zone-a",
+        ),
+        @bunnia.region(
+          id="zone-b",
+          label="Review Dock",
+          x=360,
+          y=210,
+          width=240,
+          height=180,
+          status="review",
+          tap_message="select-zone-b",
+        ),
+      ]),
+      @bunnia.layer("actors", 2, [
+        @bunnia.marker(
+          id="agent-a",
+          label="Planner",
+          x=156,
+          y=156,
+          status="running",
           tap_message="select-zone-a",
           asset_ref="zone-pin",
         ),
         @bunnia.marker(
-          id="zone-b",
-          label="Review Dock",
-          x=420,
-          y=260,
+          id="agent-b",
+          label="Reviewer",
+          x=450,
+          y=280,
           status="review",
           tap_message="select-zone-b",
           asset_ref="zone-pin",
@@ -322,7 +344,7 @@ fn demo_scene_thread_links() -> Array[@bunnia.SceneThreadLink] {
     @bunnia.scene_thread_link(
       id="thread-zone-a-link",
       scene_id="ops-map",
-      marker_id="zone-a",
+      marker_id="agent-a",
       thread_id="thread-overview",
       subject_ref="scene://ops-map/zone-a",
       status="stable",
@@ -332,7 +354,7 @@ fn demo_scene_thread_links() -> Array[@bunnia.SceneThreadLink] {
     @bunnia.scene_thread_link(
       id="thread-zone-b-link",
       scene_id="ops-map",
-      marker_id="zone-b",
+      marker_id="agent-b",
       thread_id="thread-overview",
       subject_ref="scene://ops-map/zone-b",
       status="review",

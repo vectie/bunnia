@@ -6,6 +6,7 @@ pub struct RenderBudget {
   max_initial_data_bytes : Int
   max_unwindowed_list_children : Int
   max_scene_markers : Int
+  max_scene_regions : Int
   max_scene_assets : Int
   max_degraded_scenes : Int
 } derive(Debug, Eq)
@@ -19,6 +20,7 @@ pub fn default_render_budget() -> RenderBudget {
     max_initial_data_bytes: 65536,
     max_unwindowed_list_children: 64,
     max_scene_markers: 600,
+    max_scene_regions: 300,
     max_scene_assets: 64,
     max_degraded_scenes: 0,
   }
@@ -32,6 +34,7 @@ pub fn render_budget(
   max_initial_data_bytes~ : Int,
   max_unwindowed_list_children? : Int = 64,
   max_scene_markers? : Int = 600,
+  max_scene_regions? : Int = 300,
   max_scene_assets? : Int = 64,
   max_degraded_scenes? : Int = 0,
 ) -> RenderBudget {
@@ -42,6 +45,7 @@ pub fn render_budget(
     max_initial_data_bytes,
     max_unwindowed_list_children,
     max_scene_markers,
+    max_scene_regions,
     max_scene_assets,
     max_degraded_scenes,
   }
@@ -65,6 +69,8 @@ pub struct RenderPlan {
   scene_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   degraded_scene_count : Int
   component_kinds : Array[String]
@@ -118,6 +124,8 @@ pub fn plan_for_adapter_with_budget(
   let scenes = scene_count(root)
   let scene_markers = scene_marker_count(root)
   let scene_visible_markers = scene_visible_marker_count(root)
+  let scene_regions = scene_region_count(root)
+  let scene_visible_regions = scene_visible_region_count(root)
   let scene_assets = scene_asset_count(root)
   let degraded_scenes = degraded_scene_count(root)
   let unsupported_canvas_count = if canvas_count > 0 && !adapter.supports_canvas {
@@ -158,6 +166,11 @@ pub fn plan_for_adapter_with_budget(
       "scene-marker-count-over-budget:\{scene_markers}/\{budget.max_scene_markers}",
     )
   }
+  if scene_regions > budget.max_scene_regions {
+    diagnostics.push(
+      "scene-region-count-over-budget:\{scene_regions}/\{budget.max_scene_regions}",
+    )
+  }
   if scene_assets > budget.max_scene_assets {
     diagnostics.push(
       "scene-asset-count-over-budget:\{scene_assets}/\{budget.max_scene_assets}",
@@ -168,7 +181,7 @@ pub fn plan_for_adapter_with_budget(
       "scene-degraded-count-over-budget:\{degraded_scenes}/\{budget.max_degraded_scenes}",
     )
   }
-  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} scenes=\{scenes} scene_markers=\{scene_visible_markers}/\{scene_markers} scene_assets=\{scene_assets} degraded_scenes=\{degraded_scenes} diagnostics=\{diagnostics.length()}"
+  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} scenes=\{scenes} scene_markers=\{scene_visible_markers}/\{scene_markers} scene_regions=\{scene_visible_regions}/\{scene_regions} scene_assets=\{scene_assets} degraded_scenes=\{degraded_scenes} diagnostics=\{diagnostics.length()}"
   {
     platform: adapter.platform,
     adapter,
@@ -186,6 +199,8 @@ pub fn plan_for_adapter_with_budget(
     scene_count: scenes,
     scene_marker_count: scene_markers,
     scene_visible_marker_count: scene_visible_markers,
+    scene_region_count: scene_regions,
+    scene_visible_region_count: scene_visible_regions,
     scene_asset_count: scene_assets,
     degraded_scene_count: degraded_scenes,
     component_kinds: components,
@@ -404,10 +419,51 @@ fn scene_visible_marker_count(root : Node) -> Int {
 }
 
 ///|
+fn scene_region_count(root : Node) -> Int {
+  if is_scene_root(root) {
+    match attr_int(root, "data-regions-total") {
+      Some(value) => value
+      None => rendered_scene_region_count(root)
+    }
+  } else {
+    let mut total = 0
+    for child in root.children {
+      total += scene_region_count(child)
+    }
+    total
+  }
+}
+
+///|
+fn scene_visible_region_count(root : Node) -> Int {
+  if is_scene_root(root) {
+    match attr_int(root, "data-regions-visible") {
+      Some(value) => value
+      None => rendered_scene_region_count(root)
+    }
+  } else {
+    let mut total = 0
+    for child in root.children {
+      total += scene_visible_region_count(child)
+    }
+    total
+  }
+}
+
+///|
 fn rendered_scene_marker_count(root : Node) -> Int {
   let mut total = if attr_value(root, "data-marker-id") != "" { 1 } else { 0 }
   for child in root.children {
     total += rendered_scene_marker_count(child)
+  }
+  total
+}
+
+///|
+fn rendered_scene_region_count(root : Node) -> Int {
+  let mut total = if attr_value(root, "data-region-id") != "" { 1 } else { 0 }
+  for child in root.children {
+    total += rendered_scene_region_count(child)
   }
   total
 }

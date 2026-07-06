@@ -629,6 +629,9 @@ Current evidence:
 
 - Static scenes support layers, positioned markers, sprite/image asset
   references, and generated WeChat sprite markup.
+- Static scenes now support first-class selectable regions with stable tap
+  events, region status patches, and render/manifest region counts beside
+  marker counts.
 - Scene asset plans report asset count, package bytes, remote asset count, and
   budget diagnostics.
 - Scene asset plans identify bundled assets that should be deferred when
@@ -643,8 +646,8 @@ Current evidence:
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
 - Scene render plans report mode, quality level, layer count, marker count,
-  visible/total marker count, asset count, and diagnostics for large map-like
-  surfaces.
+  visible/total marker count, visible/total region count, asset count, and
+  diagnostics for large map-like surfaces.
 - Budgeted static scene rendering can cap visible markers and mark degraded
   output with stable data attributes, leaving room for a later canvas surface
   without forcing product code to change shape.

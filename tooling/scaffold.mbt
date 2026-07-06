@@ -171,7 +171,7 @@ fn cmd_main_mbt() -> String {
   "fn print_inspect_result(project : @bunnia.WechatProject) -> Unit {\n" +
   "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} diagnostics=\\{project.manifest.diagnostic_count}\")\n" +
   "  for page in project.manifest.pages {\n" +
-  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
+  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
   "  }\n" +
   "  for file in project.manifest.files {\n" +
   "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
@@ -262,6 +262,18 @@ fn scene_mbt() -> String {
   "    \"starter-map\",\n" +
   "    @bunnia.scene_size(320, 240),\n" +
   "    [\n" +
+  "      @bunnia.layer(\"regions\", 1, [], regions=[\n" +
+  "        @bunnia.region(\n" +
+  "          id=\"workbench\",\n" +
+  "          label=\"Workbench\",\n" +
+  "          x=32,\n" +
+  "          y=48,\n" +
+  "          width=180,\n" +
+  "          height=120,\n" +
+  "          status=\"ready\",\n" +
+  "          tap_message=\"select-workbench\",\n" +
+  "        ),\n" +
+  "      ]),\n" +
   "      @bunnia.layer(\"agents\", 1, [\n" +
   "        @bunnia.marker(\n" +
   "          id=\"agent-a\",\n" +
@@ -296,6 +308,8 @@ fn updates_mbt() -> String {
   "///|\n" +
   "pub fn scene_patch_plan() -> @bunnia.PatchPlan {\n" +
   "  @bunnia.plan_patches([\n" +
+  "    @bunnia.select_scene_region(\"starter-map\", \"workbench\"),\n" +
+  "    @bunnia.set_scene_region_status(\"starter-map\", \"workbench\", \"selected\"),\n" +
   "    @bunnia.select_scene_marker(\"starter-map\", \"agent-a\"),\n" +
   "    @bunnia.set_scene_marker_status(\"starter-map\", \"agent-a\", \"selected\"),\n" +
   "  ])\n" +
@@ -326,6 +340,7 @@ fn wechat_mbt(name : String) -> String {
   "    initial_data_json=\"{}\",\n" +
   "    event_patches=[\n" +
   "      @bunnia.wechat_event_patch(\"refresh\", patch_plan().patches),\n" +
+  "      @bunnia.wechat_event_patch(\"select-workbench\", scene_patch_plan().patches),\n" +
   "      @bunnia.wechat_event_patch(\"select-agent-a\", scene_patch_plan().patches),\n" +
   "    ],\n" +
   "  )\n" +
@@ -354,10 +369,13 @@ fn app_test_mbt() -> String {
   "  assert_eq(plan.diagnostics.length(), 0)\n" +
   "  assert_eq(plan.scene_count, 1)\n" +
   "  assert_eq(plan.scene_marker_count, 1)\n" +
+  "  assert_eq(plan.scene_region_count, 1)\n" +
   "  assert_eq(plan.degraded_scene_count, 0)\n" +
   "  let scene = scene_render_plan()\n" +
   "  assert_eq(scene.marker_count, 1)\n" +
   "  assert_eq(scene.visible_marker_count, 1)\n" +
+  "  assert_eq(scene.region_count, 1)\n" +
+  "  assert_eq(scene.visible_region_count, 1)\n" +
   "  assert_eq(scene.diagnostics.length(), 0)\n" +
   "}\n\n" +
   "///|\n" +
@@ -366,7 +384,7 @@ fn app_test_mbt() -> String {
   "  assert_eq(agent.patches.length(), 1)\n" +
   "  assert_eq(agent.diagnostics.length(), 0)\n" +
   "  let scene = scene_patch_plan()\n" +
-  "  assert_eq(scene.patches.length(), 2)\n" +
+  "  assert_eq(scene.patches.length(), 4)\n" +
   "  assert_eq(scene.diagnostics.length(), 0)\n" +
   "}\n\n" +
   "///|\n" +

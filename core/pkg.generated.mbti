@@ -70,7 +70,7 @@ pub fn platform_label(Platform) -> String
 
 pub fn remove_path(String) -> Patch
 
-pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_scene_assets? : Int, max_degraded_scenes? : Int) -> RenderBudget
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_scene_regions? : Int, max_scene_assets? : Int, max_degraded_scenes? : Int) -> RenderBudget
 
 pub fn scroll_view(Array[Node]) -> Node
 
@@ -192,6 +192,7 @@ pub struct RenderBudget {
   max_initial_data_bytes : Int
   max_unwindowed_list_children : Int
   max_scene_markers : Int
+  max_scene_regions : Int
   max_scene_assets : Int
   max_degraded_scenes : Int
 } derive(Eq, @debug.Debug)
@@ -213,6 +214,8 @@ pub struct RenderPlan {
   scene_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   degraded_scene_count : Int
   component_kinds : Array[String]

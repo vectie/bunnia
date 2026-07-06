@@ -121,6 +121,8 @@ pub struct WechatManifestPage {
   scene_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   scene_assets : Array[WechatManifestSceneAsset]
   degraded_scene_count : Int

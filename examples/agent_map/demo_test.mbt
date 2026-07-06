@@ -3,6 +3,7 @@ test "agent map demo generates wechat output" {
   let page = demo_wechat_page()
   assert_true(page.wxml.contains("Agent Map"))
   assert_true(page.wxml.contains("select-zone-b"))
+  assert_true(page.wxml.contains("bunnia-scene-region"))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
   assert_true(page.wxml.contains("bunnia-status-review"))
@@ -14,7 +15,8 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("zoom-map-in"))
   assert_true(page.wxml.contains("data-camera-width=\"520\""))
   assert_true(page.wxml.contains("data-camera-zoom-percent=\"100\""))
-  assert_true(page.wxml.contains("left: 420rpx; top: 260rpx;"))
+  assert_true(page.wxml.contains("left: 360rpx; top: 210rpx;"))
+  assert_true(page.wxml.contains("width: 240rpx; height: 180rpx;"))
   assert_true(page.wxml.contains("data-hit-width=\"44\""))
   assert_true(page.wxml.contains("data-hit-height=\"44\""))
   assert_true(page.wxml.contains("data-run-status=\"waiting-review\""))
@@ -30,7 +32,12 @@ test "agent map demo generates wechat output" {
   assert_true(page.js.contains("\"zoom-map-in\""))
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"scene.zones.zone-b.status\",value:\"running\"}",
+      "{kind:\"set\",path:\"scenes.ops-map.selectedRegion\",value:\"zone-b\"}",
+    ),
+  )
+  assert_true(
+    page.js.contains(
+      "{kind:\"set\",path:\"scenes.ops-map.regions.zone-b.status\",value:\"running\"}",
     ),
   )
   assert_true(
@@ -57,6 +64,8 @@ test "agent map demo generates wechat output" {
   assert_eq(page.plan.scene_count, 1)
   assert_eq(page.plan.scene_marker_count, 2)
   assert_eq(page.plan.scene_visible_marker_count, 2)
+  assert_eq(page.plan.scene_region_count, 2)
+  assert_eq(page.plan.scene_visible_region_count, 2)
   assert_eq(page.plan.scene_asset_count, 1)
   assert_eq(page.plan.degraded_scene_count, 0)
 }
@@ -83,11 +92,13 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].scene_count, 1)
   assert_eq(project.manifest.pages[0].scene_marker_count, 2)
   assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
+  assert_eq(project.manifest.pages[0].scene_region_count, 2)
+  assert_eq(project.manifest.pages[0].scene_visible_region_count, 2)
   assert_eq(project.manifest.pages[0].scene_asset_count, 1)
   assert_eq(project.manifest.pages[0].degraded_scene_count, 0)
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneAssets\":1,\"sceneAssetRefs\":[{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
+      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneRegions\":2,\"sceneVisibleRegions\":2,\"sceneAssets\":1,\"sceneAssetRefs\":[{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
     ),
   )
   assert_true(
@@ -194,8 +205,10 @@ test "agent map demo exposes scene profile signals" {
   let assets = demo_asset_plan()
   let threads = demo_scene_thread_plan()
   let quality = demo_scene_visual_quality_plan()
-  assert_eq(scene.layer_count, 1)
+  assert_eq(scene.layer_count, 2)
   assert_eq(scene.marker_count, 2)
+  assert_eq(scene.region_count, 2)
+  assert_eq(scene.visible_region_count, 2)
   assert_eq(scene.asset_count, 1)
   assert_eq(scene.diagnostics.length(), 0)
   assert_eq(camera.viewport.width, 520)

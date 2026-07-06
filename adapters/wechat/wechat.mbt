@@ -80,6 +80,8 @@ pub struct WechatManifestPage {
   scene_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   scene_assets : Array[WechatManifestSceneAsset]
   degraded_scene_count : Int
@@ -609,6 +611,8 @@ fn manifest_pages(
       scene_count: item.page.plan.scene_count,
       scene_marker_count: item.page.plan.scene_marker_count,
       scene_visible_marker_count: item.page.plan.scene_visible_marker_count,
+      scene_region_count: item.page.plan.scene_region_count,
+      scene_visible_region_count: item.page.plan.scene_visible_region_count,
       scene_asset_count: item.page.plan.scene_asset_count,
       scene_assets: page_manifest_scene_assets(item),
       degraded_scene_count: item.page.plan.degraded_scene_count,
@@ -911,6 +915,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"scenes\":\{item.scene_count}," +
   "\"sceneMarkers\":\{item.scene_marker_count}," +
   "\"sceneVisibleMarkers\":\{item.scene_visible_marker_count}," +
+  "\"sceneRegions\":\{item.scene_region_count}," +
+  "\"sceneVisibleRegions\":\{item.scene_visible_region_count}," +
   "\"sceneAssets\":\{item.scene_asset_count}," +
   "\"sceneAssetRefs\":\{manifest_scene_assets_json(item.scene_assets)}," +
   "\"degradedScenes\":\{item.degraded_scene_count}," +
@@ -965,6 +971,7 @@ fn render_budget_json(input : @core.RenderBudget) -> String {
   "\"maxInitialDataBytes\":\{input.max_initial_data_bytes}," +
   "\"maxUnwindowedListChildren\":\{input.max_unwindowed_list_children}," +
   "\"maxSceneMarkers\":\{input.max_scene_markers}," +
+  "\"maxSceneRegions\":\{input.max_scene_regions}," +
   "\"maxSceneAssets\":\{input.max_scene_assets}," +
   "\"maxDegradedScenes\":\{input.max_degraded_scenes}" +
   "}"

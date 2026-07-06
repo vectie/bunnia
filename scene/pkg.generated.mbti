@@ -23,7 +23,7 @@ pub fn default_scene_visual_quality_budget() -> SceneVisualQualityBudget
 
 pub fn image_asset(String, String, Int) -> SceneAsset
 
-pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
+pub fn layer(String, Int, Array[SceneMarker], regions? : Array[SceneRegion]) -> SceneLayer
 
 pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : String, tap_message? : String, asset_ref? : String, hit_width? : Int, hit_height? : Int) -> SceneMarker
 
@@ -57,6 +57,8 @@ pub fn plan_scene_visual_quality_viewport(Scene, SceneViewport, SceneRenderBudge
 
 pub fn plan_scene_visual_quality_with_budget(Scene, SceneRenderBudget, SceneAssetBudget, SceneVisualQualityBudget) -> SceneVisualQualityPlan
 
+pub fn region(id~ : String, label~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, status? : String, tap_message? : String) -> SceneRegion
+
 pub fn remote_image_asset(String, String) -> SceneAsset
 
 pub fn scene(String, SceneSize, Array[SceneLayer], assets? : Array[SceneAsset]) -> Scene
@@ -79,7 +81,9 @@ pub fn scene_marker_count(Scene) -> Int
 
 pub fn scene_quality_id(SceneQualityLevel) -> String
 
-pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int) -> SceneRenderBudget
+pub fn scene_region_count(Scene) -> Int
+
+pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int, max_regions? : Int) -> SceneRenderBudget
 
 pub fn scene_render_mode_id(SceneRenderMode) -> String
 
@@ -97,9 +101,13 @@ pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> SceneV
 
 pub fn scene_visible_marker_count(Scene, SceneViewport) -> Int
 
-pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> SceneVisualQualityBudget
+pub fn scene_visible_region_count(Scene, SceneViewport) -> Int
+
+pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, max_regions_without_status? : Int, max_regions_without_tap? : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> SceneVisualQualityBudget
 
 pub fn select_scene_marker(String, String) -> @core.Patch
+
+pub fn select_scene_region(String, String) -> @core.Patch
 
 pub fn select_scene_thread(String, String, String) -> @core.Patch
 
@@ -112,6 +120,8 @@ pub fn set_scene_camera_viewport(String, SceneViewport) -> @core.Patch
 pub fn set_scene_camera_zoom(String, Int) -> @core.Patch
 
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_region_status(String, String, String) -> @core.Patch
 
 pub fn set_scene_thread_status(String, String, String) -> @core.Patch
 
@@ -214,6 +224,7 @@ pub struct SceneLayer {
   id : String
   z_index : Int
   markers : Array[SceneMarker]
+  regions : Array[SceneRegion]
 } derive(Eq, @debug.Debug)
 
 pub struct SceneMarker {
@@ -234,9 +245,21 @@ pub(all) enum SceneQualityLevel {
   LightweightQuality
 } derive(Eq, @debug.Debug)
 
+pub struct SceneRegion {
+  id : String
+  label : String
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  status : String
+  tap_message : String
+} derive(Eq, @debug.Debug)
+
 pub struct SceneRenderBudget {
   max_layers : Int
   max_markers : Int
+  max_regions : Int
   max_static_assets : Int
 } derive(Eq, @debug.Debug)
 
@@ -252,6 +275,8 @@ pub struct SceneRenderPlan {
   layer_count : Int
   marker_count : Int
   visible_marker_count : Int
+  region_count : Int
+  visible_region_count : Int
   asset_count : Int
   diagnostics : Array[String]
   summary : String
@@ -324,6 +349,8 @@ pub struct SceneVisualQualityBudget {
   max_markers_without_tap : Int
   max_markers_without_asset_ref : Int
   max_unresolved_asset_refs : Int
+  max_regions_without_status : Int
+  max_regions_without_tap : Int
   min_hit_width : Int
   min_hit_height : Int
   max_small_hit_targets : Int
@@ -333,10 +360,13 @@ pub struct SceneVisualQualityPlan {
   render_plan : SceneRenderPlan
   asset_plan : SceneAssetPlan
   marker_count : Int
+  region_count : Int
   markers_without_status_count : Int
   markers_without_tap_count : Int
   markers_without_asset_ref_count : Int
   unresolved_asset_ref_count : Int
+  regions_without_status_count : Int
+  regions_without_tap_count : Int
   small_hit_target_count : Int
   degraded : Bool
   diagnostics : Array[String]

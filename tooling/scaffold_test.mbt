@@ -79,12 +79,19 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "app.mbt").contains("surface_status_overlay"),
   )
   assert_true(file_content(plan.files, "scene.mbt").contains("starter_scene"))
+  assert_true(file_content(plan.files, "scene.mbt").contains("bunnia.region"))
   assert_true(file_content(plan.files, "app.mbt").contains("static_scene_view"))
   assert_true(
     file_content(plan.files, "scene.mbt").contains("pub fn scene_render_plan()"),
   )
   assert_true(
     file_content(plan.files, "updates.mbt").contains("select_scene_marker"),
+  )
+  assert_true(
+    file_content(plan.files, "updates.mbt").contains("select_scene_region"),
+  )
+  assert_true(
+    file_content(plan.files, "app_test.mbt").contains("scene_region_count"),
   )
   assert_true(
     file_content(plan.files, "quality.mbt").contains("pub fn render_plan()"),

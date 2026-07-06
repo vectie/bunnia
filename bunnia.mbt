@@ -131,6 +131,9 @@ pub type SceneAssetPlan = @scene.SceneAssetPlan
 pub type SceneMarker = @scene.SceneMarker
 
 ///|
+pub type SceneRegion = @scene.SceneRegion
+
+///|
 pub type SceneThreadLink = @scene.SceneThreadLink
 
 ///|
@@ -630,6 +633,7 @@ pub fn render_budget(
   max_initial_data_bytes~ : Int,
   max_unwindowed_list_children? : Int = 64,
   max_scene_markers? : Int = 600,
+  max_scene_regions? : Int = 300,
   max_scene_assets? : Int = 64,
   max_degraded_scenes? : Int = 0,
 ) -> RenderBudget {
@@ -640,6 +644,7 @@ pub fn render_budget(
     max_initial_data_bytes~,
     max_unwindowed_list_children~,
     max_scene_markers~,
+    max_scene_regions~,
     max_scene_assets~,
     max_degraded_scenes~,
   )
@@ -1536,12 +1541,27 @@ pub fn marker(
 }
 
 ///|
+pub fn region(
+  id~ : String,
+  label~ : String,
+  x~ : Int,
+  y~ : Int,
+  width~ : Int,
+  height~ : Int,
+  status? : String = "",
+  tap_message? : String = "",
+) -> SceneRegion {
+  @scene.region(id~, label~, x~, y~, width~, height~, status~, tap_message~)
+}
+
+///|
 pub fn layer(
   id : String,
   z_index : Int,
   markers : Array[SceneMarker],
+  regions? : Array[SceneRegion] = [],
 ) -> SceneLayer {
-  @scene.layer(id, z_index, markers)
+  @scene.layer(id, z_index, markers, regions~)
 }
 
 ///|
@@ -1683,8 +1703,14 @@ pub fn scene_render_budget(
   max_layers~ : Int,
   max_markers~ : Int,
   max_static_assets~ : Int,
+  max_regions? : Int = 128,
 ) -> SceneRenderBudget {
-  @scene.scene_render_budget(max_layers~, max_markers~, max_static_assets~)
+  @scene.scene_render_budget(
+    max_layers~,
+    max_markers~,
+    max_static_assets~,
+    max_regions~,
+  )
 }
 
 ///|
@@ -1742,6 +1768,8 @@ pub fn scene_visual_quality_budget(
   max_markers_without_tap~ : Int,
   max_markers_without_asset_ref~ : Int,
   max_unresolved_asset_refs~ : Int,
+  max_regions_without_status? : Int = 0,
+  max_regions_without_tap? : Int = 0,
   min_hit_width? : Int = 44,
   min_hit_height? : Int = 44,
   max_small_hit_targets? : Int = 0,
@@ -1753,6 +1781,8 @@ pub fn scene_visual_quality_budget(
     max_markers_without_tap~,
     max_markers_without_asset_ref~,
     max_unresolved_asset_refs~,
+    max_regions_without_status~,
+    max_regions_without_tap~,
     min_hit_width~,
     min_hit_height~,
     max_small_hit_targets~,
@@ -1800,11 +1830,24 @@ pub fn scene_marker_count(input : Scene) -> Int {
 }
 
 ///|
+pub fn scene_region_count(input : Scene) -> Int {
+  @scene.scene_region_count(input)
+}
+
+///|
 pub fn scene_visible_marker_count(
   input : Scene,
   viewport : SceneViewport,
 ) -> Int {
   @scene.scene_visible_marker_count(input, viewport)
+}
+
+///|
+pub fn scene_visible_region_count(
+  input : Scene,
+  viewport : SceneViewport,
+) -> Int {
+  @scene.scene_visible_region_count(input, viewport)
 }
 
 ///|
@@ -1881,6 +1924,20 @@ pub fn set_scene_marker_status(
 ///|
 pub fn select_scene_marker(scene_id : String, marker_id : String) -> Patch {
   @scene.select_scene_marker(scene_id, marker_id)
+}
+
+///|
+pub fn set_scene_region_status(
+  scene_id : String,
+  region_id : String,
+  status : String,
+) -> Patch {
+  @scene.set_scene_region_status(scene_id, region_id, status)
+}
+
+///|
+pub fn select_scene_region(scene_id : String, region_id : String) -> Patch {
+  @scene.select_scene_region(scene_id, region_id)
 }
 
 ///|

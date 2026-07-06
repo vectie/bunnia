@@ -278,7 +278,7 @@ pub fn is_named_budget_profile(String) -> Bool
 
 pub fn keyed(String, @core.Node) -> @core.Node
 
-pub fn layer(String, Int, Array[@scene.SceneMarker]) -> @scene.SceneLayer
+pub fn layer(String, Int, Array[@scene.SceneMarker], regions? : Array[@scene.SceneRegion]) -> @scene.SceneLayer
 
 pub fn[Item] list(Array[Item], (Item) -> @core.Node) -> @core.Node
 
@@ -402,13 +402,15 @@ pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @cor
 
 pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
+pub fn region(id~ : String, label~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, status? : String, tap_message? : String) -> @scene.SceneRegion
+
 pub fn remote_image_asset(String, String) -> @scene.SceneAsset
 
 pub fn remove_path(String) -> @core.Patch
 
 pub fn remove_snapshot_section_delta(String, String) -> @effects.SnapshotDelta
 
-pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_scene_assets? : Int, max_degraded_scenes? : Int) -> @core.RenderBudget
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int, max_scene_markers? : Int, max_scene_regions? : Int, max_scene_assets? : Int, max_degraded_scenes? : Int) -> @core.RenderBudget
 
 pub fn render_budget_for_profile(String) -> @core.RenderBudget
 
@@ -502,7 +504,9 @@ pub fn scene_quality_id(@scene.SceneQualityLevel) -> String
 
 pub fn scene_quality_lightweight() -> @scene.SceneQualityLevel
 
-pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int) -> @scene.SceneRenderBudget
+pub fn scene_region_count(@scene.Scene) -> Int
+
+pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int, max_regions? : Int) -> @scene.SceneRenderBudget
 
 pub fn scene_render_mode_id(@scene.SceneRenderMode) -> String
 
@@ -520,11 +524,15 @@ pub fn scene_viewport(x~ : Int, y~ : Int, width~ : Int, height~ : Int) -> @scene
 
 pub fn scene_visible_marker_count(@scene.Scene, @scene.SceneViewport) -> Int
 
-pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> @scene.SceneVisualQualityBudget
+pub fn scene_visible_region_count(@scene.Scene, @scene.SceneViewport) -> Int
+
+pub fn scene_visual_quality_budget(min_width~ : Int, min_height~ : Int, max_markers_without_status~ : Int, max_markers_without_tap~ : Int, max_markers_without_asset_ref~ : Int, max_unresolved_asset_refs~ : Int, max_regions_without_status? : Int, max_regions_without_tap? : Int, min_hit_width? : Int, min_hit_height? : Int, max_small_hit_targets? : Int) -> @scene.SceneVisualQualityBudget
 
 pub fn scroll_view(Array[@core.Node]) -> @core.Node
 
 pub fn select_scene_marker(String, String) -> @core.Patch
+
+pub fn select_scene_region(String, String) -> @core.Patch
 
 pub fn select_scene_thread(String, String, String) -> @core.Patch
 
@@ -543,6 +551,8 @@ pub fn set_scene_camera_viewport(String, @scene.SceneViewport) -> @core.Patch
 pub fn set_scene_camera_zoom(String, Int) -> @core.Patch
 
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
+
+pub fn set_scene_region_status(String, String, String) -> @core.Patch
 
 pub fn set_scene_thread_status(String, String, String) -> @core.Patch
 
@@ -814,6 +824,8 @@ pub using @scene {type SceneLayer}
 pub using @scene {type SceneMarker}
 
 pub using @scene {type SceneQualityLevel}
+
+pub using @scene {type SceneRegion}
 
 pub using @scene {type SceneRenderBudget}
 

@@ -16,6 +16,18 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
     ),
   ]
   let scene = @bunnia.scene("overview", @bunnia.scene_size(640, 480), [
+    @bunnia.layer("districts", 1, [], regions=[
+      @bunnia.region(
+        id="region-a",
+        label="District A",
+        x=48,
+        y=64,
+        width=240,
+        height=160,
+        status="review",
+        tap_message="select-region-a",
+      ),
+    ]),
     @bunnia.layer("actors", 10, [
       @bunnia.marker(
         id="marker-a",
@@ -32,8 +44,25 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
     @bunnia.static_scene_view(scene),
   ])
   let render = @bunnia.plan(root, @bunnia.wechat())
+  let patches = @bunnia.plan_patches([
+    @bunnia.select_scene_region("overview", "region-a"),
+    @bunnia.set_scene_region_status("overview", "region-a", "selected"),
+  ])
+  assert_eq(render.scene_region_count, 1)
+  assert_eq(render.scene_visible_region_count, 1)
+  assert_true(render.event_messages.contains("select-region-a"))
   assert_true(render.event_messages.contains("select-marker-a"))
   assert_true(render.component_kinds.contains("scroll-view"))
+  assert_true(
+    @bunnia.generate_wechat_page("Scene Region", root).wxml.contains(
+      "data-region-id=\"region-a\"",
+    ),
+  )
+  assert_true(
+    @bunnia.generate_wechat_set_data_call(patches.patches).contains(
+      "{kind:\"set\",path:\"scenes.overview.regions.region-a.status\",value:\"selected\"}",
+    ),
+  )
   assert_true(@bunnia.node_count(root) > 8)
 }
 
@@ -828,7 +857,7 @@ test "wechat project generation accepts route render budgets" {
   assert_true(project.manifest.summary.contains("diagnostic_routes=1"))
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxSceneAssets\":1,\"maxDegradedScenes\":0}",
+      "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxSceneRegions\":300,\"maxSceneAssets\":1,\"maxDegradedScenes\":0}",
     ),
   )
   assert_true(

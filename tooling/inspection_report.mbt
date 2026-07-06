@@ -9,6 +9,8 @@ pub struct RouteInspection {
   event_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
   risk_score : Int
@@ -26,6 +28,7 @@ pub struct ProjectInspection {
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
   max_scene_marker_count : Int
+  max_scene_region_count : Int
   max_scene_asset_count : Int
   max_scene_remote_asset_count : Int
   risk_score : Int
@@ -101,6 +104,7 @@ pub fn inspect_wechat_project(
   let mut top_route = ""
   let mut top_score = -1
   let mut max_scene_markers = 0
+  let mut max_scene_regions = 0
   let mut max_scene_assets = 0
   let mut max_scene_remote_assets = 0
   let total_diagnostics = project.manifest.diagnostic_count +
@@ -113,6 +117,9 @@ pub fn inspect_wechat_project(
     }
     if inspection.scene_marker_count > max_scene_markers {
       max_scene_markers = inspection.scene_marker_count
+    }
+    if inspection.scene_region_count > max_scene_regions {
+      max_scene_regions = inspection.scene_region_count
     }
     if inspection.scene_asset_count > max_scene_assets {
       max_scene_assets = inspection.scene_asset_count
@@ -135,10 +142,11 @@ pub fn inspect_wechat_project(
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
     max_scene_marker_count: max_scene_markers,
+    max_scene_region_count: max_scene_regions,
     max_scene_asset_count: max_scene_assets,
     max_scene_remote_asset_count: max_scene_remote_assets,
     risk_score: top_score,
-    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_scene_markers=\{max_scene_markers} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets}",
+    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets}",
   }
 }
 
@@ -170,10 +178,12 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     event_count: page.event_count,
     scene_marker_count: page.scene_marker_count,
     scene_visible_marker_count: page.scene_visible_marker_count,
+    scene_region_count: page.scene_region_count,
+    scene_visible_region_count: page.scene_visible_region_count,
     scene_asset_count: scene_assets,
     scene_remote_asset_count: remote_assets,
     risk_score: score,
-    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} nodes=\{page.node_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets}",
+    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} nodes=\{page.node_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets}",
   }
 }
 
@@ -185,6 +195,7 @@ fn route_risk_score(page : @wechat.WechatManifestPage) -> Int {
   page.node_count * 16 +
   page.event_count * 64 +
   page.scene_marker_count * 32 +
+  page.scene_region_count * 48 +
   route_scene_asset_count(page) * 128 +
   route_scene_remote_asset_count(page) * 256
 }
