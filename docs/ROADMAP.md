@@ -410,6 +410,9 @@ Current evidence:
 - Generated event-patch tables include only handlers reachable from a route's
   rendered events; orphan handlers remain diagnostics without being shipped in
   page payload modules.
+- Generated manifests record route-level missing and orphan event-patch counts
+  so large multi-page apps can locate broken wiring without scanning aggregate
+  diagnostics.
 - WeChat projects can optionally emit `bunnia.backend.js` from a backend
   contract, keeping agent/request integration packaged but still
   product-neutral and secret-free.
@@ -740,6 +743,8 @@ Current evidence:
   payload growth and route-level checksums visible in manifests and snapshots.
 - Generated event-patch byte budgets now reflect reachable route handlers, so
   dead/orphan patch entries do not inflate update-payload estimates.
+- Generated manifests expose missing/orphan event-patch counts per route, so
+  interaction wiring regressions are attributable before manual preview.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - WeChat build reports are deterministic and tested through the public

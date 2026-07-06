@@ -55,6 +55,8 @@ pub struct WechatManifestPage {
   duplicate_list_key_count : Int
   component_count : Int
   event_count : Int
+  missing_event_patch_count : Int
+  orphan_event_patch_count : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
   first_screen_bytes : Int
@@ -478,6 +480,8 @@ fn manifest_pages(
       duplicate_list_key_count: item.page.plan.duplicate_list_key_count,
       component_count: item.page.plan.component_kinds.length(),
       event_count: item.page.plan.event_messages.length(),
+      missing_event_patch_count: page_missing_event_patch_count(item),
+      orphan_event_patch_count: page_orphan_event_patch_count(item),
       initial_data_bytes: item.runtime.initial_data_json.length(),
       event_patch_bytes: page_event_patch_bytes(item),
       first_screen_bytes: page_first_screen_bytes(item, files),
@@ -562,6 +566,38 @@ fn page_event_patch_bytes(page : WechatProjectPage) -> Int {
 }
 
 ///|
+fn page_missing_event_patch_count(page : WechatProjectPage) -> Int {
+  let mut total = 0
+  for message in page.page.plan.event_messages {
+    if !page_runtime_has_patch(page.runtime, message) {
+      total += 1
+    }
+  }
+  total
+}
+
+///|
+fn page_orphan_event_patch_count(page : WechatProjectPage) -> Int {
+  let mut total = 0
+  for patch in page.runtime.event_patches {
+    if !page.page.plan.event_messages.contains(patch.message) {
+      total += 1
+    }
+  }
+  total
+}
+
+///|
+fn page_runtime_has_patch(runtime : WechatRuntime, message : String) -> Bool {
+  for item in runtime.event_patches {
+    if item.message == message {
+      return true
+    }
+  }
+  false
+}
+
+///|
 fn manifest_json(input : WechatProjectManifest) -> String {
   "{\n" +
   "  \"name\": \"\{escape_json(input.name)}\",\n" +
@@ -603,6 +639,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"duplicateListKeys\":\{item.duplicate_list_key_count}," +
   "\"components\":\{item.component_count}," +
   "\"events\":\{item.event_count}," +
+  "\"missingEventPatches\":\{item.missing_event_patch_count}," +
+  "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
   "\"eventPatchBytes\":\{item.event_patch_bytes}," +
   "\"firstScreenBytes\":\{item.first_screen_bytes}," +
