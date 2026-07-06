@@ -775,9 +775,16 @@ test "wechat project generation accepts route render budgets" {
       "wechat-render:pages/budget/index:scene-marker-count-over-budget:2/1",
     ),
   )
+  assert_eq(project.manifest.pages[0].render_budget.max_nodes, 64)
+  assert_eq(project.manifest.pages[0].render_budget.max_scene_markers, 1)
   assert_true(
     project.manifest.pages[0].render_diagnostics.contains(
       "scene-marker-count-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxDegradedScenes\":0}",
     ),
   )
 }
@@ -1226,6 +1233,7 @@ test "wechat manifest records route render diagnostics" {
   )
   assert_eq(project.manifest.pages.length(), 1)
   assert_eq(project.manifest.pages[0].route, "pages/diagnostics/index")
+  assert_eq(project.manifest.pages[0].render_budget.max_scene_markers, 600)
   assert_eq(project.manifest.pages[0].unwindowed_list_child_count, 2)
   assert_eq(project.manifest.pages[0].unkeyed_list_child_count, 2)
   assert_true(
@@ -1246,6 +1254,11 @@ test "wechat manifest records route render diagnostics" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderDiagnostics\":[\"list-child-missing-key:2\"]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"renderBudget\":{\"maxNodes\":800,\"maxDepth\":18,\"maxEvents\":160",
     ),
   )
 }

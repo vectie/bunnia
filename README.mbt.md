@@ -202,7 +202,9 @@ For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 visible/total marker counts so large maps can stay spatially bounded.
 Generic render plans and generated route manifests also report scene count,
 visible/total marker count, scene asset count, and degraded scene count, so map
-pressure is visible even before product-specific profiling is wired in.
+pressure is visible even before product-specific profiling is wired in. Route
+manifests include the render-budget limits used for generation, which keeps
+budget failures explainable from generated output alone.
 `@bunnia.render_budget(...)` can gate scene marker count and degraded scene
 count directly, which lets strict builds catch oversized map routes without a
 separate scene-specific planner. WeChat generation APIs also accept explicit

@@ -5,6 +5,7 @@ pub struct WechatPage {
   js : String
   json : String
   plan : @core.RenderPlan
+  render_budget : @core.RenderBudget
 } derive(Debug, Eq)
 
 ///|
@@ -70,6 +71,7 @@ pub struct WechatManifestPage {
   first_screen_bytes : Int
   update_payload_bytes : Int
   file_bytes : Int
+  render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
 } derive(Debug, Eq)
 
@@ -132,6 +134,7 @@ pub fn generate_page_with_runtime_and_budget(
     js: page_js(name, plan, runtime),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
+    render_budget,
   }
 }
 
@@ -149,6 +152,7 @@ fn generate_project_page_with_runtime(
     js: project_page_js(name, route, plan),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
+    render_budget,
   }
 }
 
@@ -374,6 +378,7 @@ fn project_page_with_backend_js(
       js,
       json: item.page.json,
       plan: item.page.plan,
+      render_budget: item.page.render_budget,
     },
     runtime: item.runtime,
   }
@@ -573,6 +578,7 @@ fn manifest_pages(
       first_screen_bytes: page_first_screen_bytes(item, files),
       update_payload_bytes: page_update_payload_bytes(item),
       file_bytes: route_file_bytes(item.route, files),
+      render_budget: item.page.render_budget,
       render_diagnostics: item.page.plan.diagnostics,
     })
   }
@@ -767,7 +773,21 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"firstScreenBytes\":\{item.first_screen_bytes}," +
   "\"updatePayloadBytes\":\{item.update_payload_bytes}," +
   "\"fileBytes\":\{item.file_bytes}," +
+  "\"renderBudget\":\{render_budget_json(item.render_budget)}," +
   "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}" +
+  "}"
+}
+
+///|
+fn render_budget_json(input : @core.RenderBudget) -> String {
+  "{" +
+  "\"maxNodes\":\{input.max_nodes}," +
+  "\"maxDepth\":\{input.max_depth}," +
+  "\"maxEvents\":\{input.max_events}," +
+  "\"maxInitialDataBytes\":\{input.max_initial_data_bytes}," +
+  "\"maxUnwindowedListChildren\":\{input.max_unwindowed_list_children}," +
+  "\"maxSceneMarkers\":\{input.max_scene_markers}," +
+  "\"maxDegradedScenes\":\{input.max_degraded_scenes}" +
   "}"
 }
 
