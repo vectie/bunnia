@@ -2472,6 +2472,23 @@ pub fn generate_wechat_project_with_runtime(
 }
 
 ///|
+pub fn generate_wechat_project_with_runtime_and_backend(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  runtime~ : WechatRuntime,
+  backend_contract~ : BackendContract,
+) -> WechatProject {
+  @wechat.generate_project_with_runtime_and_backend(
+    name~,
+    route~,
+    root~,
+    runtime~,
+    backend_contract~,
+  )
+}
+
+///|
 pub fn wechat_project_page(
   name~ : String,
   route~ : String,
@@ -2487,6 +2504,19 @@ pub fn generate_wechat_project_from_pages(
   pages~ : Array[WechatProjectPage],
 ) -> WechatProject {
   @wechat.generate_project_from_pages(name~, pages~)
+}
+
+///|
+pub fn generate_wechat_project_from_pages_with_backend(
+  name~ : String,
+  pages~ : Array[WechatProjectPage],
+  backend_contract~ : BackendContract,
+) -> WechatProject {
+  @wechat.generate_project_from_pages_with_backend(
+    name~,
+    pages~,
+    backend_contract~,
+  )
 }
 
 ///|

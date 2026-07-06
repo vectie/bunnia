@@ -44,6 +44,35 @@ test "generated snapshots record deterministic file pressure" {
 }
 
 ///|
+test "generated snapshots classify backend adapter files" {
+  let project = @wechat.generate_project_with_runtime_and_backend(
+    name="Snapshot Backend Fixture",
+    route="pages/snapshot/index",
+    root=@core.page([@core.button("Send", "send-message")]),
+    runtime=@wechat.runtime(event_patches=[
+      @wechat.event_patch("send-message", [
+        @core.set_string("backend.send-message.state", "loading"),
+      ]),
+    ]),
+    backend_contract=@effects.backend_contract(id="snapshot-backend", endpoints=[
+      @effects.agent_message_endpoint(
+        "send-message", "/agent/message", "draftMessage", "messageResult",
+      ),
+    ]),
+  )
+  let snapshot = snapshot_wechat_project(
+    target="wechat",
+    example="snapshot_backend_fixture",
+    project,
+    profile_wechat_project(project, @core.plan_patches([])),
+  )
+  assert_true(snapshot.summary.contains("files=11"))
+  assert_true(
+    snapshot.content.contains("- bunnia.backend.js kind=backend-js bytes="),
+  )
+}
+
+///|
 test "generated snapshots can record active build report diagnostics" {
   let project = @wechat.generate_project_with_runtime(
     name="Snapshot Budget Fixture",

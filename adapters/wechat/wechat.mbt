@@ -148,6 +148,21 @@ pub fn generate_project_with_runtime(
 }
 
 ///|
+pub fn generate_project_with_runtime_and_backend(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : @core.Node,
+  runtime~ : WechatRuntime,
+  backend_contract~ : @effects.BackendContract,
+) -> WechatProject {
+  generate_project_from_pages_with_backend(
+    name~,
+    pages=[project_page(name~, route~, root~, runtime~)],
+    backend_contract~,
+  )
+}
+
+///|
 pub fn project_page(
   name~ : String,
   route~ : String,
@@ -167,6 +182,28 @@ pub fn generate_project_from_pages(
   name~ : String,
   pages~ : Array[WechatProjectPage],
 ) -> WechatProject {
+  generate_project_from_pages_internal(name~, pages~, backend_contract=None)
+}
+
+///|
+pub fn generate_project_from_pages_with_backend(
+  name~ : String,
+  pages~ : Array[WechatProjectPage],
+  backend_contract~ : @effects.BackendContract,
+) -> WechatProject {
+  generate_project_from_pages_internal(
+    name~,
+    pages~,
+    backend_contract=Some(backend_contract),
+  )
+}
+
+///|
+fn generate_project_from_pages_internal(
+  name~ : String,
+  pages~ : Array[WechatProjectPage],
+  backend_contract~ : @effects.BackendContract?,
+) -> WechatProject {
   if pages.length() == 0 {
     panic()
   }
@@ -178,6 +215,13 @@ pub fn generate_project_from_pages(
     wechat_file("bunnia.runtime.js", runtime_js()),
     wechat_file("app.wxss", default_wxss()),
   ]
+  match backend_contract {
+    Some(contract) =>
+      files.push(
+        wechat_file("bunnia.backend.js", generate_request_adapter(contract)),
+      )
+    None => ()
+  }
   for item in pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
     if item.page.wxss != "" {
@@ -296,7 +340,9 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "function __bunniaRetryRequest(page, endpointId) {\n" +
   "  const current = page.data.backend && page.data.backend[endpointId]\n" +
   "  return __bunniaRequest(page, endpointId, current ? current.request : undefined)\n" +
-  "}"
+  "}\n" +
+  "\n" +
+  "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest }"
 }
 
 ///|
@@ -388,6 +434,8 @@ fn manifest_file_kind(path : String) -> String {
     "project-config"
   } else if path == "sitemap.json" {
     "sitemap"
+  } else if path == "bunnia.backend.js" {
+    "backend-js"
   } else if path.has_suffix(".wxml") {
     "wxml"
   } else if path.has_suffix(".wxss") {

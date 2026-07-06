@@ -63,10 +63,11 @@ pub fn demo_wechat_page() -> @bunnia.WechatPage {
 
 ///|
 pub fn demo_wechat_project() -> @bunnia.WechatProject {
-  @bunnia.generate_wechat_project_with_runtime(
+  @bunnia.generate_wechat_project_with_runtime_and_backend(
     name="Agent Map",
     root=demo_view(),
     runtime=demo_runtime(),
+    backend_contract=demo_backend_contract(),
   )
 }
 

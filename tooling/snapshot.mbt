@@ -161,7 +161,9 @@ fn write_snapshot_field(
 
 ///|
 fn file_kind(path : String) -> String {
-  if path.has_suffix(".wxml") {
+  if path == "bunnia.backend.js" {
+    "backend-js"
+  } else if path.has_suffix(".wxml") {
     "wxml"
   } else if path.has_suffix(".wxss") {
     "wxss"

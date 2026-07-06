@@ -28,6 +28,11 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("state'] = 'cancelled'"))
   assert_true(js.contains("__bunniaRetryRequest"))
   assert_true(js.contains("__bunniaCancelRequest"))
+  assert_true(
+    js.contains(
+      "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest }",
+    ),
+  )
 }
 
 ///|
@@ -103,6 +108,39 @@ test "wechat projects share default styles at app level" {
   assert_eq(project.manifest.files[6].path, "pages/style/index.data.js")
   assert_eq(project.manifest.files[6].kind, "page-data")
   assert_eq(project.manifest.files[6].route, "pages/style/index")
+}
+
+///|
+test "wechat projects can package backend request adapter" {
+  let project = generate_project_with_runtime_and_backend(
+    name="Backend Split",
+    route="pages/backend/index",
+    root=@core.page([@core.button("Send", "send-message")]),
+    runtime=runtime(event_patches=[
+      event_patch("send-message", [
+        @core.set_string("backend.send-message.state", "loading"),
+      ]),
+    ]),
+    backend_contract=test_backend_contract(),
+  )
+  assert_true(has_file(project.files, "bunnia.backend.js"))
+  assert_eq(project.files.length(), 11)
+  assert_eq(project.manifest.app_file_count, 10)
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "const __bunniaBackend = {baseUrlKey:\"backendBaseUrl\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "\"send-message\":{kind:\"agent-message-send\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"path\":\"bunnia.backend.js\",\"kind\":\"backend-js\",\"route\":\"\"",
+    ),
+  )
 }
 
 ///|

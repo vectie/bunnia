@@ -407,6 +407,9 @@ Current evidence:
 - WeChat projects now emit route-local `*.data.js` payload modules, so page
   runtime glue stays small while initial data and event-patch tables remain
   route-scoped and manifest-visible.
+- WeChat projects can optionally emit `bunnia.backend.js` from a backend
+  contract, keeping agent/request integration packaged but still
+  product-neutral and secret-free.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -550,6 +553,9 @@ Current evidence:
 - The generated WeChat request helper stores request payloads and replay keys,
   distinguishes timeout and malformed responses, and exposes retry/cancel
   helpers without forcing a full page rerender.
+- Backend-aware generated projects package that request helper as
+  `bunnia.backend.js`, so agentic examples carry their contract-derived
+  request boundary without embedding Moontown-specific execution logic.
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.
@@ -715,6 +721,8 @@ Current evidence:
   shared startup bytes.
 - Generated project output splits route payload modules from page JS, making
   payload growth and route-level checksums visible in manifests and snapshots.
+- Backend-aware example builds include a manifest-visible backend adapter file,
+  so contract integration is inspectable in normal generated output.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,

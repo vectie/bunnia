@@ -24,7 +24,11 @@ pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> 
 
 pub fn generate_project_from_pages(name~ : String, pages~ : Array[WechatProjectPage]) -> WechatProject
 
+pub fn generate_project_from_pages_with_backend(name~ : String, pages~ : Array[WechatProjectPage], backend_contract~ : @effects.BackendContract) -> WechatProject
+
 pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime) -> WechatProject
+
+pub fn generate_project_with_runtime_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime, backend_contract~ : @effects.BackendContract) -> WechatProject
 
 pub fn generate_request_adapter(@effects.BackendContract) -> String
 

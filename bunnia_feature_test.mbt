@@ -813,6 +813,19 @@ test "backend contracts plan request and streaming effects" {
     @bunnia.backend_response_patch("load-snapshot", "{\"ok\":true}"),
   ])
   let adapter = @bunnia.generate_wechat_request_adapter(contract)
+  let project = @bunnia.generate_wechat_project_with_runtime_and_backend(
+    name="Backend App",
+    root=@bunnia.page([@bunnia.button("Send", "send-agent-message")]),
+    runtime=@bunnia.wechat_runtime(event_patches=[
+      @bunnia.wechat_event_patch("send-agent-message", [
+        @bunnia.backend_state_patch(
+          "send-agent-message",
+          @bunnia.backend_state_loading(),
+        ),
+      ]),
+    ]),
+    backend_contract=contract,
+  )
   assert_eq(plan.endpoint_count, 6)
   assert_eq(plan.streaming_count, 1)
   assert_eq(plan.review_required_count, 2)
@@ -844,6 +857,17 @@ test "backend contracts plan request and streaming effects" {
   assert_true(adapter.contains("streaming:true"))
   assert_true(adapter.contains("requiresReview:true"))
   assert_true(!adapter.contains("secret"))
+  assert_true(has_file(project.files, "bunnia.backend.js"))
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "\"send-agent-message\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"kind\":\"backend-js\"",
+    ),
+  )
   assert_eq(
     @bunnia.backend_endpoint_kind_id(@bunnia.endpoint_review_decision()),
     "review-decision",

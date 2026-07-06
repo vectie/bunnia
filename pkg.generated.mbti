@@ -218,7 +218,11 @@ pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.No
 
 pub fn generate_wechat_project_from_pages(name~ : String, pages~ : Array[@wechat.WechatProjectPage]) -> @wechat.WechatProject
 
+pub fn generate_wechat_project_from_pages_with_backend(name~ : String, pages~ : Array[@wechat.WechatProjectPage], backend_contract~ : @effects.BackendContract) -> @wechat.WechatProject
+
 pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime) -> @wechat.WechatProject
+
+pub fn generate_wechat_project_with_runtime_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime, backend_contract~ : @effects.BackendContract) -> @wechat.WechatProject
 
 pub fn generate_wechat_request_adapter(@effects.BackendContract) -> String
 
