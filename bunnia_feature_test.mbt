@@ -38,6 +38,55 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
 }
 
 ///|
+test "agent feeds and traces can be windowed for long conversations" {
+  let feed = @bunnia.windowed_message_feed(
+    [
+      @bunnia.message(
+        id="msg-10",
+        actor_id="agent-a",
+        thread_id="thread-a",
+        text="Visible agent message.",
+      ),
+      @bunnia.message(
+        id="msg-11",
+        actor_id="operator",
+        thread_id="thread-a",
+        text="Visible operator reply.",
+      ),
+    ],
+    total_count=128,
+    offset=96,
+  )
+  let trace = @bunnia.windowed_communication_trace(
+    [
+      @bunnia.handoff(
+        id="handoff-visible",
+        thread_id="thread-a",
+        from_actor_id="agent-a",
+        to_actor_id="operator",
+        text="Review the current result.",
+        open_message="open-handoff",
+      ),
+    ],
+    total_count=42,
+    offset=40,
+  )
+  let output = @bunnia.generate_wechat_page(
+    "Agent Window",
+    @bunnia.page([feed, trace]),
+  )
+  assert_eq(output.plan.windowed_list_count, 2)
+  assert_eq(output.plan.list_total_count, 170)
+  assert_eq(output.plan.list_visible_count, 3)
+  assert_true(output.wxml.contains("bunnia-message-feed-windowed"))
+  assert_true(output.wxml.contains("bunnia-communication-trace-windowed"))
+  assert_true(output.wxml.contains("data-total-count=\"128\""))
+  assert_true(output.wxml.contains("data-visible-start=\"96\""))
+  assert_true(output.wxml.contains("data-total-count=\"42\""))
+  assert_true(output.plan.event_messages.contains("open-handoff"))
+}
+
+///|
 test "scene assets render sprites and report asset budgets" {
   let assets = [
     @bunnia.sprite_asset("agent-sprite", "/assets/agent.png", 2048),
@@ -452,14 +501,18 @@ test "wechat project generator supports multiple app routes" {
     name="Chat",
     route="pages/chat/index",
     root=@bunnia.page([
-      @bunnia.message_feed([
-        @bunnia.message(
-          id="msg-1",
-          actor_id="agent",
-          thread_id="thread-main",
-          text="Ready.",
-        ),
-      ]),
+      @bunnia.windowed_message_feed(
+        [
+          @bunnia.message(
+            id="msg-1",
+            actor_id="agent",
+            thread_id="thread-main",
+            text="Ready.",
+          ),
+        ],
+        total_count=24,
+        offset=23,
+      ),
     ]),
     runtime=@bunnia.wechat_runtime(initial_data_json="{\"chat\":true}"),
   )
@@ -491,6 +544,9 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].route, "pages/chat/index")
   assert_true(project.manifest.pages[0].event_patch_bytes > 0)
   assert_eq(project.manifest.pages[0].windowed_list_count, 0)
+  assert_eq(project.manifest.pages[1].windowed_list_count, 1)
+  assert_eq(project.manifest.pages[1].list_total_count, 24)
+  assert_eq(project.manifest.pages[1].list_visible_count, 1)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),

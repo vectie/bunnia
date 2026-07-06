@@ -283,6 +283,33 @@ pub fn communication_trace(items : Array[Communication]) -> @core.Node {
 }
 
 ///|
+pub fn windowed_communication_trace(
+  items : Array[Communication],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> @core.Node {
+  let rows : Array[@core.Node] = []
+  for item in items {
+    rows.push(communication_row(item))
+  }
+  @core.node(
+    kind="view",
+    attrs=[
+      @core.class_name(
+        "bunnia-communication-trace bunnia-communication-trace-windowed",
+      ),
+      @core.data("bunnia-list-mode", "windowed"),
+      @core.data("total-count", total_count.to_string()),
+      @core.data("visible-start", offset.to_string()),
+      @core.data("visible-count", items.length().to_string()),
+    ],
+    children=rows,
+    list_total_count=total_count,
+    list_visible_count=items.length(),
+  )
+}
+
+///|
 fn subject_badge(subject_ref : String) -> @core.Node {
   if subject_ref == "" {
     @core.view([])

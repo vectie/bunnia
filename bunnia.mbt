@@ -727,6 +727,15 @@ pub fn communication_trace(items : Array[Communication]) -> Node {
 }
 
 ///|
+pub fn windowed_communication_trace(
+  items : Array[Communication],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @agent.windowed_communication_trace(items, total_count~, offset~)
+}
+
+///|
 pub fn message_row(item : Message) -> Node {
   @agent.message_row(item)
 }
@@ -734,6 +743,15 @@ pub fn message_row(item : Message) -> Node {
 ///|
 pub fn message_feed(messages : Array[Message]) -> Node {
   @agent.message_feed(messages)
+}
+
+///|
+pub fn windowed_message_feed(
+  messages : Array[Message],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> Node {
+  @agent.windowed_message_feed(messages, total_count~, offset~)
 }
 
 ///|

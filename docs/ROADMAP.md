@@ -314,6 +314,8 @@ Current evidence:
   to page/view/text/image/button/scroll-view/canvas.
 - Repeated surfaces can use `windowed_list` to render visible rows while
   preserving total item counts in render plans and generated manifests.
+- Agent feeds and communication traces can use dedicated windowed helpers, so
+  long conversations expose visible/total counts without expanding every row.
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event
@@ -489,6 +491,8 @@ Current evidence:
   results to bounded patch arrays.
 - Chat, communication trace, streaming chunk, review, and run-status updates can
   be represented as typed agent deltas that reuse patch budgets.
+- Long chat and communication surfaces can render bounded visible windows while
+  keeping append-friendly patch targets for additional messages or trace rows.
 - The WeChat request adapter generator emits `wx.request` helper code from a
   contract and expects the base URL from page data, avoiding generated secrets.
 - The generated WeChat request helper stores request payloads and replay keys,

@@ -456,7 +456,11 @@ pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wecha
 
 pub fn when(Bool, @core.Node) -> @core.Node
 
+pub fn windowed_communication_trace(Array[@agent.Communication], total_count~ : Int, offset? : Int) -> @core.Node
+
 pub fn[Item] windowed_list(Array[Item], total_count~ : Int, offset? : Int, render~ : (Item) -> @core.Node) -> @core.Node
+
+pub fn windowed_message_feed(Array[@agent.Message], total_count~ : Int, offset? : Int) -> @core.Node
 
 // Errors
 

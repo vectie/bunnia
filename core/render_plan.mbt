@@ -98,7 +98,11 @@ pub fn plan_with_budget(
 
 ///|
 fn windowed_list_count(root : Node) -> Int {
-  let mut total = if root.kind == "windowed-list" { 1 } else { 0 }
+  let mut total = if root.list_total_count > 0 || root.list_visible_count > 0 {
+    1
+  } else {
+    0
+  }
   for child in root.children {
     total += windowed_list_count(child)
   }

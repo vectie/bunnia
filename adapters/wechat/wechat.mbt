@@ -745,6 +745,8 @@ fn backend_endpoint_object(item : @effects.BackendEndpoint) -> String {
 ///|
 fn default_wxss() -> String {
   ".demo-shell { min-height: 100vh; padding: 24rpx; box-sizing: border-box; display: flex; flex-direction: column; gap: 20rpx; background: #f7f8fa; color: #111827; }\n" +
+  ".bunnia-message-feed { display: flex; flex-direction: column; gap: 12rpx; }\n" +
+  ".bunnia-message-feed-windowed { max-height: 720rpx; }\n" +
   ".bunnia-message { padding: 16rpx 20rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 28rpx; line-height: 1.5; }\n" +
   ".bunnia-run-running { border-color: #2563eb; box-shadow: 0 0 0 2rpx rgba(37, 99, 235, 0.10); }\n" +
   ".bunnia-run-waiting-review { border-color: #d97706; }\n" +
@@ -753,6 +755,7 @@ fn default_wxss() -> String {
   ".bunnia-thread { padding: 16rpx 20rpx; border: 1rpx solid #d1d5db; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 28rpx; line-height: 1.5; }\n" +
   ".bunnia-subject-link { margin-top: 8rpx; color: #0891b2; font-size: 24rpx; }\n" +
   ".bunnia-communication-trace { display: flex; flex-direction: column; gap: 12rpx; }\n" +
+  ".bunnia-communication-trace-windowed { max-height: 720rpx; overflow: hidden; }\n" +
   ".bunnia-communication { padding: 14rpx 18rpx; border-left: 6rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 26rpx; line-height: 1.45; }\n" +
   ".bunnia-communication-message { border-left-color: #64748b; }\n" +
   ".bunnia-communication-handoff { border-left-color: #0891b2; }\n" +

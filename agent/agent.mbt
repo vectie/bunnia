@@ -102,7 +102,36 @@ pub fn message_feed(messages : Array[Message]) -> @core.Node {
   for item in messages {
     rows.push(message_row(item))
   }
-  @core.scroll_view(rows)
+  @core.node(
+    kind="scroll-view",
+    attrs=[@core.class_name("bunnia-message-feed")],
+    children=rows,
+  )
+}
+
+///|
+pub fn windowed_message_feed(
+  messages : Array[Message],
+  total_count~ : Int,
+  offset? : Int = 0,
+) -> @core.Node {
+  let rows : Array[@core.Node] = []
+  for item in messages {
+    rows.push(message_row(item))
+  }
+  @core.node(
+    kind="scroll-view",
+    attrs=[
+      @core.class_name("bunnia-message-feed bunnia-message-feed-windowed"),
+      @core.data("bunnia-list-mode", "windowed"),
+      @core.data("total-count", total_count.to_string()),
+      @core.data("visible-start", offset.to_string()),
+      @core.data("visible-count", messages.length().to_string()),
+    ],
+    children=rows,
+    list_total_count=total_count,
+    list_visible_count=messages.length(),
+  )
 }
 
 ///|

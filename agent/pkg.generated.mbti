@@ -65,6 +65,10 @@ pub fn thread_card(Thread) -> @core.Node
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> Communication
 
+pub fn windowed_communication_trace(Array[Communication], total_count~ : Int, offset? : Int) -> @core.Node
+
+pub fn windowed_message_feed(Array[Message], total_count~ : Int, offset? : Int) -> @core.Node
+
 // Errors
 
 // Types and methods
