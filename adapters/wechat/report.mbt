@@ -126,10 +126,9 @@ fn report_files(
   let (max_first_screen, max_update_payload) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
-  push_page_render_diagnostics(diagnostics, pages)
-  push_page_initial_data_render_budget_diagnostics(diagnostics, pages)
-  let (missing_event_patch_count, orphan_event_patch_count) = push_runtime_event_diagnostics(
-    diagnostics, pages,
+  push_page_manifest_diagnostics(diagnostics, pages)
+  let (missing_event_patch_count, orphan_event_patch_count) = count_runtime_event_diagnostics(
+    pages,
   )
   push_over_budget(
     diagnostics,
@@ -198,36 +197,19 @@ fn report_files(
 }
 
 ///|
-fn push_page_render_diagnostics(
+fn push_page_manifest_diagnostics(
   diagnostics : Array[String],
   pages : Array[WechatProjectPage],
 ) -> Unit {
   for page in pages {
-    for item in page.page.plan.diagnostics {
-      diagnostics.push("wechat-render:\{page.route}:\{item}")
+    for item in page_manifest_diagnostics(page) {
+      diagnostics.push(item)
     }
   }
 }
 
 ///|
-fn push_page_initial_data_render_budget_diagnostics(
-  diagnostics : Array[String],
-  pages : Array[WechatProjectPage],
-) -> Unit {
-  for page in pages {
-    let actual = page.runtime.initial_data_json.length()
-    let limit = page.page.render_budget.max_initial_data_bytes
-    if actual > limit {
-      diagnostics.push(
-        "wechat-route-initial-data-over-render-budget:\{page.route}:\{actual}/\{limit}",
-      )
-    }
-  }
-}
-
-///|
-fn push_runtime_event_diagnostics(
-  diagnostics : Array[String],
+fn count_runtime_event_diagnostics(
   pages : Array[WechatProjectPage],
 ) -> (Int, Int) {
   let mut missing_count = 0
@@ -236,15 +218,11 @@ fn push_runtime_event_diagnostics(
     for message in page.page.plan.event_messages {
       if !runtime_has_patch(page.runtime, message) {
         missing_count += 1
-        diagnostics.push("wechat-event-without-patch:\{page.route}:\{message}")
       }
     }
     for patch in page.runtime.event_patches {
       if !plan_has_event(page.page.plan, patch.message) {
         orphan_count += 1
-        diagnostics.push(
-          "wechat-patch-without-event:\{page.route}:\{patch.message}",
-        )
       }
     }
   }
