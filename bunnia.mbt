@@ -2990,6 +2990,9 @@ pub fn inspection_budget(
 pub fn build_profile_budget(
   max_route_diagnostic_routes~ : Int,
   max_route_diagnostics~ : Int,
+  max_unwindowed_list_children~ : Int,
+  max_unkeyed_list_children~ : Int,
+  max_duplicate_list_keys~ : Int,
   max_communication_unresolved_reviews~ : Int,
   max_tool_result_missing_acks~ : Int,
   max_agent_duplicate_stream_chunks~ : Int,
@@ -3006,6 +3009,9 @@ pub fn build_profile_budget(
   @tooling.build_profile_budget(
     max_route_diagnostic_routes~,
     max_route_diagnostics~,
+    max_unwindowed_list_children~,
+    max_unkeyed_list_children~,
+    max_duplicate_list_keys~,
     max_communication_unresolved_reviews~,
     max_tool_result_missing_acks~,
     max_agent_duplicate_stream_chunks~,

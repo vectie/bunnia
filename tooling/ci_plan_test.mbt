@@ -21,6 +21,9 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.profile_max_communication_unresolved_reviews, 8)
   assert_eq(plan.profile_max_route_diagnostic_routes, 0)
   assert_eq(plan.profile_max_route_diagnostics, 0)
+  assert_eq(plan.profile_max_unwindowed_list_children, 16)
+  assert_eq(plan.profile_max_unkeyed_list_children, 0)
+  assert_eq(plan.profile_max_duplicate_list_keys, 0)
   assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_agent_duplicate_stream_chunks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
@@ -77,6 +80,9 @@ test "ci plan lists active checks and generator snapshots" {
   )
   assert_true(plan.summary.contains("profile_max_route_diagnostic_routes=0"))
   assert_true(plan.summary.contains("profile_max_route_diagnostics=0"))
+  assert_true(plan.summary.contains("profile_max_unwindowed_list_children=16"))
+  assert_true(plan.summary.contains("profile_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("profile_max_duplicate_list_keys=0"))
   assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
   assert_true(plan.summary.contains("profile_max_snapshot_full_replaces=0"))
   assert_true(plan.summary.contains("profile_max_scene_surface_fallbacks=0"))
@@ -100,6 +106,11 @@ test "ci plan lists active checks and generator snapshots" {
     plan.profile_gate_summary.contains("max_route_diagnostic_routes=0"),
   )
   assert_true(plan.profile_gate_summary.contains("max_route_diagnostics=0"))
+  assert_true(
+    plan.profile_gate_summary.contains("max_unwindowed_list_children=16"),
+  )
+  assert_true(plan.profile_gate_summary.contains("max_unkeyed_list_children=0"))
+  assert_true(plan.profile_gate_summary.contains("max_duplicate_list_keys=0"))
   assert_true(
     plan.profile_gate_summary.contains("max_communication_unresolved_reviews=8"),
   )
@@ -149,6 +160,9 @@ test "ci plan can target one example and custom budgets" {
   assert_eq(plan.profile_max_communication_unresolved_reviews, 0)
   assert_eq(plan.profile_max_route_diagnostic_routes, 0)
   assert_eq(plan.profile_max_route_diagnostics, 0)
+  assert_eq(plan.profile_max_unwindowed_list_children, 0)
+  assert_eq(plan.profile_max_unkeyed_list_children, 0)
+  assert_eq(plan.profile_max_duplicate_list_keys, 0)
   assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
   assert_eq(plan.profile_max_scene_surface_fallbacks, 0)
@@ -166,6 +180,9 @@ test "ci plan can target one example and custom budgets" {
   )
   assert_true(plan.summary.contains("profile_max_route_diagnostic_routes=0"))
   assert_true(plan.summary.contains("profile_max_route_diagnostics=0"))
+  assert_true(plan.summary.contains("profile_max_unwindowed_list_children=0"))
+  assert_true(plan.summary.contains("profile_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("profile_max_duplicate_list_keys=0"))
   assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
   assert_true(
     plan.summary.contains("profile_max_scene_unapproved_remote_assets=0"),
@@ -257,6 +274,9 @@ test "ci plan diagnoses unknown budget profiles" {
   assert_eq(plan.inspection_max_backend_events, 64)
   assert_eq(plan.profile_max_route_diagnostic_routes, 0)
   assert_eq(plan.profile_max_route_diagnostics, 0)
+  assert_eq(plan.profile_max_unwindowed_list_children, 64)
+  assert_eq(plan.profile_max_unkeyed_list_children, 0)
+  assert_eq(plan.profile_max_duplicate_list_keys, 0)
   assert_eq(plan.profile_max_communication_unresolved_reviews, 16)
   assert_eq(plan.profile_max_tool_result_missing_acks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 1)
@@ -272,6 +292,11 @@ test "ci plan diagnoses unknown budget profiles" {
     plan.profile_gate_summary.contains("max_route_diagnostic_routes=0"),
   )
   assert_true(plan.profile_gate_summary.contains("max_route_diagnostics=0"))
+  assert_true(
+    plan.profile_gate_summary.contains("max_unwindowed_list_children=64"),
+  )
+  assert_true(plan.profile_gate_summary.contains("max_unkeyed_list_children=0"))
+  assert_true(plan.profile_gate_summary.contains("max_duplicate_list_keys=0"))
   assert_true(
     plan.profile_gate_summary.contains(
       "max_communication_unresolved_reviews=16",

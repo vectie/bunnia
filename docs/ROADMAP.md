@@ -950,10 +950,11 @@ Current evidence:
   routes can fail strict builds on direct update pressure before route risk
   becomes the only signal.
 - Build-profile gates now budget generated-route diagnostic pressure,
-  unresolved review queues, missing tool-result acknowledgments, duplicate
-  stream chunks, full snapshot replacements, scene thread orphans, clamped
-  scene cameras, surface fallbacks, insecure, unapproved, or deferred scene
-  assets, visual-quality issues, and degraded scenes, so strict builds can fail
+  unwindowed repeated rows, unkeyed or duplicate list identity, unresolved
+  review queues, missing tool-result acknowledgments, duplicate stream chunks,
+  full snapshot replacements, scene thread orphans, clamped scene cameras,
+  surface fallbacks, insecure, unapproved, or deferred scene assets,
+  visual-quality issues, and degraded scenes, so strict builds can fail
   aggregate agent/map regressions even when lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping

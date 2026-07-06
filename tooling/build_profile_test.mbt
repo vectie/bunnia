@@ -87,6 +87,62 @@ test "build profile derives route diagnostics from manifest pages once" {
 }
 
 ///|
+test "build profile gates repeated list identity pressure" {
+  let project = @wechat.generate_project(
+    name="Profile List Pressure",
+    route="pages/profile-list/index",
+    root=@core.page([
+      @core.list(["agent", "map"], value => @core.view([@core.text(value)])),
+      @core.list(["one", "two"], value => {
+        @core.keyed("duplicate-row", @core.view([@core.text(value)]))
+      }),
+    ]),
+  )
+  let profile = profile_wechat_project(project, @core.plan_patches([]))
+  assert_eq(profile.unwindowed_list_child_count, 4)
+  assert_eq(profile.unkeyed_list_child_count, 2)
+  assert_eq(profile.duplicate_list_key_count, 1)
+  let relaxed = gate_build_profile(
+    profile,
+    build_profile_budget(
+      max_route_diagnostic_routes=1,
+      max_route_diagnostics=profile.route_diagnostic_count,
+      max_unwindowed_list_children=4,
+      max_unkeyed_list_children=2,
+      max_duplicate_list_keys=1,
+      max_communication_unresolved_reviews=0,
+      max_tool_result_missing_acks=0,
+      max_agent_duplicate_stream_chunks=0,
+      max_snapshot_full_replaces=0,
+      max_scene_thread_orphans=0,
+      max_scene_camera_clamped=0,
+      max_scene_surface_fallbacks=0,
+      max_scene_insecure_remote_assets=0,
+      max_scene_unapproved_remote_assets=0,
+      max_scene_deferred_assets=0,
+      max_scene_quality_issues=0,
+      max_degraded_scenes=0,
+    ),
+    budget_profile="list-relaxed",
+  )
+  let strict = gate_build_profile(
+    profile,
+    build_profile_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  assert_eq(relaxed.diagnostics.length(), 0)
+  assert_true(relaxed.summary.contains("max_unwindowed_list_children=4"))
+  assert_true(relaxed.summary.contains("max_unkeyed_list_children=2"))
+  assert_true(relaxed.summary.contains("max_duplicate_list_keys=1"))
+  assert_true(
+    strict.diagnostics.contains("profile-unkeyed-list-children-over-budget:2/0"),
+  )
+  assert_true(
+    strict.diagnostics.contains("profile-duplicate-list-keys-over-budget:1/0"),
+  )
+}
+
+///|
 test "build profile reports generated scene asset references from manifests" {
   let project = @wechat.generate_project(
     name="Generated Scene Assets",
@@ -761,6 +817,9 @@ test "build profile prefixes diagnostics by budget source" {
     build_profile_budget(
       max_route_diagnostic_routes=1,
       max_route_diagnostics=profile.route_diagnostic_count,
+      max_unwindowed_list_children=profile.unwindowed_list_child_count,
+      max_unkeyed_list_children=profile.unkeyed_list_child_count,
+      max_duplicate_list_keys=profile.duplicate_list_key_count,
       max_communication_unresolved_reviews=1,
       max_tool_result_missing_acks=1,
       max_agent_duplicate_stream_chunks=1,
@@ -802,6 +861,9 @@ test "build profile prefixes diagnostics by budget source" {
     build_profile_budget(
       max_route_diagnostic_routes=1,
       max_route_diagnostics=profile.route_diagnostic_count,
+      max_unwindowed_list_children=profile.unwindowed_list_child_count,
+      max_unkeyed_list_children=profile.unkeyed_list_child_count,
+      max_duplicate_list_keys=profile.duplicate_list_key_count,
       max_communication_unresolved_reviews=0,
       max_tool_result_missing_acks=0,
       max_agent_duplicate_stream_chunks=1,

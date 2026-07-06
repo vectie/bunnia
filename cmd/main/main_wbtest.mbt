@@ -335,6 +335,9 @@ test "ci plan command prints active example workflow" {
   )
   assert_true(plan.summary.contains("profile_max_route_diagnostic_routes=0"))
   assert_true(plan.summary.contains("profile_max_route_diagnostics=0"))
+  assert_true(plan.summary.contains("profile_max_unwindowed_list_children=16"))
+  assert_true(plan.summary.contains("profile_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("profile_max_duplicate_list_keys=0"))
   assert_true(plan.summary.contains("profile_max_tool_result_missing_acks=0"))
   assert_true(
     plan.summary.contains("profile_max_scene_unapproved_remote_assets=0"),

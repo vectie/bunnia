@@ -107,8 +107,9 @@ generated-output byte budgets. Named budget profiles are exposed through
 gates are exposed through `@bunnia.inspection_budget_for_profile(...)`, and
 aggregate large-app profile gates are exposed through
 `@bunnia.build_profile_budget_for_profile(...)`, including generated-route
-diagnostic, unresolved-review, tool-result acknowledgment, and scene asset
-deployability limits, so contributors can use the same gates outside the CLI.
+diagnostic, repeated-list identity, unresolved-review, tool-result
+acknowledgment, and scene asset deployability limits, so contributors can use
+the same gates outside the CLI.
 
 For local iteration, watch generated output with:
 
