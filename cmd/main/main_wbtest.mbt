@@ -165,12 +165,14 @@ test "ci plan command accepts target budget example and snapshot dir" {
 ///|
 test "ci plan command reports unknown budget profiles" {
   let args = [
-    "node", "main.js", "ci-plan", "--budget", "oversized", "--render-budget", "microscopic",
-    "--example", "agent_map",
+    "node", "main.js", "ci-plan", "--target", "alipay", "--budget", "oversized",
+    "--render-budget", "microscopic", "--example", "agent_map",
   ]
   let plan = ci_plan_from_args(args)
+  assert_eq(plan.target, "alipay")
   assert_eq(plan.budget_profile, "oversized")
   assert_eq(plan.render_budget_profile, "microscopic")
+  assert_true(plan.diagnostics.contains("ci-target-unsupported:alipay"))
   assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
   assert_true(
     plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),

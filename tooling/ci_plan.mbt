@@ -32,7 +32,7 @@ pub fn ci_plan(
     render_budget_profile
   }
   let diagnostics = ci_plan_diagnostics(
-    budget_profile, active_render_budget_profile,
+    target, budget_profile, active_render_budget_profile,
   )
   let steps : Array[CiPlanStep] = []
   steps.push(ci_step("check", "moon check", "type-check every package"))
@@ -78,10 +78,14 @@ pub fn ci_plan(
 
 ///|
 fn ci_plan_diagnostics(
+  target : String,
   budget_profile : String,
   render_budget_profile : String,
 ) -> Array[String] {
   let output : Array[String] = []
+  if target != "wechat" {
+    output.push("ci-target-unsupported:\{target}")
+  }
   if !is_named_budget_profile(budget_profile) {
     output.push("ci-budget-profile-unknown:\{budget_profile}")
   }

@@ -56,14 +56,16 @@ test "ci plan can target one example and custom budgets" {
 ///|
 test "ci plan diagnoses unknown budget profiles" {
   let plan = ci_plan(
+    target="alipay",
     budget_profile="oversized",
     render_budget_profile="microscopic",
     examples=["agent_map"],
   )
-  assert_eq(plan.diagnostics.length(), 2)
+  assert_eq(plan.diagnostics.length(), 3)
+  assert_true(plan.diagnostics.contains("ci-target-unsupported:alipay"))
   assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
   assert_true(
     plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),
   )
-  assert_true(plan.summary.contains("diagnostics=2"))
+  assert_true(plan.summary.contains("diagnostics=3"))
 }

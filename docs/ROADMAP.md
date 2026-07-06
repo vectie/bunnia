@@ -837,9 +837,9 @@ Current evidence:
   format, strict-build, and generator-snapshot commands with the default tight
   generated-output and render budgets, so contributors can inspect the workflow
   without reading shell docs.
-- CI plans diagnose unknown generated-output or render budget profile names, so
-  workflow mistakes are visible before a contributor copies a bad strict-build
-  command.
+- CI plans diagnose unsupported targets and unknown generated-output or render
+  budget profile names, so workflow mistakes are visible before a contributor
+  copies a bad strict-build command.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running
