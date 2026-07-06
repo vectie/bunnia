@@ -7,31 +7,136 @@ import {
 }
 
 // Values
+pub fn agent_message_endpoint(String, String, String, String) -> BackendEndpoint
+
+pub fn agent_stream_endpoint(String, String, String, String) -> BackendEndpoint
+
+pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_required~ : Int) -> BackendBudget
+
+pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[BackendEndpoint]) -> BackendContract
+
+pub fn backend_endpoint(id~ : String, kind~ : BackendEndpointKind, http_method~ : HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> BackendEndpoint
+
+pub fn backend_endpoint_kind_id(BackendEndpointKind) -> String
+
+pub fn backend_error_patch(String, String) -> @core.Patch
+
+pub fn backend_response_patch(String, String) -> @core.Patch
+
+pub fn backend_state_id(BackendState) -> String
+
+pub fn backend_state_patch(String, BackendState) -> @core.Patch
+
 pub fn cancel(String, String) -> Effect
 
 pub fn cloud_function(String, String, String) -> Effect
+
+pub fn default_backend_budget() -> BackendBudget
 
 pub fn effect(id~ : String, kind~ : EffectKind, target~ : String, payload_key? : String, message? : String) -> Effect
 
 pub fn effect_chip(Effect) -> @core.Node
 
+pub fn effect_kind_id(EffectKind) -> String
+
+pub fn endpoint_effect(BackendEndpoint, id? : String) -> Effect
+
+pub fn generic_endpoint(String, String, HttpMethod, payload_key? : String, response_key? : String) -> BackendEndpoint
+
+pub fn handoff_submit_endpoint(String, String, String, String) -> BackendEndpoint
+
+pub fn http_method_id(HttpMethod) -> String
+
 pub fn login(String, String) -> Effect
 
 pub fn navigate(String, String) -> Effect
+
+pub fn operator_submit_endpoint(String, String, String, String) -> BackendEndpoint
+
+pub fn plan_backend_contract(BackendContract) -> BackendPlan
+
+pub fn plan_backend_contract_with_budget(BackendContract, BackendBudget) -> BackendPlan
 
 pub fn request(String, String, String) -> Effect
 
 pub fn retry(String, String) -> Effect
 
+pub fn review_decision_endpoint(String, String, String, String) -> BackendEndpoint
+
 pub fn share(String, String) -> Effect
+
+pub fn snapshot_load_endpoint(String, String, String) -> BackendEndpoint
+
+pub fn status_load_endpoint(String, String, String) -> BackendEndpoint
 
 pub fn storage(String, String, String) -> Effect
 
 pub fn stream(String, String, String) -> Effect
 
+pub fn thread_load_endpoint(String, String, String) -> BackendEndpoint
+
+pub fn tool_ack_endpoint(String, String, String) -> BackendEndpoint
+
 // Errors
 
 // Types and methods
+pub struct BackendBudget {
+  max_endpoints : Int
+  max_streaming : Int
+  max_review_required : Int
+} derive(Eq, @debug.Debug)
+
+pub struct BackendContract {
+  id : String
+  base_url_key : String
+  endpoints : Array[BackendEndpoint]
+} derive(Eq, @debug.Debug)
+
+pub struct BackendEndpoint {
+  id : String
+  kind : BackendEndpointKind
+  http_method : HttpMethod
+  path : String
+  payload_key : String
+  response_key : String
+  timeout_ms : Int
+  streaming : Bool
+  requires_review : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum BackendEndpointKind {
+  SnapshotLoad
+  StatusLoad
+  OperatorSubmit
+  AgentMessageSend
+  AgentRunStatus
+  ThreadLoad
+  HandoffSubmit
+  ReviewDecision
+  ToolAck
+  GenericEndpoint
+} derive(Eq, @debug.Debug)
+
+pub struct BackendPlan {
+  contract : BackendContract
+  endpoint_count : Int
+  streaming_count : Int
+  review_required_count : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum BackendState {
+  IdleState
+  Loading
+  Ready
+  Stale
+  Failed
+  Timeout
+  Malformed
+  CancelledState
+} derive(Eq, @debug.Debug)
+
 pub struct Effect {
   id : String
   kind : EffectKind
@@ -50,6 +155,14 @@ pub(all) enum EffectKind {
   Stream
   Cancel
   Retry
+} derive(Eq, @debug.Debug)
+
+pub(all) enum HttpMethod {
+  Get
+  Post
+  Put
+  Patch
+  Delete
 } derive(Eq, @debug.Debug)
 
 // Type aliases

@@ -280,6 +280,79 @@ test "effect constructors cover mini-app backend capabilities" {
 }
 
 ///|
+test "backend contracts plan request and streaming effects" {
+  let endpoints = [
+    @bunnia.snapshot_load_endpoint("load-snapshot", "/snapshot", "snapshot"),
+    @bunnia.operator_submit_endpoint(
+      "submit-operator", "/operator/submit", "operatorRequest", "operatorResult",
+    ),
+    @bunnia.agent_message_endpoint(
+      "send-agent-message", "/agent/message", "message", "messageResult",
+    ),
+    @bunnia.agent_stream_endpoint(
+      "stream-agent-status", "/agent/status", "thread", "agentStatus",
+    ),
+    @bunnia.review_decision_endpoint(
+      "review-decision", "/review/decision", "review", "reviewResult",
+    ),
+    @bunnia.tool_ack_endpoint("ack-tool", "/tool/ack", "toolResult"),
+  ]
+  let contract = @bunnia.backend_contract(
+    id="agent-backend",
+    base_url_key="backendBaseUrl",
+    endpoints~,
+  )
+  let plan = @bunnia.plan_backend_contract_with_budget(
+    contract,
+    @bunnia.backend_budget(
+      max_endpoints=3,
+      max_streaming=0,
+      max_review_required=1,
+    ),
+  )
+  let stream_effect = @bunnia.endpoint_effect(endpoints[3])
+  let patches = @bunnia.plan_patches([
+    @bunnia.backend_state_patch(
+      "stream-agent-status",
+      @bunnia.backend_state_loading(),
+    ),
+    @bunnia.backend_error_patch("stream-agent-status", "timeout"),
+    @bunnia.backend_response_patch("load-snapshot", "{\"ok\":true}"),
+  ])
+  let adapter = @bunnia.generate_wechat_request_adapter(contract)
+  assert_eq(plan.endpoint_count, 6)
+  assert_eq(plan.streaming_count, 1)
+  assert_eq(plan.review_required_count, 2)
+  assert_eq(plan.diagnostics.length(), 3)
+  assert_true(
+    plan.diagnostics.contains("backend-endpoint-count-over-budget:6/3"),
+  )
+  assert_true(
+    plan.diagnostics.contains("backend-streaming-count-over-budget:1/0"),
+  )
+  assert_true(plan.diagnostics.contains("backend-review-count-over-budget:2/1"))
+  assert_eq(@bunnia.effect_kind_id(stream_effect.kind), "stream")
+  assert_eq(stream_effect.target, "/agent/status")
+  assert_eq(stream_effect.message, "stream-agent-status")
+  assert_true(patches.total_estimated_bytes < 160)
+  assert_true(adapter.contains("wx.request"))
+  assert_true(adapter.contains("baseUrlKey:\"backendBaseUrl\""))
+  assert_true(adapter.contains("\"stream-agent-status\""))
+  assert_true(adapter.contains("streaming:true"))
+  assert_true(adapter.contains("requiresReview:true"))
+  assert_true(!adapter.contains("secret"))
+  assert_eq(
+    @bunnia.backend_endpoint_kind_id(@bunnia.endpoint_review_decision()),
+    "review-decision",
+  )
+  assert_eq(@bunnia.http_method_id(@bunnia.http_post()), "POST")
+  assert_eq(
+    @bunnia.backend_state_id(@bunnia.backend_state_malformed()),
+    "malformed",
+  )
+}
+
+///|
 test "wechat project generator emits deterministic mini-program files" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),

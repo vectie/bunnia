@@ -92,7 +92,28 @@ pub type Scene = @scene.Scene
 pub type EffectKind = @effects.EffectKind
 
 ///|
+pub type BackendEndpointKind = @effects.BackendEndpointKind
+
+///|
+pub type HttpMethod = @effects.HttpMethod
+
+///|
+pub type BackendState = @effects.BackendState
+
+///|
 pub type Effect = @effects.Effect
+
+///|
+pub type BackendEndpoint = @effects.BackendEndpoint
+
+///|
+pub type BackendContract = @effects.BackendContract
+
+///|
+pub type BackendBudget = @effects.BackendBudget
+
+///|
+pub type BackendPlan = @effects.BackendPlan
 
 ///|
 pub type WechatPage = @wechat.WechatPage
@@ -878,6 +899,319 @@ pub fn effect(
 }
 
 ///|
+pub fn effect_kind_id(kind : EffectKind) -> String {
+  @effects.effect_kind_id(kind)
+}
+
+///|
+pub fn backend_endpoint(
+  id~ : String,
+  kind~ : BackendEndpointKind,
+  http_method~ : HttpMethod,
+  path~ : String,
+  payload_key? : String = "",
+  response_key? : String = "",
+  timeout_ms? : Int = 10000,
+  streaming? : Bool = false,
+  requires_review? : Bool = false,
+) -> BackendEndpoint {
+  @effects.backend_endpoint(
+    id~,
+    kind~,
+    http_method~,
+    path~,
+    payload_key~,
+    response_key~,
+    timeout_ms~,
+    streaming~,
+    requires_review~,
+  )
+}
+
+///|
+pub fn backend_contract(
+  id~ : String,
+  base_url_key? : String = "backendBaseUrl",
+  endpoints~ : Array[BackendEndpoint],
+) -> BackendContract {
+  @effects.backend_contract(id~, base_url_key~, endpoints~)
+}
+
+///|
+pub fn backend_budget(
+  max_endpoints~ : Int,
+  max_streaming~ : Int,
+  max_review_required~ : Int,
+) -> BackendBudget {
+  @effects.backend_budget(max_endpoints~, max_streaming~, max_review_required~)
+}
+
+///|
+pub fn default_backend_budget() -> BackendBudget {
+  @effects.default_backend_budget()
+}
+
+///|
+pub fn plan_backend_contract(contract : BackendContract) -> BackendPlan {
+  @effects.plan_backend_contract(contract)
+}
+
+///|
+pub fn plan_backend_contract_with_budget(
+  contract : BackendContract,
+  budget : BackendBudget,
+) -> BackendPlan {
+  @effects.plan_backend_contract_with_budget(contract, budget)
+}
+
+///|
+pub fn endpoint_effect(endpoint : BackendEndpoint, id? : String = "") -> Effect {
+  @effects.endpoint_effect(endpoint, id~)
+}
+
+///|
+pub fn snapshot_load_endpoint(
+  id : String,
+  path : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.snapshot_load_endpoint(id, path, response_key)
+}
+
+///|
+pub fn status_load_endpoint(
+  id : String,
+  path : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.status_load_endpoint(id, path, response_key)
+}
+
+///|
+pub fn operator_submit_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.operator_submit_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn agent_message_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.agent_message_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn agent_stream_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.agent_stream_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn thread_load_endpoint(
+  id : String,
+  path : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.thread_load_endpoint(id, path, response_key)
+}
+
+///|
+pub fn handoff_submit_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.handoff_submit_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn review_decision_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.review_decision_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn tool_ack_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+) -> BackendEndpoint {
+  @effects.tool_ack_endpoint(id, path, payload_key)
+}
+
+///|
+pub fn generic_endpoint(
+  id : String,
+  path : String,
+  http_method : HttpMethod,
+  payload_key? : String = "",
+  response_key? : String = "",
+) -> BackendEndpoint {
+  @effects.generic_endpoint(id, path, http_method, payload_key~, response_key~)
+}
+
+///|
+pub fn backend_state_patch(scope : String, state : BackendState) -> Patch {
+  @effects.backend_state_patch(scope, state)
+}
+
+///|
+pub fn backend_error_patch(scope : String, message : String) -> Patch {
+  @effects.backend_error_patch(scope, message)
+}
+
+///|
+pub fn backend_response_patch(scope : String, value_json : String) -> Patch {
+  @effects.backend_response_patch(scope, value_json)
+}
+
+///|
+pub fn backend_state_id(state : BackendState) -> String {
+  @effects.backend_state_id(state)
+}
+
+///|
+pub fn backend_endpoint_kind_id(kind : BackendEndpointKind) -> String {
+  @effects.backend_endpoint_kind_id(kind)
+}
+
+///|
+pub fn http_method_id(input : HttpMethod) -> String {
+  @effects.http_method_id(input)
+}
+
+///|
+pub fn endpoint_snapshot_load() -> BackendEndpointKind {
+  @effects.SnapshotLoad
+}
+
+///|
+pub fn endpoint_status_load() -> BackendEndpointKind {
+  @effects.StatusLoad
+}
+
+///|
+pub fn endpoint_operator_submit() -> BackendEndpointKind {
+  @effects.OperatorSubmit
+}
+
+///|
+pub fn endpoint_agent_message_send() -> BackendEndpointKind {
+  @effects.AgentMessageSend
+}
+
+///|
+pub fn endpoint_agent_run_status() -> BackendEndpointKind {
+  @effects.AgentRunStatus
+}
+
+///|
+pub fn endpoint_thread_load() -> BackendEndpointKind {
+  @effects.ThreadLoad
+}
+
+///|
+pub fn endpoint_handoff_submit() -> BackendEndpointKind {
+  @effects.HandoffSubmit
+}
+
+///|
+pub fn endpoint_review_decision() -> BackendEndpointKind {
+  @effects.ReviewDecision
+}
+
+///|
+pub fn endpoint_tool_ack() -> BackendEndpointKind {
+  @effects.ToolAck
+}
+
+///|
+pub fn endpoint_generic() -> BackendEndpointKind {
+  @effects.GenericEndpoint
+}
+
+///|
+pub fn backend_state_idle() -> BackendState {
+  @effects.IdleState
+}
+
+///|
+pub fn backend_state_loading() -> BackendState {
+  @effects.Loading
+}
+
+///|
+pub fn backend_state_ready() -> BackendState {
+  @effects.Ready
+}
+
+///|
+pub fn backend_state_stale() -> BackendState {
+  @effects.Stale
+}
+
+///|
+pub fn backend_state_failed() -> BackendState {
+  @effects.Failed
+}
+
+///|
+pub fn backend_state_timeout() -> BackendState {
+  @effects.Timeout
+}
+
+///|
+pub fn backend_state_malformed() -> BackendState {
+  @effects.Malformed
+}
+
+///|
+pub fn backend_state_cancelled() -> BackendState {
+  @effects.CancelledState
+}
+
+///|
+pub fn http_get() -> HttpMethod {
+  @effects.Get
+}
+
+///|
+pub fn http_post() -> HttpMethod {
+  @effects.Post
+}
+
+///|
+pub fn http_put() -> HttpMethod {
+  @effects.Put
+}
+
+///|
+pub fn http_patch() -> HttpMethod {
+  @effects.Patch
+}
+
+///|
+pub fn http_delete() -> HttpMethod {
+  @effects.Delete
+}
+
+///|
 pub fn request(id : String, target : String, payload_key : String) -> Effect {
   @effects.request(id, target, payload_key)
 }
@@ -988,4 +1322,9 @@ pub fn wechat_event_patch(
 ///|
 pub fn generate_wechat_set_data_call(patches : Array[Patch]) -> String {
   @wechat.generate_set_data_call(patches)
+}
+
+///|
+pub fn generate_wechat_request_adapter(contract : BackendContract) -> String {
+  @wechat.generate_request_adapter(contract)
 }

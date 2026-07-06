@@ -81,6 +81,21 @@ pub fn retry(id : String, target : String) -> Effect {
 }
 
 ///|
+pub fn effect_kind_id(kind : EffectKind) -> String {
+  match kind {
+    Request => "request"
+    Navigate => "navigate"
+    Storage => "storage"
+    Login => "login"
+    Share => "share"
+    CloudFunction => "cloud-function"
+    Stream => "stream"
+    Cancel => "cancel"
+    Retry => "retry"
+  }
+}
+
+///|
 pub fn effect_chip(item : Effect) -> @core.Node {
   @core.view_with_attrs(
     [

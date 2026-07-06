@@ -45,7 +45,7 @@ phase-by-phase implementation plan.
 - `scene`: static stylised map model with layers, markers, asset manifests,
   hit targets, and bounded updates.
 - `effects`: typed frontend effect descriptions for request, navigation,
-  cancel, and retry paths.
+  cancel, retry, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
 - `examples/agent_map`: small downstream example combining agentic UI, review
   controls, patches, and a static map surface.
@@ -125,6 +125,25 @@ test {
   let output = @bunnia.generate_wechat_page("Trace", @bunnia.page([trace]))
   assert_true(output.wxml.contains("bunnia-communication-handoff"))
   assert_true(output.wxml.contains("open-review"))
+}
+```
+
+```mbt check
+///|
+test {
+  let contract = @bunnia.backend_contract(id="agent-backend", endpoints=[
+    @bunnia.agent_message_endpoint(
+      "send-agent-message", "/agent/message", "message", "messageResult",
+    ),
+    @bunnia.review_decision_endpoint(
+      "review-decision", "/review/decision", "review", "reviewResult",
+    ),
+  ])
+  let plan = @bunnia.plan_backend_contract(contract)
+  let js = @bunnia.generate_wechat_request_adapter(contract)
+  assert_eq(plan.endpoint_count, 2)
+  assert_true(js.contains("wx.request"))
+  assert_true(!js.contains("secret"))
 }
 ```
 

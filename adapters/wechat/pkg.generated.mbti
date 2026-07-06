@@ -4,6 +4,7 @@ package "vectie/bunnia/adapters/wechat"
 import {
   "moonbitlang/core/debug",
   "vectie/bunnia/core",
+  "vectie/bunnia/effects",
 }
 
 // Values
@@ -18,6 +19,8 @@ pub fn generate_page_with_runtime(String, @core.Node, WechatRuntime) -> WechatPa
 pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> WechatProject
 
 pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime) -> WechatProject
+
+pub fn generate_request_adapter(@effects.BackendContract) -> String
 
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 

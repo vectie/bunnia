@@ -15,6 +15,10 @@ pub fn actor(id~ : String, label~ : String, kind? : @agent.ActorKind) -> @agent.
 
 pub fn adapter(@core.Platform) -> @core.PlatformAdapter
 
+pub fn agent_message_endpoint(String, String, String, String) -> @effects.BackendEndpoint
+
+pub fn agent_stream_endpoint(String, String, String, String) -> @effects.BackendEndpoint
+
 pub fn alipay() -> @core.Platform
 
 pub fn append_json(String, String) -> @core.Patch
@@ -24,6 +28,38 @@ pub fn[Model, Msg] apply(@program.Program[Model, Msg], Msg) -> @program.Program[
 pub fn approval(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> @agent.Communication
 
 pub fn attr(String, String) -> @core.Attr
+
+pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_required~ : Int) -> @effects.BackendBudget
+
+pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[@effects.BackendEndpoint]) -> @effects.BackendContract
+
+pub fn backend_endpoint(id~ : String, kind~ : @effects.BackendEndpointKind, http_method~ : @effects.HttpMethod, path~ : String, payload_key? : String, response_key? : String, timeout_ms? : Int, streaming? : Bool, requires_review? : Bool) -> @effects.BackendEndpoint
+
+pub fn backend_endpoint_kind_id(@effects.BackendEndpointKind) -> String
+
+pub fn backend_error_patch(String, String) -> @core.Patch
+
+pub fn backend_response_patch(String, String) -> @core.Patch
+
+pub fn backend_state_cancelled() -> @effects.BackendState
+
+pub fn backend_state_failed() -> @effects.BackendState
+
+pub fn backend_state_id(@effects.BackendState) -> String
+
+pub fn backend_state_idle() -> @effects.BackendState
+
+pub fn backend_state_loading() -> @effects.BackendState
+
+pub fn backend_state_malformed() -> @effects.BackendState
+
+pub fn backend_state_patch(String, @effects.BackendState) -> @core.Patch
+
+pub fn backend_state_ready() -> @effects.BackendState
+
+pub fn backend_state_stale() -> @effects.BackendState
+
+pub fn backend_state_timeout() -> @effects.BackendState
 
 pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
@@ -65,6 +101,8 @@ pub fn custom(String, Array[@core.Attr], Array[@core.Node]) -> @core.Node
 
 pub fn data(String, String) -> @core.Attr
 
+pub fn default_backend_budget() -> @effects.BackendBudget
+
 pub fn default_patch_budget() -> @core.PatchBudget
 
 pub fn default_render_budget() -> @core.RenderBudget
@@ -76,6 +114,30 @@ pub fn default_wechat_runtime() -> @wechat.WechatRuntime
 pub fn effect(id~ : String, kind~ : @effects.EffectKind, target~ : String, payload_key? : String, message? : String) -> @effects.Effect
 
 pub fn effect_chip(@effects.Effect) -> @core.Node
+
+pub fn effect_kind_id(@effects.EffectKind) -> String
+
+pub fn endpoint_agent_message_send() -> @effects.BackendEndpointKind
+
+pub fn endpoint_agent_run_status() -> @effects.BackendEndpointKind
+
+pub fn endpoint_effect(@effects.BackendEndpoint, id? : String) -> @effects.Effect
+
+pub fn endpoint_generic() -> @effects.BackendEndpointKind
+
+pub fn endpoint_handoff_submit() -> @effects.BackendEndpointKind
+
+pub fn endpoint_operator_submit() -> @effects.BackendEndpointKind
+
+pub fn endpoint_review_decision() -> @effects.BackendEndpointKind
+
+pub fn endpoint_snapshot_load() -> @effects.BackendEndpointKind
+
+pub fn endpoint_status_load() -> @effects.BackendEndpointKind
+
+pub fn endpoint_thread_load() -> @effects.BackendEndpointKind
+
+pub fn endpoint_tool_ack() -> @effects.BackendEndpointKind
 
 pub fn event(String, String) -> @core.EventBinding
 
@@ -89,9 +151,27 @@ pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.No
 
 pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime) -> @wechat.WechatProject
 
+pub fn generate_wechat_request_adapter(@effects.BackendContract) -> String
+
 pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
+pub fn generic_endpoint(String, String, @effects.HttpMethod, payload_key? : String, response_key? : String) -> @effects.BackendEndpoint
+
 pub fn handoff(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
+
+pub fn handoff_submit_endpoint(String, String, String, String) -> @effects.BackendEndpoint
+
+pub fn http_delete() -> @effects.HttpMethod
+
+pub fn http_get() -> @effects.HttpMethod
+
+pub fn http_method_id(@effects.HttpMethod) -> String
+
+pub fn http_patch() -> @effects.HttpMethod
+
+pub fn http_post() -> @effects.HttpMethod
+
+pub fn http_put() -> @effects.HttpMethod
 
 pub fn id(String) -> @core.Attr
 
@@ -127,11 +207,17 @@ pub fn node(kind~ : String, key? : String, attrs? : Array[@core.Attr], events? :
 
 pub fn node_count(@core.Node) -> Int
 
+pub fn operator_submit_endpoint(String, String, String, String) -> @effects.BackendEndpoint
+
 pub fn page(Array[@core.Node]) -> @core.Node
 
 pub fn patch_budget(max_patches~ : Int, max_patch_bytes~ : Int) -> @core.PatchBudget
 
 pub fn plan(@core.Node, @core.Platform) -> @core.RenderPlan
+
+pub fn plan_backend_contract(@effects.BackendContract) -> @effects.BackendPlan
+
+pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.BackendBudget) -> @effects.BackendPlan
 
 pub fn plan_patches(Array[@core.Patch]) -> @core.PatchPlan
 
@@ -168,6 +254,8 @@ pub fn review_approved() -> @agent.ReviewState
 pub fn review_cancelled() -> @agent.ReviewState
 
 pub fn review_controls(@agent.ReviewAction) -> @core.Node
+
+pub fn review_decision_endpoint(String, String, String, String) -> @effects.BackendEndpoint
 
 pub fn review_not_required() -> @agent.ReviewState
 
@@ -223,9 +311,13 @@ pub fn set_string(String, String) -> @core.Patch
 
 pub fn share(String, String) -> @effects.Effect
 
+pub fn snapshot_load_endpoint(String, String, String) -> @effects.BackendEndpoint
+
 pub fn sprite_asset(String, String, Int) -> @scene.SceneAsset
 
 pub fn static_scene_view(@scene.Scene) -> @core.Node
+
+pub fn status_load_endpoint(String, String, String) -> @effects.BackendEndpoint
 
 pub fn[Model] step(model~ : Model, effects? : Array[@effects.Effect], patches? : Array[@core.Patch]) -> @program.Step[Model]
 
@@ -245,9 +337,13 @@ pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_r
 
 pub fn thread_card(@agent.Thread) -> @core.Node
 
+pub fn thread_load_endpoint(String, String, String) -> @effects.BackendEndpoint
+
 pub fn tiktok() -> @core.Platform
 
 pub fn tile_asset(String, String, Int) -> @scene.SceneAsset
+
+pub fn tool_ack_endpoint(String, String, String) -> @effects.BackendEndpoint
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> @agent.Communication
 
@@ -274,6 +370,18 @@ pub using @agent {type ActorKind}
 
 pub using @core {type Attr}
 
+pub using @effects {type BackendBudget}
+
+pub using @effects {type BackendContract}
+
+pub using @effects {type BackendEndpoint}
+
+pub using @effects {type BackendEndpointKind}
+
+pub using @effects {type BackendPlan}
+
+pub using @effects {type BackendState}
+
 pub using @agent {type Communication}
 
 pub using @agent {type CommunicationKind}
@@ -283,6 +391,8 @@ pub using @effects {type Effect}
 pub using @effects {type EffectKind}
 
 pub using @core {type EventBinding}
+
+pub using @effects {type HttpMethod}
 
 pub using @agent {type Message}
 

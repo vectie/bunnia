@@ -439,6 +439,18 @@ Acceptance checks:
 - Cancel and retry paths are represented as explicit effects rather than ad hoc
   event strings.
 
+Current evidence:
+
+- Backend endpoints and contracts are typed, planned, and budgeted by endpoint
+  count, streaming count, and review-required count.
+- Endpoint helpers cover snapshot/status loads, operator submit, agent message
+  send, agent status stream, thread load, handoff submit, review decision, and
+  tool-result acknowledgment.
+- Backend loading, ready, stale, failed, timeout, malformed, and cancelled
+  states can be represented as small `setData` patches.
+- The WeChat request adapter generator emits `wx.request` helper code from a
+  contract and expects the base URL from page data, avoiding generated secrets.
+
 Do not build yet:
 
 - Direct local filesystem access from mini-app code.

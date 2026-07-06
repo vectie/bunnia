@@ -120,6 +120,39 @@ pub fn generate_set_data_call(patches : Array[@core.Patch]) -> String {
 }
 
 ///|
+pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
+  "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
+  "\n" +
+  "function __bunniaRequest(page, endpointId, payload) {\n" +
+  "  const endpoint = __bunniaBackend.endpoints[endpointId]\n" +
+  "  if (!endpoint) throw new Error('Unknown Bunnia endpoint: ' + endpointId)\n" +
+  "  const baseUrl = page.data[__bunniaBackend.baseUrlKey] || ''\n" +
+  "  const loading = {}\n" +
+  "  loading['backend.' + endpointId + '.state'] = 'loading'\n" +
+  "  loading['backend.' + endpointId + '.error'] = ''\n" +
+  "  page.setData(loading)\n" +
+  "  return wx.request({\n" +
+  "    url: baseUrl + endpoint.path,\n" +
+  "    method: endpoint.method,\n" +
+  "    data: payload || {},\n" +
+  "    timeout: endpoint.timeoutMs,\n" +
+  "    success(res) {\n" +
+  "      const update = {}\n" +
+  "      update['backend.' + endpointId + '.state'] = 'ready'\n" +
+  "      update['backend.' + endpointId + '.response'] = res.data\n" +
+  "      page.setData(update)\n" +
+  "    },\n" +
+  "    fail(err) {\n" +
+  "      const update = {}\n" +
+  "      update['backend.' + endpointId + '.state'] = 'failed'\n" +
+  "      update['backend.' + endpointId + '.error'] = String(err.errMsg || err)\n" +
+  "      page.setData(update)\n" +
+  "    }\n" +
+  "  })\n" +
+  "}"
+}
+
+///|
 fn wechat_file(path : String, content : String) -> WechatFile {
   { path, content }
 }
@@ -298,6 +331,62 @@ fn event_patches_object(items : Array[WechatEventPatch]) -> String {
   }
   out.write_string("}")
   out.to_string()
+}
+
+///|
+fn backend_contract_object(contract : @effects.BackendContract) -> String {
+  "{baseUrlKey:\"" +
+  escape_json(contract.base_url_key) +
+  "\",endpoints:" +
+  backend_endpoints_object(contract.endpoints) +
+  "}"
+}
+
+///|
+fn backend_endpoints_object(items : Array[@effects.BackendEndpoint]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("{")
+  for i in 0..<items.length() {
+    let item = items[i]
+    if i > 0 {
+      out.write_string(",")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(item.id))
+    out.write_string("\":")
+    out.write_string(backend_endpoint_object(item))
+  }
+  out.write_string("}")
+  out.to_string()
+}
+
+///|
+fn backend_endpoint_object(item : @effects.BackendEndpoint) -> String {
+  "{" +
+  "kind:\"" +
+  escape_json(@effects.backend_endpoint_kind_id(item.kind)) +
+  "\"," +
+  "method:\"" +
+  escape_json(@effects.http_method_id(item.http_method)) +
+  "\"," +
+  "path:\"" +
+  escape_json(item.path) +
+  "\"," +
+  "payloadKey:\"" +
+  escape_json(item.payload_key) +
+  "\"," +
+  "responseKey:\"" +
+  escape_json(item.response_key) +
+  "\"," +
+  "timeoutMs:" +
+  item.timeout_ms.to_string() +
+  "," +
+  "streaming:" +
+  item.streaming.to_string() +
+  "," +
+  "requiresReview:" +
+  item.requires_review.to_string() +
+  "}"
 }
 
 ///|
