@@ -666,10 +666,21 @@ test "effect constructors cover mini-app backend capabilities" {
   assert_true(@bunnia.effect_chip(effects[3]).text == "")
   let wechat_plan = @bunnia.plan_effects_for_platform(effects, @bunnia.wechat())
   let tiktok_plan = @bunnia.plan_effects_for_platform(effects, @bunnia.tiktok())
+  let no_stream_adapter = @bunnia.platform_adapter(
+    platform=@bunnia.wechat(),
+    id="wechat-no-stream",
+    page_component="page",
+    tap_event="bindtap",
+    supports_stream=false,
+  )
+  let no_stream_plan = @bunnia.plan_effects_for_adapter(
+    effects, no_stream_adapter,
+  )
   assert_eq(wechat_plan.effect_count, 5)
   assert_eq(wechat_plan.cloud_function_count, 1)
   assert_eq(wechat_plan.stream_effect_count, 1)
   assert_eq(wechat_plan.diagnostics.length(), 0)
+  assert_eq(wechat_plan.adapter.supports_stream, true)
   assert_eq(tiktok_plan.adapter.supports_cloud, false)
   assert_true(
     tiktok_plan.diagnostics.contains(
@@ -677,6 +688,13 @@ test "effect constructors cover mini-app backend capabilities" {
     ),
   )
   assert_true(tiktok_plan.summary.contains("platform=tiktok"))
+  assert_eq(no_stream_plan.stream_effect_count, 1)
+  assert_true(
+    no_stream_plan.diagnostics.contains(
+      "effect-stream-unsupported:wechat-no-stream:1",
+    ),
+  )
+  assert_true(no_stream_plan.summary.contains("adapter=wechat-no-stream"))
 }
 
 ///|
@@ -714,6 +732,16 @@ test "backend contracts plan request and streaming effects" {
     contract,
     @bunnia.wechat(),
   )
+  let no_stream_effect_plan = @bunnia.plan_backend_effects_for_adapter(
+    contract,
+    @bunnia.platform_adapter(
+      platform=@bunnia.wechat(),
+      id="wechat-request-only",
+      page_component="page",
+      tap_event="bindtap",
+      supports_stream=false,
+    ),
+  )
   let stream_effect = @bunnia.endpoint_effect(endpoints[3])
   let patches = @bunnia.plan_patches([
     @bunnia.backend_state_patch(
@@ -731,6 +759,12 @@ test "backend contracts plan request and streaming effects" {
   assert_eq(effect_plan.stream_effect_count, 1)
   assert_eq(effect_plan.cloud_function_count, 0)
   assert_eq(effect_plan.diagnostics.length(), 0)
+  assert_eq(no_stream_effect_plan.effect_count, 6)
+  assert_true(
+    no_stream_effect_plan.diagnostics.contains(
+      "effect-stream-unsupported:wechat-request-only:1",
+    ),
+  )
   assert_eq(plan.diagnostics.length(), 3)
   assert_true(
     plan.diagnostics.contains("backend-endpoint-count-over-budget:6/3"),

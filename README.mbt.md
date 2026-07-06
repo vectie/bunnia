@@ -139,6 +139,9 @@ and traces can update predictably.
 Render plans also count canvas nodes and can be planned against a custom
 `PlatformAdapter`, so unsupported canvas capability is visible before choosing a
 generator.
+Effect plans can also be checked against a custom `PlatformAdapter`, so
+streaming agent operations fail as explicit diagnostics when a target runtime
+cannot support them.
 
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report

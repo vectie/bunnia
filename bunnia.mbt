@@ -529,6 +529,7 @@ pub fn platform_adapter(
   component_prefix? : String = "",
   supports_canvas? : Bool = true,
   supports_cloud? : Bool = false,
+  supports_stream? : Bool = true,
 ) -> PlatformAdapter {
   @core.platform_adapter(
     platform~,
@@ -538,6 +539,7 @@ pub fn platform_adapter(
     component_prefix~,
     supports_canvas~,
     supports_cloud~,
+    supports_stream~,
   )
 }
 
@@ -1714,6 +1716,14 @@ pub fn plan_effects_for_platform(
 }
 
 ///|
+pub fn plan_effects_for_adapter(
+  effects : Array[Effect],
+  adapter : PlatformAdapter,
+) -> EffectPlan {
+  @effects.plan_effects_for_adapter(effects, adapter)
+}
+
+///|
 pub fn backend_endpoint(
   id~ : String,
   kind~ : BackendEndpointKind,
@@ -1790,6 +1800,14 @@ pub fn plan_backend_effects_for_platform(
   platform : Platform,
 ) -> EffectPlan {
   @effects.plan_backend_effects_for_platform(contract, platform)
+}
+
+///|
+pub fn plan_backend_effects_for_adapter(
+  contract : BackendContract,
+  adapter : PlatformAdapter,
+) -> EffectPlan {
+  @effects.plan_backend_effects_for_adapter(contract, adapter)
 }
 
 ///|

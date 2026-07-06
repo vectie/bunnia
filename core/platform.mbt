@@ -19,6 +19,7 @@ pub struct PlatformAdapter {
   component_prefix : String
   supports_canvas : Bool
   supports_cloud : Bool
+  supports_stream : Bool
 } derive(Debug, Eq)
 
 ///|
@@ -27,7 +28,7 @@ pub impl Show for PlatformAdapter with fn output(
   logger : &Logger,
 ) -> Unit {
   logger.write_string(
-    "PlatformAdapter(id=\{self.id}, page_component=\{self.page_component}, tap_event=\{self.tap_event}, canvas=\{self.supports_canvas}, cloud=\{self.supports_cloud})",
+    "PlatformAdapter(id=\{self.id}, page_component=\{self.page_component}, tap_event=\{self.tap_event}, canvas=\{self.supports_canvas}, cloud=\{self.supports_cloud}, stream=\{self.supports_stream})",
   )
 }
 
@@ -58,6 +59,7 @@ pub fn platform_adapter(
   component_prefix? : String = "",
   supports_canvas? : Bool = true,
   supports_cloud? : Bool = false,
+  supports_stream? : Bool = true,
 ) -> PlatformAdapter {
   {
     platform,
@@ -67,6 +69,7 @@ pub fn platform_adapter(
     component_prefix,
     supports_canvas,
     supports_cloud,
+    supports_stream,
   }
 }
 

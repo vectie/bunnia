@@ -79,7 +79,11 @@ pub fn plan_backend_contract(BackendContract) -> BackendPlan
 
 pub fn plan_backend_contract_with_budget(BackendContract, BackendBudget) -> BackendPlan
 
+pub fn plan_backend_effects_for_adapter(BackendContract, @core.PlatformAdapter) -> EffectPlan
+
 pub fn plan_backend_effects_for_platform(BackendContract, @core.Platform) -> EffectPlan
+
+pub fn plan_effects_for_adapter(Array[Effect], @core.PlatformAdapter) -> EffectPlan
 
 pub fn plan_effects_for_platform(Array[Effect], @core.Platform) -> EffectPlan
 

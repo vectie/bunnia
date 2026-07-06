@@ -112,6 +112,14 @@ pub fn plan_effects_for_platform(
   platform : @core.Platform,
 ) -> EffectPlan {
   let adapter = @core.adapter(platform)
+  plan_effects_for_adapter(effects, adapter)
+}
+
+///|
+pub fn plan_effects_for_adapter(
+  effects : Array[Effect],
+  adapter : @core.PlatformAdapter,
+) -> EffectPlan {
   let diagnostics : Array[String] = []
   let mut cloud_function_count = 0
   let mut stream_effect_count = 0
@@ -125,17 +133,22 @@ pub fn plan_effects_for_platform(
   }
   if cloud_function_count > 0 && !adapter.supports_cloud {
     diagnostics.push(
-      "effect-cloud-function-unsupported:\{@core.platform_id(platform)}:\{cloud_function_count}",
+      "effect-cloud-function-unsupported:\{adapter.id}:\{cloud_function_count}",
+    )
+  }
+  if stream_effect_count > 0 && !adapter.supports_stream {
+    diagnostics.push(
+      "effect-stream-unsupported:\{adapter.id}:\{stream_effect_count}",
     )
   }
   {
-    platform,
+    platform: adapter.platform,
     adapter,
     effect_count: effects.length(),
     cloud_function_count,
     stream_effect_count,
     diagnostics,
-    summary: "Bunnia effect plan: platform=\{@core.platform_id(platform)} effects=\{effects.length()} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia effect plan: platform=\{@core.platform_id(adapter.platform)} adapter=\{adapter.id} effects=\{effects.length()} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} diagnostics=\{diagnostics.length()}",
   }
 }
 

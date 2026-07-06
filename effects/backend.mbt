@@ -194,6 +194,14 @@ pub fn plan_backend_effects_for_platform(
 }
 
 ///|
+pub fn plan_backend_effects_for_adapter(
+  contract : BackendContract,
+  adapter : @core.PlatformAdapter,
+) -> EffectPlan {
+  plan_effects_for_adapter(backend_contract_effects(contract), adapter)
+}
+
+///|
 pub fn snapshot_load_endpoint(
   id : String,
   path : String,

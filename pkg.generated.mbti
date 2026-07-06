@@ -286,11 +286,15 @@ pub fn plan_backend_contract(@effects.BackendContract) -> @effects.BackendPlan
 
 pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.BackendBudget) -> @effects.BackendPlan
 
+pub fn plan_backend_effects_for_adapter(@effects.BackendContract, @core.PlatformAdapter) -> @effects.EffectPlan
+
 pub fn plan_backend_effects_for_platform(@effects.BackendContract, @core.Platform) -> @effects.EffectPlan
 
 pub fn plan_communications(Array[@agent.Communication]) -> @agent.CommunicationPlan
 
 pub fn plan_communications_with_budget(Array[@agent.Communication], @agent.CommunicationBudget) -> @agent.CommunicationPlan
+
+pub fn plan_effects_for_adapter(Array[@effects.Effect], @core.PlatformAdapter) -> @effects.EffectPlan
 
 pub fn plan_effects_for_platform(Array[@effects.Effect], @core.Platform) -> @effects.EffectPlan
 
@@ -334,7 +338,7 @@ pub fn plan_snapshot_deltas_with_budget(Array[@effects.SnapshotDelta], @core.Pat
 
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
-pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool) -> @core.PlatformAdapter
+pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> @core.PlatformAdapter
 
 pub fn platform_id(@core.Platform) -> String
 

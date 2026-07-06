@@ -546,6 +546,8 @@ Current evidence:
 - Effect plans can be checked against platform adapter capabilities before a
   generator is selected, preserving the future Alipay/TikTok boundary without
   implementing those adapters now.
+- Stream effects can be checked against custom adapter capability, so agentic
+  runtimes fail with explicit diagnostics on request-only targets.
 
 Do not build yet:
 
@@ -702,6 +704,8 @@ Current evidence:
   so request and stream pressure is visible in normal CLI output.
 - Backend stream/review counts are included in profile summaries, keeping
   agent-operation review pressure visible during strict builds.
+- Effect capability diagnostics include custom stream support, so strict builds
+  can catch unsupported agent streaming before target-specific generation.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.
