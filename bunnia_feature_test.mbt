@@ -865,7 +865,17 @@ test "scaffold project exposes starter files through facade" {
   assert_eq(scaffold.module_name, "local/mini_agent")
   assert_true(scaffold.summary.contains("Bunnia scaffold"))
   assert_true(
-    scaffold_file_content(scaffold.files, "app.mbt").contains("message_feed"),
+    scaffold_file_content(scaffold.files, "app.mbt").contains(
+      "windowed_message_feed",
+    ),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "app.mbt").contains(
+      "surface_status_overlay",
+    ),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "app.mbt").contains("render_plan"),
   )
   assert_true(
     scaffold_file_content(scaffold.files, "moon.pkg").contains(

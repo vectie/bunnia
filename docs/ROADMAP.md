@@ -658,7 +658,9 @@ Current evidence:
   CI-style budget gates.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
-  agentic message feed, and patch-plan starter files.
+  windowed agentic message feed, surface status overlay, render-plan helper, and
+  patch-plan starter files, plus a local `moon.work` link for development before
+  registry publication.
 
 ## Phase 8: Production Readiness
 

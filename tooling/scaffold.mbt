@@ -43,7 +43,7 @@ fn moon_mod(module_name : String) -> String {
   "version = \"0.1.0\"\n\n" +
   "readme = \"README.mbt.md\"\n\n" +
   "import {\n" +
-  "  \"vectie/bunnia\"\n" +
+  "  \"vectie/bunnia@0.1.0\"\n" +
   "}\n\n" +
   "preferred_target = \"js\"\n\n" +
   "description = \"Bunnia mini-app starter.\"\n"
@@ -58,21 +58,31 @@ fn moon_pkg() -> String {
 fn app_mbt(name : String) -> String {
   "///|\n" +
   "pub fn view() -> @bunnia.Node {\n" +
+  "  let feed = @bunnia.windowed_message_feed([\n" +
+  "    @bunnia.message(\n" +
+  "      id=\"msg-1\",\n" +
+  "      actor_id=\"agent\",\n" +
+  "      thread_id=\"thread-main\",\n" +
+  "      text=\"Ready for mini-app work.\",\n" +
+  "      status=@bunnia.run_done(),\n" +
+  "    ),\n" +
+  "  ], total_count=1)\n" +
+  "  let status = @bunnia.surface_stale(\n" +
+  "    label=\"Live context\",\n" +
+  "    detail=\"Refresh keeps the visible feed small while preserving total conversation scale.\",\n" +
+  "    action_message=\"refresh\",\n" +
+  "  )\n" +
   "  @bunnia.page([\n" +
   "    @bunnia.view_with_attrs([@bunnia.class_name(\"demo-shell\")], [\n" +
   "      @bunnia.text(\"\{escape_mbt(name)}\"),\n" +
-  "      @bunnia.message_feed([\n" +
-  "        @bunnia.message(\n" +
-  "          id=\"msg-1\",\n" +
-  "          actor_id=\"agent\",\n" +
-  "          thread_id=\"thread-main\",\n" +
-  "          text=\"Ready for mini-app work.\",\n" +
-  "          status=@bunnia.run_done(),\n" +
-  "        ),\n" +
-  "      ]),\n" +
+  "      @bunnia.surface_status_overlay(status, feed),\n" +
   "      @bunnia.button(\"Refresh\", \"refresh\"),\n" +
   "    ]),\n" +
   "  ])\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn render_plan() -> @bunnia.RenderPlan {\n" +
+  "  @bunnia.plan(view(), @bunnia.wechat())\n" +
   "}\n\n" +
   "///|\n" +
   "pub fn patch_plan() -> @bunnia.PatchPlan {\n" +

@@ -49,6 +49,7 @@ test "init command builds a scaffold plan" {
   assert_eq(name, "agent_demo")
   assert_eq(scaffold.module_name, "local/agent_demo")
   assert_eq(scaffold.files.length(), 4)
+  assert_eq(scaffold_write_file_count(scaffold), 5)
   assert_eq(
     scaffold_output_dir_from_args(args, name),
     "_build/bunnia/scaffold/agent_demo",
@@ -64,6 +65,14 @@ test "init command accepts output override and module default" {
   assert_eq(name, default_scaffold_name())
   assert_eq(scaffold.module_name, "local/bunnia_starter")
   assert_eq(scaffold_output_dir_from_args(args, name), "/tmp/bunnia-init")
+}
+
+///|
+test "init command writes a local workspace link" {
+  assert_eq(
+    scaffold_workspace_content("/Users/kq/Workspace/moonmini"),
+    "members = [\n  \"/Users/kq/Workspace/moonmini\",\n]\n",
+  )
 }
 
 ///|

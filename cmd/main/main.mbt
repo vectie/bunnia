@@ -10,7 +10,7 @@ fn main {
     write_scaffold(output_dir, scaffold)
     println("command=init")
     println(scaffold.summary)
-    println("wrote=\{scaffold.files.length()} output=\{output_dir}")
+    println("wrote=\{scaffold_write_file_count(scaffold)} output=\{output_dir}")
   } else {
     let target = target_from_args(@env.args())
     let example = example_from_args(@env.args())
@@ -279,6 +279,20 @@ fn write_scaffold(output_dir : String, scaffold : @bunnia.ScaffoldPlan) -> Unit 
   for file in scaffold.files {
     write_text_file(join_path(output_dir, file.path), file.content)
   }
+  write_text_file(
+    join_path(output_dir, "moon.work"),
+    scaffold_workspace_content(current_working_dir()),
+  )
+}
+
+///|
+fn scaffold_write_file_count(scaffold : @bunnia.ScaffoldPlan) -> Int {
+  scaffold.files.length() + 1
+}
+
+///|
+fn scaffold_workspace_content(framework_path : String) -> String {
+  "members = [\n" + "  \"\{escape_toml_string(framework_path)}\",\n" + "]\n"
 }
 
 ///|
@@ -304,6 +318,24 @@ fn print_profile_diagnostics(items : Array[String]) -> Unit {
   for item in items {
     println("profile_diagnostic=\{item}")
   }
+}
+
+///|
+fn escape_toml_string(value : String) -> String {
+  value.replace(old="\\", new="\\\\").replace(old="\"", new="\\\"").to_string()
+}
+
+///|
+#cfg(target="js")
+extern "js" fn current_working_dir() -> String =
+  #| function() {
+  #|   return process.cwd()
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn current_working_dir() -> String {
+  "."
 }
 
 ///|
