@@ -20,6 +20,8 @@ pub fn generate_page(String, @core.Node) -> WechatPage
 
 pub fn generate_page_with_runtime(String, @core.Node, WechatRuntime) -> WechatPage
 
+pub fn generate_page_with_runtime_and_budget(String, @core.Node, WechatRuntime, @core.RenderBudget) -> WechatPage
+
 pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> WechatProject
 
 pub fn generate_project_from_pages(name~ : String, pages~ : Array[WechatProjectPage]) -> WechatProject
@@ -30,13 +32,17 @@ pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @c
 
 pub fn generate_project_with_runtime_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime, backend_contract~ : @effects.BackendContract) -> WechatProject
 
+pub fn generate_project_with_runtime_and_budget(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime, render_budget~ : @core.RenderBudget) -> WechatProject
+
+pub fn generate_project_with_runtime_and_budget_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : WechatRuntime, render_budget~ : @core.RenderBudget, backend_contract~ : @effects.BackendContract) -> WechatProject
+
 pub fn generate_request_adapter(@effects.BackendContract) -> String
 
 pub fn generate_runtime_js() -> String
 
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
-pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime) -> WechatProjectPage
+pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime, render_budget? : @core.RenderBudget) -> WechatProjectPage
 
 pub fn report_project(WechatProject, WechatRuntime) -> WechatBuildReport
 

@@ -44,6 +44,8 @@ pub fn demo_wechat_page() -> @wechat.WechatPage
 
 pub fn demo_wechat_project() -> @wechat.WechatProject
 
+pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.WechatProject
+
 // Errors
 
 // Types and methods

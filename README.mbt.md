@@ -89,6 +89,10 @@ when testing that CI fails on size regressions:
 moon run cmd/main -- build --target wechat --strict --budget tight
 ```
 
+The render planner uses the same named profile by default. Use
+`--render-budget tiny` to exercise render-budget failures without shrinking
+generated-output byte budgets.
+
 For local iteration, watch generated output with:
 
 ```bash
@@ -107,7 +111,8 @@ moon run cmd/main -- snapshot --target wechat --example agent_map --strict
 
 Snapshot output records the selected `--budget` profile, so CI diffs include
 the same generated-output report and diagnostic lines that strict builds
-evaluate.
+evaluate. If `--render-budget` is set separately, snapshots record that profile
+too.
 
 The snapshot records route, budget profile, size budgets, profile summary, and
 per-file byte/checksum lines without committing the full generated mini-program.
@@ -200,7 +205,9 @@ visible/total marker count, scene asset count, and degraded scene count, so map
 pressure is visible even before product-specific profiling is wired in.
 `@bunnia.render_budget(...)` can gate scene marker count and degraded scene
 count directly, which lets strict builds catch oversized map routes without a
-separate scene-specific planner.
+separate scene-specific planner. WeChat generation APIs also accept explicit
+render budgets, so route manifests and build reports carry those render
+diagnostics into normal build output.
 Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.

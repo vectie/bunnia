@@ -110,7 +110,22 @@ pub fn generate_page_with_runtime(
   root : @core.Node,
   runtime : WechatRuntime,
 ) -> WechatPage {
-  let plan = @core.plan(root, Wechat)
+  generate_page_with_runtime_and_budget(
+    name,
+    root,
+    runtime,
+    @core.default_render_budget(),
+  )
+}
+
+///|
+pub fn generate_page_with_runtime_and_budget(
+  name : String,
+  root : @core.Node,
+  runtime : WechatRuntime,
+  render_budget : @core.RenderBudget,
+) -> WechatPage {
+  let plan = @core.plan_with_budget(root, Wechat, render_budget)
   {
     wxml: render_node(root, @core.adapter(Wechat)),
     wxss: default_wxss(),
@@ -125,8 +140,9 @@ fn generate_project_page_with_runtime(
   name : String,
   route : String,
   root : @core.Node,
+  render_budget : @core.RenderBudget,
 ) -> WechatPage {
-  let plan = @core.plan(root, Wechat)
+  let plan = @core.plan_with_budget(root, Wechat, render_budget)
   {
     wxml: render_node(root, @core.adapter(Wechat)),
     wxss: "",
@@ -142,7 +158,13 @@ pub fn generate_project(
   route? : String = "pages/index/index",
   root~ : @core.Node,
 ) -> WechatProject {
-  generate_project_with_runtime(name~, route~, root~, runtime=default_runtime())
+  generate_project_with_runtime_and_budget(
+    name~,
+    route~,
+    root~,
+    runtime=default_runtime(),
+    render_budget=@core.default_render_budget(),
+  )
 }
 
 ///|
@@ -152,8 +174,25 @@ pub fn generate_project_with_runtime(
   root~ : @core.Node,
   runtime~ : WechatRuntime,
 ) -> WechatProject {
+  generate_project_with_runtime_and_budget(
+    name~,
+    route~,
+    root~,
+    runtime~,
+    render_budget=@core.default_render_budget(),
+  )
+}
+
+///|
+pub fn generate_project_with_runtime_and_budget(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : @core.Node,
+  runtime~ : WechatRuntime,
+  render_budget~ : @core.RenderBudget,
+) -> WechatProject {
   generate_project_from_pages(name~, pages=[
-    project_page(name~, route~, root~, runtime~),
+    project_page(name~, route~, root~, runtime~, render_budget~),
   ])
 }
 
@@ -165,9 +204,28 @@ pub fn generate_project_with_runtime_and_backend(
   runtime~ : WechatRuntime,
   backend_contract~ : @effects.BackendContract,
 ) -> WechatProject {
+  generate_project_with_runtime_and_budget_and_backend(
+    name~,
+    route~,
+    root~,
+    runtime~,
+    render_budget=@core.default_render_budget(),
+    backend_contract~,
+  )
+}
+
+///|
+pub fn generate_project_with_runtime_and_budget_and_backend(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : @core.Node,
+  runtime~ : WechatRuntime,
+  render_budget~ : @core.RenderBudget,
+  backend_contract~ : @effects.BackendContract,
+) -> WechatProject {
   generate_project_from_pages_with_backend(
     name~,
-    pages=[project_page(name~, route~, root~, runtime~)],
+    pages=[project_page(name~, route~, root~, runtime~, render_budget~)],
     backend_contract~,
   )
 }
@@ -178,11 +236,12 @@ pub fn project_page(
   route~ : String,
   root~ : @core.Node,
   runtime? : WechatRuntime = default_runtime(),
+  render_budget? : @core.RenderBudget = @core.default_render_budget(),
 ) -> WechatProjectPage {
   {
     name,
     route,
-    page: generate_project_page_with_runtime(name, route, root),
+    page: generate_project_page_with_runtime(name, route, root, render_budget),
     runtime,
   }
 }

@@ -32,9 +32,20 @@ test "build command and target parse explicitly" {
   assert_eq(target_from_args(args), "wechat")
   assert_eq(strict_from_args(args), false)
   assert_eq(budget_profile_from_args(args), "default")
+  assert_eq(render_budget_profile_from_args(args), "default")
   assert_eq(
     budget_profile_from_args(["node", "main.js", "--budget", "tight"]),
     "tight",
+  )
+  assert_eq(
+    render_budget_profile_from_args(["node", "main.js", "--budget", "tight"]),
+    "tight",
+  )
+  assert_eq(
+    render_budget_profile_from_args([
+      "node", "main.js", "--budget", "tight", "--render-budget", "tiny",
+    ]),
+    "tiny",
   )
   assert_eq(strict_from_args(["node", "main.js", "--strict"]), true)
   assert_eq(
@@ -171,7 +182,11 @@ test "build example flag selects Wenyu proof output folder" {
 
 ///|
 test "build example flag selects Wenyu project" {
-  let project = project_for_build("wechat", "wenyu_overview")
+  let project = project_for_build(
+    "wechat",
+    "wenyu_overview",
+    render_budget_from_args(["node", "main.js", "--budget", "tight"]),
+  )
   let patches = patches_for_build("wechat", "wenyu_overview")
   let profile = profile_for_build("wechat", "wenyu_overview", project, patches)
   let report = @bunnia.report_wechat_project_with_budget(
@@ -233,7 +248,11 @@ test "build example flag selects Wenyu project" {
 
 ///|
 test "build profile keeps agent map diagnostics visible" {
-  let project = project_for_build("wechat", "agent_map")
+  let project = project_for_build(
+    "wechat",
+    "agent_map",
+    render_budget_from_args(["node", "main.js"]),
+  )
   let patches = patches_for_build("wechat", "agent_map")
   let profile = profile_for_build("wechat", "agent_map", project, patches)
   let report = @bunnia.report_wechat_project_with_budget(
@@ -313,6 +332,37 @@ test "build profile keeps agent map diagnostics visible" {
     should_fail_build(true, project, tiny_report, patches, profile),
     true,
   )
+}
+
+///|
+test "build render budget can fail map-heavy routes before preview" {
+  let project = project_for_build(
+    "wechat",
+    "agent_map",
+    render_budget_from_args(["node", "main.js", "--render-budget", "tiny"]),
+  )
+  let patches = patches_for_build("wechat", "agent_map")
+  let profile = profile_for_build("wechat", "agent_map", project, patches)
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(["node", "main.js"]),
+  )
+  assert_true(
+    project.page.plan.diagnostics.contains("node-count-over-budget:39/8"),
+  )
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-render:pages/index/index:scene-marker-count-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "render:pages/index/index:scene-marker-count-over-budget:2/1",
+    ),
+  )
+  assert_eq(should_fail_build(false, project, report, patches, profile), false)
+  assert_eq(should_fail_build(true, project, report, patches, profile), true)
 }
 
 ///|

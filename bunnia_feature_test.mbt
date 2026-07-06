@@ -745,6 +745,44 @@ test "render budgets diagnose scene marker pressure" {
 }
 
 ///|
+test "wechat project generation accepts route render budgets" {
+  let surface = @bunnia.static_scene_view(
+    @bunnia.scene("budget-map", @bunnia.scene_size(320, 240), [
+      @bunnia.layer("markers", 1, [
+        @bunnia.marker(id="a", label="A", x=16, y=16),
+        @bunnia.marker(id="b", label="B", x=32, y=32),
+      ]),
+    ]),
+  )
+  let project = @bunnia.generate_wechat_project_with_runtime_and_budget(
+    name="Budgeted Map",
+    route="pages/budget/index",
+    root=@bunnia.page([surface]),
+    runtime=@bunnia.default_wechat_runtime(),
+    render_budget=@bunnia.render_budget(
+      max_nodes=64,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=1024,
+      max_scene_markers=1,
+    ),
+  )
+  assert_true(
+    project.page.plan.diagnostics.contains("scene-marker-count-over-budget:2/1"),
+  )
+  assert_true(
+    project.report.diagnostics.contains(
+      "wechat-render:pages/budget/index:scene-marker-count-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    project.manifest.pages[0].render_diagnostics.contains(
+      "scene-marker-count-over-budget:2/1",
+    ),
+  )
+}
+
+///|
 test "effect constructors cover mini-app backend capabilities" {
   let effects = [
     @bunnia.storage("save-draft", "storage:draft", "draft"),

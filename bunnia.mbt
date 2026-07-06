@@ -2457,6 +2457,18 @@ pub fn generate_wechat_page_with_runtime(
 }
 
 ///|
+pub fn generate_wechat_page_with_runtime_and_budget(
+  name : String,
+  root : Node,
+  runtime : WechatRuntime,
+  render_budget : RenderBudget,
+) -> WechatPage {
+  @wechat.generate_page_with_runtime_and_budget(
+    name, root, runtime, render_budget,
+  )
+}
+
+///|
 pub fn generate_wechat_project(
   name~ : String,
   route? : String = "pages/index/index",
@@ -2473,6 +2485,23 @@ pub fn generate_wechat_project_with_runtime(
   runtime~ : WechatRuntime,
 ) -> WechatProject {
   @wechat.generate_project_with_runtime(name~, route~, root~, runtime~)
+}
+
+///|
+pub fn generate_wechat_project_with_runtime_and_budget(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  runtime~ : WechatRuntime,
+  render_budget~ : RenderBudget,
+) -> WechatProject {
+  @wechat.generate_project_with_runtime_and_budget(
+    name~,
+    route~,
+    root~,
+    runtime~,
+    render_budget~,
+  )
 }
 
 ///|
@@ -2493,13 +2522,33 @@ pub fn generate_wechat_project_with_runtime_and_backend(
 }
 
 ///|
+pub fn generate_wechat_project_with_runtime_and_budget_and_backend(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  runtime~ : WechatRuntime,
+  render_budget~ : RenderBudget,
+  backend_contract~ : BackendContract,
+) -> WechatProject {
+  @wechat.generate_project_with_runtime_and_budget_and_backend(
+    name~,
+    route~,
+    root~,
+    runtime~,
+    render_budget~,
+    backend_contract~,
+  )
+}
+
+///|
 pub fn wechat_project_page(
   name~ : String,
   route~ : String,
   root~ : Node,
   runtime? : WechatRuntime = @wechat.default_runtime(),
+  render_budget? : RenderBudget = @core.default_render_budget(),
 ) -> WechatProjectPage {
-  @wechat.project_page(name~, route~, root~, runtime~)
+  @wechat.project_page(name~, route~, root~, runtime~, render_budget~)
 }
 
 ///|
@@ -2671,6 +2720,7 @@ pub fn snapshot_wechat_project_with_report(
   report : WechatBuildReport,
   profile : BuildProfile,
   budget_profile? : String = "default",
+  render_budget_profile? : String = "default",
 ) -> GeneratedSnapshot {
   @tooling.snapshot_wechat_project_with_report(
     target~,
@@ -2679,6 +2729,7 @@ pub fn snapshot_wechat_project_with_report(
     report,
     profile,
     budget_profile~,
+    render_budget_profile~,
   )
 }
 

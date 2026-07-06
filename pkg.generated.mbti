@@ -214,6 +214,8 @@ pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
 pub fn generate_wechat_page_with_runtime(String, @core.Node, @wechat.WechatRuntime) -> @wechat.WechatPage
 
+pub fn generate_wechat_page_with_runtime_and_budget(String, @core.Node, @wechat.WechatRuntime, @core.RenderBudget) -> @wechat.WechatPage
+
 pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.Node) -> @wechat.WechatProject
 
 pub fn generate_wechat_project_from_pages(name~ : String, pages~ : Array[@wechat.WechatProjectPage]) -> @wechat.WechatProject
@@ -223,6 +225,10 @@ pub fn generate_wechat_project_from_pages_with_backend(name~ : String, pages~ : 
 pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime) -> @wechat.WechatProject
 
 pub fn generate_wechat_project_with_runtime_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime, backend_contract~ : @effects.BackendContract) -> @wechat.WechatProject
+
+pub fn generate_wechat_project_with_runtime_and_budget(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime, render_budget~ : @core.RenderBudget) -> @wechat.WechatProject
+
+pub fn generate_wechat_project_with_runtime_and_budget_and_backend(name~ : String, route? : String, root~ : @core.Node, runtime~ : @wechat.WechatRuntime, render_budget~ : @core.RenderBudget, backend_contract~ : @effects.BackendContract) -> @wechat.WechatProject
 
 pub fn generate_wechat_request_adapter(@effects.BackendContract) -> String
 
@@ -532,7 +538,7 @@ pub fn snapshot_load_endpoint(String, String, String) -> @effects.BackendEndpoin
 
 pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @tooling.BuildProfile) -> @tooling.GeneratedSnapshot
 
-pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, @tooling.BuildProfile, budget_profile? : String) -> @tooling.GeneratedSnapshot
+pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, @tooling.BuildProfile, budget_profile? : String, render_budget_profile? : String) -> @tooling.GeneratedSnapshot
 
 pub fn sprite_asset(String, String, Int) -> @scene.SceneAsset
 
@@ -632,7 +638,7 @@ pub fn wechat_build_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ 
 
 pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatch
 
-pub fn wechat_project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : @wechat.WechatRuntime) -> @wechat.WechatProjectPage
+pub fn wechat_project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : @wechat.WechatRuntime, render_budget? : @core.RenderBudget) -> @wechat.WechatProjectPage
 
 pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
 

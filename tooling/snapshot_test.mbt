@@ -19,6 +19,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.target, "wechat")
   assert_eq(snapshot.example, "snapshot_fixture")
   assert_eq(snapshot.budget_profile, "default")
+  assert_eq(snapshot.render_budget_profile, "default")
   assert_eq(snapshot.route, "pages/snapshot/index")
   assert_eq(snapshot.file_count, project.files.length())
   assert_eq(snapshot.total_bytes, project.total_bytes)
@@ -26,6 +27,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("files=10"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
+  assert_true(snapshot.content.contains("render_budget_profile=default"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
@@ -109,16 +111,20 @@ test "generated snapshots can record active build report diagnostics" {
     report,
     profile,
     budget_profile="tiny",
+    render_budget_profile="tiny-render",
   )
   assert_eq(snapshot.budget_profile, "tiny")
+  assert_eq(snapshot.render_budget_profile, "tiny-render")
   assert_eq(snapshot.diagnostic_count, report.diagnostics.length())
   assert_true(snapshot.diagnostic_count > 0)
   assert_true(snapshot.summary.contains("diagnostics="))
   assert_true(snapshot.summary.contains("budget=tiny"))
+  assert_true(snapshot.summary.contains("render_budget=tiny-render"))
   assert_true(
     snapshot.content.contains("diagnostics=\{report.diagnostics.length()}"),
   )
   assert_true(snapshot.content.contains("budget_profile=tiny"))
+  assert_true(snapshot.content.contains("render_budget_profile=tiny-render"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
   assert_true(snapshot.content.contains("profile_diagnostics:\nfiles:"))

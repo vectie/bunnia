@@ -92,6 +92,47 @@ fn budget_profile_from_args(args : Array[String]) -> String {
 }
 
 ///|
+fn render_budget_profile_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--render-budget" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  budget_profile_from_args(args)
+}
+
+///|
+fn render_budget_from_args(args : Array[String]) -> @bunnia.RenderBudget {
+  match render_budget_profile_from_args(args) {
+    "default" => @bunnia.default_render_budget()
+    "tight" =>
+      @bunnia.render_budget(
+        max_nodes=128,
+        max_depth=12,
+        max_events=32,
+        max_initial_data_bytes=4096,
+        max_unwindowed_list_children=16,
+        max_scene_markers=64,
+        max_degraded_scenes=0,
+      )
+    "tiny" =>
+      @bunnia.render_budget(
+        max_nodes=8,
+        max_depth=2,
+        max_events=1,
+        max_initial_data_bytes=64,
+        max_unwindowed_list_children=0,
+        max_scene_markers=1,
+        max_degraded_scenes=0,
+      )
+    other => {
+      println("unsupported render_budget=\{other}")
+      panic()
+    }
+  }
+}
+
+///|
 fn wechat_build_budget_from_args(
   args : Array[String],
 ) -> @bunnia.WechatBuildBudget {
@@ -253,20 +294,24 @@ fn ci_plan_from_args(args : Array[String]) -> @bunnia.CiPlan {
 fn project_for_build(
   target : String,
   example : String,
+  render_budget : @bunnia.RenderBudget,
 ) -> @bunnia.WechatProject {
   if target != "wechat" {
     println("unsupported target=\{target}")
     panic()
   }
-  project_for_example(example)
+  project_for_example(example, render_budget)
 }
 
 ///|
-fn project_for_example(example : String) -> @bunnia.WechatProject {
+fn project_for_example(
+  example : String,
+  render_budget : @bunnia.RenderBudget,
+) -> @bunnia.WechatProject {
   if example == "wenyu_overview" {
-    @wenyu.demo_wechat_project()
+    @wenyu.demo_wechat_project_with_render_budget(render_budget)
   } else if example == "agent_map" {
-    @demo.demo_wechat_project()
+    @demo.demo_wechat_project_with_render_budget(render_budget)
   } else {
     println("unsupported example=\{example}")
     panic()
@@ -360,7 +405,9 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let target = target_from_args(args)
   let example = example_from_args(args)
   let output_dir = output_dir_from_args(args, target, example)
-  let project = project_for_build(target, example)
+  let render_budget = render_budget_from_args(args)
+  let render_budget_profile = render_budget_profile_from_args(args)
+  let project = project_for_build(target, example, render_budget)
   let patches = patches_for_build(target, example)
   let profile = profile_for_build(target, example, project, patches)
   let budget_profile = budget_profile_from_args(args)
@@ -372,8 +419,8 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let strict = strict_from_args(args)
   write_project(output_dir, project)
   print_build_result(
-    command, target, example, budget_profile, output_dir, project, report, patches,
-    profile,
+    command, target, example, budget_profile, render_budget_profile, output_dir,
+    project, report, patches, profile,
   )
   if command == "snapshot" {
     let snapshot = @bunnia.snapshot_wechat_project_with_report(
@@ -383,6 +430,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
       report,
       profile,
       budget_profile~,
+      render_budget_profile~,
     )
     let snapshot_path = snapshot_output_path_from_args(args, target, example)
     write_text_file(snapshot_path, snapshot.content)
@@ -408,6 +456,7 @@ fn print_build_result(
   target : String,
   example : String,
   budget_profile : String,
+  render_budget_profile : String,
   output_dir : String,
   project : @bunnia.WechatProject,
   report : @bunnia.WechatBuildReport,
@@ -418,6 +467,7 @@ fn print_build_result(
   println("target=\{target}")
   println("example=\{example}")
   println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
   println(project.page.plan.summary)
   println(project.summary)
   println(project.manifest.summary)
