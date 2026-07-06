@@ -560,7 +560,7 @@ fn print_inspect_result(
   }
   for page in project.manifest.pages {
     println(
-      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_assets.length()} scene_remote_assets=\{route_remote_scene_asset_count(page)} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
+      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_assets.length()} scene_remote_assets=\{route_remote_scene_asset_count(page)} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
     )
     for asset in page.scene_assets {
       println(

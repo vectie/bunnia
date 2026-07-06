@@ -237,6 +237,11 @@ pub struct RouteInspection {
   update_payload_bytes : Int
   node_count : Int
   event_count : Int
+  backend_event_count : Int
+  backend_stream_count : Int
+  backend_review_count : Int
+  backend_cancel_count : Int
+  backend_retry_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
   scene_region_count : Int

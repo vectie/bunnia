@@ -36,11 +36,62 @@ test "project inspection identifies the heaviest clean route" {
   assert_eq(inspection.max_scene_remote_asset_count, 0)
   assert_eq(inspection.routes[1].diagnostics, 0)
   assert_eq(inspection.routes[1].scene_remote_asset_count, 0)
+  assert_eq(inspection.routes[1].backend_event_count, 0)
+  assert_eq(inspection.routes[1].backend_cancel_count, 0)
+  assert_eq(inspection.routes[1].backend_retry_count, 0)
   assert_true(inspection.routes[1].risk_score > inspection.routes[0].risk_score)
   assert_true(inspection.summary.contains("top_route=pages/ops/index"))
   assert_true(inspection.summary.contains("max_scene_assets=0"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=0"))
   assert_true(inspection.routes[1].summary.contains("risk_score="))
+  assert_true(inspection.routes[1].summary.contains("backend_cancels=0"))
+}
+
+///|
+test "project inspection reports backend recovery pressure" {
+  let page = @wechat.project_page(
+    name="Agent Ops",
+    route="pages/agent/index",
+    root=@core.page([
+      @core.button("Cancel", "cancel-agent"),
+      @core.button("Retry", "retry-agent"),
+    ]),
+    runtime=@wechat.runtime(event_patches=[
+      @wechat.event_patch("cancel-agent", [
+        @core.set_string("backend.cancel-agent.state", "loading"),
+      ]),
+      @wechat.event_patch("retry-agent", [
+        @core.set_string("backend.retry-agent.state", "loading"),
+      ]),
+    ]),
+  )
+  let contract = @effects.backend_contract(id="agent-ops", endpoints=[
+    @effects.agent_cancel_endpoint(
+      "cancel-agent", "/agent/cancel", "runCancel", "cancelResult",
+    ),
+    @effects.agent_retry_endpoint(
+      "retry-agent", "/agent/retry", "runRetry", "retryResult",
+    ),
+  ])
+  let project = @wechat.generate_project_from_pages_with_backend(
+    name="Inspection Backend Ops",
+    pages=[page],
+    backend_contract=contract,
+  )
+  let inspection = inspect_wechat_project(
+    target="wechat",
+    example="inspection_backend_ops",
+    project,
+    project.report,
+  )
+  assert_eq(inspection.routes[0].backend_event_count, 2)
+  assert_eq(inspection.routes[0].backend_stream_count, 0)
+  assert_eq(inspection.routes[0].backend_review_count, 0)
+  assert_eq(inspection.routes[0].backend_cancel_count, 1)
+  assert_eq(inspection.routes[0].backend_retry_count, 1)
+  assert_true(inspection.routes[0].summary.contains("backend_events=2"))
+  assert_true(inspection.routes[0].summary.contains("backend_cancels=1"))
+  assert_true(inspection.routes[0].summary.contains("backend_retries=1"))
 }
 
 ///|

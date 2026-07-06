@@ -7,6 +7,11 @@ pub struct RouteInspection {
   update_payload_bytes : Int
   node_count : Int
   event_count : Int
+  backend_event_count : Int
+  backend_stream_count : Int
+  backend_review_count : Int
+  backend_cancel_count : Int
+  backend_retry_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int
   scene_region_count : Int
@@ -176,6 +181,11 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     update_payload_bytes: page.update_payload_bytes,
     node_count: page.node_count,
     event_count: page.event_count,
+    backend_event_count: page.backend_event_count,
+    backend_stream_count: page.backend_stream_count,
+    backend_review_count: page.backend_review_count,
+    backend_cancel_count: page.backend_cancel_count,
+    backend_retry_count: page.backend_retry_count,
     scene_marker_count: page.scene_marker_count,
     scene_visible_marker_count: page.scene_visible_marker_count,
     scene_region_count: page.scene_region_count,
@@ -183,7 +193,7 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     scene_asset_count: scene_assets,
     scene_remote_asset_count: remote_assets,
     risk_score: score,
-    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} nodes=\{page.node_count} events=\{page.event_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets}",
+    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} nodes=\{page.node_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets}",
   }
 }
 

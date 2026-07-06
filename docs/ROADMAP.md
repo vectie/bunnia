@@ -816,6 +816,9 @@ Current evidence:
 - Generator snapshots carry the same highest-risk route and per-route
   inspection lines as the `inspect` command, so route-risk changes become
   reviewable CI artifacts without committing full generated output.
+- Route inspection and generator snapshots print backend event, stream, review,
+  cancel, and retry counts, so agentic recovery pressure is reviewable without
+  opening generated manifest JSON.
 - Generator snapshots also carry inspection gate summaries and diagnostics, so
   strict route-pressure failures are reviewable from the deterministic snapshot
   artifact.
