@@ -415,6 +415,9 @@ Current evidence:
   instead of product-specific.
 - Backend-aware pages only embed endpoint ids reachable from that route's
   rendered events, avoiding full-contract duplication in every page JS file.
+- Backend-aware projects leave routes with no matching endpoint events on the
+  lightweight non-backend page JS path, even while packaging the shared backend
+  adapter for other routes.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -565,6 +568,8 @@ Current evidence:
   local patches, preserving replay/loading state without full-page rerenders.
 - Per-page request dispatch maps are filtered by reachable event messages, so
   multi-page agentic apps do not copy unrelated endpoint ids into each route.
+- First-screen byte estimates include the backend adapter only for routes whose
+  generated page JS actually requires it.
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.

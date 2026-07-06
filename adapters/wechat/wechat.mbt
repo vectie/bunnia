@@ -280,23 +280,41 @@ fn project_page_with_backend_js(
   item : WechatProjectPage,
   contract : @effects.BackendContract,
 ) -> WechatProjectPage {
+  let js = if backend_has_reachable_event(contract, item.page.plan) {
+    project_page_js_with_backend(
+      item.name,
+      item.route,
+      item.page.plan,
+      contract,
+    )
+  } else {
+    project_page_js(item.name, item.route, item.page.plan)
+  }
   {
     name: item.name,
     route: item.route,
     page: {
       wxml: item.page.wxml,
       wxss: item.page.wxss,
-      js: project_page_js_with_backend(
-        item.name,
-        item.route,
-        item.page.plan,
-        contract,
-      ),
+      js,
       json: item.page.json,
       plan: item.page.plan,
     },
     runtime: item.runtime,
   }
+}
+
+///|
+fn backend_has_reachable_event(
+  contract : @effects.BackendContract,
+  plan : @core.RenderPlan,
+) -> Bool {
+  for endpoint in contract.endpoints {
+    if plan.event_messages.contains(endpoint.id) {
+      return true
+    }
+  }
+  false
 }
 
 ///|

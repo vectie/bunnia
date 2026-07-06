@@ -288,21 +288,32 @@ fn page_first_screen_bytes(
   files : Array[WechatFile],
 ) -> Int {
   route_file_bytes(page.route, files) +
-  shared_first_screen_bytes(files) +
+  shared_first_screen_bytes(page.route, files) +
   page.runtime.initial_data_json.length()
 }
 
 ///|
-fn shared_first_screen_bytes(files : Array[WechatFile]) -> Int {
+fn shared_first_screen_bytes(route : String, files : Array[WechatFile]) -> Int {
   let mut total = 0
   for file in files {
-    if file.path == "app.wxss" ||
-      file.path == "bunnia.runtime.js" ||
-      file.path == "bunnia.backend.js" {
+    if file.path == "app.wxss" || file.path == "bunnia.runtime.js" {
+      total += file.content.length()
+    } else if file.path == "bunnia.backend.js" &&
+      route_requires_backend(route, files) {
       total += file.content.length()
     }
   }
   total
+}
+
+///|
+fn route_requires_backend(route : String, files : Array[WechatFile]) -> Bool {
+  for file in files {
+    if file.path == "\{route}.js" && file.content.contains("bunnia.backend.js") {
+      return true
+    }
+  }
+  false
 }
 
 ///|

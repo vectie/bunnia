@@ -141,7 +141,9 @@ Projects generated with a backend contract also include `bunnia.backend.js`, a
 contract-derived `wx.request` adapter that keeps base URLs in page data and
 does not generate app secrets. Backend-aware pages call that adapter when a
 handled event message matches a backend endpoint id, and each page only carries
-the endpoint ids reachable from its own rendered events.
+the endpoint ids reachable from its own rendered events. Pages with no matching
+endpoint events keep the normal lightweight page runtime even inside a
+backend-aware project.
 
 For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report

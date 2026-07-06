@@ -151,6 +151,45 @@ test "wechat projects can package backend request adapter" {
 }
 
 ///|
+test "backend-aware projects keep local-only routes backend-free" {
+  let local_page = project_page(
+    name="Local",
+    route="pages/local/index",
+    root=@core.page([@core.button("Local", "local-only")]),
+    runtime=runtime(event_patches=[
+      event_patch("local-only", [@core.set_string("state.local", "yes")]),
+    ]),
+  )
+  let backend_page = project_page(
+    name="Backend",
+    route="pages/backend/index",
+    root=@core.page([@core.button("Send", "send-message")]),
+    runtime=runtime(event_patches=[
+      event_patch("send-message", [
+        @core.set_string("backend.send-message.state", "loading"),
+      ]),
+    ]),
+  )
+  let project = generate_project_from_pages_with_backend(
+    name="Mixed Backend",
+    pages=[local_page, backend_page],
+    backend_contract=test_backend_contract(),
+  )
+  let local_js = file_content(project.files, "pages/local/index.js")
+  let backend_js = file_content(project.files, "pages/backend/index.js")
+  assert_true(has_file(project.files, "bunnia.backend.js"))
+  assert_true(!local_js.contains("bunnia.backend.js"))
+  assert_true(!local_js.contains("__bunniaBackendEvents"))
+  assert_true(backend_js.contains("bunnia.backend.js"))
+  assert_true(backend_js.contains("\"send-message\":\"send-message\""))
+  assert_true(!backend_js.contains("\"load-status\""))
+  assert_true(
+    project.manifest.pages[0].first_screen_bytes <
+    project.manifest.pages[1].first_screen_bytes,
+  )
+}
+
+///|
 test "wechat build reports missing and orphan event patches" {
   let project = generate_project_with_runtime(
     name="Runtime Coverage",
