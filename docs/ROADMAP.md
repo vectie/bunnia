@@ -1015,7 +1015,10 @@ Current evidence:
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while
   Alipay/TikTok remain inspectable as deferred targets and fail before starter
-  WeChat artifacts are written. The local `moon.work` includes the starter app
+  WeChat artifacts are written. Starter inspect output carries the same
+  repeated-list route pressure fields as the root inspection path, so generated
+  standalone projects keep list-windowing and key-stability regressions visible.
+  The local `moon.work` includes the starter app
   plus the Bunnia checkout for development before registry publication.
 
 ## Phase 8: Production Readiness

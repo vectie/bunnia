@@ -287,6 +287,36 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "max_unwindowed_list_children=\\{inspection.max_unwindowed_list_child_count}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "max_unkeyed_list_children=\\{inspection.max_unkeyed_list_child_count}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "max_duplicate_list_keys=\\{inspection.max_duplicate_list_key_count}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "unwindowed_list_children=\\{page.unwindowed_list_child_count}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "unkeyed_list_children=\\{page.unkeyed_list_child_count}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "duplicate_list_keys=\\{page.duplicate_list_key_count}",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("inspection_gate"),
   )
   assert_true(
