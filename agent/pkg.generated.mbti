@@ -61,6 +61,8 @@ pub fn set_review_state_delta(String, ReviewState) -> AgentDelta
 
 pub fn set_run_status_delta(String, RunStatus) -> AgentDelta
 
+pub fn set_stream_chunk_delta(String, String, String, status? : RunStatus) -> AgentDelta
+
 pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_ref? : String, status? : RunStatus) -> Thread
 
 pub fn thread_card(Thread) -> @core.Node
@@ -97,6 +99,7 @@ pub(all) enum AgentDeltaKind {
   AppendMessage
   AppendCommunication
   AppendStreamChunk
+  SetStreamChunk
   SetRunStatus
   SetReviewState
 } derive(Eq, @debug.Debug)
@@ -104,6 +107,7 @@ pub(all) enum AgentDeltaKind {
 pub struct AgentDeltaPlan {
   deltas : Array[AgentDelta]
   patch_plan : @core.PatchPlan
+  duplicate_stream_chunk_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

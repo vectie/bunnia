@@ -508,6 +508,9 @@ Current evidence:
   results to bounded patch arrays.
 - Chat, communication trace, streaming chunk, review, and run-status updates can
   be represented as typed agent deltas that reuse patch budgets.
+- In-flight streaming chunks can be updated through `SetStreamChunk` deltas, and
+  agent delta plans flag duplicate appended stream chunks before feeds grow
+  accidentally.
 - Generic snapshot deltas can set sections, append stable-id items, remove
   sections, or explicitly flag full-snapshot replacement while reusing patch
   budgets.

@@ -983,6 +983,16 @@ pub fn append_stream_chunk_delta(
 }
 
 ///|
+pub fn set_stream_chunk_delta(
+  target_path : String,
+  chunk_id : String,
+  text : String,
+  status? : RunStatus = @agent.Running,
+) -> AgentDelta {
+  @agent.set_stream_chunk_delta(target_path, chunk_id, text, status~)
+}
+
+///|
 pub fn set_run_status_delta(
   target_path : String,
   status : RunStatus,

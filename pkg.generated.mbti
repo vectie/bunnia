@@ -454,6 +454,8 @@ pub fn set_scene_thread_unread(String, String, Int) -> @core.Patch
 
 pub fn set_snapshot_section_delta(String, String, String) -> @effects.SnapshotDelta
 
+pub fn set_stream_chunk_delta(String, String, String, status? : @agent.RunStatus) -> @agent.AgentDelta
+
 pub fn set_string(String, String) -> @core.Patch
 
 pub fn share(String, String) -> @effects.Effect

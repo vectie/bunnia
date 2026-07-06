@@ -121,6 +121,10 @@ bounded while preserving scale diagnostics.
 For long agent conversations, use `@bunnia.windowed_message_feed(...)` and
 `@bunnia.windowed_communication_trace(...)` so chat rows and action traces keep
 the same visible/total diagnostics as other large surfaces.
+For streaming output, append completed chunks with
+`@bunnia.append_stream_chunk_delta(...)` and update the current in-flight chunk
+with `@bunnia.set_stream_chunk_delta(...)`; agent delta plans flag duplicate
+appended stream chunks.
 
 Render plans also report `unkeyed_list_children` and
 `duplicate_list_keys`. Keep repeated rows uniquely keyed so large lists, feeds,

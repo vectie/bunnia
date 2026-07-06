@@ -1053,16 +1053,21 @@ test "agent deltas lower chat and review updates to small patch plans" {
     @bunnia.append_stream_chunk_delta(
       "streams.run-a.chunks", "chunk-1", "partial",
     ),
+    @bunnia.set_stream_chunk_delta(
+      "streams.run-a.chunksById", "chunk-1", "latest",
+    ),
     @bunnia.set_review_state_delta(
       "reviews.route.state",
       @bunnia.review_approved(),
     ),
   ]
   let plan = @bunnia.plan_agent_deltas(deltas)
-  assert_eq(plan.deltas.length(), 3)
-  assert_eq(plan.patch_plan.patches.length(), 3)
-  assert_true(plan.summary.contains("deltas=3"))
+  assert_eq(plan.deltas.length(), 4)
+  assert_eq(plan.patch_plan.patches.length(), 4)
+  assert_eq(plan.duplicate_stream_chunk_count, 0)
+  assert_true(plan.summary.contains("deltas=4"))
   assert_eq(@bunnia.agent_delta_kind_id(deltas[1].kind), "append-stream-chunk")
+  assert_eq(@bunnia.agent_delta_kind_id(deltas[2].kind), "set-stream-chunk")
   assert_true(
     @bunnia.generate_wechat_set_data_call(plan.patch_plan.patches).contains(
       "{kind:\"set\",path:\"reviews.route.state\",value:\"approved\"}",

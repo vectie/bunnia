@@ -3,6 +3,7 @@ pub(all) enum AgentDeltaKind {
   AppendMessage
   AppendCommunication
   AppendStreamChunk
+  SetStreamChunk
   SetRunStatus
   SetReviewState
 } derive(Debug, Eq)
@@ -19,6 +20,7 @@ pub struct AgentDelta {
 pub struct AgentDeltaPlan {
   deltas : Array[AgentDelta]
   patch_plan : @core.PatchPlan
+  duplicate_stream_chunk_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -58,9 +60,26 @@ pub fn append_stream_chunk_delta(
     kind=AppendStreamChunk,
     target_path~,
     patches=[
-      @core.append_json(
-        target_path,
-        "{\"id\":\"\{escape_json(chunk_id)}\",\"text\":\"\{escape_json(text)}\",\"status\":\"\{run_status_id(status)}\"}",
+      @core.append_json(target_path, stream_chunk_json(chunk_id, text, status)),
+    ],
+  )
+}
+
+///|
+pub fn set_stream_chunk_delta(
+  target_path : String,
+  chunk_id : String,
+  text : String,
+  status? : RunStatus = Running,
+) -> AgentDelta {
+  agent_delta(
+    id="set-stream-chunk:\{chunk_id}",
+    kind=SetStreamChunk,
+    target_path~,
+    patches=[
+      @core.set_json(
+        "\{target_path}.\{chunk_id}",
+        stream_chunk_json(chunk_id, text, status),
       ),
     ],
   )
@@ -109,11 +128,22 @@ pub fn plan_agent_deltas_with_budget(
     }
   }
   let patch_plan = @core.plan_patches_with_budget(patches, budget)
+  let duplicate_stream_chunk_count = duplicate_append_stream_chunk_count(deltas)
+  let diagnostics : Array[String] = []
+  for item in patch_plan.diagnostics {
+    diagnostics.push(item)
+  }
+  if duplicate_stream_chunk_count > 0 {
+    diagnostics.push(
+      "agent-stream-chunk-duplicate:\{duplicate_stream_chunk_count}",
+    )
+  }
   {
     deltas,
     patch_plan,
-    diagnostics: patch_plan.diagnostics,
-    summary: "Bunnia agent delta plan: deltas=\{deltas.length()} patches=\{patch_plan.patches.length()} bytes=\{patch_plan.total_estimated_bytes} diagnostics=\{patch_plan.diagnostics.length()}",
+    duplicate_stream_chunk_count,
+    diagnostics,
+    summary: "Bunnia agent delta plan: deltas=\{deltas.length()} patches=\{patch_plan.patches.length()} bytes=\{patch_plan.total_estimated_bytes} duplicate_stream_chunks=\{duplicate_stream_chunk_count} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -123,9 +153,33 @@ pub fn agent_delta_kind_id(kind : AgentDeltaKind) -> String {
     AppendMessage => "append-message"
     AppendCommunication => "append-communication"
     AppendStreamChunk => "append-stream-chunk"
+    SetStreamChunk => "set-stream-chunk"
     SetRunStatus => "set-run-status"
     SetReviewState => "set-review-state"
   }
+}
+
+///|
+fn duplicate_append_stream_chunk_count(deltas : Array[AgentDelta]) -> Int {
+  let mut total = 0
+  for i in 0..<deltas.length() {
+    let current = deltas[i]
+    if current.kind is AppendStreamChunk {
+      let mut seen = false
+      for j in 0..<i {
+        let previous = deltas[j]
+        if previous.kind is AppendStreamChunk &&
+          previous.target_path == current.target_path &&
+          previous.id == current.id {
+          seen = true
+        }
+      }
+      if seen {
+        total += 1
+      }
+    }
+  }
+  total
 }
 
 ///|
@@ -164,6 +218,15 @@ fn communication_json(item : Communication) -> String {
   "\"status\":\"\{run_status_id(item.status)}\"," +
   "\"openMessage\":\"\{escape_json(item.open_message)}\"" +
   "}"
+}
+
+///|
+fn stream_chunk_json(
+  chunk_id : String,
+  text : String,
+  status : RunStatus,
+) -> String {
+  "{\"id\":\"\{escape_json(chunk_id)}\",\"text\":\"\{escape_json(text)}\",\"status\":\"\{run_status_id(status)}\"}"
 }
 
 ///|
