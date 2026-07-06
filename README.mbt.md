@@ -45,6 +45,8 @@ phase-by-phase implementation plan.
 - `effects`: typed frontend effect descriptions for request, navigation,
   cancel, and retry paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
+- `examples/agent_map`: small downstream example combining agentic UI, review
+  controls, patches, and a static map surface.
 - root package: small `@bunnia` facade for app authors.
 
 ```mbt check

@@ -1,6 +1,6 @@
-// import {
-//   "vectie/bunnia" @lib,
-// }
+import {
+  "vectie/bunnia/examples/agent_map" @demo,
+}
 
 options(
   "is-main": true,
