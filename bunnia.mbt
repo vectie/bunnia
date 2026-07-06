@@ -2516,6 +2516,11 @@ pub fn generate_wechat_set_data_call(patches : Array[Patch]) -> String {
 }
 
 ///|
+pub fn generate_wechat_runtime_js() -> String {
+  @wechat.generate_runtime_js()
+}
+
+///|
 pub fn generate_wechat_request_adapter(contract : BackendContract) -> String {
   @wechat.generate_request_adapter(contract)
 }

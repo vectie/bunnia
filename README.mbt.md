@@ -133,6 +133,9 @@ Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
 bytes, generated file sizes, first-screen/update byte estimates, and
 route-scoped render diagnostics.
+Generated projects also include one shared `bunnia.runtime.js` patch runtime, so
+page files keep only page data and event-patch tables instead of duplicating the
+runtime helpers per route.
 
 For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report
@@ -299,8 +302,8 @@ test {
     runtime~,
   )
   let report = @bunnia.report_wechat_project(project, runtime)
-  assert_eq(report.file_count, 8)
-  assert_true(project.manifest.summary.contains("app_files=7"))
+  assert_eq(report.file_count, 9)
+  assert_true(project.manifest.summary.contains("app_files=8"))
   assert_true(report.initial_data_bytes > 0)
   assert_true(report.event_patch_bytes > 0)
 }

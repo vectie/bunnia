@@ -23,7 +23,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.file_count, project.files.length())
   assert_eq(snapshot.total_bytes, project.total_bytes)
   assert_eq(snapshot.diagnostic_count, 0)
-  assert_true(snapshot.summary.contains("files=8"))
+  assert_true(snapshot.summary.contains("files=9"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
@@ -33,6 +33,7 @@ test "generated snapshots record deterministic file pressure" {
     snapshot.content.contains("report_diagnostics:\nprofile_diagnostics:"),
   )
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
+  assert_true(snapshot.content.contains("- bunnia.runtime.js kind=js bytes="))
   assert_true(snapshot.content.contains("pages/snapshot/index.wxml kind=wxml"))
   assert_true(snapshot.content.contains("checksum="))
   assert_true(!snapshot.content.contains("checksum=-"))

@@ -126,7 +126,7 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.unwindowed_list_child_count, 0)
   assert_eq(profile.unkeyed_list_child_count, 0)
   assert_eq(profile.duplicate_list_key_count, 0)
-  assert_eq(profile.file_count, 8)
+  assert_eq(profile.file_count, 9)
   assert_eq(
     profile.max_page_first_screen_bytes,
     project.report.max_page_first_screen_bytes,

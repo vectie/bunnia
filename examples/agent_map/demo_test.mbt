@@ -59,12 +59,25 @@ test "agent map demo generates wechat output" {
 ///|
 test "agent map demo generates a mini-program file set" {
   let project = demo_wechat_project()
-  assert_eq(project.files.length(), 8)
+  assert_eq(project.files.length(), 9)
   assert_eq(project.route, "pages/index/index")
   assert_eq(project.page_count, 1)
-  assert_true(project.manifest.summary.contains("app_files=7"))
+  assert_true(project.manifest.summary.contains("app_files=8"))
+  assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
+  assert_true(project.page.js.contains("__bunniaEventPatches"))
+  assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(project.summary.contains("Bunnia WeChat project"))
   assert_true(project.total_bytes > 1800)
+}
+
+///|
+fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
+  for item in files {
+    if item.path == path {
+      return true
+    }
+  }
+  false
 }
 
 ///|

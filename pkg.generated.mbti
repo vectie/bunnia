@@ -222,6 +222,8 @@ pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, roo
 
 pub fn generate_wechat_request_adapter(@effects.BackendContract) -> String
 
+pub fn generate_wechat_runtime_js() -> String
+
 pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
 pub fn generic_endpoint(String, String, @effects.HttpMethod, payload_key? : String, response_key? : String) -> @effects.BackendEndpoint

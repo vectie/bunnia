@@ -895,26 +895,27 @@ test "wechat project generator emits deterministic mini-program files" {
     root~,
     runtime~,
   )
-  assert_eq(project.files.length(), 8)
+  assert_eq(project.files.length(), 9)
   assert_eq(project.route, "pages/home/home")
   assert_eq(project.page_count, 1)
   assert_eq(project.pages.length(), 1)
-  assert_true(project.summary.contains("files=8"))
+  assert_true(project.summary.contains("files=9"))
   assert_true(project.report.summary.contains("pages=1"))
   assert_true(project.total_bytes > project.page.wxml.length())
-  assert_true(project.manifest.summary.contains("app_files=7"))
+  assert_true(project.manifest.summary.contains("app_files=8"))
   assert_eq(project.manifest.page_count, 1)
-  assert_eq(project.manifest.app_file_count, 7)
+  assert_eq(project.manifest.app_file_count, 8)
   assert_true(project.manifest.app_total_bytes < project.total_bytes)
   assert_true(has_file(project.files, "app.json"))
   assert_true(has_file(project.files, "project.config.json"))
   assert_true(has_file(project.files, "sitemap.json"))
+  assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.manifest.json"))
   assert_true(has_file(project.files, "pages/home/home.wxml"))
   assert_true(has_file(project.files, "pages/home/home.wxss"))
   assert_true(has_file(project.files, "pages/home/home.js"))
   assert_true(has_file(project.files, "pages/home/home.json"))
-  assert_eq(project.report.file_count, 8)
+  assert_eq(project.report.file_count, 9)
   assert_eq(project.report.page_count, 1)
   assert_eq(project.report.missing_event_patch_count, 0)
   assert_eq(project.report.orphan_event_patch_count, 0)
@@ -934,6 +935,16 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"path\":\"pages/home/home.wxml\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/home/home.js").contains(
+      "require('../../bunnia.runtime.js')",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.runtime.js").contains(
+      "module.exports = { __bunniaReadPath, __bunniaApplyPatches }",
     ),
   )
 }
@@ -996,9 +1007,9 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.page_count, 2)
   assert_eq(project.pages.length(), 2)
   assert_eq(project.route, "pages/home/home")
-  assert_eq(project.files.length(), 12)
+  assert_eq(project.files.length(), 13)
   assert_true(project.summary.contains("pages=2"))
-  assert_eq(project.manifest.app_file_count, 11)
+  assert_eq(project.manifest.app_file_count, 12)
   assert_eq(project.manifest.pages.length(), 2)
   assert_eq(project.manifest.pages[0].route, "pages/home/home")
   assert_eq(project.manifest.pages[1].route, "pages/chat/index")
@@ -1129,13 +1140,13 @@ test "wechat build reports catch generated-output budget regressions" {
       max_page_update_payload_bytes=4,
     ),
   )
-  assert_eq(report.file_count, 8)
+  assert_eq(report.file_count, 9)
   assert_eq(report.initial_data_bytes, 13)
   assert_true(report.event_patch_bytes > 4)
   assert_true(report.max_page_first_screen_bytes > 4)
   assert_eq(report.max_page_update_payload_bytes, report.event_patch_bytes)
   assert_eq(report.diagnostics.length(), 9)
-  assert_true(report.diagnostics.contains("wechat-file-count-over-budget:8/1"))
+  assert_true(report.diagnostics.contains("wechat-file-count-over-budget:9/1"))
   assert_true(
     report.diagnostics.contains(
       "wechat-total-bytes-over-budget:\{report.total_bytes}/128",

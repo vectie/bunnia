@@ -402,6 +402,8 @@ Current evidence:
   with route-level node/event counts, runtime data bytes, event-patch bytes,
   first-screen/update byte estimates, windowed-list item counts, route render
   diagnostics, and generated file sizes.
+- WeChat projects now emit a shared `bunnia.runtime.js` patch runtime, so
+  route JS files require common helpers instead of duplicating them per page.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -705,6 +707,9 @@ Current evidence:
 - Build output includes a deterministic generated-file manifest, so route and
   first-screen/update pressure can be inspected before opening the target
   mini-app IDE.
+- Generated project output splits shared patch-runtime helpers into one
+  app-level file, keeping multi-page route JS focused on page state and
+  event-patch tables.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,

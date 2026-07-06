@@ -111,6 +111,23 @@ pub fn generate_page_with_runtime(
 }
 
 ///|
+fn generate_project_page_with_runtime(
+  name : String,
+  route : String,
+  root : @core.Node,
+  runtime : WechatRuntime,
+) -> WechatPage {
+  let plan = @core.plan(root, @core.Wechat)
+  {
+    wxml: render_node(root, @core.adapter(@core.Wechat)),
+    wxss: default_wxss(),
+    js: project_page_js(name, route, plan, runtime),
+    json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
+    plan,
+  }
+}
+
+///|
 pub fn generate_project(
   name~ : String,
   route? : String = "pages/index/index",
@@ -141,7 +158,7 @@ pub fn project_page(
   {
     name,
     route,
-    page: generate_page_with_runtime(name, root, runtime),
+    page: generate_project_page_with_runtime(name, route, root, runtime),
     runtime,
   }
 }
@@ -159,6 +176,7 @@ pub fn generate_project_from_pages(
     wechat_file("app.json", app_json(pages)),
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
+    wechat_file("bunnia.runtime.js", runtime_js()),
   ]
   for item in pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
@@ -208,6 +226,11 @@ pub fn event_patch(
 ///|
 pub fn generate_set_data_call(patches : Array[@core.Patch]) -> String {
   "__bunniaApplyPatches(this, \{patches_to_operations(patches)})"
+}
+
+///|
+pub fn generate_runtime_js() -> String {
+  runtime_js()
 }
 
 ///|
@@ -660,6 +683,33 @@ fn page_js(
 ) -> String {
   "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
   "\n" +
+  runtime_helpers_js() +
+  "\n" +
+  page_definition_js(name, plan, runtime)
+}
+
+///|
+fn project_page_js(
+  name : String,
+  route : String,
+  plan : @core.RenderPlan,
+  runtime : WechatRuntime,
+) -> String {
+  "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
+  "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "\n" +
+  page_definition_js(name, plan, runtime)
+}
+
+///|
+fn runtime_js() -> String {
+  runtime_helpers_js() +
+  "\n" +
+  "module.exports = { __bunniaReadPath, __bunniaApplyPatches }\n"
+}
+
+///|
+fn runtime_helpers_js() -> String {
   "function __bunniaReadPath(root, path) {\n" +
   "  return String(path).split('.').reduce((value, part) => value == null ? undefined : value[part], root)\n" +
   "}\n" +
@@ -677,8 +727,15 @@ fn page_js(
   "    }\n" +
   "  })\n" +
   "  page.setData(update)\n" +
-  "}\n" +
-  "\n" +
+  "}\n"
+}
+
+///|
+fn page_definition_js(
+  name : String,
+  plan : @core.RenderPlan,
+  runtime : WechatRuntime,
+) -> String {
   "Page({\n" +
   "  data: {\n" +
   "    __bunnia: {\n" +
@@ -700,6 +757,32 @@ fn page_js(
   "    ])\n" +
   "  }\n" +
   "})"
+}
+
+///|
+fn runtime_require_path(route : String) -> String {
+  let depth = route_slash_count(route)
+  if depth == 0 {
+    "./bunnia.runtime.js"
+  } else {
+    let out = StringBuilder::new()
+    for _ in 0..<depth {
+      out.write_string("../")
+    }
+    out.write_string("bunnia.runtime.js")
+    out.to_string()
+  }
+}
+
+///|
+fn route_slash_count(route : String) -> Int {
+  let mut count = 0
+  for i in 0..<route.length() {
+    if route[i] == '/' {
+      count += 1
+    }
+  }
+  count
 }
 
 ///|

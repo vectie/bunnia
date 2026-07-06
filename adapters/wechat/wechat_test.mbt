@@ -52,6 +52,27 @@ test "wechat runtime preserves patch operation kinds" {
 }
 
 ///|
+test "wechat projects share generated patch runtime" {
+  let project = generate_project_with_runtime(
+    name="Runtime Split",
+    route="pages/runtime/index",
+    root=@core.page([@core.button("Open", "open")]),
+    runtime=runtime(event_patches=[
+      event_patch("open", [@core.set_string("state.open", "yes")]),
+    ]),
+  )
+  assert_true(has_file(project.files, "bunnia.runtime.js"))
+  assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
+  assert_true(project.page.js.contains("const __bunniaEventPatches"))
+  assert_true(!project.page.js.contains("function __bunniaReadPath"))
+  assert_true(
+    file_content(project.files, "bunnia.runtime.js").contains(
+      "module.exports = { __bunniaReadPath, __bunniaApplyPatches }",
+    ),
+  )
+}
+
+///|
 test "wechat build reports missing and orphan event patches" {
   let project = generate_project_with_runtime(
     name="Runtime Coverage",
@@ -78,4 +99,24 @@ test "wechat build reports missing and orphan event patches" {
   )
   assert_true(project.report.summary.contains("missing_event_patches=1"))
   assert_true(project.report.summary.contains("orphan_event_patches=1"))
+}
+
+///|
+fn has_file(files : Array[WechatFile], path : String) -> Bool {
+  for item in files {
+    if item.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn file_content(files : Array[WechatFile], path : String) -> String {
+  for item in files {
+    if item.path == path {
+      return item.content
+    }
+  }
+  ""
 }

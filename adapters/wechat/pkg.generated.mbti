@@ -28,6 +28,8 @@ pub fn generate_project_with_runtime(name~ : String, route? : String, root~ : @c
 
 pub fn generate_request_adapter(@effects.BackendContract) -> String
 
+pub fn generate_runtime_js() -> String
+
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
 pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime) -> WechatProjectPage
