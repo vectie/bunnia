@@ -255,7 +255,9 @@ size, marker status, tap targets, asset references, unresolved assets, and
 degraded output.
 Use `@bunnia.plan_scene_assets_with_budget(...)` to identify bundled scene
 assets that should be deferred or moved remote when package-byte budgets are
-tight; build profiles report deferred asset counts.
+tight. Use `@bunnia.plan_scene_assets_with_budget_and_policy(...)` when remote
+assets must stay on approved domains; build profiles report remote,
+unapproved-remote, insecure-remote, and deferred asset counts.
 Markers carry stable `data-hit-width` and `data-hit-height` attributes, and
 visual quality plans flag tappable markers with hit targets below the configured
 minimum so map interactions stay usable on mobile.
@@ -300,6 +302,26 @@ test {
   ])
   let plan = @bunnia.plan(page, @bunnia.wechat())
   assert_eq(plan.node_count, 5)
+}
+```
+
+```mbt check
+///|
+test {
+  let plan = @bunnia.plan_scene_assets_with_budget_and_policy(
+    [
+      @bunnia.remote_image_asset(
+        "remote-ok", "https://cdn.example.test/tile.png",
+      ),
+      @bunnia.remote_image_asset(
+        "remote-bad", "https://assets.example.test/tile.png",
+      ),
+    ],
+    @bunnia.default_scene_asset_budget(),
+    @bunnia.scene_asset_policy(approved_remote_domains=["cdn.example.test"]),
+  )
+  assert_eq(plan.remote_assets, 2)
+  assert_eq(plan.unapproved_remote_asset_count, 1)
 }
 ```
 

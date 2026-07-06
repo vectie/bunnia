@@ -11,6 +11,8 @@ pub fn append_scene_thread_link(String, SceneThreadLink) -> @core.Patch
 
 pub fn default_scene_asset_budget() -> SceneAssetBudget
 
+pub fn default_scene_asset_policy() -> SceneAssetPolicy
+
 pub fn default_scene_camera_budget() -> SceneCameraBudget
 
 pub fn default_scene_render_budget() -> SceneRenderBudget
@@ -28,6 +30,8 @@ pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : Strin
 pub fn plan_scene_assets(Array[SceneAsset]) -> SceneAssetPlan
 
 pub fn plan_scene_assets_with_budget(Array[SceneAsset], SceneAssetBudget) -> SceneAssetPlan
+
+pub fn plan_scene_assets_with_budget_and_policy(Array[SceneAsset], SceneAssetBudget, SceneAssetPolicy) -> SceneAssetPlan
 
 pub fn plan_scene_camera(Scene, SceneCamera) -> SceneCameraPlan
 
@@ -62,6 +66,8 @@ pub fn scene_asset(id~ : String, kind~ : SceneAssetKind, src~ : String, estimate
 pub fn scene_asset_budget(max_assets~ : Int, max_package_bytes~ : Int, max_remote_assets~ : Int) -> SceneAssetBudget
 
 pub fn scene_asset_kind_id(SceneAssetKind) -> String
+
+pub fn scene_asset_policy(approved_remote_domains~ : Array[String], require_https? : Bool) -> SceneAssetPolicy
 
 pub fn scene_camera(scene_id~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, zoom_percent? : Int) -> SceneCamera
 
@@ -164,10 +170,18 @@ pub struct SceneAssetPlan {
   assets : Array[SceneAsset]
   package_bytes : Int
   remote_assets : Int
+  insecure_remote_asset_count : Int
+  unapproved_remote_asset_count : Int
+  unapproved_remote_asset_ids : Array[String]
   deferred_asset_count : Int
   deferred_asset_ids : Array[String]
   diagnostics : Array[String]
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct SceneAssetPolicy {
+  approved_remote_domains : Array[String]
+  require_https : Bool
 } derive(Eq, @debug.Debug)
 
 pub struct SceneCamera {

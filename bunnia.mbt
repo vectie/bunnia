@@ -122,6 +122,9 @@ pub type SceneAsset = @scene.SceneAsset
 pub type SceneAssetBudget = @scene.SceneAssetBudget
 
 ///|
+pub type SceneAssetPolicy = @scene.SceneAssetPolicy
+
+///|
 pub type SceneAssetPlan = @scene.SceneAssetPlan
 
 ///|
@@ -1419,6 +1422,19 @@ pub fn default_scene_asset_budget() -> SceneAssetBudget {
 }
 
 ///|
+pub fn scene_asset_policy(
+  approved_remote_domains~ : Array[String],
+  require_https? : Bool = true,
+) -> SceneAssetPolicy {
+  @scene.scene_asset_policy(approved_remote_domains~, require_https~)
+}
+
+///|
+pub fn default_scene_asset_policy() -> SceneAssetPolicy {
+  @scene.default_scene_asset_policy()
+}
+
+///|
 pub fn plan_scene_assets(assets : Array[SceneAsset]) -> SceneAssetPlan {
   @scene.plan_scene_assets(assets)
 }
@@ -1429,6 +1445,15 @@ pub fn plan_scene_assets_with_budget(
   budget : SceneAssetBudget,
 ) -> SceneAssetPlan {
   @scene.plan_scene_assets_with_budget(assets, budget)
+}
+
+///|
+pub fn plan_scene_assets_with_budget_and_policy(
+  assets : Array[SceneAsset],
+  budget : SceneAssetBudget,
+  policy : SceneAssetPolicy,
+) -> SceneAssetPlan {
+  @scene.plan_scene_assets_with_budget_and_policy(assets, budget, policy)
 }
 
 ///|

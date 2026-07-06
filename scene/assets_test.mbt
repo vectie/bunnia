@@ -41,3 +41,41 @@ test "scene asset plan keeps fitting bundled assets in package" {
   assert_eq(plan.deferred_asset_ids.length(), 0)
   assert_eq(plan.diagnostics.length(), 0)
 }
+
+///|
+test "scene asset policy flags remote assets outside approved domains" {
+  let plan = plan_scene_assets_with_budget_and_policy(
+    [
+      remote_image_asset("approved", "https://cdn.example.test/tile.png"),
+      remote_image_asset("unapproved", "https://assets.example.test/tile.png"),
+      scene_asset(
+        id="insecure",
+        kind=RemoteImage,
+        src="http://cdn.example.test/tile.png",
+        remote=true,
+      ),
+    ],
+    scene_asset_budget(
+      max_assets=4,
+      max_package_bytes=2048,
+      max_remote_assets=4,
+    ),
+    scene_asset_policy(approved_remote_domains=["cdn.example.test"]),
+  )
+  assert_eq(plan.remote_assets, 3)
+  assert_eq(plan.insecure_remote_asset_count, 1)
+  assert_eq(plan.unapproved_remote_asset_count, 1)
+  assert_true(plan.unapproved_remote_asset_ids.contains("unapproved"))
+  assert_true(
+    plan.diagnostics.contains(
+      "scene-remote-asset-domain-unapproved:unapproved:assets.example.test",
+    ),
+  )
+  assert_true(
+    plan.diagnostics.contains("scene-remote-asset-not-https:insecure"),
+  )
+  assert_true(plan.diagnostics.contains("scene-insecure-remote-assets:1"))
+  assert_true(plan.diagnostics.contains("scene-unapproved-remote-assets:1"))
+  assert_true(plan.summary.contains("remote=3"))
+  assert_true(plan.summary.contains("unapproved_remote=1"))
+}

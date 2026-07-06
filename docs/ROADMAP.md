@@ -634,6 +634,9 @@ Current evidence:
 - Scene asset plans identify bundled assets that should be deferred when
   package-byte budgets are exceeded, keeping asset pressure visible before
   generator packaging grows.
+- Scene asset policies can flag remote map assets that are insecure or outside
+  approved domains, so package-splitting decisions remain deployable on
+  mini-app platforms.
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
 - Scene render plans report mode, quality level, layer count, marker count,
@@ -800,8 +803,9 @@ Current evidence:
   windowed surfaces.
 - Build profiles expose scene surface mode counts and fallback counts so
   canvas/static/lightweight map decisions are visible in normal CLI output.
-- Build profiles expose deferred scene asset counts so package-splitting or
-  remote-loading work is driven by measured asset pressure.
+- Build profiles expose remote, insecure-remote, unapproved-remote, and
+  deferred scene asset counts so package-splitting or remote-loading work is
+  driven by measured deployability pressure.
 - Build profiles expose agent-delta counts and duplicate streaming chunk
   diagnostics so large agentic feeds are measured during normal builds.
 - Build profiles expose communication visible/total counts, unresolved review

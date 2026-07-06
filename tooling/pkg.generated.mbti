@@ -77,6 +77,9 @@ pub struct BuildProfile {
   scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
+  scene_remote_asset_count : Int
+  scene_insecure_remote_asset_count : Int
+  scene_unapproved_remote_asset_count : Int
   scene_deferred_asset_count : Int
   scene_thread_link_count : Int
   scene_thread_visible_link_count : Int

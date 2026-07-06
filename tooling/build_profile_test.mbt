@@ -215,6 +215,9 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
+  assert_eq(profile.scene_remote_asset_count, 0)
+  assert_eq(profile.scene_insecure_remote_asset_count, 0)
+  assert_eq(profile.scene_unapproved_remote_asset_count, 0)
   assert_eq(profile.scene_deferred_asset_count, 0)
   assert_eq(profile.scene_thread_link_count, 1)
   assert_eq(profile.scene_thread_visible_link_count, 1)
@@ -272,6 +275,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("snapshot_appends=1"))
   assert_true(profile.summary.contains("snapshot_full_replaces=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
+  assert_true(profile.summary.contains("scene_remote_assets=0"))
+  assert_true(profile.summary.contains("scene_unapproved_remote_assets=0"))
   assert_true(profile.summary.contains("scene_deferred_assets=0"))
   assert_true(profile.summary.contains("scene_threads=1/1"))
   assert_true(profile.summary.contains("scene_thread_unread=2"))
@@ -310,13 +315,19 @@ test "build profile prefixes diagnostics by budget source" {
       max_review_required=0,
     ),
   )
-  let assets = @scene.plan_scene_assets_with_budget(
-    [@scene.sprite_asset("pin", "/assets/pin.png", 2048)],
+  let assets = @scene.plan_scene_assets_with_budget_and_policy(
+    [
+      @scene.sprite_asset("pin", "/assets/pin.png", 2048),
+      @scene.remote_image_asset(
+        "remote", "https://assets.example.test/tile.png",
+      ),
+    ],
     @scene.scene_asset_budget(
       max_assets=0,
       max_package_bytes=1,
       max_remote_assets=0,
     ),
+    @scene.scene_asset_policy(approved_remote_domains=["cdn.example.test"]),
   )
   let scene = @scene.plan_scene_render_with_budget(
     @scene.scene("map", @scene.scene_size(320, 240), [
@@ -647,6 +658,21 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_true(
     profile.diagnostics.contains(
+      "scene-assets:scene-remote-assets-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-assets:scene-remote-asset-domain-unapproved:remote:assets.example.test",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-assets:scene-unapproved-remote-assets:1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
       "scene-render:scene-marker-count-over-budget:2/1",
     ),
   )
@@ -664,6 +690,9 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.scene_canvas_surface_count, 0)
   assert_eq(profile.scene_lightweight_surface_count, 0)
   assert_eq(profile.scene_surface_fallback_count, 1)
+  assert_eq(profile.scene_remote_asset_count, 1)
+  assert_eq(profile.scene_insecure_remote_asset_count, 0)
+  assert_eq(profile.scene_unapproved_remote_asset_count, 1)
   assert_eq(profile.scene_deferred_asset_count, 1)
   assert_true(profile.scene_quality_issue_count > 0)
   assert_eq(profile.degraded_scene_count, 1)
