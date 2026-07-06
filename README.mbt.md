@@ -136,6 +136,17 @@ for quick checks of first-screen bytes, update payloads, scene marker pressure,
 diagnostic counts, file kinds, file bytes, and checksums before opening WeChat
 DevTools.
 
+To inspect component mapping and platform capability limits:
+
+```bash
+moon run cmd/main -- limits --target wechat
+```
+
+`limits` prints the active platform adapter's component mappings, tap-event
+mapping, canvas/cloud/stream capabilities, and whether the target has a
+generator in this phase. Alipay and TikTok can be inspected as deferred targets
+without enabling their generators.
+
 To print the canonical local/CI workflow for the active examples:
 
 ```bash
@@ -143,11 +154,11 @@ moon run cmd/main -- ci-plan
 ```
 
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
-the check, test, interface, format, strict build, and snapshot commands that
-contributors should run before review. Pass `--render-budget` to make render
-pressure stricter or looser than generated file-size gates. Unknown budget
-profile names and unsupported targets are printed as CI-plan diagnostics before
-contributors copy the generated commands.
+the check, test, interface, format, platform-limits, strict build, and snapshot
+commands that contributors should run before review. Pass `--render-budget` to
+make render pressure stricter or looser than generated file-size gates. Unknown
+budget profile names and unsupported targets are printed as CI-plan diagnostics
+before contributors copy the generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
@@ -224,6 +235,20 @@ generator.
 Effect plans can also be checked against a custom `PlatformAdapter`, so
 streaming agent operations fail as explicit diagnostics when a target runtime
 cannot support them.
+Use `@bunnia.platform_limits(...)` or
+`@bunnia.platform_limits_for_adapter(...)` to inspect component mapping,
+tap-event mapping, and target capabilities from the same adapter boundary before
+choosing a generator.
+
+```mbt check
+///|
+test {
+  let limits = @bunnia.platform_limits(target="wechat")
+  assert_eq(limits.generator_available, true)
+  assert_eq(limits.event_mappings[0].platform_event, "bindtap")
+  assert_true(limits.summary.contains("components=9"))
+}
+```
 
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report

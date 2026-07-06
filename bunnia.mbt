@@ -254,6 +254,15 @@ pub type WechatProject = @wechat.WechatProject
 pub type BuildProfile = @tooling.BuildProfile
 
 ///|
+pub type PlatformComponentMapping = @tooling.PlatformComponentMapping
+
+///|
+pub type PlatformEventMapping = @tooling.PlatformEventMapping
+
+///|
+pub type PlatformLimitsReport = @tooling.PlatformLimitsReport
+
+///|
 pub type CiPlanStep = @tooling.CiPlanStep
 
 ///|
@@ -2747,6 +2756,19 @@ pub fn ci_plan(
     examples~,
     snapshot_dir~,
   )
+}
+
+///|
+pub fn platform_limits(target? : String = "wechat") -> PlatformLimitsReport {
+  @tooling.platform_limits(target~)
+}
+
+///|
+pub fn platform_limits_for_adapter(
+  adapter : PlatformAdapter,
+  generator_available? : Bool = false,
+) -> PlatformLimitsReport {
+  @tooling.platform_limits_for_adapter(adapter, generator_available~)
 }
 
 ///|

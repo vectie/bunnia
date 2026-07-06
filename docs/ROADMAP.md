@@ -838,12 +838,15 @@ Current evidence:
   profiles, keeping strict CI artifacts traceable to the gates that produced
   them.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
-  format, strict-build, and generator-snapshot commands with the default tight
-  generated-output and render budgets, so contributors can inspect the workflow
-  without reading shell docs.
+  format, platform-limits, strict-build, and generator-snapshot commands with
+  the default tight generated-output and render budgets, so contributors can
+  inspect the workflow without reading shell docs.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
+- `moon run cmd/main -- limits` prints platform component mapping, tap-event
+  mapping, canvas/cloud/stream capabilities, and generator availability, keeping
+  WeChat target limits visible while Alipay/TikTok generators stay deferred.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running

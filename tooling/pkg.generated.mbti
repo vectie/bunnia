@@ -15,6 +15,10 @@ pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile
 
 pub fn is_named_budget_profile(String) -> Bool
 
+pub fn platform_limits(target? : String) -> PlatformLimitsReport
+
+pub fn platform_limits_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> PlatformLimitsReport
+
 pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], camera_plans? : Array[@scene.SceneCameraPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn render_budget_for_profile(String) -> @core.RenderBudget
@@ -142,6 +146,30 @@ pub struct GeneratedSnapshotFile {
   kind : String
   bytes : Int
   checksum : Int
+} derive(Eq, @debug.Debug)
+
+pub struct PlatformComponentMapping {
+  bunnia_kind : String
+  platform_component : String
+} derive(Eq, @debug.Debug)
+
+pub struct PlatformEventMapping {
+  bunnia_event : String
+  platform_event : String
+} derive(Eq, @debug.Debug)
+
+pub struct PlatformLimitsReport {
+  target : String
+  label : String
+  adapter : @core.PlatformAdapter
+  generator_available : Bool
+  component_mappings : Array[PlatformComponentMapping]
+  event_mappings : Array[PlatformEventMapping]
+  supports_canvas : Bool
+  supports_cloud : Bool
+  supports_stream : Bool
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct ScaffoldFile {

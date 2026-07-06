@@ -47,6 +47,13 @@ pub fn ci_plan(
       "diff-clean", "git diff --exit-code", "reject uncommitted interface or formatting changes",
     ),
   )
+  steps.push(
+    ci_step(
+      "limits",
+      "moon run cmd/main -- limits --target \{target}",
+      "inspect platform component mappings and capability limits",
+    ),
+  )
   for example in examples {
     steps.push(
       ci_step(

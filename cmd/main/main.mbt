@@ -13,6 +13,8 @@ fn main {
     println("wrote=\{scaffold_write_file_count(scaffold)} output=\{output_dir}")
   } else if command == "ci-plan" {
     print_ci_plan(ci_plan_from_args(@env.args()))
+  } else if command == "limits" {
+    print_platform_limits(platform_limits_from_args(@env.args()))
   } else {
     run_build_or_watch(command, @env.args())
   }
@@ -51,6 +53,8 @@ fn command_from_args(args : Array[String]) -> String {
       return "snapshot"
     } else if item == "inspect" {
       return "inspect"
+    } else if item == "limits" {
+      return "limits"
     } else if item == "ci-plan" {
       return "ci-plan"
     }
@@ -253,6 +257,13 @@ fn ci_plan_from_args(args : Array[String]) -> @bunnia.CiPlan {
     examples=ci_examples_from_args(args),
     snapshot_dir=ci_snapshot_dir_from_args(args),
   )
+}
+
+///|
+fn platform_limits_from_args(
+  args : Array[String],
+) -> @bunnia.PlatformLimitsReport {
+  @bunnia.platform_limits(target=target_from_args(args))
 }
 
 ///|
@@ -535,6 +546,25 @@ fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   print_diagnostics(plan.diagnostics)
   for step in plan.steps {
     println("step=\{step.name} command=\{step.command}")
+  }
+}
+
+///|
+fn print_platform_limits(report : @bunnia.PlatformLimitsReport) -> Unit {
+  println("command=limits")
+  println("target=\{report.target}")
+  println(report.summary)
+  print_diagnostics(report.diagnostics)
+  println(
+    "capability=canvas:\{report.supports_canvas} cloud:\{report.supports_cloud} stream:\{report.supports_stream} generator:\{report.generator_available}",
+  )
+  for item in report.component_mappings {
+    println(
+      "component=\{item.bunnia_kind} platform_component=\{item.platform_component}",
+    )
+  }
+  for item in report.event_mappings {
+    println("event=\{item.bunnia_event} platform_event=\{item.platform_event}")
   }
 }
 

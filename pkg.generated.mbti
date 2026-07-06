@@ -376,6 +376,10 @@ pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
 
+pub fn platform_limits(target? : String) -> @tooling.PlatformLimitsReport
+
+pub fn platform_limits_for_adapter(@core.PlatformAdapter, generator_available? : Bool) -> @tooling.PlatformLimitsReport
+
 pub fn prefer_canvas_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
@@ -746,6 +750,12 @@ pub using @core {type PatchPlan}
 pub using @core {type Platform}
 
 pub using @core {type PlatformAdapter}
+
+pub using @tooling {type PlatformComponentMapping}
+
+pub using @tooling {type PlatformEventMapping}
+
+pub using @tooling {type PlatformLimitsReport}
 
 pub using @program {type Program}
 

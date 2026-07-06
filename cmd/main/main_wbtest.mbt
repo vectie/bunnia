@@ -180,6 +180,27 @@ test "inspect command exposes generated artifact metrics without output path" {
 }
 
 ///|
+test "limits command exposes platform mappings and deferred targets" {
+  let args = ["node", "main.js", "limits", "--target", "wechat"]
+  let report = platform_limits_from_args(args)
+  assert_eq(command_from_args(args), "limits")
+  assert_eq(report.target, "wechat")
+  assert_eq(report.generator_available, true)
+  assert_eq(report.supports_canvas, true)
+  assert_eq(report.component_mappings.length(), 9)
+  assert_eq(report.event_mappings[0].platform_event, "bindtap")
+  assert_eq(report.diagnostics.length(), 0)
+  let deferred = platform_limits_from_args([
+    "node", "main.js", "limits", "--target", "tiktok",
+  ])
+  assert_eq(deferred.target, "tiktok")
+  assert_eq(deferred.generator_available, false)
+  assert_true(
+    deferred.diagnostics.contains("platform-generator-deferred:tiktok"),
+  )
+}
+
+///|
 test "ci plan command prints active example workflow" {
   let args = ["node", "main.js", "ci-plan"]
   let plan = ci_plan_from_args(args)
@@ -191,7 +212,11 @@ test "ci plan command prints active example workflow" {
   assert_eq(plan.examples.length(), 2)
   assert_eq(plan.examples[0], "agent_map")
   assert_eq(plan.examples[1], "wenyu_overview")
-  assert_eq(plan.step_count, 10)
+  assert_eq(plan.step_count, 11)
+  assert_eq(
+    plan.steps[6].command,
+    "moon run cmd/main -- limits --target wechat",
+  )
   assert_true(plan.summary.contains("snapshot_dir=_build/bunnia/snapshots"))
 }
 
@@ -209,15 +234,15 @@ test "ci plan command accepts target budget example and snapshot dir" {
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.examples.length(), 1)
   assert_eq(plan.snapshot_dir, "/tmp/bunnia-ci")
-  assert_eq(plan.step_count, 8)
-  assert_true(plan.steps[6].command.contains("--budget tight"))
-  assert_true(plan.steps[6].command.contains("--render-budget tiny"))
+  assert_eq(plan.step_count, 9)
+  assert_true(plan.steps[7].command.contains("--budget tight"))
+  assert_true(plan.steps[7].command.contains("--render-budget tiny"))
   assert_true(
-    plan.steps[7].command.contains(
+    plan.steps[8].command.contains(
       "/tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
     ),
   )
-  assert_true(plan.steps[7].command.contains("--render-budget tiny"))
+  assert_true(plan.steps[8].command.contains("--render-budget tiny"))
 }
 
 ///|
