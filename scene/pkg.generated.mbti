@@ -9,6 +9,8 @@ import {
 // Values
 pub fn default_scene_asset_budget() -> SceneAssetBudget
 
+pub fn default_scene_render_budget() -> SceneRenderBudget
+
 pub fn image_asset(String, String, Int) -> SceneAsset
 
 pub fn layer(String, Int, Array[SceneMarker]) -> SceneLayer
@@ -18,6 +20,10 @@ pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : Strin
 pub fn plan_scene_assets(Array[SceneAsset]) -> SceneAssetPlan
 
 pub fn plan_scene_assets_with_budget(Array[SceneAsset], SceneAssetBudget) -> SceneAssetPlan
+
+pub fn plan_scene_render(Scene) -> SceneRenderPlan
+
+pub fn plan_scene_render_with_budget(Scene, SceneRenderBudget) -> SceneRenderPlan
 
 pub fn remote_image_asset(String, String) -> SceneAsset
 
@@ -29,6 +35,14 @@ pub fn scene_asset_budget(max_assets~ : Int, max_package_bytes~ : Int, max_remot
 
 pub fn scene_asset_kind_id(SceneAssetKind) -> String
 
+pub fn scene_marker_count(Scene) -> Int
+
+pub fn scene_quality_id(SceneQualityLevel) -> String
+
+pub fn scene_render_budget(max_layers~ : Int, max_markers~ : Int, max_static_assets~ : Int) -> SceneRenderBudget
+
+pub fn scene_render_mode_id(SceneRenderMode) -> String
+
 pub fn scene_size(Int, Int) -> SceneSize
 
 pub fn select_scene_marker(String, String) -> @core.Patch
@@ -38,6 +52,8 @@ pub fn set_scene_marker_status(String, String, String) -> @core.Patch
 pub fn sprite_asset(String, String, Int) -> SceneAsset
 
 pub fn static_scene_view(Scene) -> @core.Node
+
+pub fn static_scene_view_with_budget(Scene, SceneRenderBudget) -> @core.Node
 
 pub fn tile_asset(String, String, Int) -> SceneAsset
 
@@ -94,6 +110,34 @@ pub struct SceneMarker {
   status : String
   tap_message : String
   asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SceneQualityLevel {
+  FullQuality
+  BalancedQuality
+  LightweightQuality
+} derive(Eq, @debug.Debug)
+
+pub struct SceneRenderBudget {
+  max_layers : Int
+  max_markers : Int
+  max_static_assets : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SceneRenderMode {
+  StaticMarkup
+  CanvasSurface
+  LightweightMarkup
+} derive(Eq, @debug.Debug)
+
+pub struct SceneRenderPlan {
+  mode : SceneRenderMode
+  quality : SceneQualityLevel
+  layer_count : Int
+  marker_count : Int
+  asset_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct SceneSize {

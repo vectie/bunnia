@@ -69,21 +69,50 @@ pub fn scene(
 
 ///|
 pub fn static_scene_view(input : Scene) -> @core.Node {
+  scene_view(input, [])
+}
+
+///|
+pub fn static_scene_view_with_budget(
+  input : Scene,
+  budget : SceneRenderBudget,
+) -> @core.Node {
+  let plan = plan_scene_render_with_budget(input, budget)
+  let rendered = if plan.marker_count > budget.max_markers {
+    limit_scene_markers(input, budget.max_markers)
+  } else {
+    input
+  }
+  scene_view(rendered, [
+    @core.data("scene-mode", scene_render_mode_id(plan.mode)),
+    @core.data("scene-quality", scene_quality_id(plan.quality)),
+    @core.data("markers-total", plan.marker_count.to_string()),
+    @core.data("markers-visible", scene_marker_count(rendered).to_string()),
+    @core.data(
+      "scene-degraded",
+      (plan.marker_count > scene_marker_count(rendered)).to_string(),
+    ),
+  ])
+}
+
+///|
+fn scene_view(input : Scene, extra_attrs : Array[@core.Attr]) -> @core.Node {
   let children : Array[@core.Node] = []
   for item in input.layers {
     children.push(layer_view(item, input.assets))
   }
-  @core.view_with_attrs(
-    [
-      @core.class_name("bunnia-scene"),
-      @core.attr("style", scene_style(input.size)),
-      @core.data("scene-id", input.id),
-      @core.data("scene-width", input.size.width.to_string()),
-      @core.data("scene-height", input.size.height.to_string()),
-      @core.data("scene-assets", input.assets.length().to_string()),
-    ],
-    children,
-  )
+  let attrs = [
+    @core.class_name("bunnia-scene"),
+    @core.attr("style", scene_style(input.size)),
+    @core.data("scene-id", input.id),
+    @core.data("scene-width", input.size.width.to_string()),
+    @core.data("scene-height", input.size.height.to_string()),
+    @core.data("scene-assets", input.assets.length().to_string()),
+  ]
+  for item in extra_attrs {
+    attrs.push(item)
+  }
+  @core.view_with_attrs(attrs, children)
 }
 
 ///|

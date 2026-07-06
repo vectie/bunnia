@@ -509,6 +509,11 @@ Current evidence:
   budget diagnostics.
 - Marker status and selection updates can be represented as small `setData`
   patches without regenerating the whole scene.
+- Scene render plans report mode, quality level, layer count, marker count,
+  asset count, and diagnostics for large map-like surfaces.
+- Budgeted static scene rendering can cap visible markers and mark degraded
+  output with stable data attributes, leaving room for a later canvas surface
+  without forcing product code to change shape.
 
 Acceptance checks:
 

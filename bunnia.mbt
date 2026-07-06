@@ -89,6 +89,18 @@ pub type SceneLayer = @scene.SceneLayer
 pub type Scene = @scene.Scene
 
 ///|
+pub type SceneRenderMode = @scene.SceneRenderMode
+
+///|
+pub type SceneQualityLevel = @scene.SceneQualityLevel
+
+///|
+pub type SceneRenderBudget = @scene.SceneRenderBudget
+
+///|
+pub type SceneRenderPlan = @scene.SceneRenderPlan
+
+///|
 pub type EffectKind = @effects.EffectKind
 
 ///|
@@ -886,6 +898,86 @@ pub fn scene(
 ///|
 pub fn static_scene_view(input : Scene) -> Node {
   @scene.static_scene_view(input)
+}
+
+///|
+pub fn static_scene_view_with_budget(
+  input : Scene,
+  budget : SceneRenderBudget,
+) -> Node {
+  @scene.static_scene_view_with_budget(input, budget)
+}
+
+///|
+pub fn scene_render_budget(
+  max_layers~ : Int,
+  max_markers~ : Int,
+  max_static_assets~ : Int,
+) -> SceneRenderBudget {
+  @scene.scene_render_budget(max_layers~, max_markers~, max_static_assets~)
+}
+
+///|
+pub fn default_scene_render_budget() -> SceneRenderBudget {
+  @scene.default_scene_render_budget()
+}
+
+///|
+pub fn plan_scene_render(input : Scene) -> SceneRenderPlan {
+  @scene.plan_scene_render(input)
+}
+
+///|
+pub fn plan_scene_render_with_budget(
+  input : Scene,
+  budget : SceneRenderBudget,
+) -> SceneRenderPlan {
+  @scene.plan_scene_render_with_budget(input, budget)
+}
+
+///|
+pub fn scene_marker_count(input : Scene) -> Int {
+  @scene.scene_marker_count(input)
+}
+
+///|
+pub fn scene_render_mode_id(mode : SceneRenderMode) -> String {
+  @scene.scene_render_mode_id(mode)
+}
+
+///|
+pub fn scene_quality_id(quality : SceneQualityLevel) -> String {
+  @scene.scene_quality_id(quality)
+}
+
+///|
+pub fn scene_mode_static_markup() -> SceneRenderMode {
+  @scene.StaticMarkup
+}
+
+///|
+pub fn scene_mode_canvas_surface() -> SceneRenderMode {
+  @scene.CanvasSurface
+}
+
+///|
+pub fn scene_mode_lightweight_markup() -> SceneRenderMode {
+  @scene.LightweightMarkup
+}
+
+///|
+pub fn scene_quality_full() -> SceneQualityLevel {
+  @scene.FullQuality
+}
+
+///|
+pub fn scene_quality_balanced() -> SceneQualityLevel {
+  @scene.BalancedQuality
+}
+
+///|
+pub fn scene_quality_lightweight() -> SceneQualityLevel {
+  @scene.LightweightQuality
 }
 
 ///|
