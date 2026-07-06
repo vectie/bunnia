@@ -156,15 +156,17 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].scene_region_count, 2)
   assert_eq(project.manifest.pages[0].scene_visible_region_count, 2)
   assert_eq(project.manifest.pages[0].scene_asset_count, 1)
+  assert_eq(project.manifest.pages[0].scene_package_bytes, 2048)
+  assert_eq(project.manifest.pages[0].scene_remote_asset_count, 0)
   assert_eq(project.manifest.pages[0].degraded_scene_count, 0)
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneRegions\":2,\"sceneVisibleRegions\":2,\"sceneAssets\":1,\"sceneAssetRefs\":[{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
+      "\"scenes\":1,\"sceneMarkers\":2,\"sceneVisibleMarkers\":2,\"sceneRegions\":2,\"sceneVisibleRegions\":2,\"sceneAssets\":1,\"sceneAssetRefs\":[{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false,\"estimatedBytes\":2048}]",
     ),
   )
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"sceneAssets\": [{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false}]",
+      "\"sceneAssets\": [{\"route\":\"pages/index/index\",\"id\":\"zone-pin\",\"kind\":\"sprite\",\"src\":\"/assets/zone-pin.png\",\"remote\":false,\"estimatedBytes\":2048}]",
     ),
   )
   assert_true(project.summary.contains("Bunnia WeChat project"))

@@ -2963,6 +2963,7 @@ pub fn inspection_budget(
   max_backend_retries~ : Int,
   max_scene_assets~ : Int,
   max_scene_remote_assets~ : Int,
+  max_scene_package_bytes~ : Int,
 ) -> ProjectInspectionBudget {
   @tooling.inspection_budget(
     max_route_risk_score~,
@@ -2973,6 +2974,7 @@ pub fn inspection_budget(
     max_backend_retries~,
     max_scene_assets~,
     max_scene_remote_assets~,
+    max_scene_package_bytes~,
   )
 }
 

@@ -84,6 +84,7 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
         max_backend_retries=16,
         max_scene_assets=64,
         max_scene_remote_assets=16,
+        max_scene_package_bytes=1024 * 1024,
       )
     "tight" =>
       inspection_budget(
@@ -95,6 +96,7 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
         max_backend_retries=8,
         max_scene_assets=16,
         max_scene_remote_assets=4,
+        max_scene_package_bytes=256 * 1024,
       )
     "tiny" =>
       inspection_budget(
@@ -106,6 +108,7 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
         max_backend_retries=0,
         max_scene_assets=0,
         max_scene_remote_assets=0,
+        max_scene_package_bytes=0,
       )
     _ => panic()
   }

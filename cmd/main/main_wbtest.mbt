@@ -248,12 +248,14 @@ test "inspect command exposes generated artifact metrics without output path" {
   assert_eq(inspection.max_backend_retry_count, 1)
   assert_eq(inspection.max_scene_asset_count, 1)
   assert_eq(inspection.max_scene_remote_asset_count, 0)
+  assert_eq(inspection.max_scene_package_bytes, 2048)
   assert_true(inspection.summary.contains("risk_score="))
   assert_true(inspection.summary.contains("max_backend_events=3"))
   assert_true(inspection.summary.contains("max_backend_cancels=1"))
   assert_true(inspection.summary.contains("max_backend_retries=1"))
   assert_true(inspection.summary.contains("max_scene_assets=1"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=0"))
+  assert_true(inspection.summary.contains("max_scene_package_bytes=2048"))
   assert_eq(inspection.routes[0].backend_event_count, 3)
   assert_eq(inspection.routes[0].backend_cancel_count, 1)
   assert_eq(inspection.routes[0].backend_retry_count, 1)
@@ -261,8 +263,12 @@ test "inspect command exposes generated artifact metrics without output path" {
   assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
   assert_eq(project.manifest.pages[0].scene_assets.length(), 1)
   assert_eq(project.manifest.pages[0].scene_assets[0].id, "zone-pin")
+  assert_eq(project.manifest.pages[0].scene_assets[0].estimated_bytes, 2048)
+  assert_eq(project.manifest.pages[0].scene_package_bytes, 2048)
   assert_eq(project.manifest.scene_asset_count, 1)
+  assert_eq(project.manifest.scene_package_bytes, 2048)
   assert_true(project.manifest.summary.contains("scene_assets=1"))
+  assert_true(project.manifest.summary.contains("scene_package_bytes=2048"))
 }
 
 ///|

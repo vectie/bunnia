@@ -25,7 +25,7 @@ pub fn gate_project_inspection(ProjectInspection, ProjectInspectionBudget, budge
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> ProjectInspection
 
-pub fn inspection_budget(max_route_risk_score~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> ProjectInspectionBudget
+pub fn inspection_budget(max_route_risk_score~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int, max_scene_package_bytes~ : Int) -> ProjectInspectionBudget
 
 pub fn inspection_budget_for_profile(String) -> ProjectInspectionBudget
 
@@ -171,6 +171,7 @@ pub struct CiPlan {
   inspection_max_backend_retries : Int
   inspection_max_scene_assets : Int
   inspection_max_scene_remote_assets : Int
+  inspection_max_scene_package_bytes : Int
   inspection_gate_summary : String
   profile_max_agent_duplicate_stream_chunks : Int
   profile_max_snapshot_full_replaces : Int
@@ -289,6 +290,7 @@ pub struct ProjectInspection {
   max_scene_region_count : Int
   max_scene_asset_count : Int
   max_scene_remote_asset_count : Int
+  max_scene_package_bytes : Int
   risk_score : Int
   summary : String
 } derive(Eq, @debug.Debug)
@@ -302,6 +304,7 @@ pub struct ProjectInspectionBudget {
   max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
+  max_scene_package_bytes : Int
 } derive(Eq, @debug.Debug)
 
 pub struct ProjectInspectionGate {
@@ -314,6 +317,7 @@ pub struct ProjectInspectionGate {
   max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
+  max_scene_package_bytes : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)
@@ -337,6 +341,7 @@ pub struct RouteInspection {
   scene_visible_region_count : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
+  scene_package_bytes : Int
   risk_score : Int
   summary : String
 } derive(Eq, @debug.Debug)

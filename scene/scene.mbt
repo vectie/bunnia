@@ -355,6 +355,7 @@ fn asset_image(asset : SceneAsset, alt : String) -> @core.Node {
     @core.data("asset-id", asset.id),
     @core.data("asset-kind", scene_asset_kind_id(asset.kind)),
     @core.data("asset-remote", asset.remote.to_string()),
+    @core.data("asset-bytes", asset.estimated_bytes.to_string()),
   ])
 }
 

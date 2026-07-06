@@ -37,6 +37,7 @@ test "project inspection identifies the heaviest clean route" {
   assert_eq(inspection.max_backend_retry_count, 0)
   assert_eq(inspection.max_scene_asset_count, 0)
   assert_eq(inspection.max_scene_remote_asset_count, 0)
+  assert_eq(inspection.max_scene_package_bytes, 0)
   assert_eq(inspection.routes[1].diagnostics, 0)
   assert_eq(inspection.routes[1].scene_remote_asset_count, 0)
   assert_eq(inspection.routes[1].backend_event_count, 0)
@@ -47,6 +48,7 @@ test "project inspection identifies the heaviest clean route" {
   assert_true(inspection.summary.contains("max_backend_cancels=0"))
   assert_true(inspection.summary.contains("max_scene_assets=0"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=0"))
+  assert_true(inspection.summary.contains("max_scene_package_bytes=0"))
   assert_true(inspection.routes[1].summary.contains("risk_score="))
   assert_true(inspection.routes[1].summary.contains("backend_cancels=0"))
 }
@@ -122,6 +124,7 @@ test "project inspection reports backend recovery pressure" {
       max_backend_retries=2,
       max_scene_assets=1,
       max_scene_remote_assets=1,
+      max_scene_package_bytes=1024,
     ),
     budget_profile="agent-relaxed",
   )
@@ -136,6 +139,7 @@ test "project inspection reports backend recovery pressure" {
       max_backend_retries=0,
       max_scene_assets=1,
       max_scene_remote_assets=1,
+      max_scene_package_bytes=1024,
     ),
     budget_profile="agent-tiny",
   )
@@ -241,6 +245,7 @@ test "project inspection reports route scene asset pressure" {
             @core.data("asset-id", "local"),
             @core.data("asset-kind", "sprite"),
             @core.data("asset-remote", "false"),
+            @core.data("asset-bytes", "4096"),
           ]),
         ]),
       ),
@@ -277,14 +282,19 @@ test "project inspection reports route scene asset pressure" {
   assert_eq(inspection.top_route, "pages/remote-assets/index")
   assert_eq(inspection.max_scene_asset_count, 2)
   assert_eq(inspection.max_scene_remote_asset_count, 2)
+  assert_eq(inspection.max_scene_package_bytes, 4096)
   assert_eq(inspection.routes[0].scene_asset_count, 1)
   assert_eq(inspection.routes[0].scene_remote_asset_count, 0)
+  assert_eq(inspection.routes[0].scene_package_bytes, 4096)
   assert_eq(inspection.routes[1].scene_asset_count, 2)
   assert_eq(inspection.routes[1].scene_remote_asset_count, 2)
+  assert_eq(inspection.routes[1].scene_package_bytes, 0)
   assert_true(inspection.routes[1].risk_score > inspection.routes[0].risk_score)
   assert_true(inspection.summary.contains("max_scene_assets=2"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=2"))
+  assert_true(inspection.summary.contains("max_scene_package_bytes=4096"))
   assert_true(inspection.routes[1].summary.contains("scene_remote_assets=2"))
+  assert_true(inspection.routes[0].summary.contains("scene_package_bytes=4096"))
   let relaxed = gate_project_inspection(
     inspection,
     inspection_budget(
@@ -296,6 +306,7 @@ test "project inspection reports route scene asset pressure" {
       max_backend_retries=1,
       max_scene_assets=4,
       max_scene_remote_assets=4,
+      max_scene_package_bytes=8192,
     ),
     budget_profile="relaxed",
   )
@@ -310,6 +321,7 @@ test "project inspection reports route scene asset pressure" {
       max_backend_retries=1,
       max_scene_assets=1,
       max_scene_remote_assets=1,
+      max_scene_package_bytes=1024,
     ),
     budget_profile="tiny",
   )
@@ -326,6 +338,11 @@ test "project inspection reports route scene asset pressure" {
   assert_true(
     strict.diagnostics.contains(
       "inspection-remote-scene-assets-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-scene-package-bytes-over-budget:4096/1024",
     ),
   )
 }

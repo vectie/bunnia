@@ -15,6 +15,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.inspection_max_backend_retries, 8)
   assert_eq(plan.inspection_max_scene_assets, 16)
   assert_eq(plan.inspection_max_scene_remote_assets, 4)
+  assert_eq(plan.inspection_max_scene_package_bytes, 256 * 1024)
   assert_eq(plan.profile_max_agent_duplicate_stream_chunks, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
   assert_eq(plan.profile_max_scene_thread_orphans, 0)
@@ -55,6 +56,9 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.summary.contains("inspection_max_backend_cancels=8"))
   assert_true(plan.summary.contains("inspection_max_backend_retries=8"))
   assert_true(plan.summary.contains("inspection_max_scene_assets=16"))
+  assert_true(
+    plan.summary.contains("inspection_max_scene_package_bytes=262144"),
+  )
   assert_true(plan.summary.contains("profile_max_snapshot_full_replaces=0"))
   assert_true(plan.summary.contains("profile_max_scene_surface_fallbacks=0"))
   assert_true(plan.summary.contains("profile_max_scene_quality_issues=0"))
@@ -94,6 +98,7 @@ test "ci plan can target one example and custom budgets" {
   assert_eq(plan.inspection_max_backend_retries, 0)
   assert_eq(plan.inspection_max_scene_assets, 0)
   assert_eq(plan.inspection_max_scene_remote_assets, 0)
+  assert_eq(plan.inspection_max_scene_package_bytes, 0)
   assert_eq(plan.profile_max_snapshot_full_replaces, 0)
   assert_eq(plan.profile_max_scene_surface_fallbacks, 0)
   assert_true(plan.summary.contains("budget=tiny"))

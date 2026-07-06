@@ -15,6 +15,7 @@ pub struct WechatSceneAsset {
   kind : String
   src : String
   remote : Bool
+  estimated_bytes : Int
 } derive(Debug, Eq)
 
 ///|
@@ -58,6 +59,7 @@ pub struct WechatManifestSceneAsset {
   kind : String
   src : String
   remote : Bool
+  estimated_bytes : Int
 } derive(Debug, Eq)
 
 ///|
@@ -86,6 +88,8 @@ pub struct WechatManifestPage {
   scene_visible_region_count : Int
   scene_asset_count : Int
   scene_assets : Array[WechatManifestSceneAsset]
+  scene_package_bytes : Int
+  scene_remote_asset_count : Int
   degraded_scene_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
@@ -110,6 +114,7 @@ pub struct WechatProjectManifest {
   app_total_bytes : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
+  scene_package_bytes : Int
   diagnostic_route_count : Int
   diagnostic_count : Int
   pages : Array[WechatManifestPage]
@@ -549,6 +554,7 @@ fn project_manifest(
   let manifest_pages = manifest_pages(pages, files, backend_contract)
   let scene_assets = manifest_scene_assets(manifest_pages)
   let scene_remote_asset_count = manifest_remote_scene_asset_count(scene_assets)
+  let scene_package_bytes = manifest_scene_package_bytes(scene_assets)
   let diagnostic_route_count = manifest_diagnostic_route_count(manifest_pages)
   let diagnostic_count = manifest_diagnostic_count(manifest_pages)
   {
@@ -559,12 +565,13 @@ fn project_manifest(
     app_total_bytes: app_total,
     scene_asset_count: scene_assets.length(),
     scene_remote_asset_count,
+    scene_package_bytes,
     diagnostic_route_count,
     diagnostic_count,
     pages: manifest_pages,
     files: manifest_files,
     scene_assets,
-    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} scene_assets=\{scene_assets.length()} scene_remote_assets=\{scene_remote_asset_count} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
+    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} scene_assets=\{scene_assets.length()} scene_package_bytes=\{scene_package_bytes} scene_remote_assets=\{scene_remote_asset_count} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
   }
 }
 
@@ -597,6 +604,7 @@ fn manifest_pages(
       backend_cancels,
       backend_retries,
     ) = page_backend_pressure(item, backend_contract)
+    let scene_assets = page_manifest_scene_assets(item)
     let diagnostics = page_manifest_diagnostics(item)
     output.push({
       name: item.name,
@@ -622,7 +630,9 @@ fn manifest_pages(
       scene_region_count: item.page.plan.scene_region_count,
       scene_visible_region_count: item.page.plan.scene_visible_region_count,
       scene_asset_count: item.page.plan.scene_asset_count,
-      scene_assets: page_manifest_scene_assets(item),
+      scene_assets,
+      scene_package_bytes: manifest_scene_package_bytes(scene_assets),
+      scene_remote_asset_count: manifest_remote_scene_asset_count(scene_assets),
       degraded_scene_count: item.page.plan.degraded_scene_count,
       missing_event_patch_count: page_missing_event_patch_count(item),
       orphan_event_patch_count: page_orphan_event_patch_count(item),
@@ -653,6 +663,7 @@ fn page_manifest_scene_assets(
       kind: item.kind,
       src: item.src,
       remote: item.remote,
+      estimated_bytes: item.estimated_bytes,
     })
   }
   output
@@ -679,6 +690,17 @@ fn manifest_remote_scene_asset_count(
   for item in items {
     if item.remote {
       total += 1
+    }
+  }
+  total
+}
+
+///|
+fn manifest_scene_package_bytes(items : Array[WechatManifestSceneAsset]) -> Int {
+  let mut total = 0
+  for item in items {
+    if !item.remote {
+      total += item.estimated_bytes
     }
   }
   total
@@ -888,6 +910,7 @@ fn manifest_json(input : WechatProjectManifest) -> String {
   "  \"appTotalBytes\": \{input.app_total_bytes},\n" +
   "  \"sceneAssetCount\": \{input.scene_asset_count},\n" +
   "  \"sceneRemoteAssetCount\": \{input.scene_remote_asset_count},\n" +
+  "  \"scenePackageBytes\": \{input.scene_package_bytes},\n" +
   "  \"diagnosticRouteCount\": \{input.diagnostic_route_count},\n" +
   "  \"diagnosticCount\": \{input.diagnostic_count},\n" +
   "  \"pages\": \{manifest_pages_json(input.pages)},\n" +
@@ -937,6 +960,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"sceneVisibleRegions\":\{item.scene_visible_region_count}," +
   "\"sceneAssets\":\{item.scene_asset_count}," +
   "\"sceneAssetRefs\":\{manifest_scene_assets_json(item.scene_assets)}," +
+  "\"scenePackageBytes\":\{item.scene_package_bytes}," +
+  "\"sceneRemoteAssets\":\{item.scene_remote_asset_count}," +
   "\"degradedScenes\":\{item.degraded_scene_count}," +
   "\"missingEventPatches\":\{item.missing_event_patch_count}," +
   "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
@@ -976,7 +1001,8 @@ fn manifest_scene_asset_json(item : WechatManifestSceneAsset) -> String {
   "\"id\":\"\{escape_json(item.id)}\"," +
   "\"kind\":\"\{escape_json(item.kind)}\"," +
   "\"src\":\"\{escape_json(item.src)}\"," +
-  "\"remote\":\{item.remote}" +
+  "\"remote\":\{item.remote}," +
+  "\"estimatedBytes\":\{item.estimated_bytes}" +
   "}"
 }
 
@@ -1125,10 +1151,29 @@ fn collect_scene_assets_into(
       kind: attr_value(root.attrs, "data-asset-kind"),
       src: attr_value(root.attrs, "src"),
       remote: attr_value(root.attrs, "data-asset-remote") == "true",
+      estimated_bytes: attr_int_value(root.attrs, "data-asset-bytes"),
     })
   }
   for child in root.children {
     collect_scene_assets_into(output, child)
+  }
+}
+
+///|
+fn attr_int_value(attrs : Array[@core.Attr], name : String) -> Int {
+  let value = attr_value(attrs, name)
+  if value == "" {
+    0
+  } else {
+    let mut total = 0
+    for i in 0..<value.length() {
+      let code = value[i].to_int()
+      if code < 48 || code > 57 {
+        return 0
+      }
+      total = total * 10 + (code - 48)
+    }
+    total
   }
 }
 

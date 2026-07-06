@@ -700,18 +700,18 @@ fn print_inspect_result(
     "inspect=route=\{snapshot.route} pages=\{snapshot.page_count} files=\{snapshot.file_count} bytes=\{snapshot.total_bytes} max_first_screen=\{snapshot.max_first_screen_bytes} max_update_payload=\{snapshot.max_update_payload_bytes} route_diagnostic_routes=\{snapshot.route_diagnostic_route_count} route_diagnostics=\{snapshot.route_diagnostic_count} diagnostics=\{snapshot.diagnostic_count}",
   )
   println(
-    "risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} routes=\{inspection.route_count} diagnostics=\{inspection.total_diagnostics} max_backend_events=\{inspection.max_backend_event_count} max_backend_streams=\{inspection.max_backend_stream_count} max_backend_reviews=\{inspection.max_backend_review_count} max_backend_cancels=\{inspection.max_backend_cancel_count} max_backend_retries=\{inspection.max_backend_retry_count} max_scene_markers=\{inspection.max_scene_marker_count} max_scene_regions=\{inspection.max_scene_region_count} max_scene_assets=\{inspection.max_scene_asset_count} max_scene_remote_assets=\{inspection.max_scene_remote_asset_count}",
+    "risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} routes=\{inspection.route_count} diagnostics=\{inspection.total_diagnostics} max_backend_events=\{inspection.max_backend_event_count} max_backend_streams=\{inspection.max_backend_stream_count} max_backend_reviews=\{inspection.max_backend_review_count} max_backend_cancels=\{inspection.max_backend_cancel_count} max_backend_retries=\{inspection.max_backend_retry_count} max_scene_markers=\{inspection.max_scene_marker_count} max_scene_regions=\{inspection.max_scene_region_count} max_scene_assets=\{inspection.max_scene_asset_count} max_scene_remote_assets=\{inspection.max_scene_remote_asset_count} max_scene_package_bytes=\{inspection.max_scene_package_bytes}",
   )
   for route in inspection.routes {
     println(route.summary)
   }
   for page in project.manifest.pages {
     println(
-      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_assets.length()} scene_remote_assets=\{route_remote_scene_asset_count(page)} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
+      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_assets.length()} scene_remote_assets=\{page.scene_remote_asset_count} scene_package_bytes=\{page.scene_package_bytes} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
     )
     for asset in page.scene_assets {
       println(
-        "scene_asset=\{asset.route}:\{asset.id} kind=\{asset.kind} src=\{asset.src} remote=\{asset.remote}",
+        "scene_asset=\{asset.route}:\{asset.id} kind=\{asset.kind} src=\{asset.src} remote=\{asset.remote} estimated_bytes=\{asset.estimated_bytes}",
       )
     }
     for item in page.diagnostics {
@@ -723,17 +723,6 @@ fn print_inspect_result(
       "file=\{file.path} kind=\{file.kind} bytes=\{file.bytes} checksum=\{file.checksum}",
     )
   }
-}
-
-///|
-fn route_remote_scene_asset_count(page : @bunnia.WechatManifestPage) -> Int {
-  let mut total = 0
-  for asset in page.scene_assets {
-    if asset.remote {
-      total += 1
-    }
-  }
-  total
 }
 
 ///|

@@ -135,8 +135,9 @@ and per-route inspection lines, so CI diffs can show which page should be
 optimized first and which strict route/profile-pressure gate fired.
 
 The snapshot records route, budget profile, size budgets, profile summary,
-profile-gate summary, per-route risk, route-scoped scene asset references, and per-file
-byte/checksum lines without committing the full generated mini-program.
+profile-gate summary, per-route risk, route-scoped scene asset references,
+estimated scene asset bytes, and per-file byte/checksum lines without
+committing the full generated mini-program.
 
 To inspect route and file pressure without writing generated files:
 
@@ -146,12 +147,13 @@ moon run cmd/main -- inspect --target wechat --example agent_map --budget tight 
 
 `inspect` prints the same render, manifest, report, patch, profile, and
 snapshot summaries as the build path, then adds a project inspection summary,
-the highest-risk route, max scene marker/asset pressure, one route-inspection
-line per generated page, one `route=...` manifest line per generated page,
-route-scoped `scene_asset=...` lines, and one `file=...` line per generated
-artifact. This is intended for quick checks of first-screen bytes, update
-payloads, scene marker and asset pressure, diagnostic counts, file kinds, file
-bytes, and checksums before opening WeChat DevTools.
+the highest-risk route, max scene marker/asset/package pressure, one
+route-inspection line per generated page, one `route=...` manifest line per
+generated page, route-scoped `scene_asset=...` lines, and one `file=...` line
+per generated artifact. This is intended for quick checks of first-screen
+bytes, update payloads, scene marker and asset pressure, packaged scene bytes,
+diagnostic counts, file kinds, file bytes, and checksums before opening WeChat
+DevTools.
 
 To inspect component mapping and platform capability limits:
 
@@ -189,12 +191,12 @@ generated file-size gates. Unknown budget profile names and unsupported targets
 are printed as CI-plan diagnostics before contributors copy the generated
 commands. The CI plan also prints the inspection-gate and profile-gate
 thresholds derived from the selected budget profile, including route-risk,
-backend pressure, scene-asset ceilings, duplicate stream chunks, full snapshot
-replacements, scene thread orphans, clamped cameras, surface fallbacks,
-visual-quality issues, and degraded scenes. That makes strict map-heavy and
-agent-heavy checks reviewable before the commands run. Add `--script` to emit a
-deterministic `sh` script from the same plan; invalid plans print diagnostics
-and exit before running generated commands.
+backend pressure, scene-asset ceilings, packaged scene-byte ceilings, duplicate
+stream chunks, full snapshot replacements, scene thread orphans, clamped
+cameras, surface fallbacks, visual-quality issues, and degraded scenes. That
+makes strict map-heavy and agent-heavy checks reviewable before the commands
+run. Add `--script` to emit a deterministic `sh` script from the same plan;
+invalid plans print diagnostics and exit before running generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
@@ -207,10 +209,11 @@ Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
 bytes, generated file sizes, first-screen/update byte estimates, and
 route-scoped render diagnostics.
-Generated manifests also include route-scoped scene asset references and an
-app-level `sceneAssets` list derived from neutral `data-asset-*` attributes, so
-map-heavy pages can review packaged and remote asset usage without importing
-scene-specific code in the WeChat adapter.
+Generated manifests also include route-scoped scene asset references, estimated
+packaged scene bytes, remote scene asset counts, and an app-level `sceneAssets`
+list derived from neutral `data-asset-*` attributes, so map-heavy pages can
+review packaged and remote asset usage without importing scene-specific code in
+the WeChat adapter.
 Generated projects also include shared `bunnia.runtime.js` and `app.wxss`
 files plus route-local `*.data.js` payload modules, so page files keep only
 route structure and runtime glue instead of duplicating helpers, default

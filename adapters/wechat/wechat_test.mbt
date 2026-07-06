@@ -188,22 +188,26 @@ test "wechat manifests expose route scene asset references" {
   assert_eq(project.page.scene_assets[0].remote, true)
   assert_eq(project.manifest.scene_asset_count, 1)
   assert_eq(project.manifest.scene_remote_asset_count, 1)
+  assert_eq(project.manifest.scene_package_bytes, 0)
   assert_eq(project.manifest.scene_assets.length(), 1)
   assert_eq(project.manifest.pages[0].scene_assets.length(), 1)
+  assert_eq(project.manifest.pages[0].scene_remote_asset_count, 1)
+  assert_eq(project.manifest.pages[0].scene_package_bytes, 0)
   assert_eq(
     project.manifest.pages[0].scene_assets[0].route,
     "pages/assets/index",
   )
   assert_true(project.manifest.summary.contains("scene_assets=1"))
   assert_true(project.manifest.summary.contains("scene_remote_assets=1"))
+  assert_true(project.manifest.summary.contains("scene_package_bytes=0"))
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"sceneAssetRefs\":[{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true}]",
+      "\"sceneAssetRefs\":[{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true,\"estimatedBytes\":0}]",
     ),
   )
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
-      "\"sceneAssets\": [{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true}]",
+      "\"sceneAssets\": [{\"route\":\"pages/assets/index\",\"id\":\"agent\",\"kind\":\"remote-image\",\"src\":\"https://cdn.example.test/agent.png\",\"remote\":true,\"estimatedBytes\":0}]",
     ),
   )
 }

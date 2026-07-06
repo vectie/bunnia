@@ -47,6 +47,7 @@ test "bunnia exposes shared budget profiles" {
   let inspection = @bunnia.inspection_budget_for_profile("tight")
   assert_eq(inspection.max_route_risk_score, 50000)
   assert_eq(inspection.max_scene_assets, 16)
+  assert_eq(inspection.max_scene_package_bytes, 256 * 1024)
   let wechat = @bunnia.wechat_build_budget_for_profile("tight")
   assert_eq(wechat.max_files, 16)
   assert_eq(wechat.max_page_first_screen_bytes, 24576)

@@ -837,11 +837,13 @@ Current evidence:
 - Render budgets gate route scene asset references directly, keeping map-heavy
   package pressure visible in strict builds even before separate scene asset
   planning is wired into an example.
-- Generated manifests include route-scoped scene asset ids, kinds, sources, and
-  remote flags, and `inspect` prints those refs beside the owning route.
+- Generated manifests include route-scoped scene asset ids, kinds, sources,
+  remote flags, estimated bytes, per-route packaged scene bytes, and per-route
+  remote scene asset counts; `inspect` prints those refs beside the owning
+  route.
 - Generator snapshots carry manifest-derived scene asset counts plus
-  route-scoped scene asset ids, kinds, sources, and remote flags, so map-heavy
-  package and CDN pressure is reviewable in CI artifacts.
+  route-scoped scene asset ids, kinds, sources, remote flags, and estimated
+  bytes, so map-heavy package and CDN pressure is reviewable in CI artifacts.
 - Build reports and profiles surface route initial-data render-budget
   diagnostics, keeping large agent/chat payloads visible beside generated-size
   budgets.
@@ -931,8 +933,8 @@ Current evidence:
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
 - CI plans print the selected inspection-gate thresholds for route risk, scene
-  assets, and remote scene assets, so strict map-heavy and agent-heavy route
-  checks are visible before the commands run.
+  assets, remote scene assets, and packaged scene bytes, so strict map-heavy
+  and agent-heavy route checks are visible before the commands run.
 - Inspection gates now carry explicit backend event, stream, review, cancel,
   and retry ceilings, so large agentic routes can fail strict builds on
   operation pressure before route risk becomes the only signal.

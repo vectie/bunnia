@@ -127,6 +127,8 @@ pub struct WechatManifestPage {
   scene_visible_region_count : Int
   scene_asset_count : Int
   scene_assets : Array[WechatManifestSceneAsset]
+  scene_package_bytes : Int
+  scene_remote_asset_count : Int
   degraded_scene_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
@@ -148,6 +150,7 @@ pub struct WechatManifestSceneAsset {
   kind : String
   src : String
   remote : Bool
+  estimated_bytes : Int
 } derive(Eq, @debug.Debug)
 
 pub struct WechatPage {
@@ -181,6 +184,7 @@ pub struct WechatProjectManifest {
   app_total_bytes : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
+  scene_package_bytes : Int
   diagnostic_route_count : Int
   diagnostic_count : Int
   pages : Array[WechatManifestPage]
@@ -206,6 +210,7 @@ pub struct WechatSceneAsset {
   kind : String
   src : String
   remote : Bool
+  estimated_bytes : Int
 } derive(Eq, @debug.Debug)
 
 // Type aliases
