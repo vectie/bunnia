@@ -112,7 +112,9 @@ moon run cmd/main -- snapshot --target wechat --example agent_map --strict
 Snapshot output records the selected `--budget` profile, so CI diffs include
 the same generated-output report and diagnostic lines that strict builds
 evaluate. If `--render-budget` is set separately, snapshots record that profile
-too.
+too. Snapshots also include route-scoped manifest diagnostics, so a CI diff can
+point directly at the generated page that owns a render, payload, or interaction
+issue.
 
 The snapshot records route, budget profile, size budgets, profile summary, and
 per-file byte/checksum lines without committing the full generated mini-program.

@@ -134,6 +134,7 @@ fn snapshot_content(
   write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)
   write_snapshot_field(out, "summary", summary)
+  write_snapshot_route_diagnostics(out, project.manifest.pages)
   write_snapshot_diagnostics(out, "report_diagnostics", report.diagnostics)
   write_snapshot_diagnostics(out, "profile_diagnostics", profile.diagnostics)
   out.write_string("files:\n")
@@ -143,6 +144,22 @@ fn snapshot_content(
     )
   }
   out.to_string()
+}
+
+///|
+fn write_snapshot_route_diagnostics(
+  out : StringBuilder,
+  pages : Array[@wechat.WechatManifestPage],
+) -> Unit {
+  out.write_string("route_diagnostics:\n")
+  for page in pages {
+    if page.diagnostics.length() > 0 {
+      out.write_string("- \{page.route}\n")
+      for item in page.diagnostics {
+        out.write_string("  - \{item}\n")
+      }
+    }
+  }
 }
 
 ///|

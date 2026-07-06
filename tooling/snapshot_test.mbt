@@ -32,7 +32,9 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
   assert_true(
-    snapshot.content.contains("report_diagnostics:\nprofile_diagnostics:"),
+    snapshot.content.contains(
+      "route_diagnostics:\nreport_diagnostics:\nprofile_diagnostics:",
+    ),
   )
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("- bunnia.runtime.js kind=js bytes="))
@@ -126,8 +128,49 @@ test "generated snapshots can record active build report diagnostics" {
   assert_true(snapshot.content.contains("budget_profile=tiny"))
   assert_true(snapshot.content.contains("render_budget_profile=tiny-render"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
+  assert_true(snapshot.content.contains("route_diagnostics:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
   assert_true(snapshot.content.contains("profile_diagnostics:\nfiles:"))
+}
+
+///|
+test "generated snapshots include route-scoped manifest diagnostics" {
+  let runtime = @wechat.runtime(
+    initial_data_json="{\"agentDraft\":\"large payload\"}",
+  )
+  let project = @wechat.generate_project_with_runtime_and_budget(
+    name="Snapshot Route Diagnostics",
+    route="pages/route-diagnostics/index",
+    root=@core.page([@core.button("Missing", "missing")]),
+    runtime~,
+    render_budget=@core.render_budget(
+      max_nodes=16,
+      max_depth=4,
+      max_events=4,
+      max_initial_data_bytes=8,
+    ),
+  )
+  let snapshot = snapshot_wechat_project(
+    target="wechat",
+    example="snapshot_route_diagnostics",
+    project,
+    profile_wechat_project(project, @core.plan_patches([])),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "route_diagnostics:\n- pages/route-diagnostics/index",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "  - wechat-route-initial-data-over-render-budget:pages/route-diagnostics/index:30/8",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "  - wechat-event-without-patch:pages/route-diagnostics/index:missing",
+    ),
+  )
 }
 
 ///|
