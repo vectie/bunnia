@@ -911,7 +911,8 @@ Current evidence:
   command typos from silently writing stale generated output.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
   format, platform-limits, route-inspect, strict-build, and generator-snapshot
-  commands with the default tight generated-output and render budgets, so
+  commands with the default tight generated-output and render budgets, plus a
+  scaffold-smoke command that generates and validates a standalone starter, so
   contributors can inspect the workflow without reading shell docs.
 - `moon run cmd/main -- ci-plan --script` emits the same workflow as a
   deterministic `sh` script, including diagnostic-only failure output for
@@ -919,6 +920,10 @@ Current evidence:
 - `.github/workflows/ci.yml` installs MoonBit and runs the generated CI-plan
   script through `scripts/ci.sh`, keeping local and hosted framework checks on
   the same command path.
+- `scripts/scaffold_smoke.sh` generates a starter through `bunnia init`, runs
+  its check/test/local CI path, and verifies deferred Alipay CI/build commands
+  fail before writing target artifacts, so scaffold regressions are caught by
+  the root CI plan.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.

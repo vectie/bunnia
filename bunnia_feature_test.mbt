@@ -1696,11 +1696,12 @@ test "agent deltas lower chat and review updates to small patch plans" {
 test "ci plan shell script is exposed through facade" {
   let plan = @bunnia.ci_plan(examples=["agent_map"])
   let script = @bunnia.ci_plan_shell_script(plan)
-  assert_eq(plan.step_count, 10)
+  assert_eq(plan.step_count, 11)
   assert_true(script.has_prefix("#!/usr/bin/env sh"))
   assert_true(script.contains("moon check"))
   assert_true(script.contains("moon run cmd/main -- snapshot --target wechat"))
   assert_true(script.contains("--example agent_map"))
+  assert_true(script.contains("sh scripts/scaffold_smoke.sh"))
 }
 
 ///|

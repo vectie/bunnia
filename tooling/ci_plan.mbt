@@ -102,6 +102,11 @@ pub fn ci_plan(
       ),
     )
   }
+  steps.push(
+    ci_step(
+      "scaffold-smoke", "sh scripts/scaffold_smoke.sh", "generate and validate the standalone starter scaffold",
+    ),
+  )
   {
     target,
     target_known: target_support.known,

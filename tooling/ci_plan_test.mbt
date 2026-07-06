@@ -23,7 +23,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.profile_max_scene_quality_issues, 0)
   assert_eq(plan.profile_max_degraded_scenes, 0)
   assert_eq(plan.examples.length(), 2)
-  assert_eq(plan.step_count, 13)
+  assert_eq(plan.step_count, 14)
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.steps[0].name, "check")
   assert_eq(plan.steps[0].command, "moon check")
@@ -44,6 +44,8 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.steps[10].command.contains("inspect --target wechat"))
   assert_true(plan.steps[10].command.contains("--example wenyu_overview"))
   assert_true(plan.steps[12].command.contains("wenyu_overview.snapshot.txt"))
+  assert_eq(plan.steps[13].name, "scaffold-smoke")
+  assert_eq(plan.steps[13].command, "sh scripts/scaffold_smoke.sh")
   assert_true(plan.summary.contains("examples=2"))
   assert_true(plan.summary.contains("target_generator_status=available"))
   assert_true(plan.summary.contains("target_generator=true"))
@@ -57,7 +59,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.summary.contains("profile_max_scene_surface_fallbacks=0"))
   assert_true(plan.summary.contains("profile_max_scene_quality_issues=0"))
   assert_true(plan.summary.contains("diagnostics=0"))
-  assert_true(plan.summary.contains("steps=13"))
+  assert_true(plan.summary.contains("steps=14"))
   assert_true(plan.inspection_gate_summary.contains("budget=tight"))
   assert_true(plan.inspection_gate_summary.contains("max_route_risk=50000"))
   assert_true(plan.inspection_gate_summary.contains("max_backend_streams=4"))
@@ -79,7 +81,7 @@ test "ci plan can target one example and custom budgets" {
     examples=["agent_map"],
     snapshot_dir="/tmp/bunnia-ci",
   )
-  assert_eq(plan.step_count, 10)
+  assert_eq(plan.step_count, 11)
   assert_eq(plan.target_generator_status_id, "available")
   assert_eq(plan.target_generator_available, true)
   assert_eq(plan.examples.length(), 1)
@@ -115,6 +117,7 @@ test "ci plan can target one example and custom budgets" {
     ),
   )
   assert_true(plan.steps[9].command.contains("--render-budget tight"))
+  assert_eq(plan.steps[10].command, "sh scripts/scaffold_smoke.sh")
 }
 
 ///|
@@ -132,6 +135,8 @@ test "ci plan shell script is deterministic and runnable" {
       "moon run cmd/main -- snapshot --target wechat --example agent_map --snapshot-out _build/bunnia/snapshots/wechat/agent_map.snapshot.txt --strict --budget tight --render-budget tight",
     ),
   )
+  assert_true(script.contains("printf '%s\\n' \"==> scaffold-smoke\""))
+  assert_true(script.contains("sh scripts/scaffold_smoke.sh"))
   assert_true(!script.contains("exit 1"))
 }
 

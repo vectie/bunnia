@@ -172,6 +172,7 @@ To print the canonical local/CI workflow for the active examples:
 ```bash
 moon run cmd/main -- ci-plan
 moon run cmd/main -- ci-plan --script
+sh scripts/scaffold_smoke.sh
 sh scripts/ci.sh
 ```
 
@@ -181,18 +182,18 @@ command list.
 
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
 the check, test, interface, format, platform-limits, route inspection, strict
-build, and snapshot commands that contributors should run before review. Pass
-`--render-budget` to make render pressure stricter or looser than generated
-file-size gates. Unknown budget profile names and unsupported targets are
-printed as CI-plan diagnostics before contributors copy the generated commands.
-The CI plan also prints the inspection-gate and profile-gate thresholds derived
-from the selected budget profile, including route-risk, backend pressure,
-scene-asset ceilings, duplicate stream chunks, full snapshot replacements,
-scene thread orphans, clamped cameras, surface fallbacks, visual-quality
-issues, and degraded scenes. That makes strict map-heavy and agent-heavy checks
-reviewable before the commands run. Add `--script` to emit a deterministic `sh`
-script from the same plan; invalid plans print diagnostics and exit before
-running generated commands.
+build, snapshot, and scaffold-smoke commands that contributors should run before
+review. Pass `--render-budget` to make render pressure stricter or looser than
+generated file-size gates. Unknown budget profile names and unsupported targets
+are printed as CI-plan diagnostics before contributors copy the generated
+commands. The CI plan also prints the inspection-gate and profile-gate
+thresholds derived from the selected budget profile, including route-risk,
+backend pressure, scene-asset ceilings, duplicate stream chunks, full snapshot
+replacements, scene thread orphans, clamped cameras, surface fallbacks,
+visual-quality issues, and degraded scenes. That makes strict map-heavy and
+agent-heavy checks reviewable before the commands run. Add `--script` to emit a
+deterministic `sh` script from the same plan; invalid plans print diagnostics
+and exit before running generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
