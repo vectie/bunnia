@@ -2641,6 +2641,21 @@ pub fn wechat_build_budget(
 }
 
 ///|
+pub fn is_named_budget_profile(name : String) -> Bool {
+  @tooling.is_named_budget_profile(name)
+}
+
+///|
+pub fn render_budget_for_profile(name : String) -> RenderBudget {
+  @tooling.render_budget_for_profile(name)
+}
+
+///|
+pub fn wechat_build_budget_for_profile(name : String) -> WechatBuildBudget {
+  @tooling.wechat_build_budget_for_profile(name)
+}
+
+///|
 pub fn report_wechat_project(
   project : WechatProject,
   runtime : WechatRuntime,

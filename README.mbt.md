@@ -91,7 +91,10 @@ moon run cmd/main -- build --target wechat --strict --budget tight
 
 The render planner uses the same named profile by default. Use
 `--render-budget tiny` to exercise render-budget failures without shrinking
-generated-output byte budgets.
+generated-output byte budgets. Named budget profiles are exposed through
+`@bunnia.render_budget_for_profile(...)` and
+`@bunnia.wechat_build_budget_for_profile(...)`, so contributors can use the
+same gates outside the CLI.
 
 For local iteration, watch generated output with:
 

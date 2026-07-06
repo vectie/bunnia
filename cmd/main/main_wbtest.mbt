@@ -55,6 +55,31 @@ test "build command and target parse explicitly" {
 }
 
 ///|
+test "build budgets come from shared named profiles" {
+  let render = render_budget_from_args(["node", "main.js", "--budget", "tight"])
+  let shared_render = @bunnia.render_budget_for_profile("tight")
+  assert_eq(render.max_nodes, shared_render.max_nodes)
+  assert_eq(render.max_initial_data_bytes, shared_render.max_initial_data_bytes)
+  assert_eq(render.max_scene_markers, shared_render.max_scene_markers)
+  let explicit_render = render_budget_from_args([
+    "node", "main.js", "--budget", "tight", "--render-budget", "tiny",
+  ])
+  let shared_tiny_render = @bunnia.render_budget_for_profile("tiny")
+  assert_eq(explicit_render.max_nodes, shared_tiny_render.max_nodes)
+  assert_eq(explicit_render.max_events, shared_tiny_render.max_events)
+  let wechat = wechat_build_budget_from_args([
+    "node", "main.js", "--budget", "tight",
+  ])
+  let shared_wechat = @bunnia.wechat_build_budget_for_profile("tight")
+  assert_eq(wechat.max_files, shared_wechat.max_files)
+  assert_eq(wechat.max_total_bytes, shared_wechat.max_total_bytes)
+  assert_eq(
+    wechat.max_page_update_payload_bytes,
+    shared_wechat.max_page_update_payload_bytes,
+  )
+}
+
+///|
 test "watch command shares build flags and supports once mode" {
   let args = [
     "node", "main.js", "watch", "--target", "wechat", "--example", "wenyu_overview",

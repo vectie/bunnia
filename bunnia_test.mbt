@@ -23,3 +23,15 @@ test "bunnia keeps mini-app platform adapters separate" {
   assert_eq(alipay.tap_event, "onTap")
   assert_eq(tiktok.component_prefix, "tt:")
 }
+
+///|
+test "bunnia exposes shared budget profiles" {
+  assert_eq(@bunnia.is_named_budget_profile("tight"), true)
+  assert_eq(@bunnia.is_named_budget_profile("unknown"), false)
+  let render = @bunnia.render_budget_for_profile("tight")
+  assert_eq(render.max_nodes, 128)
+  assert_eq(render.max_scene_markers, 64)
+  let wechat = @bunnia.wechat_build_budget_for_profile("tight")
+  assert_eq(wechat.max_files, 16)
+  assert_eq(wechat.max_page_first_screen_bytes, 24576)
+}
