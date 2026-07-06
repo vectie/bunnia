@@ -413,6 +413,11 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     @bunnia.inspection_budget_for_profile(budget_profile),
     budget_profile~,
   )
+  let profile_gate = @bunnia.gate_build_profile(
+    profile,
+    @bunnia.build_profile_budget_for_profile(budget_profile),
+    budget_profile~,
+  )
   let strict = strict_from_args(args)
   if command == "inspect" {
     let snapshot = snapshot_for_build(
@@ -426,13 +431,13 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     )
     print_inspect_result(
       target, example, budget_profile, render_budget_profile, project, report, patches,
-      profile, snapshot, inspection, inspection_gate,
+      profile, profile_gate, snapshot, inspection, inspection_gate,
     )
   } else {
     write_project(output_dir, project)
     print_build_result(
       command, target, example, budget_profile, render_budget_profile, output_dir,
-      project, report, patches, profile, inspection_gate,
+      project, report, patches, profile, profile_gate, inspection_gate,
     )
   }
   if command == "snapshot" {
@@ -451,7 +456,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     println("snapshot=\{snapshot_path}")
   }
   if should_fail_build(
-      strict, project, report, patches, profile, inspection_gate,
+      strict, project, report, patches, profile, profile_gate, inspection_gate,
     ) {
     println("build_failed=diagnostics")
     panic()
@@ -498,6 +503,7 @@ fn print_build_result(
   report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
   inspection_gate : @bunnia.ProjectInspectionGate,
 ) -> Unit {
   println("command=\{command}")
@@ -513,6 +519,8 @@ fn print_build_result(
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
+  println(profile_gate.summary)
+  print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
@@ -528,6 +536,7 @@ fn print_inspect_result(
   report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
   snapshot : @bunnia.GeneratedSnapshot,
   inspection : @bunnia.ProjectInspection,
   inspection_gate : @bunnia.ProjectInspectionGate,
@@ -545,6 +554,8 @@ fn print_inspect_result(
   println(patches.summary)
   println(profile.summary)
   print_profile_diagnostics(profile.diagnostics)
+  println(profile_gate.summary)
+  print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
   println(snapshot.summary)
@@ -597,6 +608,13 @@ fn print_inspection_gate_diagnostics(items : Array[String]) -> Unit {
 }
 
 ///|
+fn print_profile_gate_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("profile_gate_diagnostic=\{item}")
+  }
+}
+
+///|
 fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   println("command=ci-plan")
   println("target=\{plan.target}")
@@ -604,6 +622,7 @@ fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   println("render_budget=\{plan.render_budget_profile}")
   println(plan.summary)
   println(plan.inspection_gate_summary)
+  println(plan.profile_gate_summary)
   print_diagnostics(plan.diagnostics)
   for step in plan.steps {
     println("step=\{step.name} command=\{step.command}")
@@ -636,6 +655,7 @@ fn should_fail_build(
   report : @bunnia.WechatBuildReport,
   patches : @bunnia.PatchPlan,
   profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
   inspection_gate : @bunnia.ProjectInspectionGate,
 ) -> Bool {
   strict &&
@@ -644,6 +664,7 @@ fn should_fail_build(
     report.diagnostics.length() > 0 ||
     patches.diagnostics.length() > 0 ||
     profile.diagnostics.length() > 0 ||
+    profile_gate.diagnostics.length() > 0 ||
     inspection_gate.diagnostics.length() > 0
   )
 }

@@ -73,6 +73,109 @@ pub struct BuildProfile {
 } derive(Debug, Eq)
 
 ///|
+pub struct BuildProfileBudget {
+  max_agent_duplicate_stream_chunks : Int
+  max_snapshot_full_replaces : Int
+  max_scene_thread_orphans : Int
+  max_scene_camera_clamped : Int
+  max_scene_surface_fallbacks : Int
+  max_scene_quality_issues : Int
+  max_degraded_scenes : Int
+} derive(Debug, Eq)
+
+///|
+pub struct BuildProfileGate {
+  budget_profile : String
+  max_agent_duplicate_stream_chunks : Int
+  max_snapshot_full_replaces : Int
+  max_scene_thread_orphans : Int
+  max_scene_camera_clamped : Int
+  max_scene_surface_fallbacks : Int
+  max_scene_quality_issues : Int
+  max_degraded_scenes : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Debug, Eq)
+
+///|
+pub fn build_profile_budget(
+  max_agent_duplicate_stream_chunks~ : Int,
+  max_snapshot_full_replaces~ : Int,
+  max_scene_thread_orphans~ : Int,
+  max_scene_camera_clamped~ : Int,
+  max_scene_surface_fallbacks~ : Int,
+  max_scene_quality_issues~ : Int,
+  max_degraded_scenes~ : Int,
+) -> BuildProfileBudget {
+  {
+    max_agent_duplicate_stream_chunks,
+    max_snapshot_full_replaces,
+    max_scene_thread_orphans,
+    max_scene_camera_clamped,
+    max_scene_surface_fallbacks,
+    max_scene_quality_issues,
+    max_degraded_scenes,
+  }
+}
+
+///|
+pub fn gate_build_profile(
+  profile : BuildProfile,
+  budget : BuildProfileBudget,
+  budget_profile? : String = "custom",
+) -> BuildProfileGate {
+  let diagnostics : Array[String] = []
+  if profile.agent_duplicate_stream_chunk_count >
+    budget.max_agent_duplicate_stream_chunks {
+    diagnostics.push(
+      "profile-agent-duplicate-stream-chunks-over-budget:\{profile.agent_duplicate_stream_chunk_count}/\{budget.max_agent_duplicate_stream_chunks}",
+    )
+  }
+  if profile.snapshot_full_replace_count > budget.max_snapshot_full_replaces {
+    diagnostics.push(
+      "profile-snapshot-full-replaces-over-budget:\{profile.snapshot_full_replace_count}/\{budget.max_snapshot_full_replaces}",
+    )
+  }
+  if profile.scene_thread_orphan_link_count > budget.max_scene_thread_orphans {
+    diagnostics.push(
+      "profile-scene-thread-orphans-over-budget:\{profile.scene_thread_orphan_link_count}/\{budget.max_scene_thread_orphans}",
+    )
+  }
+  if profile.scene_camera_clamped_count > budget.max_scene_camera_clamped {
+    diagnostics.push(
+      "profile-scene-camera-clamped-over-budget:\{profile.scene_camera_clamped_count}/\{budget.max_scene_camera_clamped}",
+    )
+  }
+  if profile.scene_surface_fallback_count > budget.max_scene_surface_fallbacks {
+    diagnostics.push(
+      "profile-scene-surface-fallbacks-over-budget:\{profile.scene_surface_fallback_count}/\{budget.max_scene_surface_fallbacks}",
+    )
+  }
+  if profile.scene_quality_issue_count > budget.max_scene_quality_issues {
+    diagnostics.push(
+      "profile-scene-quality-issues-over-budget:\{profile.scene_quality_issue_count}/\{budget.max_scene_quality_issues}",
+    )
+  }
+  if profile.degraded_scene_count > budget.max_degraded_scenes {
+    diagnostics.push(
+      "profile-degraded-scenes-over-budget:\{profile.degraded_scene_count}/\{budget.max_degraded_scenes}",
+    )
+  }
+  {
+    budget_profile,
+    max_agent_duplicate_stream_chunks: budget.max_agent_duplicate_stream_chunks,
+    max_snapshot_full_replaces: budget.max_snapshot_full_replaces,
+    max_scene_thread_orphans: budget.max_scene_thread_orphans,
+    max_scene_camera_clamped: budget.max_scene_camera_clamped,
+    max_scene_surface_fallbacks: budget.max_scene_surface_fallbacks,
+    max_scene_quality_issues: budget.max_scene_quality_issues,
+    max_degraded_scenes: budget.max_degraded_scenes,
+    diagnostics,
+    summary: "Bunnia build profile gate: budget=\{budget_profile} max_agent_duplicate_stream_chunks=\{budget.max_agent_duplicate_stream_chunks} max_snapshot_full_replaces=\{budget.max_snapshot_full_replaces} max_scene_thread_orphans=\{budget.max_scene_thread_orphans} max_scene_camera_clamped=\{budget.max_scene_camera_clamped} max_scene_surface_fallbacks=\{budget.max_scene_surface_fallbacks} max_scene_quality_issues=\{budget.max_scene_quality_issues} max_degraded_scenes=\{budget.max_degraded_scenes} diagnostics=\{diagnostics.length()}",
+  }
+}
+
+///|
 pub fn profile_wechat_project(
   project : @wechat.WechatProject,
   patches : @core.PatchPlan,

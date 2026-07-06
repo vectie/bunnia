@@ -920,6 +920,10 @@ Current evidence:
 - Inspection gates now carry explicit backend event, stream, review, cancel,
   and retry ceilings, so large agentic routes can fail strict builds on
   operation pressure before route risk becomes the only signal.
+- Build-profile gates now budget duplicate stream chunks, full snapshot
+  replacements, scene thread orphans, clamped scene cameras, surface fallbacks,
+  visual-quality issues, and degraded scenes, so strict builds can fail
+  aggregate agent/map regressions even when lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
   WeChat target limits visible while Alipay/TikTok generators stay deferred.
@@ -941,17 +945,17 @@ Current evidence:
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package that splits app view,
   windowed agentic message feed, static scene map, bounded updates, budget
-  checks, backend contract, inspection gates, WeChat generation, a local build
-  command, and starter tests into separate files. The generated tests cover
-  render budgets, scene output, bounded patches, backend visibility, inspection
-  gates, and clean WeChat event wiring, while `moon run cmd/main` writes the
-  starter's WeChat files with optional `--strict` diagnostics gating or runs
-  no-write `inspect` route/backend/map/file pressure checks and deterministic
-  `snapshot` artifact generation. The generated `ci-plan` lists the starter's
-  check, test, inspect, snapshot, and explicit strict build commands plus the
-  active inspection-gate thresholds, and the local `moon.work` includes the
-  starter app plus the Bunnia checkout for development before registry
-  publication.
+  checks, backend contract, inspection/profile gates, WeChat generation, a local
+  build command, and starter tests into separate files. The generated tests
+  cover render budgets, scene output, bounded patches, backend visibility,
+  profile gates, inspection gates, and clean WeChat event wiring, while
+  `moon run cmd/main` writes the starter's WeChat files with optional
+  `--strict` diagnostics gating or runs no-write `inspect` route/backend/map/file
+  pressure checks and deterministic `snapshot` artifact generation. The
+  generated `ci-plan` lists the starter's check, test, inspect, snapshot, and
+  explicit strict build commands plus the active inspection/profile-gate
+  thresholds, and the local `moon.work` includes the starter app plus the
+  Bunnia checkout for development before registry publication.
 
 ## Phase 8: Production Readiness
 

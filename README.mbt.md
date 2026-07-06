@@ -94,8 +94,9 @@ The render planner uses the same named profile by default. Use
 generated-output byte budgets. Named budget profiles are exposed through
 `@bunnia.render_budget_for_profile(...)` and
 `@bunnia.wechat_build_budget_for_profile(...)`; route-risk gates are exposed
-through `@bunnia.inspection_budget_for_profile(...)`, so contributors can use
-the same gates outside the CLI.
+through `@bunnia.inspection_budget_for_profile(...)`, and aggregate large-app
+profile gates are exposed through `@bunnia.build_profile_budget_for_profile(...)`,
+so contributors can use the same gates outside the CLI.
 
 For local iteration, watch generated output with:
 
@@ -167,12 +168,14 @@ build, and snapshot commands that contributors should run before review. Pass
 `--render-budget` to make render pressure stricter or looser than generated
 file-size gates. Unknown budget profile names and unsupported targets are
 printed as CI-plan diagnostics before contributors copy the generated commands.
-The CI plan also prints the inspection-gate thresholds derived from the selected
-budget profile, including route-risk, scene asset, and remote scene asset
-ceilings, so strict map-heavy and agent-heavy route checks are reviewable before
-the commands run. Add `--script` to emit a deterministic `sh` script from the
-same plan; invalid plans print diagnostics and exit before running generated
-commands.
+The CI plan also prints the inspection-gate and profile-gate thresholds derived
+from the selected budget profile, including route-risk, backend pressure,
+scene-asset ceilings, duplicate stream chunks, full snapshot replacements,
+scene thread orphans, clamped cameras, surface fallbacks, visual-quality
+issues, and degraded scenes. That makes strict map-heavy and agent-heavy checks
+reviewable before the commands run. Add `--script` to emit a deterministic `sh`
+script from the same plan; invalid plans print diagnostics and exit before
+running generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
@@ -344,17 +347,17 @@ moon run cmd/main -- init --name my_miniapp --module local/my_miniapp --out /tmp
 ```
 
 The generated starter keeps agent chat and map-heavy surfaces first-class while
-splitting app view, agent feed, scene model, bounded updates, budget checks, and
-backend contract, inspection gates, and WeChat generation into separate files,
+splitting app view, agent feed, scene model, bounded updates, budget checks,
+backend contract, inspection/profile gates, and WeChat generation into separate files,
 plus a local `cmd/main` build command that writes the starter's WeChat files and
 supports `--strict` diagnostic gating. The same command has an `inspect` mode
 for no-write route, backend, map, and file pressure checks and a `snapshot` mode
 for deterministic generated-output artifacts. It also prints a local `ci-plan`
 with check, test, inspect, snapshot, strict build commands, and the active
-inspection-gate thresholds. Starter tests check render budgets, scene output,
-bounded patches, backend visibility, and clean WeChat event wiring. The command
-also writes a local `moon.work` that includes the starter app and the current
-Bunnia checkout for pre-registry development.
+inspection/profile-gate thresholds. Starter tests check render budgets, scene
+output, bounded patches, backend visibility, profile gates, and clean WeChat
+event wiring. The command also writes a local `moon.work` that includes the
+starter app and the current Bunnia checkout for pre-registry development.
 
 Generate the Wenyu proof slice with:
 

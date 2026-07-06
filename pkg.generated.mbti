@@ -116,6 +116,10 @@ pub fn backend_timeout(@effects.BackendRequest, error_message? : String) -> @eff
 
 pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
+pub fn build_profile_budget(max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> @tooling.BuildProfileBudget
+
+pub fn build_profile_budget_for_profile(String) -> @tooling.BuildProfileBudget
+
 pub fn button(String, String) -> @core.Node
 
 pub fn cancel(String, String) -> @effects.Effect
@@ -225,6 +229,8 @@ pub fn event(String, String) -> @core.EventBinding
 pub fn filter_communications(Array[@agent.Communication], @agent.CommunicationFilter) -> Array[@agent.Communication]
 
 pub fn form(String, Array[@core.Node]) -> @core.Node
+
+pub fn gate_build_profile(@tooling.BuildProfile, @tooling.BuildProfileBudget, budget_profile? : String) -> @tooling.BuildProfileGate
 
 pub fn gate_project_inspection(@tooling.ProjectInspection, @tooling.ProjectInspectionBudget, budget_profile? : String) -> @tooling.ProjectInspectionGate
 
@@ -754,6 +760,10 @@ pub using @effects {type BackendResultKind}
 pub using @effects {type BackendState}
 
 pub using @tooling {type BuildProfile}
+
+pub using @tooling {type BuildProfileBudget}
+
+pub using @tooling {type BuildProfileGate}
 
 pub using @tooling {type CiPlan}
 

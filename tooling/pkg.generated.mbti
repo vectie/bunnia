@@ -11,9 +11,15 @@ import {
 }
 
 // Values
+pub fn build_profile_budget(max_agent_duplicate_stream_chunks~ : Int, max_snapshot_full_replaces~ : Int, max_scene_thread_orphans~ : Int, max_scene_camera_clamped~ : Int, max_scene_surface_fallbacks~ : Int, max_scene_quality_issues~ : Int, max_degraded_scenes~ : Int) -> BuildProfileBudget
+
+pub fn build_profile_budget_for_profile(String) -> BuildProfileBudget
+
 pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
 
 pub fn ci_plan_shell_script(CiPlan) -> String
+
+pub fn gate_build_profile(BuildProfile, BuildProfileBudget, budget_profile? : String) -> BuildProfileGate
 
 pub fn gate_project_inspection(ProjectInspection, ProjectInspectionBudget, budget_profile? : String) -> ProjectInspectionGate
 
@@ -119,6 +125,29 @@ pub struct BuildProfile {
   summary : String
 } derive(Eq, @debug.Debug)
 
+pub struct BuildProfileBudget {
+  max_agent_duplicate_stream_chunks : Int
+  max_snapshot_full_replaces : Int
+  max_scene_thread_orphans : Int
+  max_scene_camera_clamped : Int
+  max_scene_surface_fallbacks : Int
+  max_scene_quality_issues : Int
+  max_degraded_scenes : Int
+} derive(Eq, @debug.Debug)
+
+pub struct BuildProfileGate {
+  budget_profile : String
+  max_agent_duplicate_stream_chunks : Int
+  max_snapshot_full_replaces : Int
+  max_scene_thread_orphans : Int
+  max_scene_camera_clamped : Int
+  max_scene_surface_fallbacks : Int
+  max_scene_quality_issues : Int
+  max_degraded_scenes : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
 pub struct CiPlan {
   target : String
   budget_profile : String
@@ -132,6 +161,14 @@ pub struct CiPlan {
   inspection_max_scene_assets : Int
   inspection_max_scene_remote_assets : Int
   inspection_gate_summary : String
+  profile_max_agent_duplicate_stream_chunks : Int
+  profile_max_snapshot_full_replaces : Int
+  profile_max_scene_thread_orphans : Int
+  profile_max_scene_camera_clamped : Int
+  profile_max_scene_surface_fallbacks : Int
+  profile_max_scene_quality_issues : Int
+  profile_max_degraded_scenes : Int
+  profile_gate_summary : String
   examples : Array[String]
   snapshot_dir : String
   step_count : Int

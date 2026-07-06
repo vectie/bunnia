@@ -263,6 +263,12 @@ pub type WechatProject = @wechat.WechatProject
 pub type BuildProfile = @tooling.BuildProfile
 
 ///|
+pub type BuildProfileBudget = @tooling.BuildProfileBudget
+
+///|
+pub type BuildProfileGate = @tooling.BuildProfileGate
+
+///|
 pub type PlatformComponentMapping = @tooling.PlatformComponentMapping
 
 ///|
@@ -2937,6 +2943,11 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
 }
 
 ///|
+pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
+  @tooling.build_profile_budget_for_profile(name)
+}
+
+///|
 pub fn inspection_budget(
   max_route_risk_score~ : Int,
   max_backend_events~ : Int,
@@ -2960,12 +2971,42 @@ pub fn inspection_budget(
 }
 
 ///|
+pub fn build_profile_budget(
+  max_agent_duplicate_stream_chunks~ : Int,
+  max_snapshot_full_replaces~ : Int,
+  max_scene_thread_orphans~ : Int,
+  max_scene_camera_clamped~ : Int,
+  max_scene_surface_fallbacks~ : Int,
+  max_scene_quality_issues~ : Int,
+  max_degraded_scenes~ : Int,
+) -> BuildProfileBudget {
+  @tooling.build_profile_budget(
+    max_agent_duplicate_stream_chunks~,
+    max_snapshot_full_replaces~,
+    max_scene_thread_orphans~,
+    max_scene_camera_clamped~,
+    max_scene_surface_fallbacks~,
+    max_scene_quality_issues~,
+    max_degraded_scenes~,
+  )
+}
+
+///|
 pub fn gate_project_inspection(
   inspection : ProjectInspection,
   budget : ProjectInspectionBudget,
   budget_profile? : String = "custom",
 ) -> ProjectInspectionGate {
   @tooling.gate_project_inspection(inspection, budget, budget_profile~)
+}
+
+///|
+pub fn gate_build_profile(
+  profile : BuildProfile,
+  budget : BuildProfileBudget,
+  budget_profile? : String = "custom",
+) -> BuildProfileGate {
+  @tooling.gate_build_profile(profile, budget, budget_profile~)
 }
 
 ///|

@@ -62,6 +62,11 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "profile_gate.summary",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "build --out _build/wechat",
     ),
   )
@@ -79,6 +84,11 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "inspection_gate_diagnostics",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "profile_gate_diagnostics",
     ),
   )
   assert_true(
@@ -135,6 +145,9 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "quality.mbt").contains("pub fn inspection_gate"),
   )
   assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn profile_gate"),
+  )
+  assert_true(
     file_content(plan.files, "quality.mbt").contains(
       "render_budget_for_profile",
     ),
@@ -168,6 +181,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "app_test.mbt").contains("inspection_gate"),
   )
+  assert_true(file_content(plan.files, "app_test.mbt").contains("profile_gate"))
   assert_true(
     file_content(plan.files, "updates.mbt").contains(
       "append_stream_chunk_delta",

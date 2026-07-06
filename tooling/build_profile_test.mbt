@@ -749,6 +749,61 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.scene_deferred_asset_count, 1)
   assert_true(profile.scene_quality_issue_count > 0)
   assert_eq(profile.degraded_scene_count, 1)
+  let relaxed_gate = gate_build_profile(
+    profile,
+    build_profile_budget(
+      max_agent_duplicate_stream_chunks=1,
+      max_snapshot_full_replaces=1,
+      max_scene_thread_orphans=1,
+      max_scene_camera_clamped=1,
+      max_scene_surface_fallbacks=1,
+      max_scene_quality_issues=profile.scene_quality_issue_count,
+      max_degraded_scenes=1,
+    ),
+    budget_profile="relaxed",
+  )
+  let strict_gate = gate_build_profile(
+    profile,
+    build_profile_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  assert_eq(relaxed_gate.diagnostics.length(), 0)
+  assert_true(relaxed_gate.summary.contains("budget=relaxed"))
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-agent-duplicate-stream-chunks-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-snapshot-full-replaces-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-scene-thread-orphans-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-scene-camera-clamped-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains(
+      "profile-scene-surface-fallbacks-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    contains_prefix(
+      strict_gate.diagnostics,
+      "profile-scene-quality-issues-over-budget:",
+    ),
+  )
+  assert_true(
+    strict_gate.diagnostics.contains("profile-degraded-scenes-over-budget:1/0"),
+  )
+  assert_true(strict_gate.summary.contains("max_scene_surface_fallbacks=0"))
   assert_true(profile.summary.contains("diagnostics="))
 }
 

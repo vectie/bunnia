@@ -110,3 +110,40 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
     _ => panic()
   }
 }
+
+///|
+pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
+  match name {
+    "default" =>
+      build_profile_budget(
+        max_agent_duplicate_stream_chunks=0,
+        max_snapshot_full_replaces=1,
+        max_scene_thread_orphans=0,
+        max_scene_camera_clamped=0,
+        max_scene_surface_fallbacks=4,
+        max_scene_quality_issues=0,
+        max_degraded_scenes=0,
+      )
+    "tight" =>
+      build_profile_budget(
+        max_agent_duplicate_stream_chunks=0,
+        max_snapshot_full_replaces=0,
+        max_scene_thread_orphans=0,
+        max_scene_camera_clamped=0,
+        max_scene_surface_fallbacks=0,
+        max_scene_quality_issues=0,
+        max_degraded_scenes=0,
+      )
+    "tiny" =>
+      build_profile_budget(
+        max_agent_duplicate_stream_chunks=0,
+        max_snapshot_full_replaces=0,
+        max_scene_thread_orphans=0,
+        max_scene_camera_clamped=0,
+        max_scene_surface_fallbacks=0,
+        max_scene_quality_issues=0,
+        max_degraded_scenes=0,
+      )
+    _ => panic()
+  }
+}

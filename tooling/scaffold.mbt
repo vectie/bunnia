@@ -91,9 +91,11 @@ fn cmd_main_mbt() -> String {
   "    println(project.manifest.summary)\n" +
   "    println(project.report.summary)\n" +
   "    let inspection_gate = @app.inspection_gate(project)\n" +
+  "    let profile_gate = @app.profile_gate(project)\n" +
   "    println(inspection_gate.summary)\n" +
+  "    println(profile_gate.summary)\n" +
   "    if command == \"inspect\" {\n" +
-  "      print_inspect_result(project, inspection_gate)\n" +
+  "      print_inspect_result(project, profile_gate, inspection_gate)\n" +
   "    } else if command == \"snapshot\" {\n" +
   "      let snapshot = starter_snapshot(project)\n" +
   "      let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
@@ -106,7 +108,7 @@ fn cmd_main_mbt() -> String {
   "      }\n" +
   "      println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
   "    }\n" +
-  "    if should_fail(strict, project, inspection_gate) {\n" +
+  "    if should_fail(strict, project, profile_gate, inspection_gate) {\n" +
   "      println(\"build_failed=diagnostics\")\n" +
   "      panic()\n" +
   "    }\n" +
@@ -153,11 +155,13 @@ fn cmd_main_mbt() -> String {
   "fn should_fail(\n" +
   "  strict : Bool,\n" +
   "  project : @bunnia.WechatProject,\n" +
+  "  profile_gate : @bunnia.BuildProfileGate,\n" +
   "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
   ") -> Bool {\n" +
   "  strict && (\n" +
   "    project.report.diagnostics.length() > 0 ||\n" +
   "    project.manifest.diagnostic_count > 0 ||\n" +
+  "    profile_gate.diagnostics.length() > 0 ||\n" +
   "    inspection_gate.diagnostics.length() > 0\n" +
   "  )\n" +
   "}\n\n" +
@@ -177,16 +181,22 @@ fn cmd_main_mbt() -> String {
   "///|\n" +
   "fn print_inspect_result(\n" +
   "  project : @bunnia.WechatProject,\n" +
+  "  profile_gate : @bunnia.BuildProfileGate,\n" +
   "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
   ") -> Unit {\n" +
   "  let inspection = @app.project_inspection(project)\n" +
+  "  let profile = @app.build_profile(project)\n" +
+  "  println(profile.summary)\n" +
   "  println(inspection.summary)\n" +
-  "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} risk_route=\\{inspection.top_route} risk_score=\\{inspection.risk_score} diagnostics=\\{project.manifest.diagnostic_count} inspection_gate_diagnostics=\\{inspection_gate.diagnostics.length()}\")\n" +
+  "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} risk_route=\\{inspection.top_route} risk_score=\\{inspection.risk_score} diagnostics=\\{project.manifest.diagnostic_count} profile_gate_diagnostics=\\{profile_gate.diagnostics.length()} inspection_gate_diagnostics=\\{inspection_gate.diagnostics.length()}\")\n" +
   "  for page in project.manifest.pages {\n" +
   "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} backend_events=\\{page.backend_event_count} backend_streams=\\{page.backend_stream_count} backend_reviews=\\{page.backend_review_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
   "  }\n" +
   "  for item in inspection_gate.diagnostics {\n" +
   "    println(\"inspection_diagnostic=\\{item}\")\n" +
+  "  }\n" +
+  "  for item in profile_gate.diagnostics {\n" +
+  "    println(\"profile_gate_diagnostic=\\{item}\")\n" +
   "  }\n" +
   "  for file in project.manifest.files {\n" +
   "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
@@ -197,10 +207,12 @@ fn cmd_main_mbt() -> String {
   "  let strict_flag = if strict { \" --strict\" } else { \"\" }\n" +
   "  let project = @app.starter_wechat_project()\n" +
   "  let inspection_gate = @app.inspection_gate(project)\n" +
+  "  let profile_gate = @app.profile_gate(project)\n" +
   "  println(\"command=ci-plan\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
   "  println(\"Bunnia starter CI plan: steps=5 diagnostics=0\")\n" +
   "  println(inspection_gate.summary)\n" +
+  "  println(profile_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
   "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
@@ -389,6 +401,16 @@ fn quality_mbt() -> String {
   "    @bunnia.inspection_budget_for_profile(\"tight\"),\n" +
   "    budget_profile=\"tight\",\n" +
   "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn profile_gate(\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  ") -> @bunnia.BuildProfileGate {\n" +
+  "  @bunnia.gate_build_profile(\n" +
+  "    build_profile(project),\n" +
+  "    @bunnia.build_profile_budget_for_profile(\"tight\"),\n" +
+  "    budget_profile=\"tight\",\n" +
+  "  )\n" +
   "}\n"
 }
 
@@ -466,6 +488,7 @@ fn app_test_mbt() -> String {
   "  assert_eq(project.manifest.pages[0].scene_count, 1)\n" +
   "  assert_eq(project.manifest.pages[0].backend_event_count, 1)\n" +
   "  assert_eq(backend_plan().endpoint_count, 1)\n" +
+  "  assert_eq(profile_gate(project).diagnostics.length(), 0)\n" +
   "  assert_eq(inspection_gate(project).diagnostics.length(), 0)\n" +
   "  assert_true(project.files.length() > 0)\n" +
   "}\n"
