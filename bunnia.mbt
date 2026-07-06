@@ -2960,6 +2960,7 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
 ///|
 pub fn inspection_budget(
   max_route_risk_score~ : Int,
+  max_update_payload_bytes~ : Int,
   max_update_operations~ : Int,
   max_backend_events~ : Int,
   max_backend_streams~ : Int,
@@ -2972,6 +2973,7 @@ pub fn inspection_budget(
 ) -> ProjectInspectionBudget {
   @tooling.inspection_budget(
     max_route_risk_score~,
+    max_update_payload_bytes~,
     max_update_operations~,
     max_backend_events~,
     max_backend_streams~,

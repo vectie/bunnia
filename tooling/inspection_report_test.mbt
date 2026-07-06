@@ -121,6 +121,7 @@ test "project inspection reports backend recovery pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_payload_bytes=2048,
       max_update_operations=4,
       max_backend_events=4,
       max_backend_streams=1,
@@ -137,6 +138,7 @@ test "project inspection reports backend recovery pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_payload_bytes=1,
       max_update_operations=1,
       max_backend_events=1,
       max_backend_streams=0,
@@ -151,8 +153,14 @@ test "project inspection reports backend recovery pressure" {
   )
   assert_eq(relaxed.diagnostics.length(), 0)
   assert_true(
+    strict.diagnostics.contains(
+      "inspection-update-payload-bytes-over-budget:\{inspection.max_update_payload_bytes}/1",
+    ),
+  )
+  assert_true(
     strict.diagnostics.contains("inspection-update-operations-over-budget:2/1"),
   )
+  assert_true(relaxed.summary.contains("max_update_payload=2048"))
   assert_true(relaxed.summary.contains("max_backend_events=4"))
   assert_true(
     strict.diagnostics.contains("inspection-backend-events-over-budget:2/1"),
@@ -308,6 +316,7 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_update_payload_bytes=4096,
       max_update_operations=4,
       max_backend_events=1,
       max_backend_streams=1,
@@ -324,6 +333,7 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=1,
+      max_update_payload_bytes=1,
       max_update_operations=1,
       max_backend_events=1,
       max_backend_streams=1,

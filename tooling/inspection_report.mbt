@@ -52,6 +52,7 @@ pub struct ProjectInspection {
 ///|
 pub struct ProjectInspectionBudget {
   max_route_risk_score : Int
+  max_update_payload_bytes : Int
   max_update_operations : Int
   max_backend_events : Int
   max_backend_streams : Int
@@ -67,6 +68,7 @@ pub struct ProjectInspectionBudget {
 pub struct ProjectInspectionGate {
   budget_profile : String
   max_route_risk_score : Int
+  max_update_payload_bytes : Int
   max_update_operations : Int
   max_backend_events : Int
   max_backend_streams : Int
@@ -83,6 +85,7 @@ pub struct ProjectInspectionGate {
 ///|
 pub fn inspection_budget(
   max_route_risk_score~ : Int,
+  max_update_payload_bytes~ : Int,
   max_update_operations~ : Int,
   max_backend_events~ : Int,
   max_backend_streams~ : Int,
@@ -95,6 +98,7 @@ pub fn inspection_budget(
 ) -> ProjectInspectionBudget {
   {
     max_route_risk_score,
+    max_update_payload_bytes,
     max_update_operations,
     max_backend_events,
     max_backend_streams,
@@ -117,6 +121,11 @@ pub fn gate_project_inspection(
   if inspection.risk_score > budget.max_route_risk_score {
     diagnostics.push(
       "inspection-route-risk-over-budget:\{inspection.top_route}:\{inspection.risk_score}/\{budget.max_route_risk_score}",
+    )
+  }
+  if inspection.max_update_payload_bytes > budget.max_update_payload_bytes {
+    diagnostics.push(
+      "inspection-update-payload-bytes-over-budget:\{inspection.max_update_payload_bytes}/\{budget.max_update_payload_bytes}",
     )
   }
   if inspection.max_update_operation_count > budget.max_update_operations {
@@ -167,6 +176,7 @@ pub fn gate_project_inspection(
   {
     budget_profile,
     max_route_risk_score: budget.max_route_risk_score,
+    max_update_payload_bytes: budget.max_update_payload_bytes,
     max_update_operations: budget.max_update_operations,
     max_backend_events: budget.max_backend_events,
     max_backend_streams: budget.max_backend_streams,
@@ -177,7 +187,7 @@ pub fn gate_project_inspection(
     max_scene_remote_assets: budget.max_scene_remote_assets,
     max_scene_package_bytes: budget.max_scene_package_bytes,
     diagnostics,
-    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_update_ops=\{budget.max_update_operations} max_backend_events=\{budget.max_backend_events} max_backend_streams=\{budget.max_backend_streams} max_backend_reviews=\{budget.max_backend_reviews} max_backend_cancels=\{budget.max_backend_cancels} max_backend_retries=\{budget.max_backend_retries} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} max_scene_package_bytes=\{budget.max_scene_package_bytes} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_update_payload=\{budget.max_update_payload_bytes} max_update_ops=\{budget.max_update_operations} max_backend_events=\{budget.max_backend_events} max_backend_streams=\{budget.max_backend_streams} max_backend_reviews=\{budget.max_backend_reviews} max_backend_cancels=\{budget.max_backend_cancels} max_backend_retries=\{budget.max_backend_retries} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} max_scene_package_bytes=\{budget.max_scene_package_bytes} diagnostics=\{diagnostics.length()}",
   }
 }
 

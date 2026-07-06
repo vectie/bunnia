@@ -942,12 +942,13 @@ Current evidence:
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
 - CI plans print the selected inspection-gate thresholds for route risk, update
-  operations, scene assets, remote scene assets, and packaged scene bytes, so
-  strict map-heavy and agent-heavy route checks are visible before the commands
-  run.
-- Inspection gates now carry explicit update-operation, backend event, stream,
-  review, cancel, and retry ceilings, so large agentic routes can fail strict
-  builds on operation pressure before route risk becomes the only signal.
+  payload bytes, update operations, scene assets, remote scene assets, and
+  packaged scene bytes, so strict map-heavy and agent-heavy route checks are
+  visible before the commands run.
+- Inspection gates now carry explicit update-payload, update-operation,
+  backend event, stream, review, cancel, and retry ceilings, so large agentic
+  routes can fail strict builds on direct update pressure before route risk
+  becomes the only signal.
 - Build-profile gates now budget duplicate stream chunks, full snapshot
   replacements, scene thread orphans, clamped scene cameras, surface fallbacks,
   visual-quality issues, and degraded scenes, so strict builds can fail
