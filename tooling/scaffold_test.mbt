@@ -93,7 +93,17 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "Bunnia starter CI plan: steps=6 diagnostics=0",
+      "step=info command=moon info",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=fmt command=moon fmt",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "Bunnia starter CI plan: steps=8 diagnostics=0",
     ),
   )
   assert_true(
@@ -225,6 +235,8 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("limits --target wechat"),
   )
+  assert_true(file_content(plan.files, "README.mbt.md").contains("moon info"))
+  assert_true(file_content(plan.files, "README.mbt.md").contains("moon fmt"))
   assert_true(file_content(plan.files, "README.mbt.md").contains("--strict"))
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(

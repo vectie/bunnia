@@ -223,11 +223,13 @@ fn cmd_main_mbt() -> String {
   "  let profile_gate = @app.profile_gate(project)\n" +
   "  println(\"command=ci-plan\")\n" +
   "  println(\"strict=\\{strict}\")\n" +
-  "  println(\"Bunnia starter CI plan: steps=6 diagnostics=0\")\n" +
+  "  println(\"Bunnia starter CI plan: steps=8 diagnostics=0\")\n" +
   "  println(inspection_gate.summary)\n" +
   "  println(profile_gate.summary)\n" +
   "  println(\"step=check command=moon check\")\n" +
   "  println(\"step=test command=moon test\")\n" +
+  "  println(\"step=info command=moon info\")\n" +
+  "  println(\"step=fmt command=moon fmt\")\n" +
   "  println(\"step=limits command=moon run cmd/main -- limits --target wechat\")\n" +
   "  println(\"step=inspect command=moon run cmd/main -- inspect\\{strict_flag}\")\n" +
   "  println(\"step=snapshot command=moon run cmd/main -- snapshot --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
@@ -533,6 +535,8 @@ fn readme(name : String) -> String {
   "```bash\n" +
   "moon check\n" +
   "moon test\n" +
+  "moon info\n" +
+  "moon fmt\n" +
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- limits --target wechat\n" +
   "moon run cmd/main -- inspect --strict\n" +
