@@ -2,7 +2,10 @@
 
 ## Pre-commit Hook
 
-This pre-commit hook performs automatic checks before finalizing your commit.
+This pre-commit hook runs `scripts/ci.sh` before finalizing your commit. That is
+the same generated CI plan used by GitHub Actions, including check, test,
+interface generation, formatting, diff gates, active example inspect/build/
+snapshot checks, and scaffold smoke validation.
 
 ### Usage Instructions
 
@@ -18,4 +21,7 @@ To use this pre-commit hook:
    git config core.hooksPath .githooks
    ```
 
-3. The hook will automatically run when you execute `git commit`
+3. The hook will automatically run when you execute `git commit`.
+
+If the hook fails after `moon info` or `moon fmt`, review the resulting diff,
+stage the intended changes, and commit again.

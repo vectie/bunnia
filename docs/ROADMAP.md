@@ -920,6 +920,9 @@ Current evidence:
 - `.github/workflows/ci.yml` installs MoonBit and runs the generated CI-plan
   script through `scripts/ci.sh`, keeping local and hosted framework checks on
   the same command path.
+- `.githooks/pre-commit` delegates to `scripts/ci.sh`, so contributors can opt
+  into the same generated check/test/interface/format/example/scaffold gate
+  before committing.
 - `scripts/scaffold_smoke.sh` generates a starter through `bunnia init`, runs
   its check/test/local CI path, and verifies deferred Alipay CI/build commands
   fail before writing target artifacts, so scaffold regressions are caught by
