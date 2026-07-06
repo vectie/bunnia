@@ -83,12 +83,14 @@ build-profile diagnostics are present.
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
 `@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page
-count, generated file sizes, initial data bytes, and event patch bytes so large
-apps can catch route-level growth early.
+count, generated file sizes, initial data bytes, event patch bytes, and
+route-level first-screen/update payload budgets so large apps can catch growth
+early.
 
 Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
-bytes, generated file sizes, and route-scoped render diagnostics.
+bytes, generated file sizes, first-screen/update byte estimates, and
+route-scoped render diagnostics.
 
 For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report

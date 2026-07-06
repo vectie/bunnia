@@ -579,6 +579,8 @@ test "wechat project generator supports multiple app routes" {
       max_js_bytes=65536,
       max_initial_data_bytes=65536,
       max_event_patch_bytes=8192,
+      max_page_first_screen_bytes=98304,
+      max_page_update_payload_bytes=8192,
     ),
   )
   assert_eq(project.page_count, 2)
@@ -597,6 +599,15 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].list_visible_count, 1)
   assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].duplicate_list_key_count, 0)
+  assert_eq(
+    project.manifest.pages[1].first_screen_bytes,
+    project.manifest.pages[1].file_bytes +
+    project.manifest.pages[1].initial_data_bytes,
+  )
+  assert_eq(
+    project.manifest.pages[1].update_payload_bytes,
+    project.manifest.pages[1].event_patch_bytes,
+  )
   assert_eq(project.manifest.pages[1].render_diagnostics.length(), 0)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
@@ -615,6 +626,16 @@ test "wechat project generator supports multiple app routes" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"duplicateListKeys\":0",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"firstScreenBytes\":",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"updatePayloadBytes\":",
     ),
   )
   assert_true(
@@ -682,12 +703,16 @@ test "wechat build reports catch generated-output budget regressions" {
       max_js_bytes=8,
       max_initial_data_bytes=4,
       max_event_patch_bytes=4,
+      max_page_first_screen_bytes=4,
+      max_page_update_payload_bytes=4,
     ),
   )
   assert_eq(report.file_count, 8)
   assert_eq(report.initial_data_bytes, 13)
   assert_true(report.event_patch_bytes > 4)
-  assert_eq(report.diagnostics.length(), 7)
+  assert_true(report.max_page_first_screen_bytes > 4)
+  assert_eq(report.max_page_update_payload_bytes, report.event_patch_bytes)
+  assert_eq(report.diagnostics.length(), 9)
   assert_true(report.diagnostics.contains("wechat-file-count-over-budget:8/1"))
   assert_true(
     report.diagnostics.contains(
@@ -700,6 +725,16 @@ test "wechat build reports catch generated-output budget regressions" {
   assert_true(
     report.diagnostics.contains(
       "wechat-event-patch-bytes-over-budget:\{report.event_patch_bytes}/4",
+    ),
+  )
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-page-first-screen-bytes-over-budget:pages/index/index:\{report.max_page_first_screen_bytes}/4",
+    ),
+  )
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-page-update-payload-bytes-over-budget:pages/index/index:\{report.max_page_update_payload_bytes}/4",
     ),
   )
   assert_true(project.report.summary.contains("Bunnia WeChat build report"))

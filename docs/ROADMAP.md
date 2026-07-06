@@ -367,18 +367,18 @@ Acceptance checks:
 Current evidence:
 
 - WeChat projects include a build report with file count, total bytes, WXML,
-  WXSS, JS, page count, initial-data, event-patch bytes, diagnostics, and
-  summary text.
+  WXSS, JS, page count, initial-data, event-patch bytes, route-level
+  first-screen/update payload maxima, diagnostics, and summary text.
 - The WeChat generator supports multi-page projects through route-scoped page
   descriptors while preserving the one-page API for small examples.
 - Generated WeChat projects include a deterministic `bunnia.manifest.json`
   with route-level node/event counts, runtime data bytes, event-patch bytes,
-  windowed-list item counts, route render diagnostics, and generated file
-  sizes.
+  first-screen/update byte estimates, windowed-list item counts, route render
+  diagnostics, and generated file sizes.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
-- Tests force budget regressions for generated files, initial data, and event
-  patch payloads.
+- Tests force budget regressions for generated files, initial data, aggregate
+  event patches, and route-level first-screen/update payloads.
 
 Do not build yet:
 
@@ -629,13 +629,15 @@ Current evidence:
 - `moon run cmd/main` writes the sample WeChat project and reports render,
   page-count, file-size, initial-data, event-patch, and patch-plan summaries.
 - Build output includes a deterministic generated-file manifest, so route and
-  file-size pressure can be inspected before opening the target mini-app IDE.
+  first-screen/update pressure can be inspected before opening the target
+  mini-app IDE.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, backend, scene asset, and
   scene render diagnostics into one CLI-visible summary for generated examples.
-- Build profiles and generated manifests expose unkeyed repeated-row counts
-  alongside page, list, and generated-size signals.
+- Build profiles and generated manifests expose unkeyed/duplicate repeated-row
+  counts alongside page, list, route first-screen, update-payload, and
+  generated-size signals.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, and package-byte signals.

@@ -15,6 +15,8 @@ pub struct BuildProfile {
   total_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  max_page_first_screen_bytes : Int
+  max_page_update_payload_bytes : Int
   patch_bytes : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
@@ -62,6 +64,8 @@ pub fn profile_wechat_project(
     total_bytes: project.report.total_bytes,
     initial_data_bytes: project.report.initial_data_bytes,
     event_patch_bytes: project.report.event_patch_bytes,
+    max_page_first_screen_bytes: project.report.max_page_first_screen_bytes,
+    max_page_update_payload_bytes: project.report.max_page_update_payload_bytes,
     patch_bytes: patches.total_estimated_bytes,
     backend_endpoint_count,
     scene_marker_count,
@@ -93,7 +97,7 @@ fn profile_summary(
   scene_package_bytes : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} unkeyed_list_children=\{page_unkeyed_list_child_count(project.pages)} duplicate_list_keys=\{page_duplicate_list_key_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} max_first_screen=\{project.report.max_page_first_screen_bytes} max_update_payload=\{project.report.max_page_update_payload_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_visible_marker_count}/\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
 }
 
 ///|

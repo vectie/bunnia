@@ -35,6 +35,8 @@ pub struct BuildProfile {
   total_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  max_page_first_screen_bytes : Int
+  max_page_update_payload_bytes : Int
   patch_bytes : Int
   backend_endpoint_count : Int
   scene_marker_count : Int

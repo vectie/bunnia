@@ -47,6 +47,14 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.unkeyed_list_child_count, 0)
   assert_eq(profile.duplicate_list_key_count, 0)
   assert_eq(profile.file_count, 8)
+  assert_eq(
+    profile.max_page_first_screen_bytes,
+    project.report.max_page_first_screen_bytes,
+  )
+  assert_eq(
+    profile.max_page_update_payload_bytes,
+    project.report.max_page_update_payload_bytes,
+  )
   assert_eq(profile.backend_endpoint_count, 1)
   assert_eq(profile.scene_marker_count, 1)
   assert_eq(profile.scene_visible_marker_count, 1)
@@ -58,6 +66,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("list_items=0/0"))
   assert_true(profile.summary.contains("unkeyed_list_children=0"))
   assert_true(profile.summary.contains("duplicate_list_keys=0"))
+  assert_true(profile.summary.contains("max_first_screen="))
+  assert_true(profile.summary.contains("max_update_payload="))
   assert_true(profile.summary.contains("scene_markers=1/1"))
 }
 

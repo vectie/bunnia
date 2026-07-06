@@ -56,6 +56,8 @@ pub struct WechatManifestPage {
   event_count : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  first_screen_bytes : Int
+  update_payload_bytes : Int
   file_bytes : Int
   render_diagnostics : Array[String]
 } derive(Debug, Eq)
@@ -336,6 +338,8 @@ fn manifest_pages(
       event_count: item.page.plan.event_messages.length(),
       initial_data_bytes: item.runtime.initial_data_json.length(),
       event_patch_bytes: page_event_patch_bytes(item.runtime),
+      first_screen_bytes: page_first_screen_bytes(item, files),
+      update_payload_bytes: page_update_payload_bytes(item),
       file_bytes: route_file_bytes(item.route, files),
       render_diagnostics: item.page.plan.diagnostics,
     })
@@ -450,6 +454,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"events\":\{item.event_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
   "\"eventPatchBytes\":\{item.event_patch_bytes}," +
+  "\"firstScreenBytes\":\{item.first_screen_bytes}," +
+  "\"updatePayloadBytes\":\{item.update_payload_bytes}," +
   "\"fileBytes\":\{item.file_bytes}," +
   "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}" +
   "}"
