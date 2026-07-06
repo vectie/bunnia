@@ -73,6 +73,7 @@ pub struct WechatManifestPage {
   file_bytes : Int
   render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
+  diagnostics : Array[String]
 } derive(Debug, Eq)
 
 ///|
@@ -580,6 +581,7 @@ fn manifest_pages(
       file_bytes: route_file_bytes(item.route, files),
       render_budget: item.page.render_budget,
       render_diagnostics: item.page.plan.diagnostics,
+      diagnostics: page_manifest_diagnostics(item),
     })
   }
   output
@@ -690,6 +692,32 @@ fn page_runtime_has_patch(runtime : WechatRuntime, message : String) -> Bool {
 }
 
 ///|
+fn page_manifest_diagnostics(page : WechatProjectPage) -> Array[String] {
+  let output : Array[String] = []
+  for item in page.page.plan.diagnostics {
+    output.push("wechat-render:\{page.route}:\{item}")
+  }
+  let initial = page.runtime.initial_data_json.length()
+  let initial_limit = page.page.render_budget.max_initial_data_bytes
+  if initial > initial_limit {
+    output.push(
+      "wechat-route-initial-data-over-render-budget:\{page.route}:\{initial}/\{initial_limit}",
+    )
+  }
+  for message in page.page.plan.event_messages {
+    if !page_runtime_has_patch(page.runtime, message) {
+      output.push("wechat-event-without-patch:\{page.route}:\{message}")
+    }
+  }
+  for patch in page.runtime.event_patches {
+    if !page.page.plan.event_messages.contains(patch.message) {
+      output.push("wechat-patch-without-event:\{page.route}:\{patch.message}")
+    }
+  }
+  output
+}
+
+///|
 fn page_backend_pressure(
   page : WechatProjectPage,
   contract : @effects.BackendContract?,
@@ -774,7 +802,8 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"updatePayloadBytes\":\{item.update_payload_bytes}," +
   "\"fileBytes\":\{item.file_bytes}," +
   "\"renderBudget\":\{render_budget_json(item.render_budget)}," +
-  "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}" +
+  "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}," +
+  "\"diagnostics\":\{strings_json(item.diagnostics)}" +
   "}"
 }
 

@@ -783,8 +783,18 @@ test "wechat project generation accepts route render budgets" {
     ),
   )
   assert_true(
+    project.manifest.pages[0].diagnostics.contains(
+      "wechat-render:pages/budget/index:scene-marker-count-over-budget:2/1",
+    ),
+  )
+  assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderBudget\":{\"maxNodes\":64,\"maxDepth\":8,\"maxEvents\":8,\"maxInitialDataBytes\":1024,\"maxUnwindowedListChildren\":64,\"maxSceneMarkers\":1,\"maxDegradedScenes\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnostics\":[\"wechat-render:pages/budget/index:scene-marker-count-over-budget:2/1\"]",
     ),
   )
 }
@@ -1242,6 +1252,11 @@ test "wechat manifest records route render diagnostics" {
     ),
   )
   assert_true(
+    project.manifest.pages[0].diagnostics.contains(
+      "wechat-render:pages/diagnostics/index:list-child-missing-key:2",
+    ),
+  )
+  assert_true(
     project.report.diagnostics.contains(
       "wechat-render:pages/diagnostics/index:list-child-missing-key:2",
     ),
@@ -1254,6 +1269,11 @@ test "wechat manifest records route render diagnostics" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderDiagnostics\":[\"list-child-missing-key:2\"]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnostics\":[\"wechat-render:pages/diagnostics/index:list-child-missing-key:2\"]",
     ),
   )
   assert_true(
@@ -1349,6 +1369,11 @@ test "wechat build reports catch route initial data render budget regressions" {
   assert_eq(project.manifest.pages[0].render_budget.max_initial_data_bytes, 8)
   assert_true(
     project.report.diagnostics.contains(
+      "wechat-route-initial-data-over-render-budget:pages/initial/index:30/8",
+    ),
+  )
+  assert_true(
+    project.manifest.pages[0].diagnostics.contains(
       "wechat-route-initial-data-over-render-budget:pages/initial/index:30/8",
     ),
   )

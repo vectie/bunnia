@@ -277,6 +277,16 @@ test "wechat build reports missing and orphan event patches" {
   assert_eq(project.manifest.pages[0].missing_event_patch_count, 1)
   assert_eq(project.manifest.pages[0].orphan_event_patch_count, 1)
   assert_true(
+    project.manifest.pages[0].diagnostics.contains(
+      "wechat-event-without-patch:pages/index/index:missing",
+    ),
+  )
+  assert_true(
+    project.manifest.pages[0].diagnostics.contains(
+      "wechat-patch-without-event:pages/index/index:orphan",
+    ),
+  )
+  assert_true(
     file_content(project.files, "pages/index/index.data.js").contains(
       "\"open\":[{kind:\"set\",path:\"state.open\",value:\"yes\"}]",
     ),
@@ -295,6 +305,11 @@ test "wechat build reports missing and orphan event patches" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"missingEventPatches\":1,\"orphanEventPatches\":1",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"diagnostics\":[\"wechat-event-without-patch:pages/index/index:missing\", \"wechat-patch-without-event:pages/index/index:orphan\"]",
     ),
   )
   assert_true(project.report.summary.contains("missing_event_patches=1"))

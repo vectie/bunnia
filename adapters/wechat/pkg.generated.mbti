@@ -132,6 +132,7 @@ pub struct WechatManifestPage {
   file_bytes : Int
   render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
+  diagnostics : Array[String]
 } derive(Eq, @debug.Debug)
 
 pub struct WechatPage {

@@ -759,6 +759,9 @@ Current evidence:
   dead/orphan patch entries do not inflate update-payload estimates.
 - Generated manifests expose missing/orphan event-patch counts per route, so
   interaction wiring regressions are attributable before manual preview.
+- Generated manifests expose route-level diagnostics for render, initial-data
+  payload, and event-patch wiring issues, so generated projects remain
+  debuggable without scanning aggregate CLI output.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review

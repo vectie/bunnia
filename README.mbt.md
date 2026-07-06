@@ -147,6 +147,8 @@ rendered events; orphan handlers stay visible as diagnostics instead of being
 serialized into page payloads.
 The manifest records missing and orphan event-patch counts per route, so large
 apps can locate broken interaction wiring without scanning aggregate logs.
+Route manifests also include a `diagnostics` array for render, payload, and
+interaction issues attributable to that page.
 Backend-aware manifests also record reachable backend, stream, and review
 endpoint counts per route, making agentic request pressure attributable before
 opening the mini-app IDE.
