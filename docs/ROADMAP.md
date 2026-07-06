@@ -364,6 +364,9 @@ Current evidence:
   summary text.
 - The WeChat generator supports multi-page projects through route-scoped page
   descriptors while preserving the one-page API for small examples.
+- Generated WeChat projects include a deterministic `bunnia.manifest.json`
+  with route-level node/event counts, runtime data bytes, event-patch bytes,
+  and generated file sizes.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, and event
@@ -607,6 +610,8 @@ Current evidence:
 
 - `moon run cmd/main` writes the sample WeChat project and reports render,
   page-count, file-size, initial-data, event-patch, and patch-plan summaries.
+- Build output includes a deterministic generated-file manifest, so route and
+  file-size pressure can be inspected before opening the target mini-app IDE.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, backend, scene asset, and

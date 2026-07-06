@@ -30,9 +30,10 @@ test "agent map demo generates wechat output" {
 ///|
 test "agent map demo generates a mini-program file set" {
   let project = demo_wechat_project()
-  assert_eq(project.files.length(), 7)
+  assert_eq(project.files.length(), 8)
   assert_eq(project.route, "pages/index/index")
   assert_eq(project.page_count, 1)
+  assert_true(project.manifest.summary.contains("app_files=7"))
   assert_true(project.summary.contains("Bunnia WeChat project"))
   assert_true(project.total_bytes > 1800)
 }

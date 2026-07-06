@@ -41,7 +41,7 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.name, "Profile Fixture")
   assert_eq(profile.route, "pages/profile/index")
   assert_eq(profile.page_count, 1)
-  assert_eq(profile.file_count, 7)
+  assert_eq(profile.file_count, 8)
   assert_eq(profile.backend_endpoint_count, 1)
   assert_eq(profile.scene_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)

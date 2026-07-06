@@ -77,6 +77,25 @@ pub struct WechatFile {
   content : String
 } derive(Eq, @debug.Debug)
 
+pub struct WechatManifestFile {
+  path : String
+  kind : String
+  route : String
+  bytes : Int
+} derive(Eq, @debug.Debug)
+
+pub struct WechatManifestPage {
+  name : String
+  route : String
+  node_count : Int
+  depth : Int
+  component_count : Int
+  event_count : Int
+  initial_data_bytes : Int
+  event_patch_bytes : Int
+  file_bytes : Int
+} derive(Eq, @debug.Debug)
+
 pub struct WechatPage {
   wxml : String
   wxss : String
@@ -91,9 +110,21 @@ pub struct WechatProject {
   page : WechatPage
   pages : Array[WechatProjectPage]
   page_count : Int
+  manifest : WechatProjectManifest
   files : Array[WechatFile]
   total_bytes : Int
   report : WechatBuildReport
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct WechatProjectManifest {
+  name : String
+  entry_route : String
+  page_count : Int
+  app_file_count : Int
+  app_total_bytes : Int
+  pages : Array[WechatManifestPage]
+  files : Array[WechatManifestFile]
   summary : String
 } derive(Eq, @debug.Debug)
 

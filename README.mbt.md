@@ -86,6 +86,10 @@ The WeChat generator also supports multi-page projects through
 count, generated file sizes, initial data bytes, and event patch bytes so large
 apps can catch route-level growth early.
 
+Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
+and file manifest with per-page node/event counts, runtime data bytes, patch
+bytes, and generated file sizes.
+
 Generate a standalone starter project with:
 
 ```bash
@@ -172,7 +176,8 @@ test {
     runtime~,
   )
   let report = @bunnia.report_wechat_project(project, runtime)
-  assert_eq(report.file_count, 7)
+  assert_eq(report.file_count, 8)
+  assert_true(project.manifest.summary.contains("app_files=7"))
   assert_true(report.initial_data_bytes > 0)
   assert_true(report.event_patch_bytes > 0)
 }

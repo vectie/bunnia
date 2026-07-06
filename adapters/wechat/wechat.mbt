@@ -34,12 +34,46 @@ pub struct WechatFile {
 } derive(Debug, Eq)
 
 ///|
+pub struct WechatManifestFile {
+  path : String
+  kind : String
+  route : String
+  bytes : Int
+} derive(Debug, Eq)
+
+///|
+pub struct WechatManifestPage {
+  name : String
+  route : String
+  node_count : Int
+  depth : Int
+  component_count : Int
+  event_count : Int
+  initial_data_bytes : Int
+  event_patch_bytes : Int
+  file_bytes : Int
+} derive(Debug, Eq)
+
+///|
+pub struct WechatProjectManifest {
+  name : String
+  entry_route : String
+  page_count : Int
+  app_file_count : Int
+  app_total_bytes : Int
+  pages : Array[WechatManifestPage]
+  files : Array[WechatManifestFile]
+  summary : String
+} derive(Debug, Eq)
+
+///|
 pub struct WechatProject {
   name : String
   route : String
   page : WechatPage
   pages : Array[WechatProjectPage]
   page_count : Int
+  manifest : WechatProjectManifest
   files : Array[WechatFile]
   total_bytes : Int
   report : WechatBuildReport
@@ -112,7 +146,7 @@ pub fn generate_project_from_pages(
     panic()
   }
   let entry = pages[0]
-  let files = [
+  let files : Array[WechatFile] = [
     wechat_file("app.json", app_json(pages)),
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
@@ -123,6 +157,8 @@ pub fn generate_project_from_pages(
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
+  let manifest = project_manifest(name, entry.route, pages, files)
+  files.push(wechat_file("bunnia.manifest.json", manifest_json(manifest)))
   let total = total_file_bytes(files)
   let report = report_project_pages(files, pages, default_build_budget())
   {
@@ -131,6 +167,7 @@ pub fn generate_project_from_pages(
     page: entry.page,
     pages,
     page_count: pages.length(),
+    manifest,
     files,
     total_bytes: total,
     report,
@@ -234,6 +271,194 @@ fn total_file_bytes(files : Array[WechatFile]) -> Int {
     total += item.content.length()
   }
   total
+}
+
+///|
+fn project_manifest(
+  name : String,
+  entry_route : String,
+  pages : Array[WechatProjectPage],
+  files : Array[WechatFile],
+) -> WechatProjectManifest {
+  let app_total = total_file_bytes(files)
+  let manifest_files = manifest_files(files)
+  let manifest_pages = manifest_pages(pages, files)
+  {
+    name,
+    entry_route,
+    page_count: pages.length(),
+    app_file_count: files.length(),
+    app_total_bytes: app_total,
+    pages: manifest_pages,
+    files: manifest_files,
+    summary: "Bunnia WeChat manifest: pages=\{pages.length()} app_files=\{files.length()} app_bytes=\{app_total} entry=\{entry_route}",
+  }
+}
+
+///|
+fn manifest_files(files : Array[WechatFile]) -> Array[WechatManifestFile] {
+  let output : Array[WechatManifestFile] = []
+  for file in files {
+    output.push({
+      path: file.path,
+      kind: manifest_file_kind(file.path),
+      route: manifest_file_route(file.path),
+      bytes: file.content.length(),
+    })
+  }
+  output
+}
+
+///|
+fn manifest_pages(
+  pages : Array[WechatProjectPage],
+  files : Array[WechatFile],
+) -> Array[WechatManifestPage] {
+  let output : Array[WechatManifestPage] = []
+  for item in pages {
+    output.push({
+      name: item.name,
+      route: item.route,
+      node_count: item.page.plan.node_count,
+      depth: item.page.plan.depth,
+      component_count: item.page.plan.component_kinds.length(),
+      event_count: item.page.plan.event_messages.length(),
+      initial_data_bytes: item.runtime.initial_data_json.length(),
+      event_patch_bytes: page_event_patch_bytes(item.runtime),
+      file_bytes: route_file_bytes(item.route, files),
+    })
+  }
+  output
+}
+
+///|
+fn manifest_file_kind(path : String) -> String {
+  if path == "app.json" {
+    "app"
+  } else if path == "project.config.json" {
+    "project-config"
+  } else if path == "sitemap.json" {
+    "sitemap"
+  } else if path.has_suffix(".wxml") {
+    "wxml"
+  } else if path.has_suffix(".wxss") {
+    "wxss"
+  } else if path.has_suffix(".js") {
+    "js"
+  } else if path.has_suffix(".json") {
+    "json"
+  } else {
+    "asset"
+  }
+}
+
+///|
+fn manifest_file_route(path : String) -> String {
+  if path.has_suffix(".wxml") {
+    trim_suffix(path, ".wxml")
+  } else if path.has_suffix(".wxss") {
+    trim_suffix(path, ".wxss")
+  } else if path.has_suffix(".js") {
+    trim_suffix(path, ".js")
+  } else if path.has_suffix(".json") && path.has_prefix("pages/") {
+    trim_suffix(path, ".json")
+  } else {
+    ""
+  }
+}
+
+///|
+fn trim_suffix(value : String, suffix : String) -> String {
+  value.sub(start=0, end=value.length() - suffix.length()).to_owned()
+}
+
+///|
+fn route_file_bytes(route : String, files : Array[WechatFile]) -> Int {
+  let mut total = 0
+  for file in files {
+    if manifest_file_route(file.path) == route {
+      total += file.content.length()
+    }
+  }
+  total
+}
+
+///|
+fn page_event_patch_bytes(runtime : WechatRuntime) -> Int {
+  let mut total = 0
+  for item in runtime.event_patches {
+    total += item.message.length()
+    for patch in item.patches {
+      total += patch.estimated_bytes
+    }
+  }
+  total
+}
+
+///|
+fn manifest_json(input : WechatProjectManifest) -> String {
+  "{\n" +
+  "  \"name\": \"\{escape_json(input.name)}\",\n" +
+  "  \"entryRoute\": \"\{escape_json(input.entry_route)}\",\n" +
+  "  \"pageCount\": \{input.page_count},\n" +
+  "  \"appFileCount\": \{input.app_file_count},\n" +
+  "  \"appTotalBytes\": \{input.app_total_bytes},\n" +
+  "  \"pages\": \{manifest_pages_json(input.pages)},\n" +
+  "  \"files\": \{manifest_files_json(input.files)}\n" +
+  "}\n"
+}
+
+///|
+fn manifest_pages_json(items : Array[WechatManifestPage]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string(manifest_page_json(items[i]))
+  }
+  out.write_string("]")
+  out.to_string()
+}
+
+///|
+fn manifest_page_json(item : WechatManifestPage) -> String {
+  "{" +
+  "\"name\":\"\{escape_json(item.name)}\"," +
+  "\"route\":\"\{escape_json(item.route)}\"," +
+  "\"nodes\":\{item.node_count}," +
+  "\"depth\":\{item.depth}," +
+  "\"components\":\{item.component_count}," +
+  "\"events\":\{item.event_count}," +
+  "\"initialDataBytes\":\{item.initial_data_bytes}," +
+  "\"eventPatchBytes\":\{item.event_patch_bytes}," +
+  "\"fileBytes\":\{item.file_bytes}" +
+  "}"
+}
+
+///|
+fn manifest_files_json(items : Array[WechatManifestFile]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string(manifest_file_json(items[i]))
+  }
+  out.write_string("]")
+  out.to_string()
+}
+
+///|
+fn manifest_file_json(item : WechatManifestFile) -> String {
+  "{" +
+  "\"path\":\"\{escape_json(item.path)}\"," +
+  "\"kind\":\"\{escape_json(item.kind)}\"," +
+  "\"route\":\"\{escape_json(item.route)}\"," +
+  "\"bytes\":\{item.bytes}" +
+  "}"
 }
 
 ///|

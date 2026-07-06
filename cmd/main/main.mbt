@@ -25,6 +25,7 @@ fn main {
     println("example=\{example}")
     println(project.page.plan.summary)
     println(project.summary)
+    println(project.manifest.summary)
     println(project.report.summary)
     print_diagnostics(project.report.diagnostics)
     println(patches.summary)

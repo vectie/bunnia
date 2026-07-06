@@ -565,9 +565,15 @@ pub using @wechat {type WechatEventPatch}
 
 pub using @wechat {type WechatFile}
 
+pub using @wechat {type WechatManifestFile}
+
+pub using @wechat {type WechatManifestPage}
+
 pub using @wechat {type WechatPage}
 
 pub using @wechat {type WechatProject}
+
+pub using @wechat {type WechatProjectManifest}
 
 pub using @wechat {type WechatProjectPage}
 
