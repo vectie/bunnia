@@ -128,6 +128,9 @@ pub type BackendState = @effects.BackendState
 pub type Effect = @effects.Effect
 
 ///|
+pub type EffectPlan = @effects.EffectPlan
+
+///|
 pub type BackendEndpoint = @effects.BackendEndpoint
 
 ///|
@@ -1165,6 +1168,14 @@ pub fn effect_kind_id(kind : EffectKind) -> String {
 }
 
 ///|
+pub fn plan_effects_for_platform(
+  effects : Array[Effect],
+  platform : Platform,
+) -> EffectPlan {
+  @effects.plan_effects_for_platform(effects, platform)
+}
+
+///|
 pub fn backend_endpoint(
   id~ : String,
   kind~ : BackendEndpointKind,
@@ -1748,6 +1759,7 @@ pub fn report_wechat_project_with_budget(
 pub fn profile_wechat_project(
   project : WechatProject,
   patches : PatchPlan,
+  effect_plans? : Array[EffectPlan] = [],
   backend_plans? : Array[BackendPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
   scene_plans? : Array[SceneRenderPlan] = [],
@@ -1755,6 +1767,7 @@ pub fn profile_wechat_project(
   @tooling.profile_wechat_project(
     project,
     patches,
+    effect_plans~,
     backend_plans~,
     asset_plans~,
     scene_plans~,

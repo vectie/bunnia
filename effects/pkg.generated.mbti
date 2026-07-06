@@ -75,6 +75,8 @@ pub fn plan_backend_contract(BackendContract) -> BackendPlan
 
 pub fn plan_backend_contract_with_budget(BackendContract, BackendBudget) -> BackendPlan
 
+pub fn plan_effects_for_platform(Array[Effect], @core.Platform) -> EffectPlan
+
 pub fn request(String, String, String) -> Effect
 
 pub fn retry(String, String) -> Effect
@@ -195,6 +197,16 @@ pub(all) enum EffectKind {
   Stream
   Cancel
   Retry
+} derive(Eq, @debug.Debug)
+
+pub struct EffectPlan {
+  platform : @core.Platform
+  adapter : @core.PlatformAdapter
+  effect_count : Int
+  cloud_function_count : Int
+  stream_effect_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub(all) enum HttpMethod {

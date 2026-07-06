@@ -402,6 +402,19 @@ test "effect constructors cover mini-app backend capabilities" {
   assert_eq(effects[0].payload_key, "draft")
   assert_eq(effects[4].target, "/agent/stream")
   assert_true(@bunnia.effect_chip(effects[3]).text == "")
+  let wechat_plan = @bunnia.plan_effects_for_platform(effects, @bunnia.wechat())
+  let tiktok_plan = @bunnia.plan_effects_for_platform(effects, @bunnia.tiktok())
+  assert_eq(wechat_plan.effect_count, 5)
+  assert_eq(wechat_plan.cloud_function_count, 1)
+  assert_eq(wechat_plan.stream_effect_count, 1)
+  assert_eq(wechat_plan.diagnostics.length(), 0)
+  assert_eq(tiktok_plan.adapter.supports_cloud, false)
+  assert_true(
+    tiktok_plan.diagnostics.contains(
+      "effect-cloud-function-unsupported:tiktok:1",
+    ),
+  )
+  assert_true(tiktok_plan.summary.contains("platform=tiktok"))
 }
 
 ///|

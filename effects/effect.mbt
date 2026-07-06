@@ -21,6 +21,17 @@ pub struct Effect {
 } derive(Debug, Eq)
 
 ///|
+pub struct EffectPlan {
+  platform : @core.Platform
+  adapter : @core.PlatformAdapter
+  effect_count : Int
+  cloud_function_count : Int
+  stream_effect_count : Int
+  diagnostics : Array[String]
+  summary : String
+} derive(Debug, Eq)
+
+///|
 pub fn effect(
   id~ : String,
   kind~ : EffectKind,
@@ -92,6 +103,39 @@ pub fn effect_kind_id(kind : EffectKind) -> String {
     Stream => "stream"
     Cancel => "cancel"
     Retry => "retry"
+  }
+}
+
+///|
+pub fn plan_effects_for_platform(
+  effects : Array[Effect],
+  platform : @core.Platform,
+) -> EffectPlan {
+  let adapter = @core.adapter(platform)
+  let diagnostics : Array[String] = []
+  let mut cloud_function_count = 0
+  let mut stream_effect_count = 0
+  for item in effects {
+    if item.kind is CloudFunction {
+      cloud_function_count += 1
+    }
+    if item.kind is Stream {
+      stream_effect_count += 1
+    }
+  }
+  if cloud_function_count > 0 && !adapter.supports_cloud {
+    diagnostics.push(
+      "effect-cloud-function-unsupported:\{@core.platform_id(platform)}:\{cloud_function_count}",
+    )
+  }
+  {
+    platform,
+    adapter,
+    effect_count: effects.length(),
+    cloud_function_count,
+    stream_effect_count,
+    diagnostics,
+    summary: "Bunnia effect plan: platform=\{@core.platform_id(platform)} effects=\{effects.length()} cloud_functions=\{cloud_function_count} streams=\{stream_effect_count} diagnostics=\{diagnostics.length()}",
   }
 }
 

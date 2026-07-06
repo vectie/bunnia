@@ -331,6 +331,8 @@ Current evidence:
   chunk, run-status, and review-state updates as bounded patch plans.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
+- Effect plans diagnose platform capability mismatches, such as cloud-function
+  effects on a target that does not advertise cloud support.
 
 Do not build yet:
 
@@ -505,6 +507,9 @@ Current evidence:
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.
+- Effect plans can be checked against platform adapter capabilities before a
+  generator is selected, preserving the future Alipay/TikTok boundary without
+  implementing those adapters now.
 
 Do not build yet:
 
@@ -633,8 +638,9 @@ Current evidence:
   mini-app IDE.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
-- Build profiles aggregate render, WeChat, patch, backend, scene asset, and
-  scene render diagnostics into one CLI-visible summary for generated examples.
+- Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,
+  and scene render diagnostics into one CLI-visible summary for generated
+  examples.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.

@@ -44,8 +44,8 @@ phase-by-phase implementation plan.
   primitives, plus generic communication threads and traces.
 - `scene`: static stylised map model with layers, markers, asset manifests,
   hit targets, and bounded updates.
-- `effects`: typed frontend effect descriptions for request, navigation,
-  cancel, retry, and backend contract paths.
+- `effects`: typed frontend effect descriptions, platform support planning,
+  cancel/retry helpers, and backend contract paths.
 - `adapters/wechat`: WeChat Mini Program output generation.
 - `tooling`: build-profile diagnostics that aggregate render, WeChat, patch,
   backend, asset, and scene budget signals.
@@ -77,7 +77,7 @@ The same generator also accepts explicit build-style arguments:
 moon run cmd/main -- build --target wechat --strict
 ```
 
-`--strict` fails the command when render, generated-file, patch, or
+`--strict` fails the command when render, generated-file, patch, effect, or
 build-profile diagnostics are present.
 
 The WeChat generator also supports multi-page projects through

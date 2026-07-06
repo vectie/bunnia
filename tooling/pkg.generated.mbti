@@ -10,7 +10,7 @@ import {
 }
 
 // Values
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> BuildProfile
 
 pub fn scaffold_file(String, String) -> ScaffoldFile
 
@@ -38,6 +38,9 @@ pub struct BuildProfile {
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
   patch_bytes : Int
+  effect_count : Int
+  cloud_function_count : Int
+  stream_effect_count : Int
   backend_endpoint_count : Int
   scene_marker_count : Int
   scene_visible_marker_count : Int

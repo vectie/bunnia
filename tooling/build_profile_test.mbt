@@ -60,6 +60,9 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
   assert_eq(profile.scene_package_bytes, 1024)
+  assert_eq(profile.effect_count, 0)
+  assert_eq(profile.cloud_function_count, 0)
+  assert_eq(profile.stream_effect_count, 0)
   assert_eq(profile.diagnostics.length(), 0)
   assert_true(profile.summary.contains("backend_endpoints=1"))
   assert_true(profile.summary.contains("pages=1"))
@@ -68,6 +71,7 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("duplicate_list_keys=0"))
   assert_true(profile.summary.contains("max_first_screen="))
   assert_true(profile.summary.contains("max_update_payload="))
+  assert_true(profile.summary.contains("effects=0"))
   assert_true(profile.summary.contains("scene_markers=1/1"))
 }
 
@@ -114,9 +118,26 @@ test "build profile prefixes diagnostics by budget source" {
   let profile = profile_wechat_project(
     project,
     patches,
+    effect_plans=[
+      @effects.plan_effects_for_platform(
+        [
+          @effects.cloud_function("refresh", "refreshSnapshot", "snapshot"),
+          @effects.stream("agent-stream", "/agent/stream", "thread"),
+        ],
+        @core.TikTok,
+      ),
+    ],
     backend_plans=[backend],
     asset_plans=[assets],
     scene_plans=[scene],
+  )
+  assert_eq(profile.effect_count, 2)
+  assert_eq(profile.cloud_function_count, 1)
+  assert_eq(profile.stream_effect_count, 1)
+  assert_true(
+    profile.diagnostics.contains(
+      "effect:effect-cloud-function-unsupported:tiktok:1",
+    ),
   )
   assert_true(
     profile.diagnostics.contains(

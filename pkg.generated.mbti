@@ -266,6 +266,8 @@ pub fn plan_backend_contract(@effects.BackendContract) -> @effects.BackendPlan
 
 pub fn plan_backend_contract_with_budget(@effects.BackendContract, @effects.BackendBudget) -> @effects.BackendPlan
 
+pub fn plan_effects_for_platform(Array[@effects.Effect], @core.Platform) -> @effects.EffectPlan
+
 pub fn plan_patches(Array[@core.Patch]) -> @core.PatchPlan
 
 pub fn plan_patches_with_budget(Array[@core.Patch], @core.PatchBudget) -> @core.PatchPlan
@@ -286,7 +288,7 @@ pub fn platform_id(@core.Platform) -> String
 
 pub fn platform_label(@core.Platform) -> String
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> @tooling.BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> @tooling.BuildProfile
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
@@ -506,6 +508,8 @@ pub using @agent {type CommunicationKind}
 pub using @effects {type Effect}
 
 pub using @effects {type EffectKind}
+
+pub using @effects {type EffectPlan}
 
 pub using @core {type EventBinding}
 
