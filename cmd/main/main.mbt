@@ -3,29 +3,39 @@
 /// Run with `moon run cmd/main` from the project root.
 fn main {
   let command = command_from_args(@env.args())
-  let target = target_from_args(@env.args())
-  let example = example_from_args(@env.args())
-  let output_dir = output_dir_from_args(@env.args(), target, example)
-  let project = project_for_build(target, example)
-  let patches = patches_for_build(target, example)
-  let profile = profile_for_build(target, example, project, patches)
-  let strict = strict_from_args(@env.args())
-  write_project(output_dir, project)
-  println("command=\{command}")
-  println("target=\{target}")
-  println("example=\{example}")
-  println(project.page.plan.summary)
-  println(project.summary)
-  println(project.report.summary)
-  print_diagnostics(project.report.diagnostics)
-  println(patches.summary)
-  println(profile.summary)
-  print_profile_diagnostics(profile.diagnostics)
-  if should_fail_build(strict, project, patches, profile) {
-    println("build_failed=diagnostics")
-    panic()
+  if command == "init" {
+    let name = scaffold_name_from_args(@env.args())
+    let output_dir = scaffold_output_dir_from_args(@env.args(), name)
+    let scaffold = scaffold_from_args(@env.args(), name)
+    write_scaffold(output_dir, scaffold)
+    println("command=init")
+    println(scaffold.summary)
+    println("wrote=\{scaffold.files.length()} output=\{output_dir}")
+  } else {
+    let target = target_from_args(@env.args())
+    let example = example_from_args(@env.args())
+    let output_dir = output_dir_from_args(@env.args(), target, example)
+    let project = project_for_build(target, example)
+    let patches = patches_for_build(target, example)
+    let profile = profile_for_build(target, example, project, patches)
+    let strict = strict_from_args(@env.args())
+    write_project(output_dir, project)
+    println("command=\{command}")
+    println("target=\{target}")
+    println("example=\{example}")
+    println(project.page.plan.summary)
+    println(project.summary)
+    println(project.report.summary)
+    print_diagnostics(project.report.diagnostics)
+    println(patches.summary)
+    println(profile.summary)
+    print_profile_diagnostics(profile.diagnostics)
+    if should_fail_build(strict, project, patches, profile) {
+      println("build_failed=diagnostics")
+      panic()
+    }
+    println("wrote=\{project.files.length()} output=\{output_dir}")
   }
-  println("wrote=\{project.files.length()} output=\{output_dir}")
 }
 
 ///|
@@ -53,6 +63,8 @@ fn command_from_args(args : Array[String]) -> String {
   for item in args {
     if item == "build" {
       return "build"
+    } else if item == "init" {
+      return "init"
     }
   }
   default_command()
@@ -81,6 +93,52 @@ fn example_from_args(args : Array[String]) -> String {
 ///|
 fn strict_from_args(args : Array[String]) -> Bool {
   args.contains("--strict") || args.contains("--fail-on-diagnostics")
+}
+
+///|
+fn default_scaffold_name() -> String {
+  "bunnia_starter"
+}
+
+///|
+fn scaffold_name_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--name" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  default_scaffold_name()
+}
+
+///|
+fn scaffold_module_from_args(args : Array[String], name : String) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--module" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "local/\{name}"
+}
+
+///|
+fn scaffold_output_dir_from_args(args : Array[String], name : String) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--out" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  "_build/bunnia/scaffold/\{name}"
+}
+
+///|
+fn scaffold_from_args(
+  args : Array[String],
+  name : String,
+) -> @bunnia.ScaffoldPlan {
+  @bunnia.scaffold_project(
+    name~,
+    module_name=scaffold_module_from_args(args, name),
+  )
 }
 
 ///|
@@ -201,6 +259,13 @@ fn should_fail_build(
 ///|
 fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
   for file in project.files {
+    write_text_file(join_path(output_dir, file.path), file.content)
+  }
+}
+
+///|
+fn write_scaffold(output_dir : String, scaffold : @bunnia.ScaffoldPlan) -> Unit {
+  for file in scaffold.files {
     write_text_file(join_path(output_dir, file.path), file.content)
   }
 }

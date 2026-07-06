@@ -12,6 +12,10 @@ import {
 // Values
 pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan]) -> BuildProfile
 
+pub fn scaffold_file(String, String) -> ScaffoldFile
+
+pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
+
 // Errors
 
 // Types and methods
@@ -31,6 +35,18 @@ pub struct BuildProfile {
   scene_asset_count : Int
   scene_package_bytes : Int
   diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct ScaffoldFile {
+  path : String
+  content : String
+} derive(Eq, @debug.Debug)
+
+pub struct ScaffoldPlan {
+  name : String
+  module_name : String
+  files : Array[ScaffoldFile]
   summary : String
 } derive(Eq, @debug.Debug)
 

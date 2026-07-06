@@ -336,6 +336,8 @@ pub fn run_status_id(@agent.RunStatus) -> String
 
 pub fn run_waiting_review() -> @agent.RunStatus
 
+pub fn scaffold_project(name~ : String, module_name? : String) -> @tooling.ScaffoldPlan
+
 pub fn scene(String, @scene.SceneSize, Array[@scene.SceneLayer], assets? : Array[@scene.SceneAsset]) -> @scene.Scene
 
 pub fn scene_asset(id~ : String, kind~ : @scene.SceneAssetKind, src~ : String, estimated_bytes? : Int, remote? : Bool) -> @scene.SceneAsset
@@ -518,6 +520,10 @@ pub using @agent {type ReviewAction}
 pub using @agent {type ReviewState}
 
 pub using @agent {type RunStatus}
+
+pub using @tooling {type ScaffoldFile}
+
+pub using @tooling {type ScaffoldPlan}
 
 pub using @scene {type Scene}
 

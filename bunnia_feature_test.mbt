@@ -500,6 +500,25 @@ test "agent deltas lower chat and review updates to small patch plans" {
 }
 
 ///|
+test "scaffold project exposes starter files through facade" {
+  let scaffold = @bunnia.scaffold_project(
+    name="mini_agent",
+    module_name="local/mini_agent",
+  )
+  assert_eq(scaffold.files.length(), 4)
+  assert_eq(scaffold.module_name, "local/mini_agent")
+  assert_true(scaffold.summary.contains("Bunnia scaffold"))
+  assert_true(
+    scaffold_file_content(scaffold.files, "app.mbt").contains("message_feed"),
+  )
+  assert_true(
+    scaffold_file_content(scaffold.files, "moon.pkg").contains(
+      "\"vectie/bunnia\"",
+    ),
+  )
+}
+
+///|
 fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
   for item in files {
     if item.path == path {
@@ -511,6 +530,19 @@ fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
 
 ///|
 fn file_content(files : Array[@bunnia.WechatFile], path : String) -> String {
+  for item in files {
+    if item.path == path {
+      return item.content
+    }
+  }
+  ""
+}
+
+///|
+fn scaffold_file_content(
+  files : Array[@bunnia.ScaffoldFile],
+  path : String,
+) -> String {
   for item in files {
     if item.path == path {
       return item.content

@@ -614,6 +614,9 @@ Current evidence:
 - The CLI accepts build-style usage, `build --target wechat`, keeps generated
   output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
   CI-style budget gates.
+- `bunnia init`-style scaffolding is available through `moon run cmd/main --
+  init`, generating a small standalone MoonBit package with Bunnia view,
+  agentic message feed, and patch-plan starter files.
 
 ## Phase 8: Production Readiness
 

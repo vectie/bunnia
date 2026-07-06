@@ -39,6 +39,34 @@ test "build command and target parse explicitly" {
 }
 
 ///|
+test "init command builds a scaffold plan" {
+  let args = [
+    "node", "main.js", "init", "--name", "agent_demo", "--module", "local/agent_demo",
+  ]
+  let name = scaffold_name_from_args(args)
+  let scaffold = scaffold_from_args(args, name)
+  assert_eq(command_from_args(args), "init")
+  assert_eq(name, "agent_demo")
+  assert_eq(scaffold.module_name, "local/agent_demo")
+  assert_eq(scaffold.files.length(), 4)
+  assert_eq(
+    scaffold_output_dir_from_args(args, name),
+    "_build/bunnia/scaffold/agent_demo",
+  )
+  assert_true(scaffold.summary.contains("files=4"))
+}
+
+///|
+test "init command accepts output override and module default" {
+  let args = ["node", "main.js", "init", "--out", "/tmp/bunnia-init"]
+  let name = scaffold_name_from_args(args)
+  let scaffold = scaffold_from_args(args, name)
+  assert_eq(name, default_scaffold_name())
+  assert_eq(scaffold.module_name, "local/bunnia_starter")
+  assert_eq(scaffold_output_dir_from_args(args, name), "/tmp/bunnia-init")
+}
+
+///|
 test "build example flag selects Wenyu proof output folder" {
   let example = example_from_args([
     "node", "main.js", "--example", "wenyu_overview",

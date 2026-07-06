@@ -170,6 +170,12 @@ pub type WechatProject = @wechat.WechatProject
 pub type BuildProfile = @tooling.BuildProfile
 
 ///|
+pub type ScaffoldFile = @tooling.ScaffoldFile
+
+///|
+pub type ScaffoldPlan = @tooling.ScaffoldPlan
+
+///|
 pub fn attr(name : String, value : String) -> Attr {
   @core.attr(name, value)
 }
@@ -1650,4 +1656,12 @@ pub fn profile_wechat_project(
     asset_plans~,
     scene_plans~,
   )
+}
+
+///|
+pub fn scaffold_project(
+  name~ : String,
+  module_name? : String = "",
+) -> ScaffoldPlan {
+  @tooling.scaffold_project(name~, module_name~)
 }

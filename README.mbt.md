@@ -80,6 +80,12 @@ moon run cmd/main -- build --target wechat --strict
 `--strict` fails the command when render, generated-file, patch, or
 build-profile diagnostics are present.
 
+Generate a standalone starter project with:
+
+```bash
+moon run cmd/main -- init --name my_miniapp --module local/my_miniapp --out /tmp/my-miniapp
+```
+
 Generate the Wenyu proof slice with:
 
 ```bash
