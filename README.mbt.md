@@ -118,10 +118,13 @@ evaluate. If `--render-budget` is set separately, snapshots record that profile
 too. Snapshots also include route-scoped manifest diagnostics, so a CI diff can
 point directly at the generated page that owns a render, payload, or interaction
 issue. The same snapshot records route diagnostic counts, making route pressure
-visible even before reading the diagnostic lines.
+visible even before reading the diagnostic lines. Snapshots also record the
+highest-risk route and per-route inspection lines, so CI diffs can show which
+page should be optimized first.
 
 The snapshot records route, budget profile, size budgets, profile summary, and
-per-file byte/checksum lines without committing the full generated mini-program.
+per-route risk, per-file byte/checksum lines without committing the full
+generated mini-program.
 
 To inspect route and file pressure without writing generated files:
 
@@ -155,11 +158,11 @@ moon run cmd/main -- ci-plan
 ```
 
 `ci-plan` defaults to the `tight` generated-output and render budgets and lists
-the check, test, interface, format, platform-limits, strict build, and snapshot
-commands that contributors should run before review. Pass `--render-budget` to
-make render pressure stricter or looser than generated file-size gates. Unknown
-budget profile names and unsupported targets are printed as CI-plan diagnostics
-before contributors copy the generated commands.
+the check, test, interface, format, platform-limits, route inspection, strict
+build, and snapshot commands that contributors should run before review. Pass
+`--render-budget` to make render pressure stricter or looser than generated
+file-size gates. Unknown budget profile names and unsupported targets are
+printed as CI-plan diagnostics before contributors copy the generated commands.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

@@ -21,6 +21,8 @@ pub struct GeneratedSnapshot {
   max_update_payload_bytes : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
+  top_route : String
+  route_risk_score : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]
   summary : String
@@ -61,12 +63,13 @@ pub fn snapshot_wechat_project_with_report(
   }
   let route_diagnostic_route_count = project.manifest.diagnostic_route_count
   let route_diagnostic_count = project.manifest.diagnostic_count
+  let inspection = inspect_wechat_project(target~, example~, project, report)
   let diagnostic_count = report.diagnostics.length() +
     profile.diagnostics.length()
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} diagnostics=\{diagnostic_count}"
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
     target, example, budget_profile, render_budget_profile, project, report, profile,
-    files, summary,
+    inspection, files, summary,
   )
   {
     target,
@@ -82,6 +85,8 @@ pub fn snapshot_wechat_project_with_report(
     max_update_payload_bytes: report.max_page_update_payload_bytes,
     route_diagnostic_route_count,
     route_diagnostic_count,
+    top_route: inspection.top_route,
+    route_risk_score: inspection.risk_score,
     diagnostic_count,
     files,
     summary,
@@ -108,6 +113,7 @@ fn snapshot_content(
   project : @wechat.WechatProject,
   report : @wechat.WechatBuildReport,
   profile : BuildProfile,
+  inspection : ProjectInspection,
   files : Array[GeneratedSnapshotFile],
   summary : String,
 ) -> String {
@@ -147,9 +153,13 @@ fn snapshot_content(
     "route_diagnostics",
     project.manifest.diagnostic_count.to_string(),
   )
+  write_snapshot_field(out, "risk_route", inspection.top_route)
+  write_snapshot_field(out, "risk_score", inspection.risk_score.to_string())
   write_snapshot_field(out, "report", report.summary)
   write_snapshot_field(out, "profile", profile.summary)
+  write_snapshot_field(out, "inspection", inspection.summary)
   write_snapshot_field(out, "summary", summary)
+  write_snapshot_route_inspections(out, inspection.routes)
   write_snapshot_route_diagnostics(out, project.manifest.pages)
   write_snapshot_diagnostics(out, "report_diagnostics", report.diagnostics)
   write_snapshot_diagnostics(out, "profile_diagnostics", profile.diagnostics)
@@ -160,6 +170,19 @@ fn snapshot_content(
     )
   }
   out.to_string()
+}
+
+///|
+fn write_snapshot_route_inspections(
+  out : StringBuilder,
+  routes : Array[RouteInspection],
+) -> Unit {
+  out.write_string("route_inspections:\n")
+  for route in routes {
+    out.write_string(
+      "- \{route.route} status=\{route.status} risk_score=\{route.risk_score} diagnostics=\{route.diagnostics} first_screen=\{route.first_screen_bytes} update_payload=\{route.update_payload_bytes} nodes=\{route.node_count} events=\{route.event_count} scene_markers=\{route.scene_visible_marker_count}/\{route.scene_marker_count} scene_assets=\{route.scene_asset_count}\n",
+    )
+  }
 }
 
 ///|

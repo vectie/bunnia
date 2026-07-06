@@ -25,18 +25,32 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.total_bytes, project.total_bytes)
   assert_eq(snapshot.route_diagnostic_route_count, 0)
   assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.top_route, "pages/snapshot/index")
+  assert_true(snapshot.route_risk_score > 0)
   assert_eq(snapshot.diagnostic_count, 0)
   assert_true(snapshot.summary.contains("files=10"))
+  assert_true(snapshot.summary.contains("risk_route=pages/snapshot/index"))
+  assert_true(snapshot.summary.contains("risk_score="))
   assert_true(snapshot.summary.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.summary.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
   assert_true(snapshot.content.contains("budget_profile=default"))
   assert_true(snapshot.content.contains("render_budget_profile=default"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("risk_route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("risk_score="))
   assert_true(snapshot.content.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.content.contains("route_diagnostics=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("profile=Bunnia build profile:"))
+  assert_true(
+    snapshot.content.contains("inspection=Bunnia project inspection:"),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "route_inspections:\n- pages/snapshot/index status=ok",
+    ),
+  )
   assert_true(
     snapshot.content.contains(
       "route_diagnostics:\nreport_diagnostics:\nprofile_diagnostics:",
@@ -125,6 +139,8 @@ test "generated snapshots can record active build report diagnostics" {
   assert_eq(snapshot.render_budget_profile, "tiny-render")
   assert_eq(snapshot.route_diagnostic_route_count, 0)
   assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.top_route, "pages/snapshot/index")
+  assert_true(snapshot.route_risk_score > 0)
   assert_eq(snapshot.diagnostic_count, report.diagnostics.length())
   assert_true(snapshot.diagnostic_count > 0)
   assert_true(snapshot.summary.contains("diagnostics="))
@@ -135,6 +151,8 @@ test "generated snapshots can record active build report diagnostics" {
   )
   assert_true(snapshot.content.contains("budget_profile=tiny"))
   assert_true(snapshot.content.contains("render_budget_profile=tiny-render"))
+  assert_true(snapshot.content.contains("risk_route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("route_inspections:"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(snapshot.content.contains("route_diagnostics:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
@@ -166,10 +184,23 @@ test "generated snapshots include route-scoped manifest diagnostics" {
   )
   assert_eq(snapshot.route_diagnostic_route_count, 1)
   assert_eq(snapshot.route_diagnostic_count, 2)
+  assert_eq(snapshot.top_route, "pages/route-diagnostics/index")
+  assert_true(snapshot.route_risk_score > 2000000)
   assert_true(snapshot.summary.contains("route_diagnostic_routes=1"))
+  assert_true(
+    snapshot.summary.contains("risk_route=pages/route-diagnostics/index"),
+  )
   assert_true(snapshot.summary.contains("route_diagnostics=2"))
   assert_true(snapshot.content.contains("route_diagnostic_routes=1"))
+  assert_true(
+    snapshot.content.contains("risk_route=pages/route-diagnostics/index"),
+  )
   assert_true(snapshot.content.contains("route_diagnostics=2"))
+  assert_true(
+    snapshot.content.contains(
+      "route_inspections:\n- pages/route-diagnostics/index status=diagnostic",
+    ),
+  )
   assert_true(
     snapshot.content.contains(
       "route_diagnostics:\n- pages/route-diagnostics/index",

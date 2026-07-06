@@ -5,7 +5,7 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.budget_profile, "tight")
   assert_eq(plan.render_budget_profile, "tight")
   assert_eq(plan.examples.length(), 2)
-  assert_eq(plan.step_count, 11)
+  assert_eq(plan.step_count, 13)
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.steps[0].name, "check")
   assert_eq(plan.steps[0].command, "moon check")
@@ -17,17 +17,19 @@ test "ci plan lists active checks and generator snapshots" {
     plan.steps[6].command,
     "moon run cmd/main -- limits --target wechat",
   )
-  assert_true(plan.steps[7].command.contains("--example agent_map"))
+  assert_true(plan.steps[7].command.contains("inspect --target wechat"))
   assert_true(plan.steps[7].command.contains("--budget tight"))
   assert_true(plan.steps[7].command.contains("--render-budget tight"))
-  assert_true(plan.steps[8].command.contains("agent_map.snapshot.txt"))
-  assert_true(plan.steps[8].command.contains("--render-budget tight"))
-  assert_true(plan.steps[9].command.contains("--example wenyu_overview"))
-  assert_true(plan.steps[10].command.contains("wenyu_overview.snapshot.txt"))
+  assert_true(plan.steps[8].command.contains("--example agent_map"))
+  assert_true(plan.steps[9].command.contains("agent_map.snapshot.txt"))
+  assert_true(plan.steps[9].command.contains("--render-budget tight"))
+  assert_true(plan.steps[10].command.contains("inspect --target wechat"))
+  assert_true(plan.steps[10].command.contains("--example wenyu_overview"))
+  assert_true(plan.steps[12].command.contains("wenyu_overview.snapshot.txt"))
   assert_true(plan.summary.contains("examples=2"))
   assert_true(plan.summary.contains("render_budget=tight"))
   assert_true(plan.summary.contains("diagnostics=0"))
-  assert_true(plan.summary.contains("steps=11"))
+  assert_true(plan.summary.contains("steps=13"))
 }
 
 ///|
@@ -39,22 +41,27 @@ test "ci plan can target one example and custom budgets" {
     examples=["agent_map"],
     snapshot_dir="/tmp/bunnia-ci",
   )
-  assert_eq(plan.step_count, 9)
+  assert_eq(plan.step_count, 10)
   assert_eq(plan.examples.length(), 1)
   assert_eq(plan.diagnostics.length(), 0)
   assert_true(plan.summary.contains("budget=tiny"))
   assert_true(plan.summary.contains("render_budget=tight"))
   assert_true(
     plan.steps[7].command.contains(
-      "moon run cmd/main -- build --target wechat --example agent_map --strict --budget tiny --render-budget tight",
+      "moon run cmd/main -- inspect --target wechat --example agent_map --strict --budget tiny --render-budget tight",
     ),
   )
   assert_true(
     plan.steps[8].command.contains(
+      "moon run cmd/main -- build --target wechat --example agent_map --strict --budget tiny --render-budget tight",
+    ),
+  )
+  assert_true(
+    plan.steps[9].command.contains(
       "--snapshot-out /tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
     ),
   )
-  assert_true(plan.steps[8].command.contains("--render-budget tight"))
+  assert_true(plan.steps[9].command.contains("--render-budget tight"))
 }
 
 ///|

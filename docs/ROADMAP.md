@@ -778,6 +778,9 @@ Current evidence:
 - Build profiles and generator snapshots carry manifest-derived route
   diagnostic route/count fields, so CI artifacts can identify route pressure
   without re-parsing every diagnostic line.
+- Generator snapshots carry the same highest-risk route and per-route
+  inspection lines as the `inspect` command, so route-risk changes become
+  reviewable CI artifacts without committing full generated output.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - Generated manifests expose route-level backend event, stream, and review
@@ -842,9 +845,9 @@ Current evidence:
   profiles, keeping strict CI artifacts traceable to the gates that produced
   them.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
-  format, platform-limits, strict-build, and generator-snapshot commands with
-  the default tight generated-output and render budgets, so contributors can
-  inspect the workflow without reading shell docs.
+  format, platform-limits, route-inspect, strict-build, and generator-snapshot
+  commands with the default tight generated-output and render budgets, so
+  contributors can inspect the workflow without reading shell docs.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
@@ -856,8 +859,8 @@ Current evidence:
   on changes; `--once` keeps the same path testable without a long-running
   process.
 - `moon run cmd/main -- snapshot` writes a compact deterministic generator
-  snapshot with route, budget, route diagnostics, profile, and per-file
-  byte/checksum lines for CI diffing without committing full generated
+  snapshot with route, budget, route risk, route diagnostics, profile, and
+  per-file byte/checksum lines for CI diffing without committing full generated
   mini-program outputs.
 - Snapshot artifacts record the active build report from the selected
   generated-output budget profile, including route, report, and profile

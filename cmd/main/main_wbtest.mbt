@@ -222,11 +222,12 @@ test "ci plan command prints active example workflow" {
   assert_eq(plan.examples.length(), 2)
   assert_eq(plan.examples[0], "agent_map")
   assert_eq(plan.examples[1], "wenyu_overview")
-  assert_eq(plan.step_count, 11)
+  assert_eq(plan.step_count, 13)
   assert_eq(
     plan.steps[6].command,
     "moon run cmd/main -- limits --target wechat",
   )
+  assert_true(plan.steps[7].command.contains("inspect --target wechat"))
   assert_true(plan.summary.contains("snapshot_dir=_build/bunnia/snapshots"))
 }
 
@@ -244,15 +245,17 @@ test "ci plan command accepts target budget example and snapshot dir" {
   assert_eq(plan.diagnostics.length(), 0)
   assert_eq(plan.examples.length(), 1)
   assert_eq(plan.snapshot_dir, "/tmp/bunnia-ci")
-  assert_eq(plan.step_count, 9)
+  assert_eq(plan.step_count, 10)
   assert_true(plan.steps[7].command.contains("--budget tight"))
   assert_true(plan.steps[7].command.contains("--render-budget tiny"))
+  assert_true(plan.steps[7].command.contains("inspect --target wechat"))
+  assert_true(plan.steps[8].command.contains("build --target wechat"))
   assert_true(
-    plan.steps[8].command.contains(
+    plan.steps[9].command.contains(
       "/tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
     ),
   )
-  assert_true(plan.steps[8].command.contains("--render-budget tiny"))
+  assert_true(plan.steps[9].command.contains("--render-budget tiny"))
 }
 
 ///|

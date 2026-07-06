@@ -137,6 +137,8 @@ pub struct GeneratedSnapshot {
   max_update_payload_bytes : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
+  top_route : String
+  route_risk_score : Int
   diagnostic_count : Int
   files : Array[GeneratedSnapshotFile]
   summary : String
