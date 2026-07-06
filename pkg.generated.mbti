@@ -282,7 +282,7 @@ pub fn input(name~ : String, value? : String, input_message? : String) -> @core.
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> @tooling.ProjectInspection
 
-pub fn inspection_budget(max_route_risk_score~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> @tooling.ProjectInspectionBudget
+pub fn inspection_budget(max_route_risk_score~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> @tooling.ProjectInspectionBudget
 
 pub fn inspection_budget_for_profile(String) -> @tooling.ProjectInspectionBudget
 

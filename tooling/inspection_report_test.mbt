@@ -111,6 +111,46 @@ test "project inspection reports backend recovery pressure" {
   assert_true(inspection.summary.contains("max_backend_events=2"))
   assert_true(inspection.summary.contains("max_backend_cancels=1"))
   assert_true(inspection.summary.contains("max_backend_retries=1"))
+  let relaxed = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=100000,
+      max_backend_events=4,
+      max_backend_streams=1,
+      max_backend_reviews=1,
+      max_backend_cancels=2,
+      max_backend_retries=2,
+      max_scene_assets=1,
+      max_scene_remote_assets=1,
+    ),
+    budget_profile="agent-relaxed",
+  )
+  let strict = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=100000,
+      max_backend_events=1,
+      max_backend_streams=0,
+      max_backend_reviews=0,
+      max_backend_cancels=0,
+      max_backend_retries=0,
+      max_scene_assets=1,
+      max_scene_remote_assets=1,
+    ),
+    budget_profile="agent-tiny",
+  )
+  assert_eq(relaxed.diagnostics.length(), 0)
+  assert_true(relaxed.summary.contains("max_backend_events=4"))
+  assert_true(
+    strict.diagnostics.contains("inspection-backend-events-over-budget:2/1"),
+  )
+  assert_true(
+    strict.diagnostics.contains("inspection-backend-cancels-over-budget:1/0"),
+  )
+  assert_true(
+    strict.diagnostics.contains("inspection-backend-retries-over-budget:1/0"),
+  )
+  assert_true(strict.summary.contains("max_backend_cancels=0"))
 }
 
 ///|
@@ -249,6 +289,11 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=100000,
+      max_backend_events=1,
+      max_backend_streams=1,
+      max_backend_reviews=1,
+      max_backend_cancels=1,
+      max_backend_retries=1,
       max_scene_assets=4,
       max_scene_remote_assets=4,
     ),
@@ -258,6 +303,11 @@ test "project inspection reports route scene asset pressure" {
     inspection,
     inspection_budget(
       max_route_risk_score=1,
+      max_backend_events=1,
+      max_backend_streams=1,
+      max_backend_reviews=1,
+      max_backend_cancels=1,
+      max_backend_retries=1,
       max_scene_assets=1,
       max_scene_remote_assets=1,
     ),

@@ -917,6 +917,9 @@ Current evidence:
 - CI plans print the selected inspection-gate thresholds for route risk, scene
   assets, and remote scene assets, so strict map-heavy and agent-heavy route
   checks are visible before the commands run.
+- Inspection gates now carry explicit backend event, stream, review, cancel,
+  and retry ceilings, so large agentic routes can fail strict builds on
+  operation pressure before route risk becomes the only signal.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
   WeChat target limits visible while Alipay/TikTok generators stay deferred.

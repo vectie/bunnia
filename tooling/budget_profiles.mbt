@@ -77,18 +77,33 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
     "default" =>
       inspection_budget(
         max_route_risk_score=250000,
+        max_backend_events=64,
+        max_backend_streams=16,
+        max_backend_reviews=16,
+        max_backend_cancels=16,
+        max_backend_retries=16,
         max_scene_assets=64,
         max_scene_remote_assets=16,
       )
     "tight" =>
       inspection_budget(
         max_route_risk_score=50000,
+        max_backend_events=16,
+        max_backend_streams=4,
+        max_backend_reviews=8,
+        max_backend_cancels=8,
+        max_backend_retries=8,
         max_scene_assets=16,
         max_scene_remote_assets=4,
       )
     "tiny" =>
       inspection_budget(
         max_route_risk_score=1000,
+        max_backend_events=0,
+        max_backend_streams=0,
+        max_backend_reviews=0,
+        max_backend_cancels=0,
+        max_backend_retries=0,
         max_scene_assets=0,
         max_scene_remote_assets=0,
       )

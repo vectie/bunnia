@@ -48,6 +48,11 @@ pub struct ProjectInspection {
 ///|
 pub struct ProjectInspectionBudget {
   max_route_risk_score : Int
+  max_backend_events : Int
+  max_backend_streams : Int
+  max_backend_reviews : Int
+  max_backend_cancels : Int
+  max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
 } derive(Debug, Eq)
@@ -56,6 +61,11 @@ pub struct ProjectInspectionBudget {
 pub struct ProjectInspectionGate {
   budget_profile : String
   max_route_risk_score : Int
+  max_backend_events : Int
+  max_backend_streams : Int
+  max_backend_reviews : Int
+  max_backend_cancels : Int
+  max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
   diagnostics : Array[String]
@@ -65,10 +75,24 @@ pub struct ProjectInspectionGate {
 ///|
 pub fn inspection_budget(
   max_route_risk_score~ : Int,
+  max_backend_events~ : Int,
+  max_backend_streams~ : Int,
+  max_backend_reviews~ : Int,
+  max_backend_cancels~ : Int,
+  max_backend_retries~ : Int,
   max_scene_assets~ : Int,
   max_scene_remote_assets~ : Int,
 ) -> ProjectInspectionBudget {
-  { max_route_risk_score, max_scene_assets, max_scene_remote_assets }
+  {
+    max_route_risk_score,
+    max_backend_events,
+    max_backend_streams,
+    max_backend_reviews,
+    max_backend_cancels,
+    max_backend_retries,
+    max_scene_assets,
+    max_scene_remote_assets,
+  }
 }
 
 ///|
@@ -81,6 +105,31 @@ pub fn gate_project_inspection(
   if inspection.risk_score > budget.max_route_risk_score {
     diagnostics.push(
       "inspection-route-risk-over-budget:\{inspection.top_route}:\{inspection.risk_score}/\{budget.max_route_risk_score}",
+    )
+  }
+  if inspection.max_backend_event_count > budget.max_backend_events {
+    diagnostics.push(
+      "inspection-backend-events-over-budget:\{inspection.max_backend_event_count}/\{budget.max_backend_events}",
+    )
+  }
+  if inspection.max_backend_stream_count > budget.max_backend_streams {
+    diagnostics.push(
+      "inspection-backend-streams-over-budget:\{inspection.max_backend_stream_count}/\{budget.max_backend_streams}",
+    )
+  }
+  if inspection.max_backend_review_count > budget.max_backend_reviews {
+    diagnostics.push(
+      "inspection-backend-reviews-over-budget:\{inspection.max_backend_review_count}/\{budget.max_backend_reviews}",
+    )
+  }
+  if inspection.max_backend_cancel_count > budget.max_backend_cancels {
+    diagnostics.push(
+      "inspection-backend-cancels-over-budget:\{inspection.max_backend_cancel_count}/\{budget.max_backend_cancels}",
+    )
+  }
+  if inspection.max_backend_retry_count > budget.max_backend_retries {
+    diagnostics.push(
+      "inspection-backend-retries-over-budget:\{inspection.max_backend_retry_count}/\{budget.max_backend_retries}",
     )
   }
   if inspection.max_scene_asset_count > budget.max_scene_assets {
@@ -96,10 +145,15 @@ pub fn gate_project_inspection(
   {
     budget_profile,
     max_route_risk_score: budget.max_route_risk_score,
+    max_backend_events: budget.max_backend_events,
+    max_backend_streams: budget.max_backend_streams,
+    max_backend_reviews: budget.max_backend_reviews,
+    max_backend_cancels: budget.max_backend_cancels,
+    max_backend_retries: budget.max_backend_retries,
     max_scene_assets: budget.max_scene_assets,
     max_scene_remote_assets: budget.max_scene_remote_assets,
     diagnostics,
-    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_backend_events=\{budget.max_backend_events} max_backend_streams=\{budget.max_backend_streams} max_backend_reviews=\{budget.max_backend_reviews} max_backend_cancels=\{budget.max_backend_cancels} max_backend_retries=\{budget.max_backend_retries} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} diagnostics=\{diagnostics.length()}",
   }
 }
 

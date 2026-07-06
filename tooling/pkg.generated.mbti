@@ -19,7 +19,7 @@ pub fn gate_project_inspection(ProjectInspection, ProjectInspectionBudget, budge
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> ProjectInspection
 
-pub fn inspection_budget(max_route_risk_score~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> ProjectInspectionBudget
+pub fn inspection_budget(max_route_risk_score~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int) -> ProjectInspectionBudget
 
 pub fn inspection_budget_for_profile(String) -> ProjectInspectionBudget
 
@@ -124,6 +124,11 @@ pub struct CiPlan {
   budget_profile : String
   render_budget_profile : String
   inspection_max_route_risk_score : Int
+  inspection_max_backend_events : Int
+  inspection_max_backend_streams : Int
+  inspection_max_backend_reviews : Int
+  inspection_max_backend_cancels : Int
+  inspection_max_backend_retries : Int
   inspection_max_scene_assets : Int
   inspection_max_scene_remote_assets : Int
   inspection_gate_summary : String
@@ -221,6 +226,11 @@ pub struct ProjectInspection {
 
 pub struct ProjectInspectionBudget {
   max_route_risk_score : Int
+  max_backend_events : Int
+  max_backend_streams : Int
+  max_backend_reviews : Int
+  max_backend_cancels : Int
+  max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
 } derive(Eq, @debug.Debug)
@@ -228,6 +238,11 @@ pub struct ProjectInspectionBudget {
 pub struct ProjectInspectionGate {
   budget_profile : String
   max_route_risk_score : Int
+  max_backend_events : Int
+  max_backend_streams : Int
+  max_backend_reviews : Int
+  max_backend_cancels : Int
+  max_backend_retries : Int
   max_scene_assets : Int
   max_scene_remote_assets : Int
   diagnostics : Array[String]

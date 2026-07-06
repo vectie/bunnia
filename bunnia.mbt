@@ -2939,11 +2939,21 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
 ///|
 pub fn inspection_budget(
   max_route_risk_score~ : Int,
+  max_backend_events~ : Int,
+  max_backend_streams~ : Int,
+  max_backend_reviews~ : Int,
+  max_backend_cancels~ : Int,
+  max_backend_retries~ : Int,
   max_scene_assets~ : Int,
   max_scene_remote_assets~ : Int,
 ) -> ProjectInspectionBudget {
   @tooling.inspection_budget(
     max_route_risk_score~,
+    max_backend_events~,
+    max_backend_streams~,
+    max_backend_reviews~,
+    max_backend_cancels~,
+    max_backend_retries~,
     max_scene_assets~,
     max_scene_remote_assets~,
   )
