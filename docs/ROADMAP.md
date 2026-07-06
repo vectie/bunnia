@@ -500,6 +500,9 @@ Current evidence:
   results to bounded patch arrays.
 - Chat, communication trace, streaming chunk, review, and run-status updates can
   be represented as typed agent deltas that reuse patch budgets.
+- Generic snapshot deltas can set sections, append stable-id items, remove
+  sections, or explicitly flag full-snapshot replacement while reusing patch
+  budgets.
 - Long chat and communication surfaces can render bounded visible windows while
   keeping append-friendly patch targets for additional messages or trace rows.
 - The WeChat request adapter generator emits `wx.request` helper code from a

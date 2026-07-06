@@ -11,6 +11,8 @@ pub fn agent_message_endpoint(String, String, String, String) -> BackendEndpoint
 
 pub fn agent_stream_endpoint(String, String, String, String) -> BackendEndpoint
 
+pub fn append_snapshot_item_delta(String, String, String, String) -> SnapshotDelta
+
 pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_required~ : Int) -> BackendBudget
 
 pub fn backend_cancelled(BackendRequest) -> BackendResult
@@ -77,13 +79,25 @@ pub fn plan_backend_contract_with_budget(BackendContract, BackendBudget) -> Back
 
 pub fn plan_effects_for_platform(Array[Effect], @core.Platform) -> EffectPlan
 
+pub fn plan_snapshot_deltas(Array[SnapshotDelta]) -> SnapshotDeltaPlan
+
+pub fn plan_snapshot_deltas_with_budget(Array[SnapshotDelta], @core.PatchBudget) -> SnapshotDeltaPlan
+
+pub fn remove_snapshot_section_delta(String, String) -> SnapshotDelta
+
+pub fn replace_snapshot_delta(String, String) -> SnapshotDelta
+
 pub fn request(String, String, String) -> Effect
 
 pub fn retry(String, String) -> Effect
 
 pub fn review_decision_endpoint(String, String, String, String) -> BackendEndpoint
 
+pub fn set_snapshot_section_delta(String, String, String) -> SnapshotDelta
+
 pub fn share(String, String) -> Effect
+
+pub fn snapshot_delta_kind_id(SnapshotDeltaKind) -> String
 
 pub fn snapshot_load_endpoint(String, String, String) -> BackendEndpoint
 
@@ -215,6 +229,32 @@ pub(all) enum HttpMethod {
   Put
   Patch
   Delete
+} derive(Eq, @debug.Debug)
+
+pub struct SnapshotDelta {
+  kind : SnapshotDeltaKind
+  scope : String
+  section : String
+  item_id : String
+  value_json : String
+  patch : @core.Patch
+} derive(Eq, @debug.Debug)
+
+pub(all) enum SnapshotDeltaKind {
+  SnapshotSetSection
+  SnapshotAppendItem
+  SnapshotRemoveSection
+  SnapshotReplaceAll
+} derive(Eq, @debug.Debug)
+
+pub struct SnapshotDeltaPlan {
+  deltas : Array[SnapshotDelta]
+  patch_plan : @core.PatchPlan
+  section_update_count : Int
+  append_item_count : Int
+  full_snapshot_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 // Type aliases

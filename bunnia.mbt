@@ -158,6 +158,15 @@ pub type BackendRequest = @effects.BackendRequest
 pub type BackendResult = @effects.BackendResult
 
 ///|
+pub type SnapshotDeltaKind = @effects.SnapshotDeltaKind
+
+///|
+pub type SnapshotDelta = @effects.SnapshotDelta
+
+///|
+pub type SnapshotDeltaPlan = @effects.SnapshotDeltaPlan
+
+///|
 pub type WechatPage = @wechat.WechatPage
 
 ///|
@@ -1530,6 +1539,59 @@ pub fn backend_result_patches(input : BackendResult) -> Array[Patch] {
 ///|
 pub fn backend_result_kind_id(kind : BackendResultKind) -> String {
   @effects.backend_result_kind_id(kind)
+}
+
+///|
+pub fn set_snapshot_section_delta(
+  scope : String,
+  section : String,
+  value_json : String,
+) -> SnapshotDelta {
+  @effects.set_snapshot_section_delta(scope, section, value_json)
+}
+
+///|
+pub fn append_snapshot_item_delta(
+  scope : String,
+  section : String,
+  item_id : String,
+  value_json : String,
+) -> SnapshotDelta {
+  @effects.append_snapshot_item_delta(scope, section, item_id, value_json)
+}
+
+///|
+pub fn remove_snapshot_section_delta(
+  scope : String,
+  section : String,
+) -> SnapshotDelta {
+  @effects.remove_snapshot_section_delta(scope, section)
+}
+
+///|
+pub fn replace_snapshot_delta(
+  scope : String,
+  value_json : String,
+) -> SnapshotDelta {
+  @effects.replace_snapshot_delta(scope, value_json)
+}
+
+///|
+pub fn plan_snapshot_deltas(deltas : Array[SnapshotDelta]) -> SnapshotDeltaPlan {
+  @effects.plan_snapshot_deltas(deltas)
+}
+
+///|
+pub fn plan_snapshot_deltas_with_budget(
+  deltas : Array[SnapshotDelta],
+  budget : PatchBudget,
+) -> SnapshotDeltaPlan {
+  @effects.plan_snapshot_deltas_with_budget(deltas, budget)
+}
+
+///|
+pub fn snapshot_delta_kind_id(kind : SnapshotDeltaKind) -> String {
+  @effects.snapshot_delta_kind_id(kind)
 }
 
 ///|

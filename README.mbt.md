@@ -116,6 +116,11 @@ Use `@bunnia.surface_status_badge(...)` and
 cancelled, or degraded state that should be visible without replacing the
 underlying list, dashboard, feed, or scene model.
 
+For backend refreshes, use `@bunnia.plan_snapshot_deltas(...)` to turn section
+updates, append-only items, and removals into bounded patches. Full snapshot
+replacement is still representable for bootstrap paths, but plans flag it so
+large mini-apps do not accidentally refresh whole pages.
+
 Generate a standalone starter project with:
 
 ```bash
@@ -229,6 +234,24 @@ test {
   assert_eq(plan.endpoint_count, 2)
   assert_true(js.contains("wx.request"))
   assert_true(!js.contains("secret"))
+}
+```
+
+```mbt check
+///|
+test {
+  let plan = @bunnia.plan_snapshot_deltas([
+    @bunnia.set_snapshot_section_delta(
+      "home", "buildings", "[{\"id\":\"hall\"}]",
+    ),
+    @bunnia.append_snapshot_item_delta(
+      "home", "messages", "msg-1", "{\"id\":\"msg-1\"}",
+    ),
+  ])
+  assert_eq(plan.section_update_count, 1)
+  assert_eq(plan.append_item_count, 1)
+  assert_eq(plan.full_snapshot_count, 0)
+  assert_true(plan.patch_plan.total_estimated_bytes < 128)
 }
 ```
 

@@ -533,6 +533,30 @@ test "backend contracts plan request and streaming effects" {
 }
 
 ///|
+test "snapshot delta plans expose section updates through facade" {
+  let deltas = [
+    @bunnia.set_snapshot_section_delta(
+      "town", "buildings", "[{\"id\":\"hall\"}]",
+    ),
+    @bunnia.append_snapshot_item_delta(
+      "town", "messages", "msg-1", "{\"id\":\"msg-1\",\"text\":\"ready\"}",
+    ),
+  ]
+  let plan = @bunnia.plan_snapshot_deltas(deltas)
+  assert_eq(plan.section_update_count, 1)
+  assert_eq(plan.append_item_count, 1)
+  assert_eq(plan.full_snapshot_count, 0)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_eq(plan.patch_plan.patches[0].path, "snapshots.town.buildings")
+  assert_eq(@bunnia.snapshot_delta_kind_id(deltas[1].kind), "append-item")
+  assert_true(
+    @bunnia.generate_wechat_set_data_call(plan.patch_plan.patches).contains(
+      "snapshots.town.messages",
+    ),
+  )
+}
+
+///|
 test "wechat project generator emits deterministic mini-program files" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),

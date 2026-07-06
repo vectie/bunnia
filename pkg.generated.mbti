@@ -30,6 +30,8 @@ pub fn append_json(String, String) -> @core.Patch
 
 pub fn append_message_delta(String, @agent.Message) -> @agent.AgentDelta
 
+pub fn append_snapshot_item_delta(String, String, String, String) -> @effects.SnapshotDelta
+
 pub fn append_stream_chunk_delta(String, String, String, status? : @agent.RunStatus) -> @agent.AgentDelta
 
 pub fn[Model, Msg] apply(@program.Program[Model, Msg], Msg) -> @program.Program[Model, Msg]
@@ -282,6 +284,10 @@ pub fn plan_scene_render_viewport(@scene.Scene, @scene.SceneViewport, @scene.Sce
 
 pub fn plan_scene_render_with_budget(@scene.Scene, @scene.SceneRenderBudget) -> @scene.SceneRenderPlan
 
+pub fn plan_snapshot_deltas(Array[@effects.SnapshotDelta]) -> @effects.SnapshotDeltaPlan
+
+pub fn plan_snapshot_deltas_with_budget(Array[@effects.SnapshotDelta], @core.PatchBudget) -> @effects.SnapshotDeltaPlan
+
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
 pub fn platform_id(@core.Platform) -> String
@@ -298,7 +304,11 @@ pub fn remote_image_asset(String, String) -> @scene.SceneAsset
 
 pub fn remove_path(String) -> @core.Patch
 
+pub fn remove_snapshot_section_delta(String, String) -> @effects.SnapshotDelta
+
 pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> @core.RenderBudget
+
+pub fn replace_snapshot_delta(String, String) -> @effects.SnapshotDelta
 
 pub fn report_wechat_project(@wechat.WechatProject, @wechat.WechatRuntime) -> @wechat.WechatBuildReport
 
@@ -398,9 +408,13 @@ pub fn set_run_status_delta(String, @agent.RunStatus) -> @agent.AgentDelta
 
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
 
+pub fn set_snapshot_section_delta(String, String, String) -> @effects.SnapshotDelta
+
 pub fn set_string(String, String) -> @core.Patch
 
 pub fn share(String, String) -> @effects.Effect
+
+pub fn snapshot_delta_kind_id(@effects.SnapshotDeltaKind) -> String
 
 pub fn snapshot_load_endpoint(String, String, String) -> @effects.BackendEndpoint
 
@@ -608,6 +622,12 @@ pub using @scene {type SceneRenderPlan}
 pub using @scene {type SceneSize}
 
 pub using @scene {type SceneViewport}
+
+pub using @effects {type SnapshotDelta}
+
+pub using @effects {type SnapshotDeltaKind}
+
+pub using @effects {type SnapshotDeltaPlan}
 
 pub using @program {type Step}
 
