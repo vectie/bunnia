@@ -207,9 +207,10 @@ fn generate_project_from_pages_internal(
   if pages.length() == 0 {
     panic()
   }
-  let entry = pages[0]
+  let generated_pages = project_pages_for_backend(pages, backend_contract)
+  let entry = generated_pages[0]
   let files : Array[WechatFile] = [
-    wechat_file("app.json", app_json(pages)),
+    wechat_file("app.json", app_json(generated_pages)),
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
     wechat_file("bunnia.runtime.js", runtime_js()),
@@ -222,7 +223,7 @@ fn generate_project_from_pages_internal(
       )
     None => ()
   }
-  for item in pages {
+  for item in generated_pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
     if item.page.wxss != "" {
       files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
@@ -236,21 +237,65 @@ fn generate_project_from_pages_internal(
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
-  let manifest = project_manifest(name, entry.route, pages, files)
+  let manifest = project_manifest(name, entry.route, generated_pages, files)
   files.push(wechat_file("bunnia.manifest.json", manifest_json(manifest)))
   let total = total_file_bytes(files)
-  let report = report_project_pages(files, pages, default_build_budget())
+  let report = report_project_pages(
+    files,
+    generated_pages,
+    default_build_budget(),
+  )
   {
     name,
     route: entry.route,
     page: entry.page,
-    pages,
-    page_count: pages.length(),
+    pages: generated_pages,
+    page_count: generated_pages.length(),
     manifest,
     files,
     total_bytes: total,
     report,
-    summary: "Bunnia WeChat project: pages=\{pages.length()} files=\{files.length()} bytes=\{total} route=\{entry.route}",
+    summary: "Bunnia WeChat project: pages=\{generated_pages.length()} files=\{files.length()} bytes=\{total} route=\{entry.route}",
+  }
+}
+
+///|
+fn project_pages_for_backend(
+  pages : Array[WechatProjectPage],
+  backend_contract : @effects.BackendContract?,
+) -> Array[WechatProjectPage] {
+  let output : Array[WechatProjectPage] = []
+  for item in pages {
+    match backend_contract {
+      Some(contract) =>
+        output.push(project_page_with_backend_js(item, contract))
+      None => output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn project_page_with_backend_js(
+  item : WechatProjectPage,
+  contract : @effects.BackendContract,
+) -> WechatProjectPage {
+  {
+    name: item.name,
+    route: item.route,
+    page: {
+      wxml: item.page.wxml,
+      wxss: item.page.wxss,
+      js: project_page_js_with_backend(
+        item.name,
+        item.route,
+        item.page.plan,
+        contract,
+      ),
+      json: item.page.json,
+      plan: item.page.plan,
+    },
+    runtime: item.runtime,
   }
 }
 
@@ -745,6 +790,8 @@ fn page_js(
   "\n" +
   runtime_helpers_js() +
   "\n" +
+  backend_noop_js() +
+  "\n" +
   page_definition_js(name, plan, runtime.initial_data_json)
 }
 
@@ -756,6 +803,25 @@ fn project_page_js(
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
+  "\n" +
+  backend_noop_js() +
+  "\n" +
+  page_definition_js(name, plan, "__bunniaInitialData")
+}
+
+///|
+fn project_page_js_with_backend(
+  name : String,
+  route : String,
+  plan : @core.RenderPlan,
+  contract : @effects.BackendContract,
+) -> String {
+  "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
+  "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
+  "const { __bunniaRequest } = require('\{backend_require_path(route)}')\n" +
+  "const __bunniaBackendEvents = \{backend_event_object(contract)}\n" +
+  "\n" +
+  backend_request_dispatch_js() +
   "\n" +
   page_definition_js(name, plan, "__bunniaInitialData")
 }
@@ -822,8 +888,22 @@ fn page_definition_js(
   "      { kind: 'set', path: '__bunnia.handledEvents', value: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
   "      ...patches\n" +
   "    ])\n" +
+  "    __bunniaMaybeRequest(this, message)\n" +
   "  }\n" +
   "})"
+}
+
+///|
+fn backend_noop_js() -> String {
+  "function __bunniaMaybeRequest(_page, _message) {}\n"
+}
+
+///|
+fn backend_request_dispatch_js() -> String {
+  "function __bunniaMaybeRequest(page, message) {\n" +
+  "  const endpointId = __bunniaBackendEvents[message]\n" +
+  "  if (endpointId) __bunniaRequest(page, endpointId)\n" +
+  "}\n"
 }
 
 ///|
@@ -863,6 +943,21 @@ fn runtime_require_path(route : String) -> String {
 }
 
 ///|
+fn backend_require_path(route : String) -> String {
+  let depth = route_slash_count(route)
+  if depth == 0 {
+    "./bunnia.backend.js"
+  } else {
+    let out = StringBuilder::new()
+    for _ in 0..<depth {
+      out.write_string("../")
+    }
+    out.write_string("bunnia.backend.js")
+    out.to_string()
+  }
+}
+
+///|
 fn route_slash_count(route : String) -> Int {
   let mut count = 0
   for i in 0..<route.length() {
@@ -886,6 +981,25 @@ fn event_patches_object(items : Array[WechatEventPatch]) -> String {
     out.write_string(escape_json(item.message))
     out.write_string("\":")
     out.write_string(patches_to_operations(item.patches))
+  }
+  out.write_string("}")
+  out.to_string()
+}
+
+///|
+fn backend_event_object(contract : @effects.BackendContract) -> String {
+  let out = StringBuilder::new()
+  out.write_string("{")
+  for i in 0..<contract.endpoints.length() {
+    let endpoint = contract.endpoints[i]
+    if i > 0 {
+      out.write_string(",")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(endpoint.id))
+    out.write_string("\":\"")
+    out.write_string(escape_json(endpoint.id))
+    out.write_string("\"")
   }
   out.write_string("}")
   out.to_string()

@@ -410,6 +410,9 @@ Current evidence:
 - WeChat projects can optionally emit `bunnia.backend.js` from a backend
   contract, keeping agent/request integration packaged but still
   product-neutral and secret-free.
+- Backend-aware WeChat page JS dispatches a contract request when the handled
+  event message matches an endpoint id, so request behavior stays data-driven
+  instead of product-specific.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
@@ -556,6 +559,8 @@ Current evidence:
 - Backend-aware generated projects package that request helper as
   `bunnia.backend.js`, so agentic examples carry their contract-derived
   request boundary without embedding Moontown-specific execution logic.
+- Matching endpoint events now call the generated request helper after bounded
+  local patches, preserving replay/loading state without full-page rerenders.
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.

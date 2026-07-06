@@ -296,7 +296,9 @@ fn page_first_screen_bytes(
 fn shared_first_screen_bytes(files : Array[WechatFile]) -> Int {
   let mut total = 0
   for file in files {
-    if file.path == "app.wxss" || file.path == "bunnia.runtime.js" {
+    if file.path == "app.wxss" ||
+      file.path == "bunnia.runtime.js" ||
+      file.path == "bunnia.backend.js" {
       total += file.content.length()
     }
   }

@@ -139,7 +139,8 @@ route structure and runtime glue instead of duplicating helpers, default
 styles, initial data, and event-patch tables per route.
 Projects generated with a backend contract also include `bunnia.backend.js`, a
 contract-derived `wx.request` adapter that keeps base URLs in page data and
-does not generate app secrets.
+does not generate app secrets. Backend-aware pages call that adapter when a
+handled event message matches a backend endpoint id.
 
 For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report

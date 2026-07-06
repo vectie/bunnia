@@ -47,7 +47,7 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
   event_patches.push(
     @bunnia.wechat_event_patch("submit-operator-request", [
       @bunnia.backend_state_patch(
-        "submit-operator",
+        "submit-operator-request",
         @bunnia.backend_state_loading(),
       ),
     ]),
@@ -102,7 +102,7 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
       "load-building-status", "/building/status", "buildingStatus",
     ),
     @bunnia.operator_submit_endpoint(
-      "submit-operator", "/operator/request", "operatorRequest", "operatorResult",
+      "submit-operator-request", "/operator/request", "operatorRequest", "operatorResult",
     ),
     @bunnia.review_decision_endpoint(
       "review-wenyu-overview", "/review/wenyu", "review", "reviewResult",

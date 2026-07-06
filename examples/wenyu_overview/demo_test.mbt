@@ -18,7 +18,7 @@ test "wenyu proof slice generates wechat output from projection" {
   assert_true(page.js.contains("\"submit-operator-request\""))
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"backend.submit-operator.state\",value:\"loading\"}",
+      "{kind:\"set\",path:\"backend.submit-operator-request.state\",value:\"loading\"}",
     ),
   )
   assert_true(page.plan.node_count > 35)
@@ -33,6 +33,12 @@ test "wenyu proof slice generates a separate mini-program route" {
   assert_eq(project.manifest.entry_route, "pages/wenyu/index")
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
   assert_true(project.page.js.contains("require('./index.data.js')"))
+  assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
+  assert_true(
+    project.page.js.contains(
+      "\"submit-operator-request\":\"submit-operator-request\"",
+    ),
+  )
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_eq(project.manifest.pages[0].windowed_list_count, 1)
   assert_eq(project.manifest.pages[0].list_total_count, 4)

@@ -863,6 +863,11 @@ test "backend contracts plan request and streaming effects" {
       "\"send-agent-message\"",
     ),
   )
+  assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
+  assert_true(
+    project.page.js.contains("\"send-agent-message\":\"send-agent-message\""),
+  )
+  assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"kind\":\"backend-js\"",

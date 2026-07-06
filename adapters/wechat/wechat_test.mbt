@@ -126,6 +126,10 @@ test "wechat projects can package backend request adapter" {
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_eq(project.files.length(), 11)
   assert_eq(project.manifest.app_file_count, 10)
+  assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
+  assert_true(project.page.js.contains("\"send-message\":\"send-message\""))
+  assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
+  assert_true(project.page.js.contains("__bunniaRequest(page, endpointId)"))
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
       "const __bunniaBackend = {baseUrlKey:\"backendBaseUrl\"",
