@@ -65,6 +65,15 @@ pub type Communication = @agent.Communication
 pub type ReviewAction = @agent.ReviewAction
 
 ///|
+pub type AgentDeltaKind = @agent.AgentDeltaKind
+
+///|
+pub type AgentDelta = @agent.AgentDelta
+
+///|
+pub type AgentDeltaPlan = @agent.AgentDeltaPlan
+
+///|
 pub type SceneSize = @scene.SceneSize
 
 ///|
@@ -699,6 +708,63 @@ pub fn message_feed(messages : Array[Message]) -> Node {
 ///|
 pub fn review_controls(action : ReviewAction) -> Node {
   @agent.review_controls(action)
+}
+
+///|
+pub fn append_message_delta(target_path : String, item : Message) -> AgentDelta {
+  @agent.append_message_delta(target_path, item)
+}
+
+///|
+pub fn append_communication_delta(
+  target_path : String,
+  item : Communication,
+) -> AgentDelta {
+  @agent.append_communication_delta(target_path, item)
+}
+
+///|
+pub fn append_stream_chunk_delta(
+  target_path : String,
+  chunk_id : String,
+  text : String,
+  status? : RunStatus = @agent.Running,
+) -> AgentDelta {
+  @agent.append_stream_chunk_delta(target_path, chunk_id, text, status~)
+}
+
+///|
+pub fn set_run_status_delta(
+  target_path : String,
+  status : RunStatus,
+) -> AgentDelta {
+  @agent.set_run_status_delta(target_path, status)
+}
+
+///|
+pub fn set_review_state_delta(
+  target_path : String,
+  state : ReviewState,
+) -> AgentDelta {
+  @agent.set_review_state_delta(target_path, state)
+}
+
+///|
+pub fn plan_agent_deltas(deltas : Array[AgentDelta]) -> AgentDeltaPlan {
+  @agent.plan_agent_deltas(deltas)
+}
+
+///|
+pub fn plan_agent_deltas_with_budget(
+  deltas : Array[AgentDelta],
+  budget : PatchBudget,
+) -> AgentDeltaPlan {
+  @agent.plan_agent_deltas_with_budget(deltas, budget)
+}
+
+///|
+pub fn agent_delta_kind_id(kind : AgentDeltaKind) -> String {
+  @agent.agent_delta_kind_id(kind)
 }
 
 ///|

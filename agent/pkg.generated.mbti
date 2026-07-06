@@ -9,6 +9,14 @@ import {
 // Values
 pub fn actor(id~ : String, label~ : String, kind? : ActorKind) -> Actor
 
+pub fn agent_delta_kind_id(AgentDeltaKind) -> String
+
+pub fn append_communication_delta(String, Communication) -> AgentDelta
+
+pub fn append_message_delta(String, Message) -> AgentDelta
+
+pub fn append_stream_chunk_delta(String, String, String, status? : RunStatus) -> AgentDelta
+
 pub fn approval(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> Communication
 
 pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
@@ -31,6 +39,10 @@ pub fn message_feed(Array[Message]) -> @core.Node
 
 pub fn message_row(Message) -> @core.Node
 
+pub fn plan_agent_deltas(Array[AgentDelta]) -> AgentDeltaPlan
+
+pub fn plan_agent_deltas_with_budget(Array[AgentDelta], @core.PatchBudget) -> AgentDeltaPlan
+
 pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
 
 pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : ReviewState) -> ReviewAction
@@ -42,6 +54,10 @@ pub fn review_request(id~ : String, thread_id~ : String, from_actor_id~ : String
 pub fn review_state_id(ReviewState) -> String
 
 pub fn run_status_id(RunStatus) -> String
+
+pub fn set_review_state_delta(String, ReviewState) -> AgentDelta
+
+pub fn set_run_status_delta(String, RunStatus) -> AgentDelta
 
 pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_ref? : String, status? : RunStatus) -> Thread
 
@@ -62,6 +78,28 @@ pub(all) enum ActorKind {
   Human
   Agent
   System
+} derive(Eq, @debug.Debug)
+
+pub struct AgentDelta {
+  id : String
+  kind : AgentDeltaKind
+  target_path : String
+  patches : Array[@core.Patch]
+} derive(Eq, @debug.Debug)
+
+pub(all) enum AgentDeltaKind {
+  AppendMessage
+  AppendCommunication
+  AppendStreamChunk
+  SetRunStatus
+  SetReviewState
+} derive(Eq, @debug.Debug)
+
+pub struct AgentDeltaPlan {
+  deltas : Array[AgentDelta]
+  patch_plan : @core.PatchPlan
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct Communication {

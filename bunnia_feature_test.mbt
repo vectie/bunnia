@@ -95,7 +95,7 @@ test "scene assets render sprites and report asset budgets" {
   assert_eq(patches.patches.length(), 2)
   assert_true(
     @bunnia.generate_wechat_set_data_call(patches.patches).contains(
-      "\"scenes.overview.markers.marker-a.status\":\"selected\"",
+      "{kind:\"set\",path:\"scenes.overview.markers.marker-a.status\",value:\"selected\"}",
     ),
   )
   assert_eq(@bunnia.scene_asset_kind_id(@bunnia.scene_asset_sprite()), "sprite")
@@ -216,11 +216,16 @@ test "wechat generator emits page files with targeted event routing" {
   let output = @bunnia.generate_wechat_page_with_runtime("Demo", root, runtime)
   assert_true(output.wxml.contains("bindtap=\"__bunniaEvent\""))
   assert_true(output.wxml.contains("data-bunnia-message=\"open-detail\""))
-  assert_true(output.js.contains("\"__bunnia.lastMessage\""))
+  assert_true(output.js.contains("path: '__bunnia.lastMessage'"))
   assert_true(output.js.contains("const __bunniaEventPatches"))
-  assert_true(output.js.contains("\"open-detail\":{\"counter\":1}"))
+  assert_true(output.js.contains("__bunniaApplyPatches"))
+  assert_true(
+    output.js.contains(
+      "\"open-detail\":[{kind:\"set\",path:\"counter\",value:1}]",
+    ),
+  )
   assert_true(output.js.contains("...({\"counter\":0})"))
-  assert_true(output.js.contains("\"__bunnia.handledEvents\""))
+  assert_true(output.js.contains("path: '__bunnia.handledEvents'"))
   assert_true(output.json.contains("navigationBarTitleText"))
   assert_eq(output.plan.node_count, 5)
 }
@@ -448,9 +453,50 @@ test "patch plans keep mini-app updates bounded" {
   assert_eq(plan.diagnostics.length(), 2)
   assert_true(plan.diagnostics.contains("patch-count-over-budget:2/1"))
   let js = @bunnia.generate_wechat_set_data_call(patches)
-  assert_true(js.contains("this.setData"))
-  assert_true(js.contains("\"__bunnia.lastMessage\":\"open-detail\""))
-  assert_true(js.contains("\"scene.markers.marker-a.status\":\"running\""))
+  assert_true(js.contains("__bunniaApplyPatches(this"))
+  assert_true(
+    js.contains(
+      "{kind:\"set\",path:\"__bunnia.lastMessage\",value:\"open-detail\"}",
+    ),
+  )
+  assert_true(
+    js.contains(
+      "{kind:\"set\",path:\"scene.markers.marker-a.status\",value:\"running\"}",
+    ),
+  )
+}
+
+///|
+test "agent deltas lower chat and review updates to small patch plans" {
+  let deltas = [
+    @bunnia.append_message_delta(
+      "threads.thread-a.messages",
+      @bunnia.message(
+        id="msg-stream",
+        actor_id="agent-a",
+        thread_id="thread-a",
+        text="Starting stream",
+        status=@bunnia.run_running(),
+      ),
+    ),
+    @bunnia.append_stream_chunk_delta(
+      "streams.run-a.chunks", "chunk-1", "partial",
+    ),
+    @bunnia.set_review_state_delta(
+      "reviews.route.state",
+      @bunnia.review_approved(),
+    ),
+  ]
+  let plan = @bunnia.plan_agent_deltas(deltas)
+  assert_eq(plan.deltas.length(), 3)
+  assert_eq(plan.patch_plan.patches.length(), 3)
+  assert_true(plan.summary.contains("deltas=3"))
+  assert_eq(@bunnia.agent_delta_kind_id(deltas[1].kind), "append-stream-chunk")
+  assert_true(
+    @bunnia.generate_wechat_set_data_call(plan.patch_plan.patches).contains(
+      "{kind:\"set\",path:\"reviews.route.state\",value:\"approved\"}",
+    ),
+  )
 }
 
 ///|

@@ -320,6 +320,8 @@ Current evidence:
 - Generic communication records now cover threads, handoffs, broadcasts, review
   requests, approvals, tool results, and recovery notices without importing a
   product-specific agent runtime.
+- Agent deltas now represent append-only message, communication, streaming
+  chunk, run-status, and review-state updates as bounded patch plans.
 - Scene assets now have explicit manifests, budget diagnostics, sprite-aware
   static rendering, and scene-specific marker status/selection patch helpers.
 
@@ -472,11 +474,16 @@ Current evidence:
 - Replayable backend requests and backend results are typed as data, with
   helpers that lower success, failure, timeout, malformed, and cancelled
   results to bounded patch arrays.
+- Chat, communication trace, streaming chunk, review, and run-status updates can
+  be represented as typed agent deltas that reuse patch budgets.
 - The WeChat request adapter generator emits `wx.request` helper code from a
   contract and expects the base URL from page data, avoiding generated secrets.
 - The generated WeChat request helper stores request payloads and replay keys,
   distinguishes timeout and malformed responses, and exposes retry/cancel
   helpers without forcing a full page rerender.
+- Generated WeChat event patches preserve `set`, `append`, and `remove`
+  operation kinds, so agent deltas can append feed rows or stream chunks
+  without replacing the whole collection.
 
 Do not build yet:
 

@@ -119,7 +119,7 @@ pub fn event_patch(
 
 ///|
 pub fn generate_set_data_call(patches : Array[@core.Patch]) -> String {
-  "this.setData(\{patches_to_object(patches)})"
+  "__bunniaApplyPatches(this, \{patches_to_operations(patches)})"
 }
 
 ///|
@@ -229,21 +229,33 @@ fn sitemap_json() -> String {
 }
 
 ///|
-fn patches_to_object(patches : Array[@core.Patch]) -> String {
+fn patches_to_operations(patches : Array[@core.Patch]) -> String {
   let out = StringBuilder::new()
-  out.write_string("{")
+  out.write_string("[")
   for i in 0..<patches.length() {
     let item = patches[i]
     if i > 0 {
       out.write_string(",")
     }
-    out.write_string("\"")
+    out.write_string("{kind:\"")
+    out.write_string(patch_kind_id(item.kind))
+    out.write_string("\",path:\"")
     out.write_string(escape_json(item.path))
-    out.write_string("\":")
+    out.write_string("\",value:")
     out.write_string(item.value_json)
+    out.write_string("}")
   }
-  out.write_string("}")
+  out.write_string("]")
   out.to_string()
+}
+
+///|
+fn patch_kind_id(kind : @core.PatchKind) -> String {
+  match kind {
+    @core.Set => "set"
+    @core.Append => "append"
+    @core.Remove => "remove"
+  }
 }
 
 ///|
@@ -320,6 +332,25 @@ fn page_js(
 ) -> String {
   "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
   "\n" +
+  "function __bunniaReadPath(root, path) {\n" +
+  "  return String(path).split('.').reduce((value, part) => value == null ? undefined : value[part], root)\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaApplyPatches(page, operations) {\n" +
+  "  const update = {}\n" +
+  "  ;(operations || []).forEach((patch) => {\n" +
+  "    if (patch.kind === 'append') {\n" +
+  "      const current = __bunniaReadPath(page.data, patch.path)\n" +
+  "      update[patch.path] = Array.isArray(current) ? current.concat([patch.value]) : [patch.value]\n" +
+  "    } else if (patch.kind === 'remove') {\n" +
+  "      update[patch.path] = null\n" +
+  "    } else {\n" +
+  "      update[patch.path] = patch.value\n" +
+  "    }\n" +
+  "  })\n" +
+  "  page.setData(update)\n" +
+  "}\n" +
+  "\n" +
   "Page({\n" +
   "  data: {\n" +
   "    __bunnia: {\n" +
@@ -333,12 +364,12 @@ fn page_js(
   "  },\n" +
   "  __bunniaEvent(event) {\n" +
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
-  "    const patches = __bunniaEventPatches[message] || {}\n" +
-  "    this.setData({\n" +
-  "      \"__bunnia.lastMessage\": message,\n" +
-  "      \"__bunnia.handledEvents\": (this.data.__bunnia.handledEvents || 0) + 1,\n" +
+  "    const patches = __bunniaEventPatches[message] || []\n" +
+  "    __bunniaApplyPatches(this, [\n" +
+  "      { kind: 'set', path: '__bunnia.lastMessage', value: message },\n" +
+  "      { kind: 'set', path: '__bunnia.handledEvents', value: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
   "      ...patches\n" +
-  "    })\n" +
+  "    ])\n" +
   "  }\n" +
   "})"
 }
@@ -355,7 +386,7 @@ fn event_patches_object(items : Array[WechatEventPatch]) -> String {
     out.write_string("\"")
     out.write_string(escape_json(item.message))
     out.write_string("\":")
-    out.write_string(patches_to_object(item.patches))
+    out.write_string(patches_to_operations(item.patches))
   }
   out.write_string("}")
   out.to_string()

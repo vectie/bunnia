@@ -9,7 +9,11 @@ test "wenyu proof slice generates wechat output from projection" {
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
   assert_true(page.wxml.contains("bunnia-communication-review-request"))
   assert_true(page.js.contains("\"submit-operator-request\""))
-  assert_true(page.js.contains("\"backend.submit-operator.state\":\"loading\""))
+  assert_true(
+    page.js.contains(
+      "{kind:\"set\",path:\"backend.submit-operator.state\",value:\"loading\"}",
+    ),
+  )
   assert_true(page.plan.node_count > 35)
 }
 
