@@ -374,6 +374,9 @@ pages.
 WeChat build reports, manifests, inspections, and snapshots also report update
 operation counts separately from update payload bytes, so many small `setData`
 keys stay visible as a speed risk even when the JSON payload is compact.
+Project inspections also rank and gate route-level repeated-list pressure from
+generated manifests, including unwindowed rows, unkeyed rows, and duplicate
+keys.
 Snapshots include first-class list, agent workflow, snapshot replacement, and
 map-quality pressure counters, so CI diffs can track huge-app render and
 interaction risk without parsing the long profile summary.

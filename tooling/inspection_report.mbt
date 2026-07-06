@@ -8,6 +8,9 @@ pub struct RouteInspection {
   update_operation_count : Int
   node_count : Int
   event_count : Int
+  unwindowed_list_child_count : Int
+  unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
   backend_event_count : Int
   backend_stream_count : Int
   backend_review_count : Int
@@ -35,6 +38,9 @@ pub struct ProjectInspection {
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
   max_update_operation_count : Int
+  max_unwindowed_list_child_count : Int
+  max_unkeyed_list_child_count : Int
+  max_duplicate_list_key_count : Int
   max_backend_event_count : Int
   max_backend_stream_count : Int
   max_backend_review_count : Int
@@ -54,6 +60,9 @@ pub struct ProjectInspectionBudget {
   max_route_risk_score : Int
   max_update_payload_bytes : Int
   max_update_operations : Int
+  max_unwindowed_list_children : Int
+  max_unkeyed_list_children : Int
+  max_duplicate_list_keys : Int
   max_backend_events : Int
   max_backend_streams : Int
   max_backend_reviews : Int
@@ -70,6 +79,9 @@ pub struct ProjectInspectionGate {
   max_route_risk_score : Int
   max_update_payload_bytes : Int
   max_update_operations : Int
+  max_unwindowed_list_children : Int
+  max_unkeyed_list_children : Int
+  max_duplicate_list_keys : Int
   max_backend_events : Int
   max_backend_streams : Int
   max_backend_reviews : Int
@@ -87,6 +99,9 @@ pub fn inspection_budget(
   max_route_risk_score~ : Int,
   max_update_payload_bytes~ : Int,
   max_update_operations~ : Int,
+  max_unwindowed_list_children~ : Int,
+  max_unkeyed_list_children~ : Int,
+  max_duplicate_list_keys~ : Int,
   max_backend_events~ : Int,
   max_backend_streams~ : Int,
   max_backend_reviews~ : Int,
@@ -100,6 +115,9 @@ pub fn inspection_budget(
     max_route_risk_score,
     max_update_payload_bytes,
     max_update_operations,
+    max_unwindowed_list_children,
+    max_unkeyed_list_children,
+    max_duplicate_list_keys,
     max_backend_events,
     max_backend_streams,
     max_backend_reviews,
@@ -131,6 +149,22 @@ pub fn gate_project_inspection(
   if inspection.max_update_operation_count > budget.max_update_operations {
     diagnostics.push(
       "inspection-update-operations-over-budget:\{inspection.max_update_operation_count}/\{budget.max_update_operations}",
+    )
+  }
+  if inspection.max_unwindowed_list_child_count >
+    budget.max_unwindowed_list_children {
+    diagnostics.push(
+      "inspection-unwindowed-list-children-over-budget:\{inspection.max_unwindowed_list_child_count}/\{budget.max_unwindowed_list_children}",
+    )
+  }
+  if inspection.max_unkeyed_list_child_count > budget.max_unkeyed_list_children {
+    diagnostics.push(
+      "inspection-unkeyed-list-children-over-budget:\{inspection.max_unkeyed_list_child_count}/\{budget.max_unkeyed_list_children}",
+    )
+  }
+  if inspection.max_duplicate_list_key_count > budget.max_duplicate_list_keys {
+    diagnostics.push(
+      "inspection-duplicate-list-keys-over-budget:\{inspection.max_duplicate_list_key_count}/\{budget.max_duplicate_list_keys}",
     )
   }
   if inspection.max_backend_event_count > budget.max_backend_events {
@@ -178,6 +212,9 @@ pub fn gate_project_inspection(
     max_route_risk_score: budget.max_route_risk_score,
     max_update_payload_bytes: budget.max_update_payload_bytes,
     max_update_operations: budget.max_update_operations,
+    max_unwindowed_list_children: budget.max_unwindowed_list_children,
+    max_unkeyed_list_children: budget.max_unkeyed_list_children,
+    max_duplicate_list_keys: budget.max_duplicate_list_keys,
     max_backend_events: budget.max_backend_events,
     max_backend_streams: budget.max_backend_streams,
     max_backend_reviews: budget.max_backend_reviews,
@@ -187,7 +224,7 @@ pub fn gate_project_inspection(
     max_scene_remote_assets: budget.max_scene_remote_assets,
     max_scene_package_bytes: budget.max_scene_package_bytes,
     diagnostics,
-    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_update_payload=\{budget.max_update_payload_bytes} max_update_ops=\{budget.max_update_operations} max_backend_events=\{budget.max_backend_events} max_backend_streams=\{budget.max_backend_streams} max_backend_reviews=\{budget.max_backend_reviews} max_backend_cancels=\{budget.max_backend_cancels} max_backend_retries=\{budget.max_backend_retries} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} max_scene_package_bytes=\{budget.max_scene_package_bytes} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia inspection gate: budget=\{budget_profile} max_route_risk=\{budget.max_route_risk_score} max_update_payload=\{budget.max_update_payload_bytes} max_update_ops=\{budget.max_update_operations} max_unwindowed_list_children=\{budget.max_unwindowed_list_children} max_unkeyed_list_children=\{budget.max_unkeyed_list_children} max_duplicate_list_keys=\{budget.max_duplicate_list_keys} max_backend_events=\{budget.max_backend_events} max_backend_streams=\{budget.max_backend_streams} max_backend_reviews=\{budget.max_backend_reviews} max_backend_cancels=\{budget.max_backend_cancels} max_backend_retries=\{budget.max_backend_retries} max_scene_assets=\{budget.max_scene_assets} max_scene_remote_assets=\{budget.max_scene_remote_assets} max_scene_package_bytes=\{budget.max_scene_package_bytes} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -201,6 +238,9 @@ pub fn inspect_wechat_project(
   let routes : Array[RouteInspection] = []
   let mut top_route = ""
   let mut top_score = -1
+  let mut max_unwindowed_list_children = 0
+  let mut max_unkeyed_list_children = 0
+  let mut max_duplicate_list_keys = 0
   let mut max_backend_events = 0
   let mut max_backend_streams = 0
   let mut max_backend_reviews = 0
@@ -218,6 +258,15 @@ pub fn inspect_wechat_project(
     if inspection.risk_score > top_score {
       top_route = inspection.route
       top_score = inspection.risk_score
+    }
+    if inspection.unwindowed_list_child_count > max_unwindowed_list_children {
+      max_unwindowed_list_children = inspection.unwindowed_list_child_count
+    }
+    if inspection.unkeyed_list_child_count > max_unkeyed_list_children {
+      max_unkeyed_list_children = inspection.unkeyed_list_child_count
+    }
+    if inspection.duplicate_list_key_count > max_duplicate_list_keys {
+      max_duplicate_list_keys = inspection.duplicate_list_key_count
     }
     if inspection.backend_event_count > max_backend_events {
       max_backend_events = inspection.backend_event_count
@@ -264,6 +313,9 @@ pub fn inspect_wechat_project(
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
     max_update_operation_count: report.max_page_update_operation_count,
+    max_unwindowed_list_child_count: max_unwindowed_list_children,
+    max_unkeyed_list_child_count: max_unkeyed_list_children,
+    max_duplicate_list_key_count: max_duplicate_list_keys,
     max_backend_event_count: max_backend_events,
     max_backend_stream_count: max_backend_streams,
     max_backend_review_count: max_backend_reviews,
@@ -275,7 +327,7 @@ pub fn inspect_wechat_project(
     max_scene_remote_asset_count: max_scene_remote_assets,
     max_scene_package_bytes,
     risk_score: top_score,
-    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_update_ops=\{report.max_page_update_operation_count} max_backend_events=\{max_backend_events} max_backend_streams=\{max_backend_streams} max_backend_reviews=\{max_backend_reviews} max_backend_cancels=\{max_backend_cancels} max_backend_retries=\{max_backend_retries} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets} max_scene_package_bytes=\{max_scene_package_bytes}",
+    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_update_ops=\{report.max_page_update_operation_count} max_unwindowed_list_children=\{max_unwindowed_list_children} max_unkeyed_list_children=\{max_unkeyed_list_children} max_duplicate_list_keys=\{max_duplicate_list_keys} max_backend_events=\{max_backend_events} max_backend_streams=\{max_backend_streams} max_backend_reviews=\{max_backend_reviews} max_backend_cancels=\{max_backend_cancels} max_backend_retries=\{max_backend_retries} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets} max_scene_package_bytes=\{max_scene_package_bytes}",
   }
 }
 
@@ -307,6 +359,9 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     update_operation_count: page.update_operation_count,
     node_count: page.node_count,
     event_count: page.event_count,
+    unwindowed_list_child_count: page.unwindowed_list_child_count,
+    unkeyed_list_child_count: page.unkeyed_list_child_count,
+    duplicate_list_key_count: page.duplicate_list_key_count,
     backend_event_count: page.backend_event_count,
     backend_stream_count: page.backend_stream_count,
     backend_review_count: page.backend_review_count,
@@ -320,7 +375,7 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     scene_remote_asset_count: remote_assets,
     scene_package_bytes: package_bytes,
     risk_score: score,
-    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} update_ops=\{page.update_operation_count} nodes=\{page.node_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets} scene_package_bytes=\{package_bytes}",
+    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} update_ops=\{page.update_operation_count} nodes=\{page.node_count} events=\{page.event_count} unwindowed_list_children=\{page.unwindowed_list_child_count} unkeyed_list_children=\{page.unkeyed_list_child_count} duplicate_list_keys=\{page.duplicate_list_key_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets} scene_package_bytes=\{package_bytes}",
   }
 }
 
@@ -332,6 +387,9 @@ fn route_risk_score(page : @wechat.WechatManifestPage) -> Int {
   page.update_operation_count * 96 +
   page.node_count * 16 +
   page.event_count * 64 +
+  page.unwindowed_list_child_count * 24 +
+  page.unkeyed_list_child_count * 128 +
+  page.duplicate_list_key_count * 256 +
   route_backend_pressure_score(page) +
   page.scene_visible_marker_count * 32 +
   page.scene_visible_region_count * 48 +

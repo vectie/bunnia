@@ -25,7 +25,7 @@ pub fn gate_project_inspection(ProjectInspection, ProjectInspectionBudget, budge
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> ProjectInspection
 
-pub fn inspection_budget(max_route_risk_score~ : Int, max_update_payload_bytes~ : Int, max_update_operations~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int, max_scene_package_bytes~ : Int) -> ProjectInspectionBudget
+pub fn inspection_budget(max_route_risk_score~ : Int, max_update_payload_bytes~ : Int, max_update_operations~ : Int, max_unwindowed_list_children~ : Int, max_unkeyed_list_children~ : Int, max_duplicate_list_keys~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int, max_scene_package_bytes~ : Int) -> ProjectInspectionBudget
 
 pub fn inspection_budget_for_profile(String) -> ProjectInspectionBudget
 
@@ -188,6 +188,9 @@ pub struct CiPlan {
   inspection_max_route_risk_score : Int
   inspection_max_update_payload_bytes : Int
   inspection_max_update_operations : Int
+  inspection_max_unwindowed_list_children : Int
+  inspection_max_unkeyed_list_children : Int
+  inspection_max_duplicate_list_keys : Int
   inspection_max_backend_events : Int
   inspection_max_backend_streams : Int
   inspection_max_backend_reviews : Int
@@ -329,6 +332,9 @@ pub struct ProjectInspection {
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
   max_update_operation_count : Int
+  max_unwindowed_list_child_count : Int
+  max_unkeyed_list_child_count : Int
+  max_duplicate_list_key_count : Int
   max_backend_event_count : Int
   max_backend_stream_count : Int
   max_backend_review_count : Int
@@ -347,6 +353,9 @@ pub struct ProjectInspectionBudget {
   max_route_risk_score : Int
   max_update_payload_bytes : Int
   max_update_operations : Int
+  max_unwindowed_list_children : Int
+  max_unkeyed_list_children : Int
+  max_duplicate_list_keys : Int
   max_backend_events : Int
   max_backend_streams : Int
   max_backend_reviews : Int
@@ -362,6 +371,9 @@ pub struct ProjectInspectionGate {
   max_route_risk_score : Int
   max_update_payload_bytes : Int
   max_update_operations : Int
+  max_unwindowed_list_children : Int
+  max_unkeyed_list_children : Int
+  max_duplicate_list_keys : Int
   max_backend_events : Int
   max_backend_streams : Int
   max_backend_reviews : Int
@@ -383,6 +395,9 @@ pub struct RouteInspection {
   update_operation_count : Int
   node_count : Int
   event_count : Int
+  unwindowed_list_child_count : Int
+  unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
   backend_event_count : Int
   backend_stream_count : Int
   backend_review_count : Int

@@ -10,6 +10,9 @@ test "ci plan lists active checks and generator snapshots" {
   assert_eq(plan.inspection_max_route_risk_score, 50000)
   assert_eq(plan.inspection_max_update_payload_bytes, 1024)
   assert_eq(plan.inspection_max_update_operations, 16)
+  assert_eq(plan.inspection_max_unwindowed_list_children, 16)
+  assert_eq(plan.inspection_max_unkeyed_list_children, 0)
+  assert_eq(plan.inspection_max_duplicate_list_keys, 0)
   assert_eq(plan.inspection_max_backend_events, 16)
   assert_eq(plan.inspection_max_backend_streams, 4)
   assert_eq(plan.inspection_max_backend_reviews, 8)
@@ -68,6 +71,11 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.summary.contains("inspection_max_route_risk=50000"))
   assert_true(plan.summary.contains("inspection_max_update_payload=1024"))
   assert_true(plan.summary.contains("inspection_max_update_ops=16"))
+  assert_true(
+    plan.summary.contains("inspection_max_unwindowed_list_children=16"),
+  )
+  assert_true(plan.summary.contains("inspection_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("inspection_max_duplicate_list_keys=0"))
   assert_true(plan.summary.contains("inspection_max_backend_events=16"))
   assert_true(plan.summary.contains("inspection_max_backend_cancels=8"))
   assert_true(plan.summary.contains("inspection_max_backend_retries=8"))
@@ -100,6 +108,15 @@ test "ci plan lists active checks and generator snapshots" {
   assert_true(plan.inspection_gate_summary.contains("max_route_risk=50000"))
   assert_true(plan.inspection_gate_summary.contains("max_update_payload=1024"))
   assert_true(plan.inspection_gate_summary.contains("max_update_ops=16"))
+  assert_true(
+    plan.inspection_gate_summary.contains("max_unwindowed_list_children=16"),
+  )
+  assert_true(
+    plan.inspection_gate_summary.contains("max_unkeyed_list_children=0"),
+  )
+  assert_true(
+    plan.inspection_gate_summary.contains("max_duplicate_list_keys=0"),
+  )
   assert_true(plan.inspection_gate_summary.contains("max_backend_streams=4"))
   assert_true(plan.profile_gate_summary.contains("budget=tight"))
   assert_true(
@@ -149,6 +166,9 @@ test "ci plan can target one example and custom budgets" {
   assert_eq(plan.inspection_max_route_risk_score, 1000)
   assert_eq(plan.inspection_max_update_payload_bytes, 0)
   assert_eq(plan.inspection_max_update_operations, 0)
+  assert_eq(plan.inspection_max_unwindowed_list_children, 0)
+  assert_eq(plan.inspection_max_unkeyed_list_children, 0)
+  assert_eq(plan.inspection_max_duplicate_list_keys, 0)
   assert_eq(plan.inspection_max_backend_events, 0)
   assert_eq(plan.inspection_max_backend_streams, 0)
   assert_eq(plan.inspection_max_backend_reviews, 0)
@@ -174,6 +194,11 @@ test "ci plan can target one example and custom budgets" {
   assert_true(plan.summary.contains("inspection_max_route_risk=1000"))
   assert_true(plan.summary.contains("inspection_max_update_payload=0"))
   assert_true(plan.summary.contains("inspection_max_update_ops=0"))
+  assert_true(
+    plan.summary.contains("inspection_max_unwindowed_list_children=0"),
+  )
+  assert_true(plan.summary.contains("inspection_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("inspection_max_duplicate_list_keys=0"))
   assert_true(plan.summary.contains("inspection_max_backend_events=0"))
   assert_true(
     plan.summary.contains("profile_max_communication_unresolved_reviews=0"),
@@ -271,6 +296,9 @@ test "ci plan diagnoses unknown budget profiles" {
   assert_eq(plan.inspection_max_route_risk_score, 250000)
   assert_eq(plan.inspection_max_update_payload_bytes, 8192)
   assert_eq(plan.inspection_max_update_operations, 64)
+  assert_eq(plan.inspection_max_unwindowed_list_children, 64)
+  assert_eq(plan.inspection_max_unkeyed_list_children, 0)
+  assert_eq(plan.inspection_max_duplicate_list_keys, 0)
   assert_eq(plan.inspection_max_backend_events, 64)
   assert_eq(plan.profile_max_route_diagnostic_routes, 0)
   assert_eq(plan.profile_max_route_diagnostics, 0)
@@ -287,6 +315,15 @@ test "ci plan diagnoses unknown budget profiles" {
   assert_true(plan.inspection_gate_summary.contains("budget=oversized"))
   assert_true(plan.inspection_gate_summary.contains("max_update_payload=8192"))
   assert_true(plan.inspection_gate_summary.contains("max_update_ops=64"))
+  assert_true(
+    plan.inspection_gate_summary.contains("max_unwindowed_list_children=64"),
+  )
+  assert_true(
+    plan.inspection_gate_summary.contains("max_unkeyed_list_children=0"),
+  )
+  assert_true(
+    plan.inspection_gate_summary.contains("max_duplicate_list_keys=0"),
+  )
   assert_true(plan.profile_gate_summary.contains("budget=oversized"))
   assert_true(
     plan.profile_gate_summary.contains("max_route_diagnostic_routes=0"),

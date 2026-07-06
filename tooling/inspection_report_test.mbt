@@ -33,24 +33,147 @@ test "project inspection identifies the heaviest clean route" {
   assert_eq(inspection.top_route, "pages/ops/index")
   assert_eq(inspection.total_diagnostics, 0)
   assert_eq(inspection.max_backend_event_count, 0)
+  assert_eq(inspection.max_unwindowed_list_child_count, 0)
+  assert_eq(inspection.max_unkeyed_list_child_count, 0)
+  assert_eq(inspection.max_duplicate_list_key_count, 0)
   assert_eq(inspection.max_backend_cancel_count, 0)
   assert_eq(inspection.max_backend_retry_count, 0)
   assert_eq(inspection.max_scene_asset_count, 0)
   assert_eq(inspection.max_scene_remote_asset_count, 0)
   assert_eq(inspection.max_scene_package_bytes, 0)
   assert_eq(inspection.routes[1].diagnostics, 0)
+  assert_eq(inspection.routes[1].unwindowed_list_child_count, 0)
+  assert_eq(inspection.routes[1].unkeyed_list_child_count, 0)
+  assert_eq(inspection.routes[1].duplicate_list_key_count, 0)
   assert_eq(inspection.routes[1].scene_remote_asset_count, 0)
   assert_eq(inspection.routes[1].backend_event_count, 0)
   assert_eq(inspection.routes[1].backend_cancel_count, 0)
   assert_eq(inspection.routes[1].backend_retry_count, 0)
   assert_true(inspection.routes[1].risk_score > inspection.routes[0].risk_score)
   assert_true(inspection.summary.contains("top_route=pages/ops/index"))
+  assert_true(inspection.summary.contains("max_unwindowed_list_children=0"))
+  assert_true(inspection.summary.contains("max_unkeyed_list_children=0"))
+  assert_true(inspection.summary.contains("max_duplicate_list_keys=0"))
   assert_true(inspection.summary.contains("max_backend_cancels=0"))
   assert_true(inspection.summary.contains("max_scene_assets=0"))
   assert_true(inspection.summary.contains("max_scene_remote_assets=0"))
   assert_true(inspection.summary.contains("max_scene_package_bytes=0"))
   assert_true(inspection.routes[1].summary.contains("risk_score="))
+  assert_true(
+    inspection.routes[1].summary.contains("unwindowed_list_children=0"),
+  )
+  assert_true(inspection.routes[1].summary.contains("unkeyed_list_children=0"))
+  assert_true(inspection.routes[1].summary.contains("duplicate_list_keys=0"))
   assert_true(inspection.routes[1].summary.contains("backend_cancels=0"))
+}
+
+///|
+test "project inspection ranks and gates repeated list pressure" {
+  let project = @wechat.generate_project_from_pages(name="Inspection Lists", pages=[
+    @wechat.project_page(
+      name="Windowed Feed",
+      route="pages/windowed/index",
+      root=@core.page([
+        @core.windowed_list(["a", "b", "c", "d"], total_count=100, render=item => {
+          @core.keyed(item, @core.text(item))
+        }),
+      ]),
+    ),
+    @wechat.project_page(
+      name="Unstable Feed",
+      route="pages/unstable/index",
+      root=@core.page([
+        @core.list(["agent", "map"], value => @core.view([@core.text(value)])),
+        @core.list(["one", "two"], value => {
+          @core.keyed("duplicate-row", @core.view([@core.text(value)]))
+        }),
+      ]),
+    ),
+  ])
+  let inspection = inspect_wechat_project(
+    target="wechat",
+    example="inspection_lists",
+    project,
+    project.report,
+  )
+  assert_eq(inspection.top_route, "pages/unstable/index")
+  assert_eq(inspection.max_unwindowed_list_child_count, 4)
+  assert_eq(inspection.max_unkeyed_list_child_count, 2)
+  assert_eq(inspection.max_duplicate_list_key_count, 1)
+  assert_eq(inspection.routes[0].unwindowed_list_child_count, 0)
+  assert_eq(inspection.routes[0].unkeyed_list_child_count, 0)
+  assert_eq(inspection.routes[0].duplicate_list_key_count, 0)
+  assert_eq(inspection.routes[1].unwindowed_list_child_count, 4)
+  assert_eq(inspection.routes[1].unkeyed_list_child_count, 2)
+  assert_eq(inspection.routes[1].duplicate_list_key_count, 1)
+  assert_true(inspection.routes[1].risk_score > inspection.routes[0].risk_score)
+  assert_true(inspection.summary.contains("max_unwindowed_list_children=4"))
+  assert_true(inspection.summary.contains("max_unkeyed_list_children=2"))
+  assert_true(inspection.summary.contains("max_duplicate_list_keys=1"))
+  assert_true(
+    inspection.routes[1].summary.contains("unwindowed_list_children=4"),
+  )
+  assert_true(inspection.routes[1].summary.contains("unkeyed_list_children=2"))
+  assert_true(inspection.routes[1].summary.contains("duplicate_list_keys=1"))
+  let relaxed = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=5000000,
+      max_update_payload_bytes=2048,
+      max_update_operations=4,
+      max_unwindowed_list_children=4,
+      max_unkeyed_list_children=2,
+      max_duplicate_list_keys=1,
+      max_backend_events=1,
+      max_backend_streams=1,
+      max_backend_reviews=1,
+      max_backend_cancels=1,
+      max_backend_retries=1,
+      max_scene_assets=1,
+      max_scene_remote_assets=1,
+      max_scene_package_bytes=1024,
+    ),
+    budget_profile="list-relaxed",
+  )
+  let strict = gate_project_inspection(
+    inspection,
+    inspection_budget(
+      max_route_risk_score=100000,
+      max_update_payload_bytes=2048,
+      max_update_operations=4,
+      max_unwindowed_list_children=1,
+      max_unkeyed_list_children=0,
+      max_duplicate_list_keys=0,
+      max_backend_events=1,
+      max_backend_streams=1,
+      max_backend_reviews=1,
+      max_backend_cancels=1,
+      max_backend_retries=1,
+      max_scene_assets=1,
+      max_scene_remote_assets=1,
+      max_scene_package_bytes=1024,
+    ),
+    budget_profile="list-strict",
+  )
+  assert_eq(relaxed.diagnostics.length(), 0)
+  assert_true(relaxed.summary.contains("max_unwindowed_list_children=4"))
+  assert_true(relaxed.summary.contains("max_unkeyed_list_children=2"))
+  assert_true(relaxed.summary.contains("max_duplicate_list_keys=1"))
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-unwindowed-list-children-over-budget:4/1",
+    ),
+  )
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-unkeyed-list-children-over-budget:2/0",
+    ),
+  )
+  assert_true(
+    strict.diagnostics.contains(
+      "inspection-duplicate-list-keys-over-budget:1/0",
+    ),
+  )
 }
 
 ///|
@@ -123,6 +246,9 @@ test "project inspection reports backend recovery pressure" {
       max_route_risk_score=100000,
       max_update_payload_bytes=2048,
       max_update_operations=4,
+      max_unwindowed_list_children=1,
+      max_unkeyed_list_children=0,
+      max_duplicate_list_keys=0,
       max_backend_events=4,
       max_backend_streams=1,
       max_backend_reviews=1,
@@ -140,6 +266,9 @@ test "project inspection reports backend recovery pressure" {
       max_route_risk_score=100000,
       max_update_payload_bytes=1,
       max_update_operations=1,
+      max_unwindowed_list_children=1,
+      max_unkeyed_list_children=0,
+      max_duplicate_list_keys=0,
       max_backend_events=1,
       max_backend_streams=0,
       max_backend_reviews=0,
@@ -318,6 +447,9 @@ test "project inspection reports route scene asset pressure" {
       max_route_risk_score=100000,
       max_update_payload_bytes=4096,
       max_update_operations=4,
+      max_unwindowed_list_children=1,
+      max_unkeyed_list_children=0,
+      max_duplicate_list_keys=0,
       max_backend_events=1,
       max_backend_streams=1,
       max_backend_reviews=1,
@@ -335,6 +467,9 @@ test "project inspection reports route scene asset pressure" {
       max_route_risk_score=1,
       max_update_payload_bytes=1,
       max_update_operations=1,
+      max_unwindowed_list_children=1,
+      max_unkeyed_list_children=0,
+      max_duplicate_list_keys=0,
       max_backend_events=1,
       max_backend_streams=1,
       max_backend_reviews=1,

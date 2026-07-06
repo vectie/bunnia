@@ -345,6 +345,11 @@ test "ci plan command prints active example workflow" {
   assert_true(plan.summary.contains("profile_max_scene_deferred_assets=0"))
   assert_true(plan.summary.contains("inspection_max_update_payload=1024"))
   assert_true(plan.summary.contains("inspection_max_update_ops=16"))
+  assert_true(
+    plan.summary.contains("inspection_max_unwindowed_list_children=16"),
+  )
+  assert_true(plan.summary.contains("inspection_max_unkeyed_list_children=0"))
+  assert_true(plan.summary.contains("inspection_max_duplicate_list_keys=0"))
 }
 
 ///|
