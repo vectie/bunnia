@@ -209,7 +209,8 @@ budget failures explainable from generated output alone.
 count directly, which lets strict builds catch oversized map routes without a
 separate scene-specific planner. WeChat generation APIs also accept explicit
 render budgets, so route manifests and build reports carry those render
-diagnostics into normal build output.
+diagnostics into normal build output. For agentic pages, route initial-data
+bytes are also checked against the page render budget.
 Use `@bunnia.scene_camera(...)` with
 `@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
 explicit, clamped to scene bounds, and updated through small camera patches.

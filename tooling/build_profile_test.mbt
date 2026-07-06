@@ -14,6 +14,31 @@ fn fixture_project() -> @wechat.WechatProject {
 }
 
 ///|
+test "build profile includes route initial-data render-budget diagnostics" {
+  let runtime = @wechat.runtime(
+    initial_data_json="{\"agentDraft\":\"large payload\"}",
+  )
+  let project = @wechat.generate_project_with_runtime_and_budget(
+    name="Profile Initial Data",
+    route="pages/profile-initial/index",
+    root=@core.page([@core.text("Profile")]),
+    runtime~,
+    render_budget=@core.render_budget(
+      max_nodes=16,
+      max_depth=4,
+      max_events=4,
+      max_initial_data_bytes=8,
+    ),
+  )
+  let profile = profile_wechat_project(project, @core.plan_patches([]))
+  assert_true(
+    profile.diagnostics.contains(
+      "wechat:wechat-route-initial-data-over-render-budget:pages/profile-initial/index:30/8",
+    ),
+  )
+}
+
+///|
 test "build profile aggregates normal project signals" {
   let project = fixture_project()
   let patches = @core.plan_patches([@core.set_string("state.active", "open")])

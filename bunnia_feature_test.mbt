@@ -1329,6 +1329,32 @@ test "wechat build reports catch generated-output budget regressions" {
 }
 
 ///|
+test "wechat build reports catch route initial data render budget regressions" {
+  let runtime = @bunnia.wechat_runtime(
+    initial_data_json="{\"agentDraft\":\"large payload\"}",
+  )
+  let project = @bunnia.generate_wechat_project_with_runtime_and_budget(
+    name="Initial Data Budget",
+    route="pages/initial/index",
+    root=@bunnia.page([@bunnia.text("Initial")]),
+    runtime~,
+    render_budget=@bunnia.render_budget(
+      max_nodes=16,
+      max_depth=4,
+      max_events=4,
+      max_initial_data_bytes=8,
+    ),
+  )
+  assert_eq(project.manifest.pages[0].initial_data_bytes, 30)
+  assert_eq(project.manifest.pages[0].render_budget.max_initial_data_bytes, 8)
+  assert_true(
+    project.report.diagnostics.contains(
+      "wechat-route-initial-data-over-render-budget:pages/initial/index:30/8",
+    ),
+  )
+}
+
+///|
 test "patch plans keep mini-app updates bounded" {
   let patches = [
     @bunnia.set_string("__bunnia.lastMessage", "open-detail"),

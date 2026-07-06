@@ -127,6 +127,7 @@ fn report_files(
     diagnostics, files, pages, budget,
   )
   push_page_render_diagnostics(diagnostics, pages)
+  push_page_initial_data_render_budget_diagnostics(diagnostics, pages)
   let (missing_event_patch_count, orphan_event_patch_count) = push_runtime_event_diagnostics(
     diagnostics, pages,
   )
@@ -204,6 +205,22 @@ fn push_page_render_diagnostics(
   for page in pages {
     for item in page.page.plan.diagnostics {
       diagnostics.push("wechat-render:\{page.route}:\{item}")
+    }
+  }
+}
+
+///|
+fn push_page_initial_data_render_budget_diagnostics(
+  diagnostics : Array[String],
+  pages : Array[WechatProjectPage],
+) -> Unit {
+  for page in pages {
+    let actual = page.runtime.initial_data_json.length()
+    let limit = page.page.render_budget.max_initial_data_bytes
+    if actual > limit {
+      diagnostics.push(
+        "wechat-route-initial-data-over-render-budget:\{page.route}:\{actual}/\{limit}",
+      )
     }
   }
 }

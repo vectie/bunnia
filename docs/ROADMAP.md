@@ -357,6 +357,8 @@ Current evidence:
 - WeChat page/project generation can accept explicit render budgets, carrying
   route render diagnostics and the active budget limits into manifests, build
   reports, snapshots, and strict CLI gates without product-specific plumbing.
+- Route initial-data bytes are checked against the page render budget, so
+  agentic pages with oversized first payloads fail before mini-app preview.
 - Effect plans diagnose platform capability mismatches, such as cloud-function
   effects on a target that does not advertise cloud support.
 - Render plans can be produced directly from a `PlatformAdapter` and now report
@@ -764,6 +766,9 @@ Current evidence:
 - Generated manifests expose route-level scene count, visible/total marker
   count, scene asset count, degraded scene count, and render-budget limits so
   map-heavy routes are attributable beside payload and backend budgets.
+- Build reports and profiles surface route initial-data render-budget
+  diagnostics, keeping large agent/chat payloads visible beside generated-size
+  budgets.
 - WeChat build reports are deterministic and tested through the public
   `@bunnia` facade.
 - Build profiles aggregate render, WeChat, patch, effect, backend, scene asset,
