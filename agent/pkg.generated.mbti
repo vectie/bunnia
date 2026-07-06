@@ -37,6 +37,8 @@ pub fn communication_trace(Array[Communication]) -> @core.Node
 
 pub fn default_communication_budget() -> CommunicationBudget
 
+pub fn default_tool_result_budget() -> ToolResultBudget
+
 pub fn filter_communications(Array[Communication], CommunicationFilter) -> Array[Communication]
 
 pub fn handoff(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, open_message? : String) -> Communication
@@ -58,6 +60,10 @@ pub fn plan_communications(Array[Communication]) -> CommunicationPlan
 pub fn plan_communications_with_budget(Array[Communication], CommunicationBudget) -> CommunicationPlan
 
 pub fn plan_filtered_communications(Array[Communication], CommunicationFilter, budget? : CommunicationBudget) -> CommunicationPlan
+
+pub fn plan_tool_result_cards(Array[ToolResultCard]) -> ToolResultPlan
+
+pub fn plan_tool_result_cards_with_budget(Array[ToolResultCard], ToolResultBudget) -> ToolResultPlan
 
 pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
 
@@ -84,6 +90,8 @@ pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_r
 pub fn thread_card(Thread) -> @core.Node
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> Communication
+
+pub fn tool_result_budget(max_visible_count? : Int, max_pending_ack_count? : Int, max_missing_ack_count? : Int, max_artifact_ref_count? : Int) -> ToolResultBudget
 
 pub fn tool_result_card(id~ : String, tool_name~ : String, title~ : String, summary~ : String, artifact_ref? : String, status? : RunStatus, open_message? : String, acknowledge_message? : String) -> ToolResultCard
 
@@ -235,6 +243,13 @@ pub struct Thread {
   status : RunStatus
 } derive(Eq, @debug.Debug)
 
+pub struct ToolResultBudget {
+  max_visible_count : Int
+  max_pending_ack_count : Int
+  max_missing_ack_count : Int
+  max_artifact_ref_count : Int
+} derive(Eq, @debug.Debug)
+
 pub struct ToolResultCard {
   id : String
   tool_name : String
@@ -244,6 +259,20 @@ pub struct ToolResultCard {
   status : RunStatus
   open_message : String
   acknowledge_message : String
+} derive(Eq, @debug.Debug)
+
+pub struct ToolResultPlan {
+  total_count : Int
+  visible_count : Int
+  hidden_count : Int
+  visible_items : Array[ToolResultCard]
+  artifact_ref_count : Int
+  pending_ack_count : Int
+  missing_ack_count : Int
+  running_count : Int
+  failed_count : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 // Type aliases

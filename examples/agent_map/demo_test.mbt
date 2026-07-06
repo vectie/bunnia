@@ -93,6 +93,18 @@ test "agent map demo exposes communication pressure" {
 }
 
 ///|
+test "agent map demo exposes tool result pressure" {
+  let plan = demo_tool_result_plan()
+  assert_eq(plan.total_count, 1)
+  assert_eq(plan.visible_count, 1)
+  assert_eq(plan.artifact_ref_count, 1)
+  assert_eq(plan.pending_ack_count, 1)
+  assert_eq(plan.missing_ack_count, 0)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_true(plan.summary.contains("pending_acks=1"))
+}
+
+///|
 test "agent map demo exposes backend-derived effect pressure" {
   let backend = @bunnia.plan_backend_contract(demo_backend_contract())
   let effects = demo_effect_plan()

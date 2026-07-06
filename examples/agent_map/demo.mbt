@@ -176,6 +176,25 @@ pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
 }
 
 ///|
+pub fn demo_tool_result_plan() -> @bunnia.ToolResultPlan {
+  @bunnia.plan_tool_result_cards_with_budget(
+    [
+      @bunnia.tool_result_card(
+        id="route-tool-result",
+        tool_name="route-inspector",
+        title="Route inspection",
+        summary="Scene report is ready for operator review.",
+        artifact_ref="artifact://scene-report",
+        status=@bunnia.run_waiting_review(),
+        open_message="open-route-tool",
+        acknowledge_message="ack-route-tool",
+      ),
+    ],
+    @bunnia.tool_result_budget(max_visible_count=8),
+  )
+}
+
+///|
 pub fn demo_backend_contract() -> @bunnia.BackendContract {
   @bunnia.backend_contract(id="agent-map-backend", endpoints=[
     @bunnia.agent_message_endpoint(

@@ -333,6 +333,8 @@ Current evidence:
 - Tool-result cards now expose tool name, run status, artifact reference, open
   actions, and acknowledgment actions as typed generic UI, including a windowed
   list helper for large agentic result feeds.
+- Tool-result plans budget visible cards, pending acknowledgments, missing
+  acknowledgments, and artifact references before agentic result feeds grow.
 - Communication plans can filter traces by thread, actor, or communication
   kind while reporting visible/hidden rows, unresolved review pressure,
   artifact-bearing rows, and budget diagnostics.
@@ -727,6 +729,8 @@ Current evidence:
 - Build profiles expose communication visible/total counts, unresolved review
   pressure, artifact references, and communication diagnostics so agent-heavy
   pages are measurable from the CLI.
+- Build profiles expose tool-result visible/total counts, pending/missing
+  acknowledgment pressure, artifact references, and tool-result diagnostics.
 - Build profiles expose scene-thread link counts, unread totals, and orphan-link
   diagnostics so map-heavy agentic overlays are measured during normal builds.
 - Build profiles expose snapshot-delta counts and full-replacement diagnostics

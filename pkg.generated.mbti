@@ -168,6 +168,8 @@ pub fn default_scene_thread_budget() -> @scene.SceneThreadBudget
 
 pub fn default_scene_visual_quality_budget() -> @scene.SceneVisualQualityBudget
 
+pub fn default_tool_result_budget() -> @agent.ToolResultBudget
+
 pub fn default_wechat_build_budget() -> @wechat.WechatBuildBudget
 
 pub fn default_wechat_runtime() -> @wechat.WechatRuntime
@@ -338,6 +340,10 @@ pub fn plan_snapshot_deltas(Array[@effects.SnapshotDelta]) -> @effects.SnapshotD
 
 pub fn plan_snapshot_deltas_with_budget(Array[@effects.SnapshotDelta], @core.PatchBudget) -> @effects.SnapshotDeltaPlan
 
+pub fn plan_tool_result_cards(Array[@agent.ToolResultCard]) -> @agent.ToolResultPlan
+
+pub fn plan_tool_result_cards_with_budget(Array[@agent.ToolResultCard], @agent.ToolResultBudget) -> @agent.ToolResultPlan
+
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
 pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> @core.PlatformAdapter
@@ -352,7 +358,7 @@ pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_static_surface() -> @scene.SceneSurfacePreference
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
@@ -580,6 +586,8 @@ pub fn tool_ack_endpoint(String, String, String) -> @effects.BackendEndpoint
 
 pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> @agent.Communication
 
+pub fn tool_result_budget(max_visible_count? : Int, max_pending_ack_count? : Int, max_missing_ack_count? : Int, max_artifact_ref_count? : Int) -> @agent.ToolResultBudget
+
 pub fn tool_result_card(id~ : String, tool_name~ : String, title~ : String, summary~ : String, artifact_ref? : String, status? : @agent.RunStatus, open_message? : String, acknowledge_message? : String) -> @agent.ToolResultCard
 
 pub fn tool_result_card_list(Array[@agent.ToolResultCard]) -> @core.Node
@@ -763,7 +771,11 @@ pub using @core {type SurfaceStatusKind}
 
 pub using @agent {type Thread}
 
+pub using @agent {type ToolResultBudget}
+
 pub using @agent {type ToolResultCard}
+
+pub using @agent {type ToolResultPlan}
 
 pub using @wechat {type WechatBuildBudget}
 

@@ -155,6 +155,11 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.communication_visible_count, 2)
   assert_eq(profile.communication_unresolved_review_count, 1)
   assert_eq(profile.communication_artifact_ref_count, 1)
+  assert_eq(profile.tool_result_count, 0)
+  assert_eq(profile.tool_result_visible_count, 0)
+  assert_eq(profile.tool_result_pending_ack_count, 0)
+  assert_eq(profile.tool_result_missing_ack_count, 0)
+  assert_eq(profile.tool_result_artifact_ref_count, 0)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 0)
   assert_eq(profile.snapshot_delta_count, 2)
@@ -176,6 +181,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("communications=2/2"))
   assert_true(profile.summary.contains("communication_unresolved_reviews=1"))
   assert_true(profile.summary.contains("communication_artifacts=1"))
+  assert_true(profile.summary.contains("tool_results=0/0"))
+  assert_true(profile.summary.contains("tool_result_pending_acks=0"))
   assert_true(profile.summary.contains("agent_deltas=2"))
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
   assert_true(profile.summary.contains("snapshot_deltas=2"))
@@ -335,6 +342,35 @@ test "build profile prefixes diagnostics by budget source" {
         ),
       ),
     ],
+    tool_result_plans=[
+      @agent.plan_tool_result_cards_with_budget(
+        [
+          @agent.tool_result_card(
+            id="tool-a",
+            tool_name="profile-tool",
+            title="Profile result",
+            summary="Needs review.",
+            artifact_ref="artifact://profile",
+            status=@agent.WaitingReview,
+            acknowledge_message="ack-profile",
+          ),
+          @agent.tool_result_card(
+            id="tool-b",
+            tool_name="profile-tool",
+            title="Profile result two",
+            summary="Missing acknowledgment.",
+            artifact_ref="artifact://profile-two",
+            status=@agent.WaitingReview,
+          ),
+        ],
+        @agent.tool_result_budget(
+          max_visible_count=1,
+          max_pending_ack_count=0,
+          max_missing_ack_count=0,
+          max_artifact_ref_count=1,
+        ),
+      ),
+    ],
     agent_delta_plans=[
       @agent.plan_agent_deltas([
         @agent.append_stream_chunk_delta(
@@ -376,6 +412,11 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.communication_visible_count, 1)
   assert_eq(profile.communication_unresolved_review_count, 1)
   assert_eq(profile.communication_artifact_ref_count, 2)
+  assert_eq(profile.tool_result_count, 2)
+  assert_eq(profile.tool_result_visible_count, 1)
+  assert_eq(profile.tool_result_pending_ack_count, 1)
+  assert_eq(profile.tool_result_missing_ack_count, 1)
+  assert_eq(profile.tool_result_artifact_ref_count, 2)
   assert_eq(profile.agent_delta_count, 2)
   assert_eq(profile.agent_duplicate_stream_chunk_count, 1)
   assert_eq(profile.scene_thread_link_count, 2)
@@ -402,6 +443,24 @@ test "build profile prefixes diagnostics by budget source" {
   assert_true(
     profile.diagnostics.contains(
       "communication:communication-unresolved-reviews-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "tool-result:tool-results-visible-over-budget:2/1",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "tool-result:tool-results-pending-acks-over-budget:1/0",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains("tool-result:tool-results-missing-acks:1/0"),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "tool-result:tool-results-artifacts-over-budget:2/1",
     ),
   )
   assert_true(

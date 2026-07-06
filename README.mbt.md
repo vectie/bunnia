@@ -155,6 +155,9 @@ For tool outputs, use `@bunnia.tool_result_card(...)` with
 `@bunnia.tool_result_card_view(...)` or
 `@bunnia.windowed_tool_result_card_list(...)` so artifact references,
 run-status, open actions, and acknowledgments remain typed UI state.
+Use `@bunnia.plan_tool_result_cards(...)` before profiling large agentic
+surfaces so visible result cards, pending acknowledgments, missing
+acknowledgments, and artifact references show up in build-profile diagnostics.
 For streaming output, append completed chunks with
 `@bunnia.append_stream_chunk_delta(...)` and update the current in-flight chunk
 with `@bunnia.set_stream_chunk_delta(...)`; agent delta plans flag duplicate

@@ -336,6 +336,7 @@ fn profile_for_example(
       patches,
       effect_plans=[@demo.demo_effect_plan()],
       communication_plans=[@demo.demo_communication_plan()],
+      tool_result_plans=[@demo.demo_tool_result_plan()],
       agent_delta_plans=[@demo.demo_agent_delta_plan()],
       backend_plans=[
         @bunnia.plan_backend_contract(@demo.demo_backend_contract()),

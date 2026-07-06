@@ -83,6 +83,12 @@ pub type ReviewAction = @agent.ReviewAction
 pub type ToolResultCard = @agent.ToolResultCard
 
 ///|
+pub type ToolResultBudget = @agent.ToolResultBudget
+
+///|
+pub type ToolResultPlan = @agent.ToolResultPlan
+
+///|
 pub type AgentDeltaKind = @agent.AgentDeltaKind
 
 ///|
@@ -1092,6 +1098,39 @@ pub fn windowed_tool_result_card_list(
   offset? : Int = 0,
 ) -> Node {
   @agent.windowed_tool_result_card_list(cards, total_count~, offset~)
+}
+
+///|
+pub fn tool_result_budget(
+  max_visible_count? : Int = 32,
+  max_pending_ack_count? : Int = 16,
+  max_missing_ack_count? : Int = 0,
+  max_artifact_ref_count? : Int = 32,
+) -> ToolResultBudget {
+  @agent.tool_result_budget(
+    max_visible_count~,
+    max_pending_ack_count~,
+    max_missing_ack_count~,
+    max_artifact_ref_count~,
+  )
+}
+
+///|
+pub fn default_tool_result_budget() -> ToolResultBudget {
+  @agent.default_tool_result_budget()
+}
+
+///|
+pub fn plan_tool_result_cards(cards : Array[ToolResultCard]) -> ToolResultPlan {
+  @agent.plan_tool_result_cards(cards)
+}
+
+///|
+pub fn plan_tool_result_cards_with_budget(
+  cards : Array[ToolResultCard],
+  budget : ToolResultBudget,
+) -> ToolResultPlan {
+  @agent.plan_tool_result_cards_with_budget(cards, budget)
 }
 
 ///|
@@ -2436,6 +2475,7 @@ pub fn profile_wechat_project(
   patches : PatchPlan,
   effect_plans? : Array[EffectPlan] = [],
   communication_plans? : Array[CommunicationPlan] = [],
+  tool_result_plans? : Array[ToolResultPlan] = [],
   agent_delta_plans? : Array[AgentDeltaPlan] = [],
   backend_plans? : Array[BackendPlan] = [],
   snapshot_plans? : Array[SnapshotDeltaPlan] = [],
@@ -2450,6 +2490,7 @@ pub fn profile_wechat_project(
     patches,
     effect_plans~,
     communication_plans~,
+    tool_result_plans~,
     agent_delta_plans~,
     backend_plans~,
     snapshot_plans~,
