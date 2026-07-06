@@ -1382,8 +1382,10 @@ test "wechat project generator supports multiple app routes" {
       max_js_bytes=65536,
       max_initial_data_bytes=65536,
       max_event_patch_bytes=8192,
+      max_event_patch_operations=64,
       max_page_first_screen_bytes=98304,
       max_page_update_payload_bytes=8192,
+      max_page_update_operations=16,
     ),
   )
   assert_eq(project.page_count, 2)
@@ -1396,6 +1398,8 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[0].route, "pages/home/home")
   assert_eq(project.manifest.pages[1].route, "pages/chat/index")
   assert_true(project.manifest.pages[0].event_patch_bytes > 0)
+  assert_eq(project.manifest.pages[0].event_patch_operation_count, 1)
+  assert_eq(project.manifest.pages[0].update_operation_count, 1)
   assert_eq(project.manifest.pages[0].windowed_list_count, 0)
   assert_eq(project.manifest.pages[1].windowed_list_count, 1)
   assert_eq(project.manifest.pages[1].list_total_count, 24)
@@ -1411,6 +1415,10 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(
     project.manifest.pages[1].update_payload_bytes,
     project.manifest.pages[1].event_patch_bytes,
+  )
+  assert_eq(
+    project.manifest.pages[1].update_operation_count,
+    project.manifest.pages[1].event_patch_operation_count,
   )
   assert_eq(project.manifest.pages[1].render_diagnostics.length(), 0)
   assert_true(has_file(project.files, "app.wxss"))
@@ -1454,6 +1462,16 @@ test "wechat project generator supports multiple app routes" {
   )
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
+      "\"eventPatchOperations\":",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"updateOperations\":",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
       "\"renderDiagnostics\":[]",
     ),
   )
@@ -1465,6 +1483,8 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.report.page_count, 2)
   assert_eq(project.report.initial_data_bytes, 26)
   assert_true(project.report.event_patch_bytes > 0)
+  assert_eq(project.report.event_patch_operation_count, 1)
+  assert_eq(project.report.max_page_update_operation_count, 1)
   assert_true(report.diagnostics.contains("wechat-page-count-over-budget:2/1"))
 }
 
@@ -1559,16 +1579,20 @@ test "wechat build reports catch generated-output budget regressions" {
       max_js_bytes=8,
       max_initial_data_bytes=4,
       max_event_patch_bytes=4,
+      max_event_patch_operations=1,
       max_page_first_screen_bytes=4,
       max_page_update_payload_bytes=4,
+      max_page_update_operations=1,
     ),
   )
   assert_eq(report.file_count, 10)
   assert_eq(report.initial_data_bytes, 13)
   assert_true(report.event_patch_bytes > 4)
+  assert_eq(report.event_patch_operation_count, 2)
   assert_true(report.max_page_first_screen_bytes > 4)
   assert_eq(report.max_page_update_payload_bytes, report.event_patch_bytes)
-  assert_eq(report.diagnostics.length(), 9)
+  assert_eq(report.max_page_update_operation_count, 2)
+  assert_eq(report.diagnostics.length(), 11)
   assert_true(report.diagnostics.contains("wechat-file-count-over-budget:10/1"))
   assert_true(
     report.diagnostics.contains(
@@ -1584,6 +1608,9 @@ test "wechat build reports catch generated-output budget regressions" {
     ),
   )
   assert_true(
+    report.diagnostics.contains("wechat-event-patch-operations-over-budget:2/1"),
+  )
+  assert_true(
     report.diagnostics.contains(
       "wechat-page-first-screen-bytes-over-budget:pages/index/index:\{report.max_page_first_screen_bytes}/4",
     ),
@@ -1593,7 +1620,14 @@ test "wechat build reports catch generated-output budget regressions" {
       "wechat-page-update-payload-bytes-over-budget:pages/index/index:\{report.max_page_update_payload_bytes}/4",
     ),
   )
+  assert_true(
+    report.diagnostics.contains(
+      "wechat-page-update-operations-over-budget:pages/index/index:2/1",
+    ),
+  )
   assert_true(project.report.summary.contains("Bunnia WeChat build report"))
+  assert_true(project.report.summary.contains("event_patch_ops=2"))
+  assert_true(project.report.summary.contains("max_update_ops=2"))
 }
 
 ///|

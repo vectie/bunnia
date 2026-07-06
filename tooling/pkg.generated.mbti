@@ -77,8 +77,10 @@ pub struct BuildProfile {
   total_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  event_patch_operation_count : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
+  max_page_update_operation_count : Int
   patch_bytes : Int
   effect_count : Int
   cloud_function_count : Int
@@ -207,6 +209,7 @@ pub struct GeneratedSnapshot {
   total_bytes : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  max_update_operation_count : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
   scene_asset_count : Int
@@ -281,6 +284,7 @@ pub struct ProjectInspection {
   total_diagnostics : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  max_update_operation_count : Int
   max_backend_event_count : Int
   max_backend_stream_count : Int
   max_backend_review_count : Int
@@ -328,6 +332,7 @@ pub struct RouteInspection {
   diagnostics : Int
   first_screen_bytes : Int
   update_payload_bytes : Int
+  update_operation_count : Int
   node_count : Int
   event_count : Int
   backend_event_count : Int

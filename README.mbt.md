@@ -76,8 +76,9 @@ moon run cmd/main
 This writes a WeChat Mini Program file set to
 `_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
 event-to-patch dispatch for review buttons, map regions, and map markers. The command also
-prints render, file-size, initial-data, event-patch, patch, agent-delta, and
-build-profile budget summaries. Use `--out` to choose another directory:
+prints render, file-size, initial-data, event-patch byte/operation, patch,
+agent-delta, and build-profile budget summaries. Use `--out` to choose another
+directory:
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map
@@ -151,9 +152,9 @@ the highest-risk route, max scene marker/asset/package pressure, one
 route-inspection line per generated page, one `route=...` manifest line per
 generated page, route-scoped `scene_asset=...` lines, and one `file=...` line
 per generated artifact. This is intended for quick checks of first-screen
-bytes, update payloads, scene marker and asset pressure, packaged scene bytes,
-diagnostic counts, file kinds, file bytes, and checksums before opening WeChat
-DevTools.
+bytes, update payloads, update operation fanout, scene marker and asset
+pressure, packaged scene bytes, diagnostic counts, file kinds, file bytes, and
+checksums before opening WeChat DevTools.
 
 To inspect component mapping and platform capability limits:
 
@@ -204,14 +205,14 @@ generated commands.
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and
 `@bunnia.generate_wechat_project_from_pages(...)`. Build reports include page
-count, generated file sizes, initial data bytes, event patch bytes, and
-route-level first-screen/update payload budgets so large apps can catch growth
-early.
+count, generated file sizes, initial data bytes, event patch bytes, event patch
+operation count, and route-level first-screen/update payload and update
+operation budgets so large apps can catch growth early.
 
 Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
-bytes, generated file sizes, first-screen/update byte estimates, and
-route-scoped render diagnostics.
+bytes, update operation counts, generated file sizes, first-screen/update byte
+estimates, and route-scoped render diagnostics.
 Generated manifests also include route-scoped scene asset references, estimated
 packaged scene bytes, remote scene asset counts, and an app-level `sceneAssets`
 list derived from neutral `data-asset-*` attributes, so map-heavy pages can
@@ -367,6 +368,9 @@ replacement is still representable for bootstrap paths, but plans flag it.
 Build profiles report snapshot delta counts, section updates, append pressure,
 and full replacements so large mini-apps do not accidentally refresh whole
 pages.
+WeChat build reports, manifests, inspections, and snapshots also report update
+operation counts separately from update payload bytes, so many small `setData`
+keys stay visible as a speed risk even when the JSON payload is compact.
 
 Generate a standalone starter project with:
 

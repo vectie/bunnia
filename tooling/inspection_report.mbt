@@ -5,6 +5,7 @@ pub struct RouteInspection {
   diagnostics : Int
   first_screen_bytes : Int
   update_payload_bytes : Int
+  update_operation_count : Int
   node_count : Int
   event_count : Int
   backend_event_count : Int
@@ -33,6 +34,7 @@ pub struct ProjectInspection {
   total_diagnostics : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  max_update_operation_count : Int
   max_backend_event_count : Int
   max_backend_stream_count : Int
   max_backend_review_count : Int
@@ -241,6 +243,7 @@ pub fn inspect_wechat_project(
     total_diagnostics,
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
+    max_update_operation_count: report.max_page_update_operation_count,
     max_backend_event_count: max_backend_events,
     max_backend_stream_count: max_backend_streams,
     max_backend_review_count: max_backend_reviews,
@@ -252,7 +255,7 @@ pub fn inspect_wechat_project(
     max_scene_remote_asset_count: max_scene_remote_assets,
     max_scene_package_bytes,
     risk_score: top_score,
-    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_backend_events=\{max_backend_events} max_backend_streams=\{max_backend_streams} max_backend_reviews=\{max_backend_reviews} max_backend_cancels=\{max_backend_cancels} max_backend_retries=\{max_backend_retries} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets} max_scene_package_bytes=\{max_scene_package_bytes}",
+    summary: "Bunnia project inspection: target=\{target} example=\{example} routes=\{routes.length()} top_route=\{top_route} risk_score=\{top_score} diagnostics=\{total_diagnostics} max_first_screen=\{report.max_page_first_screen_bytes} max_update_payload=\{report.max_page_update_payload_bytes} max_update_ops=\{report.max_page_update_operation_count} max_backend_events=\{max_backend_events} max_backend_streams=\{max_backend_streams} max_backend_reviews=\{max_backend_reviews} max_backend_cancels=\{max_backend_cancels} max_backend_retries=\{max_backend_retries} max_scene_markers=\{max_scene_markers} max_scene_regions=\{max_scene_regions} max_scene_assets=\{max_scene_assets} max_scene_remote_assets=\{max_scene_remote_assets} max_scene_package_bytes=\{max_scene_package_bytes}",
   }
 }
 
@@ -281,6 +284,7 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     diagnostics: page.diagnostic_count,
     first_screen_bytes: page.first_screen_bytes,
     update_payload_bytes: page.update_payload_bytes,
+    update_operation_count: page.update_operation_count,
     node_count: page.node_count,
     event_count: page.event_count,
     backend_event_count: page.backend_event_count,
@@ -296,7 +300,7 @@ fn inspect_route(page : @wechat.WechatManifestPage) -> RouteInspection {
     scene_remote_asset_count: remote_assets,
     scene_package_bytes: package_bytes,
     risk_score: score,
-    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} nodes=\{page.node_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets} scene_package_bytes=\{package_bytes}",
+    summary: "Bunnia route inspection: route=\{page.route} status=\{page.status} risk_score=\{score} diagnostics=\{page.diagnostic_count} first_screen=\{page.first_screen_bytes} update_payload=\{page.update_payload_bytes} update_ops=\{page.update_operation_count} nodes=\{page.node_count} events=\{page.event_count} backend_events=\{page.backend_event_count} backend_streams=\{page.backend_stream_count} backend_reviews=\{page.backend_review_count} backend_cancels=\{page.backend_cancel_count} backend_retries=\{page.backend_retry_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{scene_assets} scene_remote_assets=\{remote_assets} scene_package_bytes=\{package_bytes}",
   }
 }
 
@@ -305,6 +309,7 @@ fn route_risk_score(page : @wechat.WechatManifestPage) -> Int {
   page.diagnostic_count * 1000000 +
   page.first_screen_bytes +
   page.update_payload_bytes * 4 +
+  page.update_operation_count * 96 +
   page.node_count * 16 +
   page.event_count * 64 +
   route_backend_pressure_score(page) +

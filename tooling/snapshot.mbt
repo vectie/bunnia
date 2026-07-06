@@ -19,6 +19,7 @@ pub struct GeneratedSnapshot {
   total_bytes : Int
   max_first_screen_bytes : Int
   max_update_payload_bytes : Int
+  max_update_operation_count : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
   scene_asset_count : Int
@@ -93,6 +94,7 @@ pub fn snapshot_wechat_project_with_report(
     total_bytes: project.total_bytes,
     max_first_screen_bytes: report.max_page_first_screen_bytes,
     max_update_payload_bytes: report.max_page_update_payload_bytes,
+    max_update_operation_count: report.max_page_update_operation_count,
     route_diagnostic_route_count,
     route_diagnostic_count,
     scene_asset_count,
@@ -182,6 +184,11 @@ fn snapshot_content(
   )
   write_snapshot_field(
     out,
+    "max_update_ops",
+    report.max_page_update_operation_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
     "diagnostics",
     (report.diagnostics.length() +
     profile.diagnostics.length() +
@@ -258,7 +265,7 @@ fn write_snapshot_route_inspections(
   out.write_string("route_inspections:\n")
   for route in routes {
     out.write_string(
-      "- \{route.route} status=\{route.status} risk_score=\{route.risk_score} diagnostics=\{route.diagnostics} first_screen=\{route.first_screen_bytes} update_payload=\{route.update_payload_bytes} nodes=\{route.node_count} events=\{route.event_count} backend_events=\{route.backend_event_count} backend_streams=\{route.backend_stream_count} backend_reviews=\{route.backend_review_count} backend_cancels=\{route.backend_cancel_count} backend_retries=\{route.backend_retry_count} scene_markers=\{route.scene_visible_marker_count}/\{route.scene_marker_count} scene_regions=\{route.scene_visible_region_count}/\{route.scene_region_count} scene_assets=\{route.scene_asset_count} scene_remote_assets=\{route.scene_remote_asset_count} scene_package_bytes=\{route.scene_package_bytes}\n",
+      "- \{route.route} status=\{route.status} risk_score=\{route.risk_score} diagnostics=\{route.diagnostics} first_screen=\{route.first_screen_bytes} update_payload=\{route.update_payload_bytes} update_ops=\{route.update_operation_count} nodes=\{route.node_count} events=\{route.event_count} backend_events=\{route.backend_event_count} backend_streams=\{route.backend_stream_count} backend_reviews=\{route.backend_review_count} backend_cancels=\{route.backend_cancel_count} backend_retries=\{route.backend_retry_count} scene_markers=\{route.scene_visible_marker_count}/\{route.scene_marker_count} scene_regions=\{route.scene_visible_region_count}/\{route.scene_region_count} scene_assets=\{route.scene_asset_count} scene_remote_assets=\{route.scene_remote_asset_count} scene_package_bytes=\{route.scene_package_bytes}\n",
     )
   }
 }

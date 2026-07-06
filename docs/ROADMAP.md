@@ -409,14 +409,15 @@ Acceptance checks:
 Current evidence:
 
 - WeChat projects include a build report with file count, total bytes, WXML,
-  WXSS, JS, page count, initial-data, event-patch bytes, route-level
-  first-screen/update payload maxima, diagnostics, and summary text.
+  WXSS, JS, page count, initial-data, event-patch bytes, event-patch operation
+  count, route-level first-screen/update payload maxima, max route update
+  operations, diagnostics, and summary text.
 - The WeChat generator supports multi-page projects through route-scoped page
   descriptors while preserving the one-page API for small examples.
 - Generated WeChat projects include a deterministic `bunnia.manifest.json`
   with route-level node/event counts, runtime data bytes, event-patch bytes,
-  first-screen/update byte estimates, windowed-list item counts, route render
-  diagnostics, and generated file sizes.
+  update operation counts, first-screen/update byte estimates, windowed-list
+  item counts, route render diagnostics, and generated file sizes.
 - WeChat projects now emit shared `bunnia.runtime.js` and `app.wxss` files, so
   route files do not duplicate common patch helpers or default styles per page.
 - WeChat projects now emit route-local `*.data.js` payload modules, so page
@@ -445,7 +446,8 @@ Current evidence:
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, aggregate
-  event patches, and route-level first-screen/update payloads.
+  event patches, event-patch operation fanout, and route-level
+  first-screen/update payload and operation pressure.
 
 Do not build yet:
 
@@ -779,7 +781,8 @@ Acceptance checks:
 Current evidence:
 
 - `moon run cmd/main` writes the sample WeChat project and reports render,
-  page-count, file-size, initial-data, event-patch, and patch-plan summaries.
+  page-count, file-size, initial-data, event-patch byte/operation, and
+  patch-plan summaries.
 - Build output includes a deterministic generated-file manifest, so route and
   first-screen/update pressure can be inspected before opening the target
   mini-app IDE.
@@ -799,9 +802,9 @@ Current evidence:
   diagnostic counts and route status, so large multi-route apps can rank risky
   routes before opening the target mini-app IDE.
 - Project inspection reports identify the highest-risk route from manifest
-  diagnostics, first-screen bytes, update payloads, node/event counts, and
-  scene marker pressure, so huge apps can choose the next page to optimize
-  without opening every generated file.
+  diagnostics, first-screen bytes, update payloads, update operation fanout,
+  node/event counts, and scene marker pressure, so huge apps can choose the
+  next page to optimize without opening every generated file.
 - Project inspection reports also expose max scene asset and remote scene asset
   pressure across routes, so map-heavy generated output can be triaged before
   opening every route manifest.
@@ -819,9 +822,9 @@ Current evidence:
 - Route inspection and generator snapshots print backend event, stream, review,
   cancel, and retry counts, so agentic recovery pressure is reviewable without
   opening generated manifest JSON.
-- Route risk scoring now weights backend event, stream, review, cancel, and
-  retry pressure, so high-operation agent routes can surface as optimization
-  targets even when their visual tree is small.
+- Route risk scoring now weights backend event, stream, review, cancel, retry,
+  and update-operation pressure, so high-operation agent routes can surface as
+  optimization targets even when their visual tree is small.
 - Generator snapshots also carry inspection gate summaries and diagnostics, so
   strict route-pressure failures are reviewable from the deterministic snapshot
   artifact.
@@ -962,17 +965,17 @@ Current evidence:
   on changes; `--once` keeps the same path testable without a long-running
   process.
 - `moon run cmd/main -- snapshot` writes a compact deterministic generator
-  snapshot with route, budget, route risk, route diagnostics, scene asset
-  references, profile, profile-gate diagnostics, and per-file byte/checksum
-  lines for CI diffing without writing the full generated mini-program output
-  directory.
+  snapshot with route, budget, route risk, route diagnostics, update operation
+  pressure, scene asset references, profile, profile-gate diagnostics, and
+  per-file byte/checksum lines for CI diffing without writing the full generated
+  mini-program output directory.
 - Snapshot artifacts record the active build report from the selected
   generated-output budget profile, including route, report, profile, and
   profile-gate diagnostic lines for CI diffs.
 - `moon run cmd/main -- inspect` reuses the build/profile/snapshot pipeline to
   print project inspection, highest-risk route, route-level first-screen,
-  update-payload, scene-marker, diagnostic, and per-file byte/checksum lines
-  without writing generated output.
+  update-payload, update-operation, scene-marker, diagnostic, and per-file
+  byte/checksum lines without writing generated output.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package that splits app view,
   windowed agentic message feed, static scene map, bounded updates, budget

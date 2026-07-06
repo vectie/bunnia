@@ -282,6 +282,11 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "update_ops=\\{page.update_operation_count}",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("inspection_gate"),
   )
   assert_true(

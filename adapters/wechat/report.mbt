@@ -8,8 +8,10 @@ pub struct WechatBuildBudget {
   max_js_bytes : Int
   max_initial_data_bytes : Int
   max_event_patch_bytes : Int
+  max_event_patch_operations : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
+  max_page_update_operations : Int
 } derive(Debug, Eq)
 
 ///|
@@ -22,10 +24,12 @@ pub struct WechatBuildReport {
   js_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  event_patch_operation_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
+  max_page_update_operation_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -41,8 +45,10 @@ pub fn default_build_budget() -> WechatBuildBudget {
     max_js_bytes: 65536,
     max_initial_data_bytes: 65536,
     max_event_patch_bytes: 8192,
+    max_event_patch_operations: 64,
     max_page_first_screen_bytes: 98304,
     max_page_update_payload_bytes: 8192,
+    max_page_update_operations: 16,
   }
 }
 
@@ -56,8 +62,10 @@ pub fn build_budget(
   max_js_bytes~ : Int,
   max_initial_data_bytes~ : Int,
   max_event_patch_bytes~ : Int,
+  max_event_patch_operations~ : Int,
   max_page_first_screen_bytes~ : Int,
   max_page_update_payload_bytes~ : Int,
+  max_page_update_operations~ : Int,
 ) -> WechatBuildBudget {
   {
     max_pages,
@@ -68,8 +76,10 @@ pub fn build_budget(
     max_js_bytes,
     max_initial_data_bytes,
     max_event_patch_bytes,
+    max_event_patch_operations,
     max_page_first_screen_bytes,
     max_page_update_payload_bytes,
+    max_page_update_operations,
   }
 }
 
@@ -123,7 +133,8 @@ fn report_files(
   }
   let initial = initial_data_bytes(pages)
   let event_patch = event_patch_bytes(pages)
-  let (max_first_screen, max_update_payload) = push_page_performance_diagnostics(
+  let event_patch_operations = event_patch_operation_count(pages)
+  let (max_first_screen, max_update_payload, max_update_operations) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
   push_page_manifest_diagnostics(diagnostics, pages)
@@ -178,6 +189,12 @@ fn report_files(
     event_patch,
     budget.max_event_patch_bytes,
   )
+  push_over_budget(
+    diagnostics,
+    "wechat-event-patch-operations-over-budget",
+    event_patch_operations,
+    budget.max_event_patch_operations,
+  )
   {
     page_count: pages.length(),
     file_count: files.length(),
@@ -187,12 +204,14 @@ fn report_files(
     js_bytes: js,
     initial_data_bytes: initial,
     event_patch_bytes: event_patch,
+    event_patch_operation_count: event_patch_operations,
     missing_event_patch_count,
     orphan_event_patch_count,
     max_page_first_screen_bytes: max_first_screen,
     max_page_update_payload_bytes: max_update_payload,
+    max_page_update_operation_count: max_update_operations,
     diagnostics,
-    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} event_patch_ops=\{event_patch_operations} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} max_update_ops=\{max_update_operations} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -230,6 +249,15 @@ fn count_runtime_event_diagnostics(
 }
 
 ///|
+fn event_patch_operation_count(pages : Array[WechatProjectPage]) -> Int {
+  let mut total = 0
+  for page in pages {
+    total += report_page_update_operation_count(page)
+  }
+  total
+}
+
+///|
 fn runtime_has_patch(runtime : WechatRuntime, message : String) -> Bool {
   for item in runtime.event_patches {
     if item.message == message {
@@ -255,17 +283,22 @@ fn push_page_performance_diagnostics(
   files : Array[WechatFile],
   pages : Array[WechatProjectPage],
   budget : WechatBuildBudget,
-) -> (Int, Int) {
+) -> (Int, Int, Int) {
   let mut max_first_screen = 0
   let mut max_update_payload = 0
+  let mut max_update_operations = 0
   for page in pages {
     let first_screen = page_first_screen_bytes(page, files)
     let update_payload = page_update_payload_bytes(page)
+    let update_operations = report_page_update_operation_count(page)
     if first_screen > max_first_screen {
       max_first_screen = first_screen
     }
     if update_payload > max_update_payload {
       max_update_payload = update_payload
+    }
+    if update_operations > max_update_operations {
+      max_update_operations = update_operations
     }
     push_page_over_budget(
       diagnostics,
@@ -281,8 +314,15 @@ fn push_page_performance_diagnostics(
       update_payload,
       budget.max_page_update_payload_bytes,
     )
+    push_page_over_budget(
+      diagnostics,
+      "wechat-page-update-operations-over-budget",
+      page.route,
+      update_operations,
+      budget.max_page_update_operations,
+    )
   }
-  (max_first_screen, max_update_payload)
+  (max_first_screen, max_update_payload, max_update_operations)
 }
 
 ///|
@@ -322,6 +362,17 @@ fn route_requires_backend(route : String, files : Array[WechatFile]) -> Bool {
 ///|
 fn page_update_payload_bytes(page : WechatProjectPage) -> Int {
   page_event_patch_bytes(page)
+}
+
+///|
+fn report_page_update_operation_count(page : WechatProjectPage) -> Int {
+  let mut total = 0
+  for item in page.runtime.event_patches {
+    if page.page.plan.event_messages.contains(item.message) {
+      total += item.patches.length()
+    }
+  }
+  total
 }
 
 ///|

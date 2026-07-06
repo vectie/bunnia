@@ -2911,8 +2911,10 @@ pub fn wechat_build_budget(
   max_js_bytes~ : Int,
   max_initial_data_bytes~ : Int,
   max_event_patch_bytes~ : Int,
+  max_event_patch_operations~ : Int,
   max_page_first_screen_bytes~ : Int,
   max_page_update_payload_bytes~ : Int,
+  max_page_update_operations~ : Int,
 ) -> WechatBuildBudget {
   @wechat.build_budget(
     max_pages~,
@@ -2923,8 +2925,10 @@ pub fn wechat_build_budget(
     max_js_bytes~,
     max_initial_data_bytes~,
     max_event_patch_bytes~,
+    max_event_patch_operations~,
     max_page_first_screen_bytes~,
     max_page_update_payload_bytes~,
+    max_page_update_operations~,
   )
 }
 

@@ -23,6 +23,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.route, "pages/snapshot/index")
   assert_eq(snapshot.file_count, project.files.length())
   assert_eq(snapshot.total_bytes, project.total_bytes)
+  assert_eq(snapshot.max_update_operation_count, 1)
   assert_eq(snapshot.route_diagnostic_route_count, 0)
   assert_eq(snapshot.route_diagnostic_count, 0)
   assert_eq(snapshot.scene_asset_count, 0)
@@ -46,6 +47,7 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("render_budget_profile=default"))
   assert_true(snapshot.content.contains("route=pages/snapshot/index"))
   assert_true(snapshot.content.contains("risk_route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("max_update_ops=1"))
   assert_true(snapshot.content.contains("risk_score="))
   assert_true(snapshot.content.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.content.contains("route_diagnostics=0"))
@@ -73,6 +75,7 @@ test "generated snapshots record deterministic file pressure" {
       "route_inspections:\n- pages/snapshot/index status=ok",
     ),
   )
+  assert_true(snapshot.content.contains("update_ops=1"))
   assert_true(snapshot.content.contains("scene_remote_assets=0"))
   assert_true(snapshot.content.contains("scene_assets:\nroute_diagnostics:"))
   assert_true(
@@ -264,8 +267,10 @@ test "generated snapshots can record active build report diagnostics" {
       max_js_bytes=128,
       max_initial_data_bytes=4,
       max_event_patch_bytes=4,
+      max_event_patch_operations=0,
       max_page_first_screen_bytes=4,
       max_page_update_payload_bytes=4,
+      max_page_update_operations=0,
     ),
   )
   let snapshot = snapshot_wechat_project_with_report(
@@ -313,6 +318,7 @@ test "generated snapshots can record active build report diagnostics" {
   assert_true(snapshot.content.contains("budget_profile=tiny"))
   assert_true(snapshot.content.contains("render_budget_profile=tiny-render"))
   assert_true(snapshot.content.contains("risk_route=pages/snapshot/index"))
+  assert_true(snapshot.content.contains("max_update_ops=1"))
   assert_true(snapshot.content.contains("route_inspections:"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
   assert_true(
@@ -320,6 +326,9 @@ test "generated snapshots can record active build report diagnostics" {
   )
   assert_true(snapshot.content.contains("route_diagnostics:"))
   assert_true(snapshot.content.contains("report_diagnostics:\n- wechat-"))
+  assert_true(
+    snapshot.content.contains("wechat-page-update-operations-over-budget"),
+  )
   assert_true(snapshot.content.contains("profile_diagnostics:"))
   assert_true(snapshot.content.contains("profile_gate_diagnostics:"))
   assert_true(

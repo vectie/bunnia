@@ -375,7 +375,7 @@ fn cmd_main_mbt() -> String {
   "  println(inspection.summary)\n" +
   "  println(\"inspect=pages=\\{project.page_count} files=\\{project.files.length()} bytes=\\{project.total_bytes} risk_route=\\{inspection.top_route} risk_score=\\{inspection.risk_score} diagnostics=\\{project.manifest.diagnostic_count} profile_gate_diagnostics=\\{profile_gate.diagnostics.length()} inspection_gate_diagnostics=\\{inspection_gate.diagnostics.length()}\")\n" +
   "  for page in project.manifest.pages {\n" +
-  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} backend_events=\\{page.backend_event_count} backend_streams=\\{page.backend_stream_count} backend_reviews=\\{page.backend_review_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} diagnostics=\\{page.diagnostic_count}\")\n" +
+  "    println(\"route=\\{page.route} status=\\{page.status} nodes=\\{page.node_count} events=\\{page.event_count} backend_events=\\{page.backend_event_count} backend_streams=\\{page.backend_stream_count} backend_reviews=\\{page.backend_review_count} scene_markers=\\{page.scene_visible_marker_count}/\\{page.scene_marker_count} scene_regions=\\{page.scene_visible_region_count}/\\{page.scene_region_count} first_screen=\\{page.first_screen_bytes} update_payload=\\{page.update_payload_bytes} update_ops=\\{page.update_operation_count} diagnostics=\\{page.diagnostic_count}\")\n" +
   "  }\n" +
   "  for item in inspection_gate.diagnostics {\n" +
   "    println(\"inspection_diagnostic=\\{item}\")\n" +

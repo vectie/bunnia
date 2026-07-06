@@ -51,8 +51,10 @@ pub fn wechat_build_budget_for_profile(
         max_js_bytes=8192,
         max_initial_data_bytes=1024,
         max_event_patch_bytes=1024,
+        max_event_patch_operations=32,
         max_page_first_screen_bytes=24576,
         max_page_update_payload_bytes=1024,
+        max_page_update_operations=16,
       )
     "tiny" =>
       @wechat.build_budget(
@@ -64,8 +66,10 @@ pub fn wechat_build_budget_for_profile(
         max_js_bytes=128,
         max_initial_data_bytes=4,
         max_event_patch_bytes=4,
+        max_event_patch_operations=1,
         max_page_first_screen_bytes=4,
         max_page_update_payload_bytes=4,
+        max_page_update_operations=1,
       )
     _ => panic()
   }

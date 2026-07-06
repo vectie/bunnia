@@ -95,8 +95,10 @@ pub struct WechatManifestPage {
   orphan_event_patch_count : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  event_patch_operation_count : Int
   first_screen_bytes : Int
   update_payload_bytes : Int
+  update_operation_count : Int
   file_bytes : Int
   render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
@@ -638,8 +640,10 @@ fn manifest_pages(
       orphan_event_patch_count: page_orphan_event_patch_count(item),
       initial_data_bytes: item.runtime.initial_data_json.length(),
       event_patch_bytes: page_event_patch_bytes(item),
+      event_patch_operation_count: page_event_patch_operation_count(item),
       first_screen_bytes: page_first_screen_bytes(item, files),
       update_payload_bytes: page_update_payload_bytes(item),
+      update_operation_count: page_update_operation_count(item),
       file_bytes: route_file_bytes(item.route, files),
       render_budget: item.page.render_budget,
       render_diagnostics: item.page.plan.diagnostics,
@@ -808,6 +812,22 @@ fn page_event_patch_bytes(page : WechatProjectPage) -> Int {
 }
 
 ///|
+fn page_event_patch_operation_count(page : WechatProjectPage) -> Int {
+  page_update_operation_count(page)
+}
+
+///|
+fn page_update_operation_count(page : WechatProjectPage) -> Int {
+  let mut total = 0
+  for item in page.runtime.event_patches {
+    if page.page.plan.event_messages.contains(item.message) {
+      total += item.patches.length()
+    }
+  }
+  total
+}
+
+///|
 fn page_missing_event_patch_count(page : WechatProjectPage) -> Int {
   let mut total = 0
   for message in page.page.plan.event_messages {
@@ -967,8 +987,10 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"orphanEventPatches\":\{item.orphan_event_patch_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
   "\"eventPatchBytes\":\{item.event_patch_bytes}," +
+  "\"eventPatchOperations\":\{item.event_patch_operation_count}," +
   "\"firstScreenBytes\":\{item.first_screen_bytes}," +
   "\"updatePayloadBytes\":\{item.update_payload_bytes}," +
+  "\"updateOperations\":\{item.update_operation_count}," +
   "\"fileBytes\":\{item.file_bytes}," +
   "\"renderBudget\":\{render_budget_json(item.render_budget)}," +
   "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}," +

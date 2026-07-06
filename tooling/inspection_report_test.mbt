@@ -104,13 +104,17 @@ test "project inspection reports backend recovery pressure" {
   let base_risk_score = route.diagnostics * 1000000 +
     route.first_screen_bytes +
     route.update_payload_bytes * 4 +
+    route.update_operation_count * 96 +
     route.node_count * 16 +
     route.event_count * 64
   assert_eq(route.risk_score, base_risk_score + 448)
+  assert_eq(route.update_operation_count, 2)
   assert_true(inspection.routes[0].summary.contains("backend_events=2"))
+  assert_true(inspection.routes[0].summary.contains("update_ops=2"))
   assert_true(inspection.routes[0].summary.contains("backend_cancels=1"))
   assert_true(inspection.routes[0].summary.contains("backend_retries=1"))
   assert_true(inspection.summary.contains("max_backend_events=2"))
+  assert_true(inspection.summary.contains("max_update_ops=2"))
   assert_true(inspection.summary.contains("max_backend_cancels=1"))
   assert_true(inspection.summary.contains("max_backend_retries=1"))
   let relaxed = gate_project_inspection(

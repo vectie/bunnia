@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn build_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int, max_page_first_screen_bytes~ : Int, max_page_update_payload_bytes~ : Int) -> WechatBuildBudget
+pub fn build_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_wxml_bytes~ : Int, max_wxss_bytes~ : Int, max_js_bytes~ : Int, max_initial_data_bytes~ : Int, max_event_patch_bytes~ : Int, max_event_patch_operations~ : Int, max_page_first_screen_bytes~ : Int, max_page_update_payload_bytes~ : Int, max_page_update_operations~ : Int) -> WechatBuildBudget
 
 pub fn default_build_budget() -> WechatBuildBudget
 
@@ -64,8 +64,10 @@ pub struct WechatBuildBudget {
   max_js_bytes : Int
   max_initial_data_bytes : Int
   max_event_patch_bytes : Int
+  max_event_patch_operations : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
+  max_page_update_operations : Int
 } derive(Eq, @debug.Debug)
 
 pub struct WechatBuildReport {
@@ -77,10 +79,12 @@ pub struct WechatBuildReport {
   js_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  event_patch_operation_count : Int
   missing_event_patch_count : Int
   orphan_event_patch_count : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
+  max_page_update_operation_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)
@@ -134,8 +138,10 @@ pub struct WechatManifestPage {
   orphan_event_patch_count : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  event_patch_operation_count : Int
   first_screen_bytes : Int
   update_payload_bytes : Int
+  update_operation_count : Int
   file_bytes : Int
   render_budget : @core.RenderBudget
   render_diagnostics : Array[String]
