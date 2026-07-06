@@ -47,6 +47,9 @@ pub struct WechatManifestPage {
   route : String
   node_count : Int
   depth : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
   component_count : Int
   event_count : Int
   initial_data_bytes : Int
@@ -321,6 +324,9 @@ fn manifest_pages(
       route: item.route,
       node_count: item.page.plan.node_count,
       depth: item.page.plan.depth,
+      windowed_list_count: item.page.plan.windowed_list_count,
+      list_total_count: item.page.plan.list_total_count,
+      list_visible_count: item.page.plan.list_visible_count,
       component_count: item.page.plan.component_kinds.length(),
       event_count: item.page.plan.event_messages.length(),
       initial_data_bytes: item.runtime.initial_data_json.length(),
@@ -429,6 +435,9 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"route\":\"\{escape_json(item.route)}\"," +
   "\"nodes\":\{item.node_count}," +
   "\"depth\":\{item.depth}," +
+  "\"windowedLists\":\{item.windowed_list_count}," +
+  "\"listTotal\":\{item.list_total_count}," +
+  "\"listVisible\":\{item.list_visible_count}," +
   "\"components\":\{item.component_count}," +
   "\"events\":\{item.event_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
@@ -602,6 +611,8 @@ fn event_name(event : String, adapter : @core.PlatformAdapter) -> String {
 fn component_name(kind : String, adapter : @core.PlatformAdapter) -> String {
   if kind == "page" {
     adapter.page_component
+  } else if kind == "windowed-list" {
+    "\{adapter.component_prefix}view"
   } else {
     "\{adapter.component_prefix}\{kind}"
   }
@@ -750,6 +761,7 @@ fn default_wxss() -> String {
   ".bunnia-communication-approval { border-left-color: #16a34a; }\n" +
   ".bunnia-communication-tool-result { border-left-color: #7c3aed; }\n" +
   ".bunnia-communication-recovery-notice { border-left-color: #dc2626; }\n" +
+  ".bunnia-list-windowed { display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".bunnia-review { display: flex; gap: 12rpx; align-items: center; padding: 16rpx; border: 1rpx solid #e5e7eb; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; }\n" +
   ".bunnia-review-pending { border-color: #d97706; }\n" +
   ".bunnia-review-approved { border-color: #16a34a; }\n" +

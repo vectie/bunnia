@@ -138,9 +138,27 @@ fn metric_card(input : DashboardMetric) -> @bunnia.Node {
 
 ///|
 fn building_list(buildings : Array[CivicBuilding]) -> @bunnia.Node {
+  let visible = visible_buildings(buildings, 12)
   @bunnia.view_with_attrs([@bunnia.class_name("wenyu-building-list")], [
-    @bunnia.list(buildings, building_card),
+    @bunnia.windowed_list(
+      visible,
+      total_count=buildings.length(),
+      render=building_card,
+    ),
   ])
+}
+
+///|
+fn visible_buildings(
+  buildings : Array[CivicBuilding],
+  limit : Int,
+) -> Array[CivicBuilding] {
+  let output : Array[CivicBuilding] = []
+  let stop = if buildings.length() < limit { buildings.length() } else { limit }
+  for i in 0..<stop {
+    output.push(buildings[i])
+  }
+  output
 }
 
 ///|

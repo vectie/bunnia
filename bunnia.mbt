@@ -279,6 +279,16 @@ pub fn[Item] list(items : Array[Item], render : (Item) -> Node) -> Node {
 }
 
 ///|
+pub fn[Item] windowed_list(
+  items : Array[Item],
+  total_count~ : Int,
+  offset? : Int = 0,
+  render~ : (Item) -> Node,
+) -> Node {
+  @core.windowed_list(items, total_count~, offset~, render~)
+}
+
+///|
 pub fn when(condition : Bool, child : Node) -> Node {
   @core.when(condition, child)
 }

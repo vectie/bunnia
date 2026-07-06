@@ -31,12 +31,14 @@ pub struct Node {
   events : Array[EventBinding]
   children : Array[Node]
   text : String
+  list_total_count : Int
+  list_visible_count : Int
 } derive(Debug, Eq)
 
 ///|
 pub impl Show for Node with fn output(self : Node, logger : &Logger) -> Unit {
   logger.write_string(
-    "Node(kind=\{self.kind}, key=\{self.key}, attrs=\{self.attrs.length()}, events=\{self.events.length()}, children=\{self.children.length()}, text=\{self.text.length()})",
+    "Node(kind=\{self.kind}, key=\{self.key}, attrs=\{self.attrs.length()}, events=\{self.events.length()}, children=\{self.children.length()}, text=\{self.text.length()}, list_total=\{self.list_total_count}, list_visible=\{self.list_visible_count})",
   )
 }
 
@@ -78,8 +80,19 @@ pub fn node(
   events? : Array[EventBinding] = [],
   children? : Array[Node] = [],
   text? : String = "",
+  list_total_count? : Int = 0,
+  list_visible_count? : Int = 0,
 ) -> Node {
-  { kind, key, attrs, events, children, text }
+  {
+    kind,
+    key,
+    attrs,
+    events,
+    children,
+    text,
+    list_total_count,
+    list_visible_count,
+  }
 }
 
 ///|
@@ -91,6 +104,8 @@ pub fn keyed(key : String, child : Node) -> Node {
     events: child.events,
     children: child.children,
     text: child.text,
+    list_total_count: child.list_total_count,
+    list_visible_count: child.list_visible_count,
   }
 }
 
@@ -145,6 +160,32 @@ pub fn[Item] list(items : Array[Item], render : (Item) -> Node) -> Node {
     children.push(render(item))
   }
   node(kind="view", attrs=[class_name("bunnia-list")], children~)
+}
+
+///|
+pub fn[Item] windowed_list(
+  items : Array[Item],
+  total_count~ : Int,
+  offset? : Int = 0,
+  render~ : (Item) -> Node,
+) -> Node {
+  let children : Array[Node] = []
+  for item in items {
+    children.push(render(item))
+  }
+  node(
+    kind="windowed-list",
+    attrs=[
+      class_name("bunnia-list bunnia-list-windowed"),
+      data("bunnia-list-mode", "windowed"),
+      data("total-count", total_count.to_string()),
+      data("visible-start", offset.to_string()),
+      data("visible-count", items.length().to_string()),
+    ],
+    children~,
+    list_total_count=total_count,
+    list_visible_count=items.length(),
+  )
 }
 
 ///|

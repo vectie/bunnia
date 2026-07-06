@@ -270,6 +270,29 @@ test "form input and list controls lower to mini-app events" {
 }
 
 ///|
+test "windowed lists expose total count without rendering every row" {
+  let root = @bunnia.page([
+    @bunnia.windowed_list(
+      ["agent", "map", "review"],
+      total_count=120,
+      offset=24,
+      render=render_tag,
+    ),
+  ])
+  let output = @bunnia.generate_wechat_page("Windowed", root)
+  assert_eq(output.plan.windowed_list_count, 1)
+  assert_eq(output.plan.list_total_count, 120)
+  assert_eq(output.plan.list_visible_count, 3)
+  assert_true(output.plan.component_kinds.contains("windowed-list"))
+  assert_true(output.wxml.contains("<view"))
+  assert_true(output.wxml.contains("bunnia-list-windowed"))
+  assert_true(output.wxml.contains("data-total-count=\"120\""))
+  assert_true(output.wxml.contains("data-visible-start=\"24\""))
+  assert_true(output.wxml.contains("data-visible-count=\"3\""))
+  assert_true(output.wxss.contains(".bunnia-list-windowed"))
+}
+
+///|
 test "effect constructors cover mini-app backend capabilities" {
   let effects = [
     @bunnia.storage("save-draft", "storage:draft", "draft"),
@@ -467,6 +490,7 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[0].route, "pages/home/home")
   assert_eq(project.manifest.pages[1].route, "pages/chat/index")
   assert_true(project.manifest.pages[0].event_patch_bytes > 0)
+  assert_eq(project.manifest.pages[0].windowed_list_count, 0)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),

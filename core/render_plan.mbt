@@ -33,6 +33,9 @@ pub struct RenderPlan {
   root_kind : String
   node_count : Int
   depth : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]
@@ -61,6 +64,9 @@ pub fn plan_with_budget(
   let adapter = adapter(platform)
   let count = node_count(root)
   let depth = max_depth(root)
+  let windowed_lists = windowed_list_count(root)
+  let total_items = list_total_count(root)
+  let visible_items = list_visible_count(root)
   let diagnostics : Array[String] = []
   if count > budget.max_nodes {
     diagnostics.push("node-count-over-budget:\{count}/\{budget.max_nodes}")
@@ -73,18 +79,48 @@ pub fn plan_with_budget(
       "event-count-over-budget:\{messages.length()}/\{budget.max_events}",
     )
   }
-  let summary = "Bunnia render plan: \{platform_id(platform)} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} diagnostics=\{diagnostics.length()}"
+  let summary = "Bunnia render plan: \{platform_id(platform)} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} diagnostics=\{diagnostics.length()}"
   {
     platform,
     adapter,
     root_kind: root.kind,
     node_count: count,
     depth,
+    windowed_list_count: windowed_lists,
+    list_total_count: total_items,
+    list_visible_count: visible_items,
     component_kinds: components,
     event_messages: messages,
     diagnostics,
     summary,
   }
+}
+
+///|
+fn windowed_list_count(root : Node) -> Int {
+  let mut total = if root.kind == "windowed-list" { 1 } else { 0 }
+  for child in root.children {
+    total += windowed_list_count(child)
+  }
+  total
+}
+
+///|
+fn list_total_count(root : Node) -> Int {
+  let mut total = root.list_total_count
+  for child in root.children {
+    total += list_total_count(child)
+  }
+  total
+}
+
+///|
+fn list_visible_count(root : Node) -> Int {
+  let mut total = root.list_visible_count
+  for child in root.children {
+    total += list_visible_count(child)
+  }
+  total
 }
 
 ///|

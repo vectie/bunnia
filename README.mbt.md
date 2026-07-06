@@ -90,6 +90,11 @@ Generated WeChat projects include `bunnia.manifest.json`, a deterministic route
 and file manifest with per-page node/event counts, runtime data bytes, patch
 bytes, and generated file sizes.
 
+For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
+rows and the full `total_count`. Render plans and generated manifests report
+`windowed_lists` plus visible/total item counts, which keeps first output
+bounded while preserving scale diagnostics.
+
 Generate a standalone starter project with:
 
 ```bash

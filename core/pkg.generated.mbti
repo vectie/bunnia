@@ -42,7 +42,7 @@ pub fn[Item] list(Array[Item], (Item) -> Node) -> Node
 
 pub fn max_depth(Node) -> Int
 
-pub fn node(kind~ : String, key? : String, attrs? : Array[Attr], events? : Array[EventBinding], children? : Array[Node], text? : String) -> Node
+pub fn node(kind~ : String, key? : String, attrs? : Array[Attr], events? : Array[EventBinding], children? : Array[Node], text? : String, list_total_count? : Int, list_visible_count? : Int) -> Node
 
 pub fn node_count(Node) -> Int
 
@@ -84,6 +84,8 @@ pub fn view_with_attrs(Array[Attr], Array[Node]) -> Node
 
 pub fn when(Bool, Node) -> Node
 
+pub fn[Item] windowed_list(Array[Item], total_count~ : Int, offset? : Int, render~ : (Item) -> Node) -> Node
+
 // Errors
 
 // Types and methods
@@ -106,6 +108,8 @@ pub struct Node {
   events : Array[EventBinding]
   children : Array[Node]
   text : String
+  list_total_count : Int
+  list_visible_count : Int
 } derive(Eq, @debug.Debug)
 pub impl Show for Node
 
@@ -165,6 +169,9 @@ pub struct RenderPlan {
   root_kind : String
   node_count : Int
   depth : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
   component_kinds : Array[String]
   event_messages : Array[String]
   diagnostics : Array[String]

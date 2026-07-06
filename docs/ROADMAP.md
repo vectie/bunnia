@@ -312,6 +312,8 @@ Current evidence:
   update/view boundary.
 - Common controls now include `input`, `form`, `list`, and `when` in addition
   to page/view/text/image/button/scroll-view/canvas.
+- Repeated surfaces can use `windowed_list` to render visible rows while
+  preserving total item counts in render plans and generated manifests.
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event
@@ -366,7 +368,7 @@ Current evidence:
   descriptors while preserving the one-page API for small examples.
 - Generated WeChat projects include a deterministic `bunnia.manifest.json`
   with route-level node/event counts, runtime data bytes, event-patch bytes,
-  and generated file sizes.
+  windowed-list item counts, and generated file sizes.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, and event
@@ -418,6 +420,8 @@ Current evidence:
 - The proof slice generates a separate WeChat route, `pages/wenyu/index`, with
   header status, metrics, four building cards, review controls, scene markers,
   operator request patches, and communication trace rows.
+- Large Wenyu fixtures use bounded building-list rendering, reporting visible
+  and total building counts instead of expanding every building row into WXML.
 - Tests verify the proof slice is generated from projection data, keeps updates
   and assets bounded, and leaves framework core packages product-neutral.
 - `moon run cmd/main -- --example wenyu_overview` generates the proof app

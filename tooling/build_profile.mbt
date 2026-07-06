@@ -6,6 +6,9 @@ pub struct BuildProfile {
   node_count : Int
   component_count : Int
   event_count : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
   file_count : Int
   total_bytes : Int
   initial_data_bytes : Int
@@ -45,6 +48,9 @@ pub fn profile_wechat_project(
     node_count: page_node_count(project.pages),
     component_count: page_component_count(project.pages),
     event_count: page_event_count(project.pages),
+    windowed_list_count: page_windowed_list_count(project.pages),
+    list_total_count: page_list_total_count(project.pages),
+    list_visible_count: page_list_visible_count(project.pages),
     file_count: project.report.file_count,
     total_bytes: project.report.total_bytes,
     initial_data_bytes: project.report.initial_data_bytes,
@@ -77,7 +83,7 @@ fn profile_summary(
   scene_package_bytes : Int,
   diagnostic_count : Int,
 ) -> String {
-  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
+  "Bunnia build profile: name=\{project.name} route=\{project.route} pages=\{project.page_count} nodes=\{page_node_count(project.pages)} components=\{page_component_count(project.pages)} events=\{page_event_count(project.pages)} windowed_lists=\{page_windowed_list_count(project.pages)} list_items=\{page_list_visible_count(project.pages)}/\{page_list_total_count(project.pages)} files=\{project.report.file_count} bytes=\{project.report.total_bytes} initial_data=\{project.report.initial_data_bytes} event_patches=\{project.report.event_patch_bytes} patch_bytes=\{patches.total_estimated_bytes} backend_endpoints=\{backend_endpoint_count} scene_markers=\{scene_marker_count} scene_assets=\{scene_asset_count} scene_package_bytes=\{scene_package_bytes} diagnostics=\{diagnostic_count}"
 }
 
 ///|
@@ -115,6 +121,33 @@ fn page_event_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
   let mut total = 0
   for item in pages {
     total += item.page.plan.event_messages.length()
+  }
+  total
+}
+
+///|
+fn page_windowed_list_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.windowed_list_count
+  }
+  total
+}
+
+///|
+fn page_list_total_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.list_total_count
+  }
+  total
+}
+
+///|
+fn page_list_visible_count(pages : Array[@wechat.WechatProjectPage]) -> Int {
+  let mut total = 0
+  for item in pages {
+    total += item.page.plan.list_visible_count
   }
   total
 }
