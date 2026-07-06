@@ -597,6 +597,7 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].list_visible_count, 1)
   assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].duplicate_list_key_count, 0)
+  assert_eq(project.manifest.pages[1].render_diagnostics.length(), 0)
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),
@@ -616,10 +617,41 @@ test "wechat project generator supports multiple app routes" {
       "\"duplicateListKeys\":0",
     ),
   )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"renderDiagnostics\":[]",
+    ),
+  )
   assert_eq(project.report.page_count, 2)
   assert_eq(project.report.initial_data_bytes, 26)
   assert_true(project.report.event_patch_bytes > 0)
   assert_true(report.diagnostics.contains("wechat-page-count-over-budget:2/1"))
+}
+
+///|
+test "wechat manifest records route render diagnostics" {
+  let project = @bunnia.generate_wechat_project(
+    name="Diagnostics",
+    route="pages/diagnostics/index",
+    root=@bunnia.page([
+      @bunnia.list(["agent", "map"], value => {
+        @bunnia.view([@bunnia.text(value)])
+      }),
+    ]),
+  )
+  assert_eq(project.manifest.pages.length(), 1)
+  assert_eq(project.manifest.pages[0].route, "pages/diagnostics/index")
+  assert_eq(project.manifest.pages[0].unkeyed_list_child_count, 2)
+  assert_true(
+    project.manifest.pages[0].render_diagnostics.contains(
+      "list-child-missing-key:2",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"renderDiagnostics\":[\"list-child-missing-key:2\"]",
+    ),
+  )
 }
 
 ///|

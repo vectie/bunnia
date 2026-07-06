@@ -373,7 +373,8 @@ Current evidence:
   descriptors while preserving the one-page API for small examples.
 - Generated WeChat projects include a deterministic `bunnia.manifest.json`
   with route-level node/event counts, runtime data bytes, event-patch bytes,
-  windowed-list item counts, and generated file sizes.
+  windowed-list item counts, route render diagnostics, and generated file
+  sizes.
 - The CLI prints the render plan, project summary, build report, patch plan, and
   generated output directory.
 - Tests force budget regressions for generated files, initial data, and event

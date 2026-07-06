@@ -57,6 +57,7 @@ pub struct WechatManifestPage {
   initial_data_bytes : Int
   event_patch_bytes : Int
   file_bytes : Int
+  render_diagnostics : Array[String]
 } derive(Debug, Eq)
 
 ///|
@@ -336,6 +337,7 @@ fn manifest_pages(
       initial_data_bytes: item.runtime.initial_data_json.length(),
       event_patch_bytes: page_event_patch_bytes(item.runtime),
       file_bytes: route_file_bytes(item.route, files),
+      render_diagnostics: item.page.plan.diagnostics,
     })
   }
   output
@@ -448,8 +450,25 @@ fn manifest_page_json(item : WechatManifestPage) -> String {
   "\"events\":\{item.event_count}," +
   "\"initialDataBytes\":\{item.initial_data_bytes}," +
   "\"eventPatchBytes\":\{item.event_patch_bytes}," +
-  "\"fileBytes\":\{item.file_bytes}" +
+  "\"fileBytes\":\{item.file_bytes}," +
+  "\"renderDiagnostics\":\{strings_json(item.render_diagnostics)}" +
   "}"
+}
+
+///|
+fn strings_json(items : Array[String]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(items[i]))
+    out.write_string("\"")
+  }
+  out.write_string("]")
+  out.to_string()
 }
 
 ///|
