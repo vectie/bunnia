@@ -214,6 +214,22 @@ test "wechat build reports missing and orphan event patches" {
       "wechat-patch-without-event:pages/index/index:orphan",
     ),
   )
+  assert_true(
+    file_content(project.files, "pages/index/index.data.js").contains(
+      "\"open\":[{kind:\"set\",path:\"state.open\",value:\"yes\"}]",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/index/index.data.js").contains("orphan"),
+  )
+  assert_eq(
+    project.manifest.pages[0].event_patch_bytes,
+    project.report.event_patch_bytes,
+  )
+  assert_eq(
+    project.manifest.pages[0].update_payload_bytes,
+    project.report.event_patch_bytes,
+  )
   assert_true(project.report.summary.contains("missing_event_patches=1"))
   assert_true(project.report.summary.contains("orphan_event_patches=1"))
 }

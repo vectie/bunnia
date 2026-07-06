@@ -407,6 +407,9 @@ Current evidence:
 - WeChat projects now emit route-local `*.data.js` payload modules, so page
   runtime glue stays small while initial data and event-patch tables remain
   route-scoped and manifest-visible.
+- Generated event-patch tables include only handlers reachable from a route's
+  rendered events; orphan handlers remain diagnostics without being shipped in
+  page payload modules.
 - WeChat projects can optionally emit `bunnia.backend.js` from a backend
   contract, keeping agent/request integration packaged but still
   product-neutral and secret-free.
@@ -735,6 +738,8 @@ Current evidence:
   shared startup bytes.
 - Generated project output splits route payload modules from page JS, making
   payload growth and route-level checksums visible in manifests and snapshots.
+- Generated event-patch byte budgets now reflect reachable route handlers, so
+  dead/orphan patch entries do not inflate update-payload estimates.
 - Backend-aware example builds include a manifest-visible backend adapter file,
   so contract integration is inspectable in normal generated output.
 - WeChat build reports are deterministic and tested through the public

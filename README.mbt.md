@@ -137,6 +137,9 @@ Generated projects also include shared `bunnia.runtime.js` and `app.wxss`
 files plus route-local `*.data.js` payload modules, so page files keep only
 route structure and runtime glue instead of duplicating helpers, default
 styles, initial data, and event-patch tables per route.
+Generated event-patch tables include only messages reachable from that route's
+rendered events; orphan handlers stay visible as diagnostics instead of being
+serialized into page payloads.
 Projects generated with a backend contract also include `bunnia.backend.js`, a
 contract-derived `wx.request` adapter that keeps base URLs in page data and
 does not generate app secrets. Backend-aware pages call that adapter when a

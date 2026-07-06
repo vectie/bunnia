@@ -231,7 +231,7 @@ fn generate_project_from_pages_internal(
     files.push(
       wechat_file(
         page_payload_file_path(item.route),
-        page_payload_js(item.runtime),
+        page_payload_js(item.runtime, item.page.plan),
       ),
     )
     files.push(wechat_file("\{item.route}.js", item.page.js))
@@ -479,7 +479,7 @@ fn manifest_pages(
       component_count: item.page.plan.component_kinds.length(),
       event_count: item.page.plan.event_messages.length(),
       initial_data_bytes: item.runtime.initial_data_json.length(),
-      event_patch_bytes: page_event_patch_bytes(item.runtime),
+      event_patch_bytes: page_event_patch_bytes(item),
       first_screen_bytes: page_first_screen_bytes(item, files),
       update_payload_bytes: page_update_payload_bytes(item),
       file_bytes: route_file_bytes(item.route, files),
@@ -548,12 +548,14 @@ fn route_file_bytes(route : String, files : Array[WechatFile]) -> Int {
 }
 
 ///|
-fn page_event_patch_bytes(runtime : WechatRuntime) -> Int {
+fn page_event_patch_bytes(page : WechatProjectPage) -> Int {
   let mut total = 0
-  for item in runtime.event_patches {
-    total += item.message.length()
-    for patch in item.patches {
-      total += patch.estimated_bytes
+  for item in page.runtime.event_patches {
+    if page.page.plan.event_messages.contains(item.message) {
+      total += item.message.length()
+      for patch in item.patches {
+        total += patch.estimated_bytes
+      }
     }
   }
   total
@@ -804,7 +806,7 @@ fn page_js(
   plan : @core.RenderPlan,
   runtime : WechatRuntime,
 ) -> String {
-  "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "const __bunniaEventPatches = \{event_patches_object(runtime.event_patches, plan)}\n" +
   "\n" +
   runtime_helpers_js() +
   "\n" +
@@ -843,9 +845,9 @@ fn project_page_js_with_backend(
 }
 
 ///|
-fn page_payload_js(runtime : WechatRuntime) -> String {
+fn page_payload_js(runtime : WechatRuntime, plan : @core.RenderPlan) -> String {
   "const initialData = (\{runtime.initial_data_json})\n" +
-  "const eventPatches = \{event_patches_object(runtime.event_patches)}\n" +
+  "const eventPatches = \{event_patches_object(runtime.event_patches, plan)}\n" +
   "\n" +
   "module.exports = { initialData, eventPatches }\n"
 }
@@ -981,18 +983,24 @@ fn route_slash_count(route : String) -> Int {
 }
 
 ///|
-fn event_patches_object(items : Array[WechatEventPatch]) -> String {
+fn event_patches_object(
+  items : Array[WechatEventPatch],
+  plan : @core.RenderPlan,
+) -> String {
   let out = StringBuilder::new()
   out.write_string("{")
-  for i in 0..<items.length() {
-    let item = items[i]
-    if i > 0 {
-      out.write_string(",")
+  let mut emitted = 0
+  for item in items {
+    if plan.event_messages.contains(item.message) {
+      if emitted > 0 {
+        out.write_string(",")
+      }
+      emitted += 1
+      out.write_string("\"")
+      out.write_string(escape_json(item.message))
+      out.write_string("\":")
+      out.write_string(patches_to_operations(item.patches))
     }
-    out.write_string("\"")
-    out.write_string(escape_json(item.message))
-    out.write_string("\":")
-    out.write_string(patches_to_operations(item.patches))
   }
   out.write_string("}")
   out.to_string()

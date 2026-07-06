@@ -96,18 +96,13 @@ pub fn report_project_pages(
   pages : Array[WechatProjectPage],
   budget : WechatBuildBudget,
 ) -> WechatBuildReport {
-  let runtimes : Array[WechatRuntime] = []
-  for item in pages {
-    runtimes.push(item.runtime)
-  }
-  report_files(files, pages, runtimes, budget)
+  report_files(files, pages, budget)
 }
 
 ///|
 fn report_files(
   files : Array[WechatFile],
   pages : Array[WechatProjectPage],
-  runtimes : Array[WechatRuntime],
   budget : WechatBuildBudget,
 ) -> WechatBuildReport {
   let diagnostics : Array[String] = []
@@ -126,8 +121,8 @@ fn report_files(
       js += bytes
     }
   }
-  let initial = initial_data_bytes(runtimes)
-  let event_patch = event_patch_bytes(runtimes)
+  let initial = initial_data_bytes(pages)
+  let event_patch = event_patch_bytes(pages)
   let (max_first_screen, max_update_payload) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
@@ -318,28 +313,23 @@ fn route_requires_backend(route : String, files : Array[WechatFile]) -> Bool {
 
 ///|
 fn page_update_payload_bytes(page : WechatProjectPage) -> Int {
-  page_event_patch_bytes(page.runtime)
+  page_event_patch_bytes(page)
 }
 
 ///|
-fn initial_data_bytes(items : Array[WechatRuntime]) -> Int {
+fn initial_data_bytes(items : Array[WechatProjectPage]) -> Int {
   let mut total = 0
   for item in items {
-    total += item.initial_data_json.length()
+    total += item.runtime.initial_data_json.length()
   }
   total
 }
 
 ///|
-fn event_patch_bytes(runtimes : Array[WechatRuntime]) -> Int {
+fn event_patch_bytes(pages : Array[WechatProjectPage]) -> Int {
   let mut total = 0
-  for runtime in runtimes {
-    for item in runtime.event_patches {
-      total += item.message.length()
-      for patch in item.patches {
-        total += patch.estimated_bytes
-      }
-    }
+  for page in pages {
+    total += page_event_patch_bytes(page)
   }
   total
 }
