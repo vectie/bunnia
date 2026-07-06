@@ -36,13 +36,17 @@ pub fn demo_view() -> @bunnia.Node {
       acknowledge_message="ack-route-tool",
     ),
   )
-  let map = @bunnia.static_scene_view(demo_scene())
+  let map = @bunnia.static_scene_view_with_camera(demo_scene(), demo_camera())
   @bunnia.page([
     @bunnia.view_with_attrs([@bunnia.class_name("demo-shell")], [
       @bunnia.text("Agent Map"),
       feed,
       review,
       tool_result,
+      @bunnia.view_with_attrs([@bunnia.class_name("scene-controls")], [
+        @bunnia.button("Pan Map", "pan-map-east"),
+        @bunnia.button("Zoom Map", "zoom-map-in"),
+      ]),
       map,
     ]),
   ])
@@ -89,12 +93,18 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     @bunnia.wechat_event_patch("ack-route-tool", [
       @bunnia.set_json("tool.routeToolResult", "\"acknowledged\""),
     ]),
+    @bunnia.wechat_event_patch("pan-map-east", [
+      @bunnia.set_scene_camera_position("ops-map", 128, 96),
+    ]),
+    @bunnia.wechat_event_patch("zoom-map-in", [
+      @bunnia.set_scene_camera_zoom("ops-map", 150),
+    ]),
   ])
 }
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
+  "{\"scene\":{\"selectedZone\":\"\",\"zones\":{\"zone-a\":{\"status\":\"stable\"},\"zone-b\":{\"status\":\"review\"}}},\"scenes\":{\"ops-map\":{\"camera\":{\"x\":0,\"y\":0,\"width\":520,\"height\":360,\"zoomPercent\":100}}},\"review\":{\"routeReview\":\"pending\"},\"tool\":{\"activeResult\":\"\",\"routeToolResult\":\"pending\"}}"
 }
 
 ///|
@@ -224,6 +234,11 @@ pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
 }
 
 ///|
+pub fn demo_scene_camera_plan() -> @bunnia.SceneCameraPlan {
+  @bunnia.plan_scene_camera(demo_scene(), demo_camera())
+}
+
+///|
 pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
   @bunnia.plan_scene_surface_for_platform(
     demo_scene(),
@@ -280,6 +295,11 @@ fn demo_scene() -> @bunnia.Scene {
     ],
     assets=demo_scene_assets(),
   )
+}
+
+///|
+fn demo_camera() -> @bunnia.SceneCamera {
+  @bunnia.scene_camera(scene_id="ops-map", x=0, y=0, width=520, height=360)
 }
 
 ///|

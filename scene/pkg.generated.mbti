@@ -11,6 +11,8 @@ pub fn append_scene_thread_link(String, SceneThreadLink) -> @core.Patch
 
 pub fn default_scene_asset_budget() -> SceneAssetBudget
 
+pub fn default_scene_camera_budget() -> SceneCameraBudget
+
 pub fn default_scene_render_budget() -> SceneRenderBudget
 
 pub fn default_scene_thread_budget() -> SceneThreadBudget
@@ -26,6 +28,10 @@ pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : Strin
 pub fn plan_scene_assets(Array[SceneAsset]) -> SceneAssetPlan
 
 pub fn plan_scene_assets_with_budget(Array[SceneAsset], SceneAssetBudget) -> SceneAssetPlan
+
+pub fn plan_scene_camera(Scene, SceneCamera) -> SceneCameraPlan
+
+pub fn plan_scene_camera_with_budget(Scene, SceneCamera, SceneCameraBudget) -> SceneCameraPlan
 
 pub fn plan_scene_render(Scene) -> SceneRenderPlan
 
@@ -57,6 +63,12 @@ pub fn scene_asset_budget(max_assets~ : Int, max_package_bytes~ : Int, max_remot
 
 pub fn scene_asset_kind_id(SceneAssetKind) -> String
 
+pub fn scene_camera(scene_id~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, zoom_percent? : Int) -> SceneCamera
+
+pub fn scene_camera_budget(min_zoom_percent? : Int, max_zoom_percent? : Int, min_viewport_width? : Int, min_viewport_height? : Int) -> SceneCameraBudget
+
+pub fn scene_camera_from_viewport(String, SceneViewport, zoom_percent? : Int) -> SceneCamera
+
 pub fn scene_marker_count(Scene) -> Int
 
 pub fn scene_quality_id(SceneQualityLevel) -> String
@@ -85,6 +97,14 @@ pub fn select_scene_marker(String, String) -> @core.Patch
 
 pub fn select_scene_thread(String, String, String) -> @core.Patch
 
+pub fn set_scene_camera(String, SceneCamera) -> @core.Patch
+
+pub fn set_scene_camera_position(String, Int, Int) -> @core.Patch
+
+pub fn set_scene_camera_viewport(String, SceneViewport) -> @core.Patch
+
+pub fn set_scene_camera_zoom(String, Int) -> @core.Patch
+
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
 
 pub fn set_scene_thread_status(String, String, String) -> @core.Patch
@@ -96,6 +116,8 @@ pub fn sprite_asset(String, String, Int) -> SceneAsset
 pub fn static_scene_view(Scene) -> @core.Node
 
 pub fn static_scene_view_with_budget(Scene, SceneRenderBudget) -> @core.Node
+
+pub fn static_scene_view_with_camera(Scene, SceneCamera, budget? : SceneRenderBudget, camera_budget? : SceneCameraBudget) -> @core.Node
 
 pub fn static_scene_view_with_viewport(Scene, SceneViewport, budget? : SceneRenderBudget) -> @core.Node
 
@@ -144,6 +166,32 @@ pub struct SceneAssetPlan {
   remote_assets : Int
   deferred_asset_count : Int
   deferred_asset_ids : Array[String]
+  diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct SceneCamera {
+  scene_id : String
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+  zoom_percent : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneCameraBudget {
+  min_zoom_percent : Int
+  max_zoom_percent : Int
+  min_viewport_width : Int
+  min_viewport_height : Int
+} derive(Eq, @debug.Debug)
+
+pub struct SceneCameraPlan {
+  scene_id : String
+  requested : SceneCamera
+  camera : SceneCamera
+  viewport : SceneViewport
+  clamped : Bool
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

@@ -599,6 +599,8 @@ Current evidence:
   without forcing product code to change shape.
 - Viewported static scene rendering filters markers spatially and emits
   viewport plus visible/total marker data attributes for map-heavy pages.
+- Scene camera plans make pan/zoom state explicit, clamp camera viewports to
+  scene bounds, and expose small camera-position/zoom patch helpers.
 - Scene visual quality plans check scene size, marker status, tap targets,
   marker asset references, unresolved assets, degraded output, and underlying
   render/asset diagnostics.
@@ -733,6 +735,8 @@ Current evidence:
   acknowledgment pressure, artifact references, and tool-result diagnostics.
 - Build profiles expose scene-thread link counts, unread totals, and orphan-link
   diagnostics so map-heavy agentic overlays are measured during normal builds.
+- Build profiles expose scene camera counts and clamped-camera diagnostics so
+  map pan/zoom issues are visible during strict builds.
 - Build profiles expose snapshot-delta counts and full-replacement diagnostics
   so backend refresh regressions can be caught without opening the mini-app IDE.
 - The CLI prints build-profile summaries for both `agent_map` and

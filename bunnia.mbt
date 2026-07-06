@@ -104,6 +104,15 @@ pub type SceneSize = @scene.SceneSize
 pub type SceneViewport = @scene.SceneViewport
 
 ///|
+pub type SceneCamera = @scene.SceneCamera
+
+///|
+pub type SceneCameraBudget = @scene.SceneCameraBudget
+
+///|
+pub type SceneCameraPlan = @scene.SceneCameraPlan
+
+///|
 pub type SceneAssetKind = @scene.SceneAssetKind
 
 ///|
@@ -1291,6 +1300,64 @@ pub fn scene_viewport(
 }
 
 ///|
+pub fn scene_camera(
+  scene_id~ : String,
+  x~ : Int,
+  y~ : Int,
+  width~ : Int,
+  height~ : Int,
+  zoom_percent? : Int = 100,
+) -> SceneCamera {
+  @scene.scene_camera(scene_id~, x~, y~, width~, height~, zoom_percent~)
+}
+
+///|
+pub fn scene_camera_from_viewport(
+  scene_id : String,
+  viewport : SceneViewport,
+  zoom_percent? : Int = 100,
+) -> SceneCamera {
+  @scene.scene_camera_from_viewport(scene_id, viewport, zoom_percent~)
+}
+
+///|
+pub fn scene_camera_budget(
+  min_zoom_percent? : Int = 50,
+  max_zoom_percent? : Int = 300,
+  min_viewport_width? : Int = 64,
+  min_viewport_height? : Int = 64,
+) -> SceneCameraBudget {
+  @scene.scene_camera_budget(
+    min_zoom_percent~,
+    max_zoom_percent~,
+    min_viewport_width~,
+    min_viewport_height~,
+  )
+}
+
+///|
+pub fn default_scene_camera_budget() -> SceneCameraBudget {
+  @scene.default_scene_camera_budget()
+}
+
+///|
+pub fn plan_scene_camera(
+  input : Scene,
+  camera : SceneCamera,
+) -> SceneCameraPlan {
+  @scene.plan_scene_camera(input, camera)
+}
+
+///|
+pub fn plan_scene_camera_with_budget(
+  input : Scene,
+  camera : SceneCamera,
+  budget : SceneCameraBudget,
+) -> SceneCameraPlan {
+  @scene.plan_scene_camera_with_budget(input, camera, budget)
+}
+
+///|
 pub fn scene_asset(
   id~ : String,
   kind~ : SceneAssetKind,
@@ -1449,6 +1516,16 @@ pub fn static_scene_view_with_viewport(
   budget? : SceneRenderBudget = @scene.default_scene_render_budget(),
 ) -> Node {
   @scene.static_scene_view_with_viewport(input, viewport, budget~)
+}
+
+///|
+pub fn static_scene_view_with_camera(
+  input : Scene,
+  camera : SceneCamera,
+  budget? : SceneRenderBudget = @scene.default_scene_render_budget(),
+  camera_budget? : SceneCameraBudget = @scene.default_scene_camera_budget(),
+) -> Node {
+  @scene.static_scene_view_with_camera(input, camera, budget~, camera_budget~)
 }
 
 ///|
@@ -1746,6 +1823,29 @@ pub fn set_scene_marker_status(
 ///|
 pub fn select_scene_marker(scene_id : String, marker_id : String) -> Patch {
   @scene.select_scene_marker(scene_id, marker_id)
+}
+
+///|
+pub fn set_scene_camera(scene_id : String, camera : SceneCamera) -> Patch {
+  @scene.set_scene_camera(scene_id, camera)
+}
+
+///|
+pub fn set_scene_camera_position(scene_id : String, x : Int, y : Int) -> Patch {
+  @scene.set_scene_camera_position(scene_id, x, y)
+}
+
+///|
+pub fn set_scene_camera_zoom(scene_id : String, zoom_percent : Int) -> Patch {
+  @scene.set_scene_camera_zoom(scene_id, zoom_percent)
+}
+
+///|
+pub fn set_scene_camera_viewport(
+  scene_id : String,
+  viewport : SceneViewport,
+) -> Patch {
+  @scene.set_scene_camera_viewport(scene_id, viewport)
 }
 
 ///|
@@ -2481,6 +2581,7 @@ pub fn profile_wechat_project(
   snapshot_plans? : Array[SnapshotDeltaPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
   thread_plans? : Array[SceneThreadPlan] = [],
+  camera_plans? : Array[SceneCameraPlan] = [],
   scene_plans? : Array[SceneRenderPlan] = [],
   surface_plans? : Array[SceneSurfacePlan] = [],
   quality_plans? : Array[SceneVisualQualityPlan] = [],
@@ -2496,6 +2597,7 @@ pub fn profile_wechat_project(
     snapshot_plans~,
     asset_plans~,
     thread_plans~,
+    camera_plans~,
     scene_plans~,
     surface_plans~,
     quality_plans~,

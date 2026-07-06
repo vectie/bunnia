@@ -61,6 +61,10 @@ test "build profile aggregates normal project signals" {
       open_message="open-thread-a",
     ),
   ])
+  let camera = @scene.plan_scene_camera(
+    scene_input,
+    @scene.scene_camera(scene_id="map", x=0, y=0, width=320, height=240),
+  )
   let profile = profile_wechat_project(
     project,
     patches,
@@ -108,6 +112,7 @@ test "build profile aggregates normal project signals" {
     ],
     asset_plans=[assets],
     thread_plans=[threads],
+    camera_plans=[camera],
     scene_plans=[scene],
     surface_plans=[surface],
     quality_plans=[quality],
@@ -142,6 +147,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.scene_thread_visible_link_count, 1)
   assert_eq(profile.scene_thread_unread_total, 2)
   assert_eq(profile.scene_thread_orphan_link_count, 0)
+  assert_eq(profile.scene_camera_count, 1)
+  assert_eq(profile.scene_camera_clamped_count, 0)
   assert_eq(profile.scene_static_surface_count, 1)
   assert_eq(profile.scene_canvas_surface_count, 0)
   assert_eq(profile.scene_lightweight_surface_count, 0)
@@ -194,6 +201,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("scene_threads=1/1"))
   assert_true(profile.summary.contains("scene_thread_unread=2"))
   assert_true(profile.summary.contains("scene_thread_orphans=0"))
+  assert_true(profile.summary.contains("scene_cameras=1"))
+  assert_true(profile.summary.contains("scene_camera_clamped=0"))
   assert_true(
     profile.summary.contains("scene_surfaces=static:1,canvas:0,lightweight:0"),
   )
@@ -303,6 +312,25 @@ test "build profile prefixes diagnostics by budget source" {
       max_links_without_open_message=0,
     ),
   )
+  let camera_plan = @scene.plan_scene_camera_with_budget(
+    @scene.scene("map", @scene.scene_size(320, 240), [
+      @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
+    ]),
+    @scene.scene_camera(
+      scene_id="wrong-map",
+      x=999,
+      y=999,
+      width=80,
+      height=80,
+      zoom_percent=600,
+    ),
+    @scene.scene_camera_budget(
+      min_zoom_percent=50,
+      max_zoom_percent=300,
+      min_viewport_width=64,
+      min_viewport_height=64,
+    ),
+  )
   let profile = profile_wechat_project(
     project,
     patches,
@@ -398,6 +426,7 @@ test "build profile prefixes diagnostics by budget source" {
     ],
     asset_plans=[assets],
     thread_plans=[thread_plan],
+    camera_plans=[camera_plan],
     scene_plans=[scene],
     surface_plans=[constrained_surface],
     quality_plans=[quality],
@@ -423,6 +452,8 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.scene_thread_visible_link_count, 1)
   assert_eq(profile.scene_thread_unread_total, 12)
   assert_eq(profile.scene_thread_orphan_link_count, 1)
+  assert_eq(profile.scene_camera_count, 1)
+  assert_eq(profile.scene_camera_clamped_count, 1)
   assert_eq(profile.snapshot_delta_count, 3)
   assert_eq(profile.snapshot_section_update_count, 0)
   assert_eq(profile.snapshot_append_item_count, 2)
@@ -475,6 +506,21 @@ test "build profile prefixes diagnostics by budget source" {
   )
   assert_true(
     profile.diagnostics.contains("scene-threads:scene-thread-orphan-links:1/0"),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-camera:scene-camera-scene-mismatch:wrong-map/map",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-camera:scene-camera-zoom-over-max:600/300",
+    ),
+  )
+  assert_true(
+    profile.diagnostics.contains(
+      "scene-camera:scene-camera-clamped:999,999/256,176",
+    ),
   )
   assert_true(
     profile.diagnostics.contains("snapshot:snapshot-delta-full-replace:profile"),

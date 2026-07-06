@@ -162,6 +162,8 @@ pub fn default_render_budget() -> @core.RenderBudget
 
 pub fn default_scene_asset_budget() -> @scene.SceneAssetBudget
 
+pub fn default_scene_camera_budget() -> @scene.SceneCameraBudget
+
 pub fn default_scene_render_budget() -> @scene.SceneRenderBudget
 
 pub fn default_scene_thread_budget() -> @scene.SceneThreadBudget
@@ -316,6 +318,10 @@ pub fn plan_scene_assets(Array[@scene.SceneAsset]) -> @scene.SceneAssetPlan
 
 pub fn plan_scene_assets_with_budget(Array[@scene.SceneAsset], @scene.SceneAssetBudget) -> @scene.SceneAssetPlan
 
+pub fn plan_scene_camera(@scene.Scene, @scene.SceneCamera) -> @scene.SceneCameraPlan
+
+pub fn plan_scene_camera_with_budget(@scene.Scene, @scene.SceneCamera, @scene.SceneCameraBudget) -> @scene.SceneCameraPlan
+
 pub fn plan_scene_render(@scene.Scene) -> @scene.SceneRenderPlan
 
 pub fn plan_scene_render_viewport(@scene.Scene, @scene.SceneViewport, @scene.SceneRenderBudget) -> @scene.SceneRenderPlan
@@ -358,7 +364,7 @@ pub fn prefer_lightweight_surface() -> @scene.SceneSurfacePreference
 
 pub fn prefer_static_surface() -> @scene.SceneSurfacePreference
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], camera_plans? : Array[@scene.SceneCameraPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> @tooling.BuildProfile
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
@@ -438,6 +444,12 @@ pub fn scene_asset_sprite() -> @scene.SceneAssetKind
 
 pub fn scene_asset_tile() -> @scene.SceneAssetKind
 
+pub fn scene_camera(scene_id~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, zoom_percent? : Int) -> @scene.SceneCamera
+
+pub fn scene_camera_budget(min_zoom_percent? : Int, max_zoom_percent? : Int, min_viewport_width? : Int, min_viewport_height? : Int) -> @scene.SceneCameraBudget
+
+pub fn scene_camera_from_viewport(String, @scene.SceneViewport, zoom_percent? : Int) -> @scene.SceneCamera
+
 pub fn scene_marker_count(@scene.Scene) -> Int
 
 pub fn scene_mode_canvas_surface() -> @scene.SceneRenderMode
@@ -486,6 +498,14 @@ pub fn set_review_state_delta(String, @agent.ReviewState) -> @agent.AgentDelta
 
 pub fn set_run_status_delta(String, @agent.RunStatus) -> @agent.AgentDelta
 
+pub fn set_scene_camera(String, @scene.SceneCamera) -> @core.Patch
+
+pub fn set_scene_camera_position(String, Int, Int) -> @core.Patch
+
+pub fn set_scene_camera_viewport(String, @scene.SceneViewport) -> @core.Patch
+
+pub fn set_scene_camera_zoom(String, Int) -> @core.Patch
+
 pub fn set_scene_marker_status(String, String, String) -> @core.Patch
 
 pub fn set_scene_thread_status(String, String, String) -> @core.Patch
@@ -513,6 +533,8 @@ pub fn sprite_asset(String, String, Int) -> @scene.SceneAsset
 pub fn static_scene_view(@scene.Scene) -> @core.Node
 
 pub fn static_scene_view_with_budget(@scene.Scene, @scene.SceneRenderBudget) -> @core.Node
+
+pub fn static_scene_view_with_camera(@scene.Scene, @scene.SceneCamera, budget? : @scene.SceneRenderBudget, camera_budget? : @scene.SceneCameraBudget) -> @core.Node
 
 pub fn static_scene_view_with_viewport(@scene.Scene, @scene.SceneViewport, budget? : @scene.SceneRenderBudget) -> @core.Node
 
@@ -726,6 +748,12 @@ pub using @scene {type SceneAssetBudget}
 pub using @scene {type SceneAssetKind}
 
 pub using @scene {type SceneAssetPlan}
+
+pub using @scene {type SceneCamera}
+
+pub using @scene {type SceneCameraBudget}
+
+pub using @scene {type SceneCameraPlan}
 
 pub using @scene {type SceneLayer}
 

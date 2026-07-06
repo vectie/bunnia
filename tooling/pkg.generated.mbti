@@ -13,7 +13,7 @@ import {
 // Values
 pub fn ci_plan(target? : String, budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
 
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], communication_plans? : Array[@agent.CommunicationPlan], tool_result_plans? : Array[@agent.ToolResultPlan], agent_delta_plans? : Array[@agent.AgentDeltaPlan], backend_plans? : Array[@effects.BackendPlan], snapshot_plans? : Array[@effects.SnapshotDeltaPlan], asset_plans? : Array[@scene.SceneAssetPlan], thread_plans? : Array[@scene.SceneThreadPlan], camera_plans? : Array[@scene.SceneCameraPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn scaffold_file(String, String) -> ScaffoldFile
 
@@ -76,6 +76,8 @@ pub struct BuildProfile {
   scene_thread_visible_link_count : Int
   scene_thread_unread_total : Int
   scene_thread_orphan_link_count : Int
+  scene_camera_count : Int
+  scene_camera_clamped_count : Int
   scene_static_surface_count : Int
   scene_canvas_surface_count : Int
   scene_lightweight_surface_count : Int

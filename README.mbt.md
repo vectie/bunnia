@@ -176,6 +176,9 @@ cannot support them.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+Use `@bunnia.scene_camera(...)` with
+`@bunnia.static_scene_view_with_camera(...)` when pan/zoom state should be
+explicit, clamped to scene bounds, and updated through small camera patches.
 
 For agentic map surfaces, use `@bunnia.scene_thread_link(...)` plus
 `@bunnia.plan_scene_threads(...)` to keep marker-thread badges measurable.
