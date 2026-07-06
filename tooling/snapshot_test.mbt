@@ -1,9 +1,12 @@
 ///|
 test "generated snapshots record deterministic file pressure" {
-  let project = @wechat.generate_project(
+  let project = @wechat.generate_project_with_runtime(
     name="Snapshot Fixture",
     route="pages/snapshot/index",
     root=@core.page([@core.button("Open", "open")]),
+    runtime=@wechat.runtime(event_patches=[
+      @wechat.event_patch("open", [@core.set_string("state.open", "yes")]),
+    ]),
   )
   let patches = @core.plan_patches([@core.set_string("state.open", "yes")])
   let profile = profile_wechat_project(project, patches)
@@ -31,15 +34,20 @@ test "generated snapshots record deterministic file pressure" {
 
 ///|
 test "generated snapshots change checksums when generated file content changes" {
-  let first = @wechat.generate_project(
+  let runtime = @wechat.runtime(event_patches=[
+    @wechat.event_patch("open", [@core.set_string("state.open", "yes")]),
+  ])
+  let first = @wechat.generate_project_with_runtime(
     name="Snapshot Fixture",
     route="pages/snapshot/index",
     root=@core.page([@core.button("Open", "open")]),
+    runtime~,
   )
-  let second = @wechat.generate_project(
+  let second = @wechat.generate_project_with_runtime(
     name="Snapshot Fixture",
     route="pages/snapshot/index",
     root=@core.page([@core.button("Open now", "open")]),
+    runtime~,
   )
   let first_snapshot = snapshot_wechat_project(
     target="wechat",

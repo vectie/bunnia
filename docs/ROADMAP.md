@@ -519,6 +519,9 @@ Current evidence:
 - Generated WeChat event patches preserve `set`, `append`, and `remove`
   operation kinds, so agent deltas can append feed rows or stream chunks
   without replacing the whole collection.
+- WeChat build reports diagnose view events without runtime patch handlers and
+  runtime patch handlers without reachable view events, so strict builds catch
+  broken tap/update wiring before opening the mini-app IDE.
 - Effect plans can be checked against platform adapter capabilities before a
   generator is selected, preserving the future Alipay/TikTok boundary without
   implementing those adapters now.
@@ -646,6 +649,8 @@ Acceptance checks:
 - Roadmap examples stay tested.
 - Build output reports page count, component count, generated file sizes, and
   initial data size.
+- Build output reports missing/orphan event patch counts so interaction wiring
+  regressions are visible before manual preview.
 - CI can fail on budget regressions once budgets are agreed.
 - Diagnostics make it possible to spot size and update-payload regressions
   before opening the target mini-app IDE.

@@ -22,6 +22,8 @@ pub struct WechatBuildReport {
   js_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  missing_event_patch_count : Int
+  orphan_event_patch_count : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
   diagnostics : Array[String]
@@ -129,6 +131,9 @@ fn report_files(
   let (max_first_screen, max_update_payload) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
+  let (missing_event_patch_count, orphan_event_patch_count) = push_runtime_event_diagnostics(
+    diagnostics, pages,
+  )
   push_over_budget(
     diagnostics,
     "wechat-page-count-over-budget",
@@ -186,11 +191,59 @@ fn report_files(
     js_bytes: js,
     initial_data_bytes: initial,
     event_patch_bytes: event_patch,
+    missing_event_patch_count,
+    orphan_event_patch_count,
     max_page_first_screen_bytes: max_first_screen,
     max_page_update_payload_bytes: max_update_payload,
     diagnostics,
-    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} diagnostics=\{diagnostics.length()}",
   }
+}
+
+///|
+fn push_runtime_event_diagnostics(
+  diagnostics : Array[String],
+  pages : Array[WechatProjectPage],
+) -> (Int, Int) {
+  let mut missing_count = 0
+  let mut orphan_count = 0
+  for page in pages {
+    for message in page.page.plan.event_messages {
+      if !runtime_has_patch(page.runtime, message) {
+        missing_count += 1
+        diagnostics.push("wechat-event-without-patch:\{page.route}:\{message}")
+      }
+    }
+    for patch in page.runtime.event_patches {
+      if !plan_has_event(page.page.plan, patch.message) {
+        orphan_count += 1
+        diagnostics.push(
+          "wechat-patch-without-event:\{page.route}:\{patch.message}",
+        )
+      }
+    }
+  }
+  (missing_count, orphan_count)
+}
+
+///|
+fn runtime_has_patch(runtime : WechatRuntime, message : String) -> Bool {
+  for item in runtime.event_patches {
+    if item.message == message {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn plan_has_event(plan : @core.RenderPlan, message : String) -> Bool {
+  for item in plan.event_messages {
+    if item == message {
+      return true
+    }
+  }
+  false
 }
 
 ///|

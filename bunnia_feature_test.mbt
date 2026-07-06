@@ -683,10 +683,16 @@ test "wechat project generator emits deterministic mini-program files" {
   let root = @bunnia.page([
     @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
   ])
-  let project = @bunnia.generate_wechat_project(
+  let runtime = @bunnia.wechat_runtime(event_patches=[
+    @bunnia.wechat_event_patch("open-detail", [
+      @bunnia.set_string("__bunnia.lastMessage", "open-detail"),
+    ]),
+  ])
+  let project = @bunnia.generate_wechat_project_with_runtime(
     name="Demo",
     route="pages/home/home",
     root~,
+    runtime~,
   )
   assert_eq(project.files.length(), 8)
   assert_eq(project.route, "pages/home/home")
@@ -709,6 +715,8 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(has_file(project.files, "pages/home/home.json"))
   assert_eq(project.report.file_count, 8)
   assert_eq(project.report.page_count, 1)
+  assert_eq(project.report.missing_event_patch_count, 0)
+  assert_eq(project.report.orphan_event_patch_count, 0)
   assert_eq(project.report.total_bytes, project.total_bytes)
   assert_true(project.report.wxml_bytes > 0)
   assert_true(project.report.wxss_bytes > 0)

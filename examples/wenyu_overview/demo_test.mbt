@@ -10,6 +10,8 @@ test "wenyu proof slice generates wechat output from projection" {
   assert_true(page.wxml.contains("data-markers-total=\"4\""))
   assert_true(page.wxml.contains("data-markers-visible=\"4\""))
   assert_true(page.wxml.contains("select-building-dock"))
+  assert_true(page.js.contains("\"select-building-gate\""))
+  assert_true(page.js.contains("\"select-building-market\""))
   assert_true(page.wxml.contains("bunnia-scene-marker"))
   assert_true(page.wxml.contains("bunnia-scene-sprite"))
   assert_true(page.wxml.contains("bunnia-communication-review-request"))
@@ -34,6 +36,8 @@ test "wenyu proof slice generates a separate mini-program route" {
   assert_eq(project.manifest.pages[0].list_visible_count, 4)
   assert_true(project.report.total_bytes == project.total_bytes)
   assert_eq(project.report.diagnostics.length(), 0)
+  assert_eq(project.report.missing_event_patch_count, 0)
+  assert_eq(project.report.orphan_event_patch_count, 0)
   assert_true(project.page.json.contains("Wenyu Overview"))
 }
 

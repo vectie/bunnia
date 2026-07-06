@@ -3,6 +3,7 @@ fn fixture_project() -> @wechat.WechatProject {
   let root = fixture_root()
   let runtime = @wechat.runtime(initial_data_json="{\"active\":false}", event_patches=[
     @wechat.event_patch("open", [@core.set_string("state.active", "open")]),
+    @wechat.event_patch("close", [@core.set_string("state.active", "close")]),
   ])
   @wechat.generate_project_with_runtime(
     name="Profile Fixture",

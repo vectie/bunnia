@@ -38,20 +38,37 @@ pub fn demo_wechat_project() -> @bunnia.WechatProject {
 
 ///|
 pub fn demo_runtime() -> @bunnia.WechatRuntime {
-  @bunnia.wechat_runtime(initial_data_json=demo_initial_data_json(), event_patches=[
-    @bunnia.wechat_event_patch("select-building-dock", [
-      @bunnia.set_string("projection.selectedBuilding", "building-dock"),
-      @bunnia.set_scene_marker_status("wenyu-map", "building-dock", "selected"),
-    ]),
+  let projection = demo_projection()
+  let event_patches : Array[@bunnia.WechatEventPatch] = []
+  for item in projection.buildings {
+    event_patches.push(select_building_event_patch(item))
+  }
+  event_patches.push(
     @bunnia.wechat_event_patch("submit-operator-request", [
       @bunnia.backend_state_patch(
         "submit-operator",
         @bunnia.backend_state_loading(),
       ),
     ]),
+  )
+  event_patches.push(
     @bunnia.wechat_event_patch("approve-wenyu-review", [
       @bunnia.set_string("review.wenyuOverview", "approved"),
     ]),
+  )
+  @bunnia.wechat_runtime(
+    initial_data_json=demo_initial_data_json(),
+    event_patches~,
+  )
+}
+
+///|
+fn select_building_event_patch(
+  input : CivicBuilding,
+) -> @bunnia.WechatEventPatch {
+  @bunnia.wechat_event_patch("select-\{input.id}", [
+    @bunnia.set_string("projection.selectedBuilding", input.id),
+    @bunnia.set_scene_marker_status("wenyu-map", input.id, "selected"),
   ])
 }
 

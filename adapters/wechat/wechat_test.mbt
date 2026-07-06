@@ -50,3 +50,32 @@ test "wechat runtime preserves patch operation kinds" {
     js.contains("{kind:\"remove\",path:\"draft.message\",value:null}"),
   )
 }
+
+///|
+test "wechat build reports missing and orphan event patches" {
+  let project = generate_project_with_runtime(
+    name="Runtime Coverage",
+    root=@core.page([
+      @core.button("Open", "open"),
+      @core.button("Missing", "missing"),
+    ]),
+    runtime=runtime(event_patches=[
+      event_patch("open", [@core.set_string("state.open", "yes")]),
+      event_patch("orphan", [@core.set_string("state.orphan", "yes")]),
+    ]),
+  )
+  assert_eq(project.report.missing_event_patch_count, 1)
+  assert_eq(project.report.orphan_event_patch_count, 1)
+  assert_true(
+    project.report.diagnostics.contains(
+      "wechat-event-without-patch:pages/index/index:missing",
+    ),
+  )
+  assert_true(
+    project.report.diagnostics.contains(
+      "wechat-patch-without-event:pages/index/index:orphan",
+    ),
+  )
+  assert_true(project.report.summary.contains("missing_event_patches=1"))
+  assert_true(project.report.summary.contains("orphan_event_patches=1"))
+}

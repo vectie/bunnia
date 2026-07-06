@@ -65,6 +65,8 @@ pub struct WechatBuildReport {
   js_bytes : Int
   initial_data_bytes : Int
   event_patch_bytes : Int
+  missing_event_patch_count : Int
+  orphan_event_patch_count : Int
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
   diagnostics : Array[String]
