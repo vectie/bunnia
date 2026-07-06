@@ -98,6 +98,7 @@ pub struct WechatManifestPage {
   windowed_list_count : Int
   list_total_count : Int
   list_visible_count : Int
+  unwindowed_list_child_count : Int
   unkeyed_list_child_count : Int
   duplicate_list_key_count : Int
   component_count : Int

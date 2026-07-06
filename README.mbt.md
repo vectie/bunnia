@@ -138,6 +138,9 @@ For large repeated surfaces, use `@bunnia.windowed_list(...)` with the visible
 rows and the full `total_count`. Render plans and generated manifests report
 `windowed_lists` plus visible/total item counts, which keeps first output
 bounded while preserving scale diagnostics.
+Render plans also report `unwindowed_list_children` and can diagnose
+`unwindowed-list-children-over-budget` when a keyed list, feed, or trace grows
+too large without windowing.
 
 For large agentic traces, use `@bunnia.plan_communications(...)` or
 `@bunnia.plan_filtered_communications(...)` before rendering. Communication

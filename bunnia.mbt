@@ -580,12 +580,14 @@ pub fn render_budget(
   max_depth~ : Int,
   max_events~ : Int,
   max_initial_data_bytes~ : Int,
+  max_unwindowed_list_children? : Int = 64,
 ) -> RenderBudget {
   @core.render_budget(
     max_nodes~,
     max_depth~,
     max_events~,
     max_initial_data_bytes~,
+    max_unwindowed_list_children~,
   )
 }
 

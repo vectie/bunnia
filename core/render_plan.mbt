@@ -4,6 +4,7 @@ pub struct RenderBudget {
   max_depth : Int
   max_events : Int
   max_initial_data_bytes : Int
+  max_unwindowed_list_children : Int
 } derive(Debug, Eq)
 
 ///|
@@ -13,6 +14,7 @@ pub fn default_render_budget() -> RenderBudget {
     max_depth: 18,
     max_events: 160,
     max_initial_data_bytes: 65536,
+    max_unwindowed_list_children: 64,
   }
 }
 
@@ -22,8 +24,15 @@ pub fn render_budget(
   max_depth~ : Int,
   max_events~ : Int,
   max_initial_data_bytes~ : Int,
+  max_unwindowed_list_children? : Int = 64,
 ) -> RenderBudget {
-  { max_nodes, max_depth, max_events, max_initial_data_bytes }
+  {
+    max_nodes,
+    max_depth,
+    max_events,
+    max_initial_data_bytes,
+    max_unwindowed_list_children,
+  }
 }
 
 ///|
@@ -36,6 +45,7 @@ pub struct RenderPlan {
   windowed_list_count : Int
   list_total_count : Int
   list_visible_count : Int
+  unwindowed_list_child_count : Int
   unkeyed_list_child_count : Int
   duplicate_list_key_count : Int
   canvas_count : Int
@@ -84,6 +94,7 @@ pub fn plan_for_adapter_with_budget(
   let windowed_lists = windowed_list_count(root)
   let total_items = list_total_count(root)
   let visible_items = list_visible_count(root)
+  let unwindowed_list_children = unwindowed_list_child_count(root)
   let unkeyed_list_children = unkeyed_list_child_count(root)
   let duplicate_list_keys = duplicate_list_key_count(root)
   let canvas_count = component_kind_count(root, "canvas")
@@ -104,6 +115,11 @@ pub fn plan_for_adapter_with_budget(
       "event-count-over-budget:\{messages.length()}/\{budget.max_events}",
     )
   }
+  if unwindowed_list_children > budget.max_unwindowed_list_children {
+    diagnostics.push(
+      "unwindowed-list-children-over-budget:\{unwindowed_list_children}/\{budget.max_unwindowed_list_children}",
+    )
+  }
   if unkeyed_list_children > 0 {
     diagnostics.push("list-child-missing-key:\{unkeyed_list_children}")
   }
@@ -115,7 +131,7 @@ pub fn plan_for_adapter_with_budget(
       "canvas-unsupported:\{adapter.id}:\{unsupported_canvas_count}",
     )
   }
-  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} diagnostics=\{diagnostics.length()}"
+  let summary = "Bunnia render plan: \{adapter.id} root=\{root.kind} nodes=\{count} depth=\{depth} components=\{components.length()} events=\{messages.length()} windowed_lists=\{windowed_lists} list_items=\{visible_items}/\{total_items} unwindowed_list_children=\{unwindowed_list_children} unkeyed_list_children=\{unkeyed_list_children} duplicate_list_keys=\{duplicate_list_keys} canvas=\{canvas_count} unsupported_canvas=\{unsupported_canvas_count} diagnostics=\{diagnostics.length()}"
   {
     platform: adapter.platform,
     adapter,
@@ -125,6 +141,7 @@ pub fn plan_for_adapter_with_budget(
     windowed_list_count: windowed_lists,
     list_total_count: total_items,
     list_visible_count: visible_items,
+    unwindowed_list_child_count: unwindowed_list_children,
     unkeyed_list_child_count: unkeyed_list_children,
     duplicate_list_key_count: duplicate_list_keys,
     canvas_count,
@@ -192,6 +209,30 @@ fn unkeyed_list_child_count(root : Node) -> Int {
 }
 
 ///|
+fn unwindowed_list_child_count(root : Node) -> Int {
+  let mut total = if is_repeated_surface(root) && !is_windowed_surface(root) {
+    immediate_repeated_child_count(root)
+  } else {
+    0
+  }
+  for child in root.children {
+    total += unwindowed_list_child_count(child)
+  }
+  total
+}
+
+///|
+fn immediate_repeated_child_count(root : Node) -> Int {
+  let mut total = 0
+  for child in root.children {
+    if child.kind != "text" {
+      total += 1
+    }
+  }
+  total
+}
+
+///|
 fn immediate_unkeyed_child_count(root : Node) -> Int {
   let mut total = 0
   for child in root.children {
@@ -204,12 +245,28 @@ fn immediate_unkeyed_child_count(root : Node) -> Int {
 
 ///|
 fn is_repeated_surface(root : Node) -> Bool {
-  root.kind == "windowed-list" ||
-  root.list_total_count > 0 ||
-  root.list_visible_count > 0 ||
+  is_windowed_surface(root) ||
   class_contains(root, "bunnia-list") ||
   class_contains(root, "bunnia-message-feed") ||
   class_contains(root, "bunnia-communication-trace")
+}
+
+///|
+fn is_windowed_surface(root : Node) -> Bool {
+  root.kind == "windowed-list" ||
+  root.list_total_count > 0 ||
+  root.list_visible_count > 0 ||
+  attr_equals(root, "data-bunnia-list-mode", "windowed")
+}
+
+///|
+fn attr_equals(root : Node, name : String, value : String) -> Bool {
+  for item in root.attrs {
+    if item.name == name && item.value == value {
+      return true
+    }
+  }
+  false
 }
 
 ///|

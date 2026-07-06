@@ -319,6 +319,9 @@ Current evidence:
 - Render plans diagnose missing and duplicate repeated-row keys, making
   list/feed/trace identity problems visible before they become large-app update
   regressions.
+- Render plans and generated manifests report non-windowed repeated-row counts
+  and can diagnose keyed lists, feeds, or traces that grow beyond the
+  non-windowed row budget.
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event
@@ -709,6 +712,9 @@ Current evidence:
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.
+- Build profiles and generated manifests expose non-windowed repeated-row
+  counts, so large keyed lists can still be flagged when they should become
+  windowed surfaces.
 - Build profiles expose scene surface mode counts and fallback counts so
   canvas/static/lightweight map decisions are visible in normal CLI output.
 - Build profiles expose deferred scene asset counts so package-splitting or

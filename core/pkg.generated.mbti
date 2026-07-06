@@ -70,7 +70,7 @@ pub fn platform_label(Platform) -> String
 
 pub fn remove_path(String) -> Patch
 
-pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> RenderBudget
+pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int, max_unwindowed_list_children? : Int) -> RenderBudget
 
 pub fn scroll_view(Array[Node]) -> Node
 
@@ -190,6 +190,7 @@ pub struct RenderBudget {
   max_depth : Int
   max_events : Int
   max_initial_data_bytes : Int
+  max_unwindowed_list_children : Int
 } derive(Eq, @debug.Debug)
 
 pub struct RenderPlan {
@@ -201,6 +202,7 @@ pub struct RenderPlan {
   windowed_list_count : Int
   list_total_count : Int
   list_visible_count : Int
+  unwindowed_list_child_count : Int
   unkeyed_list_child_count : Int
   duplicate_list_key_count : Int
   canvas_count : Int

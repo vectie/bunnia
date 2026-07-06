@@ -639,16 +639,42 @@ test "render plans diagnose unkeyed repeated surface rows" {
     @bunnia.wechat(),
   )
   assert_eq(keyed.unkeyed_list_child_count, 0)
+  assert_eq(keyed.unwindowed_list_child_count, 2)
   assert_eq(keyed.duplicate_list_key_count, 0)
   assert_eq(keyed.diagnostics.length(), 0)
+  assert_true(keyed.summary.contains("unwindowed_list_children=2"))
   assert_eq(unkeyed.unkeyed_list_child_count, 2)
+  assert_eq(unkeyed.unwindowed_list_child_count, 2)
   assert_eq(unkeyed.duplicate_list_key_count, 0)
   assert_true(unkeyed.diagnostics.contains("list-child-missing-key:2"))
   assert_true(unkeyed.summary.contains("unkeyed_list_children=2"))
   assert_eq(duplicate.unkeyed_list_child_count, 0)
+  assert_eq(duplicate.unwindowed_list_child_count, 2)
   assert_eq(duplicate.duplicate_list_key_count, 1)
   assert_true(duplicate.diagnostics.contains("list-child-duplicate-key:1"))
   assert_true(duplicate.summary.contains("duplicate_list_keys=1"))
+}
+
+///|
+test "render plans diagnose large non-windowed repeated surfaces" {
+  let plan = @bunnia.plan_with_budget(
+    @bunnia.page([@bunnia.list(["agent", "map", "review"], render_tag)]),
+    @bunnia.wechat(),
+    @bunnia.render_budget(
+      max_nodes=32,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=1024,
+      max_unwindowed_list_children=2,
+    ),
+  )
+  assert_eq(plan.unwindowed_list_child_count, 3)
+  assert_eq(plan.unkeyed_list_child_count, 0)
+  assert_eq(plan.duplicate_list_key_count, 0)
+  assert_true(
+    plan.diagnostics.contains("unwindowed-list-children-over-budget:3/2"),
+  )
+  assert_true(plan.summary.contains("unwindowed_list_children=3"))
 }
 
 ///|
@@ -946,6 +972,7 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].windowed_list_count, 1)
   assert_eq(project.manifest.pages[1].list_total_count, 24)
   assert_eq(project.manifest.pages[1].list_visible_count, 1)
+  assert_eq(project.manifest.pages[1].unwindowed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].duplicate_list_key_count, 0)
   assert_eq(
@@ -965,6 +992,11 @@ test "wechat project generator supports multiple app routes" {
   assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"route\":\"pages/chat/index\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"unwindowedListChildren\":0",
     ),
   )
   assert_true(
@@ -1011,10 +1043,16 @@ test "wechat manifest records route render diagnostics" {
   )
   assert_eq(project.manifest.pages.length(), 1)
   assert_eq(project.manifest.pages[0].route, "pages/diagnostics/index")
+  assert_eq(project.manifest.pages[0].unwindowed_list_child_count, 2)
   assert_eq(project.manifest.pages[0].unkeyed_list_child_count, 2)
   assert_true(
     project.manifest.pages[0].render_diagnostics.contains(
       "list-child-missing-key:2",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.manifest.json").contains(
+      "\"unwindowedListChildren\":2",
     ),
   )
   assert_true(
