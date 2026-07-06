@@ -21,7 +21,11 @@ pub fn append_json(String, String) -> @core.Patch
 
 pub fn[Model, Msg] apply(@program.Program[Model, Msg], Msg) -> @program.Program[Model, Msg]
 
+pub fn approval(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> @agent.Communication
+
 pub fn attr(String, String) -> @core.Attr
+
+pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
 
 pub fn button(String, String) -> @core.Node
 
@@ -32,6 +36,28 @@ pub fn canvas(String) -> @core.Node
 pub fn class_name(String) -> @core.Attr
 
 pub fn cloud_function(String, String, String) -> @effects.Effect
+
+pub fn communication(id~ : String, thread_id~ : String, kind~ : @agent.CommunicationKind, from_actor_id~ : String, to_actor_id? : String, text~ : String, artifact_ref? : String, timestamp? : String, status? : @agent.RunStatus, open_message? : String) -> @agent.Communication
+
+pub fn communication_approval() -> @agent.CommunicationKind
+
+pub fn communication_broadcast() -> @agent.CommunicationKind
+
+pub fn communication_handoff() -> @agent.CommunicationKind
+
+pub fn communication_kind_id(@agent.CommunicationKind) -> String
+
+pub fn communication_message() -> @agent.CommunicationKind
+
+pub fn communication_recovery_notice() -> @agent.CommunicationKind
+
+pub fn communication_review_request() -> @agent.CommunicationKind
+
+pub fn communication_row(@agent.Communication) -> @core.Node
+
+pub fn communication_tool_result() -> @agent.CommunicationKind
+
+pub fn communication_trace(Array[@agent.Communication]) -> @core.Node
 
 pub fn[Model, Msg] current_view(@program.Program[Model, Msg]) -> @core.Node
 
@@ -63,6 +89,8 @@ pub fn generate_wechat_project_with_runtime(name~ : String, route? : String, roo
 
 pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
+pub fn handoff(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
+
 pub fn id(String) -> @core.Attr
 
 pub fn image(String, String) -> @core.Node
@@ -82,6 +110,8 @@ pub fn marker(id~ : String, label~ : String, x~ : Int, y~ : Int, status? : Strin
 pub fn max_depth(@core.Node) -> Int
 
 pub fn message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, artifact_ref? : String, status? : @agent.RunStatus) -> @agent.Message
+
+pub fn message_event(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> @agent.Communication
 
 pub fn message_feed(Array[@agent.Message]) -> @core.Node
 
@@ -111,6 +141,8 @@ pub fn platform_label(@core.Platform) -> String
 
 pub fn[Model, Msg] program(id~ : String, model~ : Model, view~ : (Model) -> @core.Node, update~ : (Model, Msg) -> @program.Step[Model], init_effects? : Array[@effects.Effect]) -> @program.Program[Model, Msg]
 
+pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> @agent.Communication
+
 pub fn remove_path(String) -> @core.Patch
 
 pub fn render_budget(max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_initial_data_bytes~ : Int) -> @core.RenderBudget
@@ -132,6 +164,8 @@ pub fn review_not_required() -> @agent.ReviewState
 pub fn review_pending() -> @agent.ReviewState
 
 pub fn review_rejected() -> @agent.ReviewState
+
+pub fn review_request(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> @agent.Communication
 
 pub fn review_state_id(@agent.ReviewState) -> String
 
@@ -177,7 +211,13 @@ pub fn tap(String) -> @core.EventBinding
 
 pub fn text(String) -> @core.Node
 
+pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_ref? : String, status? : @agent.RunStatus) -> @agent.Thread
+
+pub fn thread_card(@agent.Thread) -> @core.Node
+
 pub fn tiktok() -> @core.Platform
+
+pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> @agent.Communication
 
 pub fn view(Array[@core.Node]) -> @core.Node
 
@@ -201,6 +241,10 @@ pub using @agent {type Actor}
 pub using @agent {type ActorKind}
 
 pub using @core {type Attr}
+
+pub using @agent {type Communication}
+
+pub using @agent {type CommunicationKind}
 
 pub using @effects {type Effect}
 
@@ -245,6 +289,8 @@ pub using @scene {type SceneMarker}
 pub using @scene {type SceneSize}
 
 pub using @program {type Step}
+
+pub using @agent {type Thread}
 
 pub using @wechat {type WechatEventPatch}
 

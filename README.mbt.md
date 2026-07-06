@@ -41,7 +41,7 @@ phase-by-phase implementation plan.
 - `program`: pure `Program[Model, Msg]` update/view boundary with pending
   effects and patch plans.
 - `agent`: lightweight message, review, artifact-link, and run-status UI
-  primitives.
+  primitives, plus generic communication threads and traces.
 - `scene`: static stylised map model with layers, markers, hit targets, and
   bounded updates.
 - `effects`: typed frontend effect descriptions for request, navigation,
@@ -106,6 +106,25 @@ test {
     @bunnia.current_view(next),
   )
   assert_true(output.wxml.contains("Count 1"))
+}
+```
+
+```mbt check
+///|
+test {
+  let trace = @bunnia.communication_trace([
+    @bunnia.handoff(
+      id="handoff-1",
+      thread_id="thread-a",
+      from_actor_id="agent-a",
+      to_actor_id="operator",
+      text="Please review this result.",
+      open_message="open-review",
+    ),
+  ])
+  let output = @bunnia.generate_wechat_page("Trace", @bunnia.page([trace]))
+  assert_true(output.wxml.contains("bunnia-communication-handoff"))
+  assert_true(output.wxml.contains("open-review"))
 }
 ```
 

@@ -38,6 +38,85 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
 }
 
 ///|
+test "communication trace renders structured agent interactions" {
+  let thread = @bunnia.thread(
+    id="thread-route",
+    title="Route review",
+    owner_actor_id="agent-planner",
+    subject_ref="scene://ops-map/zone-b",
+    status=@bunnia.run_waiting_review(),
+  )
+  let trace = @bunnia.communication_trace([
+    @bunnia.message_event(
+      id="comm-message",
+      thread_id="thread-route",
+      from_actor_id="agent-planner",
+      text="Planner opened the route thread.",
+    ),
+    @bunnia.broadcast(
+      id="comm-broadcast",
+      thread_id="thread-route",
+      from_actor_id="agent-planner",
+      text="Planner published a route update.",
+    ),
+    @bunnia.handoff(
+      id="comm-handoff",
+      thread_id="thread-route",
+      from_actor_id="agent-planner",
+      to_actor_id="operator",
+      text="Operator review required.",
+      open_message="open-review",
+    ),
+    @bunnia.review_request(
+      id="comm-review",
+      thread_id="thread-route",
+      from_actor_id="agent-planner",
+      to_actor_id="operator",
+      text="Approve route dispatch?",
+      artifact_ref="artifact://route-plan",
+    ),
+    @bunnia.tool_result(
+      id="comm-tool",
+      thread_id="thread-route",
+      from_actor_id="agent-planner",
+      text="Route plan generated.",
+      artifact_ref="artifact://route-plan",
+    ),
+    @bunnia.recovery_notice(
+      id="comm-recovery",
+      thread_id="thread-route",
+      from_actor_id="system",
+      text="Retry required after stale route data.",
+    ),
+  ])
+  let output = @bunnia.generate_wechat_page(
+    "Communication",
+    @bunnia.page([@bunnia.thread_card(thread), trace]),
+  )
+  assert_true(output.wxml.contains("bunnia-thread bunnia-run-waiting-review"))
+  assert_true(
+    output.wxml.contains("data-subject-ref=\"scene://ops-map/zone-b\""),
+  )
+  assert_true(output.wxml.contains("bunnia-communication-trace"))
+  assert_true(output.wxml.contains("bunnia-communication-message"))
+  assert_true(output.wxml.contains("bunnia-communication-handoff"))
+  assert_true(output.wxml.contains("bunnia-communication-recovery-notice"))
+  assert_true(
+    output.wxml.contains("data-communication-kind=\"review-request\""),
+  )
+  assert_true(output.wxml.contains("data-to-actor-id=\"operator\""))
+  assert_true(
+    output.wxml.contains("data-artifact-ref=\"artifact://route-plan\""),
+  )
+  assert_true(output.wxml.contains("data-bunnia-message=\"open-review\""))
+  assert_true(output.plan.event_messages.contains("open-review"))
+  assert_eq(
+    @bunnia.communication_kind_id(@bunnia.communication_tool_result()),
+    "tool-result",
+  )
+}
+
+///|
 test "render budgets report large app pressure early" {
   let root = @bunnia.page([
     @bunnia.view([

@@ -315,8 +315,11 @@ Current evidence:
 - Root facade helpers expose program updates without leaking internal package
   structure.
 - Tests cover a counter-style program update, pending effects, form/input event
-  lowering, agent feed primitives, bounded patches, and a static scene marker
-  update path.
+  lowering, agent feed primitives, structured communication traces, bounded
+  patches, and a static scene marker update path.
+- Generic communication records now cover threads, handoffs, broadcasts, review
+  requests, approvals, tool results, and recovery notices without importing a
+  product-specific agent runtime.
 
 Do not build yet:
 

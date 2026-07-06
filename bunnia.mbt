@@ -47,10 +47,19 @@ pub type RunStatus = @agent.RunStatus
 pub type ReviewState = @agent.ReviewState
 
 ///|
+pub type CommunicationKind = @agent.CommunicationKind
+
+///|
 pub type Actor = @agent.Actor
 
 ///|
+pub type Thread = @agent.Thread
+
+///|
 pub type Message = @agent.Message
+
+///|
+pub type Communication = @agent.Communication
 
 ///|
 pub type ReviewAction = @agent.ReviewAction
@@ -398,6 +407,220 @@ pub fn review_action(
   state? : ReviewState = @agent.Pending,
 ) -> ReviewAction {
   @agent.review_action(id~, label~, approve_message~, reject_message~, state~)
+}
+
+///|
+pub fn thread(
+  id~ : String,
+  title~ : String,
+  owner_actor_id~ : String,
+  subject_ref? : String = "",
+  status? : RunStatus = @agent.Running,
+) -> Thread {
+  @agent.thread(id~, title~, owner_actor_id~, subject_ref~, status~)
+}
+
+///|
+pub fn communication(
+  id~ : String,
+  thread_id~ : String,
+  kind~ : CommunicationKind,
+  from_actor_id~ : String,
+  to_actor_id? : String = "",
+  text~ : String,
+  artifact_ref? : String = "",
+  timestamp? : String = "",
+  status? : RunStatus = @agent.Done,
+  open_message? : String = "",
+) -> Communication {
+  @agent.communication(
+    id~,
+    thread_id~,
+    kind~,
+    from_actor_id~,
+    to_actor_id~,
+    text~,
+    artifact_ref~,
+    timestamp~,
+    status~,
+    open_message~,
+  )
+}
+
+///|
+pub fn message_event(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  text~ : String,
+  artifact_ref? : String = "",
+  open_message? : String = "",
+) -> Communication {
+  @agent.message_event(
+    id~,
+    thread_id~,
+    from_actor_id~,
+    text~,
+    artifact_ref~,
+    open_message~,
+  )
+}
+
+///|
+pub fn handoff(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  to_actor_id~ : String,
+  text~ : String,
+  open_message? : String = "",
+) -> Communication {
+  @agent.handoff(
+    id~,
+    thread_id~,
+    from_actor_id~,
+    to_actor_id~,
+    text~,
+    open_message~,
+  )
+}
+
+///|
+pub fn broadcast(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  text~ : String,
+  open_message? : String = "",
+) -> Communication {
+  @agent.broadcast(id~, thread_id~, from_actor_id~, text~, open_message~)
+}
+
+///|
+pub fn review_request(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  to_actor_id~ : String,
+  text~ : String,
+  artifact_ref? : String = "",
+  open_message? : String = "",
+) -> Communication {
+  @agent.review_request(
+    id~,
+    thread_id~,
+    from_actor_id~,
+    to_actor_id~,
+    text~,
+    artifact_ref~,
+    open_message~,
+  )
+}
+
+///|
+pub fn approval(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  to_actor_id~ : String,
+  text~ : String,
+  artifact_ref? : String = "",
+  open_message? : String = "",
+) -> Communication {
+  @agent.approval(
+    id~,
+    thread_id~,
+    from_actor_id~,
+    to_actor_id~,
+    text~,
+    artifact_ref~,
+    open_message~,
+  )
+}
+
+///|
+pub fn tool_result(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  text~ : String,
+  artifact_ref~ : String,
+  open_message? : String = "",
+) -> Communication {
+  @agent.tool_result(
+    id~,
+    thread_id~,
+    from_actor_id~,
+    text~,
+    artifact_ref~,
+    open_message~,
+  )
+}
+
+///|
+pub fn recovery_notice(
+  id~ : String,
+  thread_id~ : String,
+  from_actor_id~ : String,
+  text~ : String,
+  open_message? : String = "",
+) -> Communication {
+  @agent.recovery_notice(id~, thread_id~, from_actor_id~, text~, open_message~)
+}
+
+///|
+pub fn communication_kind_id(kind : CommunicationKind) -> String {
+  @agent.communication_kind_id(kind)
+}
+
+///|
+pub fn communication_message() -> CommunicationKind {
+  @agent.MessageEvent
+}
+
+///|
+pub fn communication_handoff() -> CommunicationKind {
+  @agent.Handoff
+}
+
+///|
+pub fn communication_broadcast() -> CommunicationKind {
+  @agent.Broadcast
+}
+
+///|
+pub fn communication_review_request() -> CommunicationKind {
+  @agent.ReviewRequest
+}
+
+///|
+pub fn communication_approval() -> CommunicationKind {
+  @agent.Approval
+}
+
+///|
+pub fn communication_tool_result() -> CommunicationKind {
+  @agent.ToolResult
+}
+
+///|
+pub fn communication_recovery_notice() -> CommunicationKind {
+  @agent.RecoveryNotice
+}
+
+///|
+pub fn thread_card(input : Thread) -> Node {
+  @agent.thread_card(input)
+}
+
+///|
+pub fn communication_row(input : Communication) -> Node {
+  @agent.communication_row(input)
+}
+
+///|
+pub fn communication_trace(items : Array[Communication]) -> Node {
+  @agent.communication_trace(items)
 }
 
 ///|

@@ -9,19 +9,45 @@ import {
 // Values
 pub fn actor(id~ : String, label~ : String, kind? : ActorKind) -> Actor
 
+pub fn approval(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> Communication
+
+pub fn broadcast(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
+
+pub fn communication(id~ : String, thread_id~ : String, kind~ : CommunicationKind, from_actor_id~ : String, to_actor_id? : String, text~ : String, artifact_ref? : String, timestamp? : String, status? : RunStatus, open_message? : String) -> Communication
+
+pub fn communication_kind_id(CommunicationKind) -> String
+
+pub fn communication_row(Communication) -> @core.Node
+
+pub fn communication_trace(Array[Communication]) -> @core.Node
+
+pub fn handoff(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, open_message? : String) -> Communication
+
 pub fn message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, artifact_ref? : String, status? : RunStatus) -> Message
+
+pub fn message_event(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> Communication
 
 pub fn message_feed(Array[Message]) -> @core.Node
 
 pub fn message_row(Message) -> @core.Node
 
+pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, open_message? : String) -> Communication
+
 pub fn review_action(id~ : String, label~ : String, approve_message~ : String, reject_message~ : String, state? : ReviewState) -> ReviewAction
 
 pub fn review_controls(ReviewAction) -> @core.Node
 
+pub fn review_request(id~ : String, thread_id~ : String, from_actor_id~ : String, to_actor_id~ : String, text~ : String, artifact_ref? : String, open_message? : String) -> Communication
+
 pub fn review_state_id(ReviewState) -> String
 
 pub fn run_status_id(RunStatus) -> String
+
+pub fn thread(id~ : String, title~ : String, owner_actor_id~ : String, subject_ref? : String, status? : RunStatus) -> Thread
+
+pub fn thread_card(Thread) -> @core.Node
+
+pub fn tool_result(id~ : String, thread_id~ : String, from_actor_id~ : String, text~ : String, artifact_ref~ : String, open_message? : String) -> Communication
 
 // Errors
 
@@ -36,6 +62,29 @@ pub(all) enum ActorKind {
   Human
   Agent
   System
+} derive(Eq, @debug.Debug)
+
+pub struct Communication {
+  id : String
+  thread_id : String
+  kind : CommunicationKind
+  from_actor_id : String
+  to_actor_id : String
+  text : String
+  artifact_ref : String
+  timestamp : String
+  status : RunStatus
+  open_message : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum CommunicationKind {
+  MessageEvent
+  Handoff
+  Broadcast
+  ReviewRequest
+  Approval
+  ToolResult
+  RecoveryNotice
 } derive(Eq, @debug.Debug)
 
 pub struct Message {
@@ -70,6 +119,14 @@ pub(all) enum RunStatus {
   Done
   Failed
   Cancelled
+} derive(Eq, @debug.Debug)
+
+pub struct Thread {
+  id : String
+  title : String
+  owner_actor_id : String
+  subject_ref : String
+  status : RunStatus
 } derive(Eq, @debug.Debug)
 
 // Type aliases
