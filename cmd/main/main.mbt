@@ -233,10 +233,21 @@ fn ci_budget_profile_from_args(args : Array[String]) -> String {
 }
 
 ///|
+fn ci_render_budget_profile_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--render-budget" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  ci_budget_profile_from_args(args)
+}
+
+///|
 fn ci_plan_from_args(args : Array[String]) -> @bunnia.CiPlan {
   @bunnia.ci_plan(
     target=target_from_args(args),
     budget_profile=ci_budget_profile_from_args(args),
+    render_budget_profile=ci_render_budget_profile_from_args(args),
     examples=ci_examples_from_args(args),
     snapshot_dir=ci_snapshot_dir_from_args(args),
   )
@@ -436,6 +447,7 @@ fn print_ci_plan(plan : @bunnia.CiPlan) -> Unit {
   println("command=ci-plan")
   println("target=\{plan.target}")
   println("budget=\{plan.budget_profile}")
+  println("render_budget=\{plan.render_budget_profile}")
   println(plan.summary)
   for step in plan.steps {
     println("step=\{step.name} command=\{step.command}")

@@ -11,7 +11,7 @@ import {
 }
 
 // Values
-pub fn ci_plan(target? : String, budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
+pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
 
 pub fn is_named_budget_profile(String) -> Bool
 
@@ -99,6 +99,7 @@ pub struct BuildProfile {
 pub struct CiPlan {
   target : String
   budget_profile : String
+  render_budget_profile : String
   examples : Array[String]
   snapshot_dir : String
   step_count : Int

@@ -128,6 +128,7 @@ test "ci plan command prints active example workflow" {
   assert_eq(command_from_args(args), "ci-plan")
   assert_eq(plan.target, "wechat")
   assert_eq(plan.budget_profile, "tight")
+  assert_eq(plan.render_budget_profile, "tight")
   assert_eq(plan.examples.length(), 2)
   assert_eq(plan.examples[0], "agent_map")
   assert_eq(plan.examples[1], "wenyu_overview")
@@ -138,22 +139,25 @@ test "ci plan command prints active example workflow" {
 ///|
 test "ci plan command accepts target budget example and snapshot dir" {
   let args = [
-    "node", "main.js", "ci-plan", "--target", "wechat", "--budget", "tight", "--example",
-    "agent_map", "--snapshot-dir", "/tmp/bunnia-ci",
+    "node", "main.js", "ci-plan", "--target", "wechat", "--budget", "tight", "--render-budget",
+    "tiny", "--example", "agent_map", "--snapshot-dir", "/tmp/bunnia-ci",
   ]
   let plan = ci_plan_from_args(args)
   assert_eq(command_from_args(args), "ci-plan")
   assert_eq(plan.target, "wechat")
   assert_eq(plan.budget_profile, "tight")
+  assert_eq(plan.render_budget_profile, "tiny")
   assert_eq(plan.examples.length(), 1)
   assert_eq(plan.snapshot_dir, "/tmp/bunnia-ci")
   assert_eq(plan.step_count, 8)
   assert_true(plan.steps[6].command.contains("--budget tight"))
+  assert_true(plan.steps[6].command.contains("--render-budget tiny"))
   assert_true(
     plan.steps[7].command.contains(
       "/tmp/bunnia-ci/wechat/agent_map.snapshot.txt",
     ),
   )
+  assert_true(plan.steps[7].command.contains("--render-budget tiny"))
 }
 
 ///|

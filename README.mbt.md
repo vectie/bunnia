@@ -129,9 +129,10 @@ To print the canonical local/CI workflow for the active examples:
 moon run cmd/main -- ci-plan
 ```
 
-`ci-plan` defaults to the `tight` budget and lists the check, test, interface,
-format, strict build, and snapshot commands that contributors should run before
-review.
+`ci-plan` defaults to the `tight` generated-output and render budgets and lists
+the check, test, interface, format, strict build, and snapshot commands that
+contributors should run before review. Pass `--render-budget` to make render
+pressure stricter or looser than generated file-size gates.
 
 The WeChat generator also supports multi-page projects through
 `@bunnia.wechat_project_page(...)` and

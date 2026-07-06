@@ -2711,10 +2711,17 @@ pub fn profile_wechat_project(
 pub fn ci_plan(
   target? : String = "wechat",
   budget_profile? : String = "tight",
+  render_budget_profile? : String = "",
   examples? : Array[String] = ["agent_map", "wenyu_overview"],
   snapshot_dir? : String = "_build/bunnia/snapshots",
 ) -> CiPlan {
-  @tooling.ci_plan(target~, budget_profile~, examples~, snapshot_dir~)
+  @tooling.ci_plan(
+    target~,
+    budget_profile~,
+    render_budget_profile~,
+    examples~,
+    snapshot_dir~,
+  )
 }
 
 ///|

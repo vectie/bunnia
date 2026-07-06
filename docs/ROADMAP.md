@@ -835,7 +835,8 @@ Current evidence:
   them.
 - `moon run cmd/main -- ci-plan` prints the active check, test, interface,
   format, strict-build, and generator-snapshot commands with the default tight
-  budget, so contributors can inspect the workflow without reading shell docs.
+  generated-output and render budgets, so contributors can inspect the workflow
+  without reading shell docs.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running
