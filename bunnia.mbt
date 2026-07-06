@@ -275,6 +275,12 @@ pub type GeneratedSnapshotFile = @tooling.GeneratedSnapshotFile
 pub type GeneratedSnapshot = @tooling.GeneratedSnapshot
 
 ///|
+pub type RouteInspection = @tooling.RouteInspection
+
+///|
+pub type ProjectInspection = @tooling.ProjectInspection
+
+///|
 pub type ScaffoldFile = @tooling.ScaffoldFile
 
 ///|
@@ -2800,6 +2806,16 @@ pub fn snapshot_wechat_project_with_report(
     budget_profile~,
     render_budget_profile~,
   )
+}
+
+///|
+pub fn inspect_wechat_project(
+  target~ : String,
+  example~ : String,
+  project : WechatProject,
+  report : WechatBuildReport,
+) -> ProjectInspection {
+  @tooling.inspect_wechat_project(target~, example~, project, report)
 }
 
 ///|

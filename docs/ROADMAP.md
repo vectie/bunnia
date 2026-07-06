@@ -768,6 +768,10 @@ Current evidence:
 - Generated manifests expose app-level diagnostic counts plus per-route
   diagnostic counts and route status, so large multi-route apps can rank risky
   routes before opening the target mini-app IDE.
+- Project inspection reports identify the highest-risk route from manifest
+  diagnostics, first-screen bytes, update payloads, node/event counts, and
+  scene marker pressure, so huge apps can choose the next page to optimize
+  without opening every generated file.
 - Build profiles derive route diagnostics from generated manifests, keeping
   strict-build output aligned with the inspected mini-program artifact instead
   of rebuilding route checks in a separate tooling path.
@@ -859,8 +863,9 @@ Current evidence:
   generated-output budget profile, including route, report, and profile
   diagnostic lines for CI diffs.
 - `moon run cmd/main -- inspect` reuses the build/profile/snapshot pipeline to
-  print route-level first-screen, update-payload, scene-marker, diagnostic, and
-  per-file byte/checksum lines without writing generated output.
+  print project inspection, highest-risk route, route-level first-screen,
+  update-payload, scene-marker, diagnostic, and per-file byte/checksum lines
+  without writing generated output.
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package with Bunnia view,
   windowed agentic message feed, static scene map, surface status overlay,

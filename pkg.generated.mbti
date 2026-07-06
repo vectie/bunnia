@@ -264,6 +264,8 @@ pub fn image_asset(String, String, Int) -> @scene.SceneAsset
 
 pub fn input(name~ : String, value? : String, input_message? : String) -> @core.Node
 
+pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> @tooling.ProjectInspection
+
 pub fn is_named_budget_profile(String) -> Bool
 
 pub fn keyed(String, @core.Node) -> @core.Node
@@ -759,6 +761,8 @@ pub using @tooling {type PlatformLimitsReport}
 
 pub using @program {type Program}
 
+pub using @tooling {type ProjectInspection}
+
 pub using @core {type RenderBudget}
 
 pub using @core {type RenderPlan}
@@ -766,6 +770,8 @@ pub using @core {type RenderPlan}
 pub using @agent {type ReviewAction}
 
 pub using @agent {type ReviewState}
+
+pub using @tooling {type RouteInspection}
 
 pub using @agent {type RunStatus}
 

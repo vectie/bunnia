@@ -175,6 +175,16 @@ test "inspect command exposes generated artifact metrics without output path" {
     snapshot.content.contains("pages/index/index.data.js kind=page-data"),
   )
   assert_true(snapshot.content.contains("route_diagnostics:"))
+  let inspection = @bunnia.inspect_wechat_project(
+    target="wechat",
+    example="agent_map",
+    project,
+    report,
+  )
+  assert_eq(inspection.top_route, "pages/index/index")
+  assert_eq(inspection.route_count, 1)
+  assert_eq(inspection.total_diagnostics, 0)
+  assert_true(inspection.summary.contains("risk_score="))
   assert_eq(project.manifest.pages[0].scene_marker_count, 2)
   assert_eq(project.manifest.pages[0].scene_visible_marker_count, 2)
 }

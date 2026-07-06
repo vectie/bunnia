@@ -13,6 +13,8 @@ import {
 // Values
 pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
 
+pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> ProjectInspection
+
 pub fn is_named_budget_profile(String) -> Bool
 
 pub fn platform_limits(target? : String) -> PlatformLimitsReport
@@ -169,6 +171,35 @@ pub struct PlatformLimitsReport {
   supports_cloud : Bool
   supports_stream : Bool
   diagnostics : Array[String]
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct ProjectInspection {
+  target : String
+  example : String
+  route_count : Int
+  routes : Array[RouteInspection]
+  top_route : String
+  total_diagnostics : Int
+  max_first_screen_bytes : Int
+  max_update_payload_bytes : Int
+  max_scene_marker_count : Int
+  risk_score : Int
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct RouteInspection {
+  route : String
+  status : String
+  diagnostics : Int
+  first_screen_bytes : Int
+  update_payload_bytes : Int
+  node_count : Int
+  event_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_asset_count : Int
+  risk_score : Int
   summary : String
 } derive(Eq, @debug.Debug)
 

@@ -130,11 +130,12 @@ moon run cmd/main -- inspect --target wechat --example agent_map --budget tight 
 ```
 
 `inspect` prints the same render, manifest, report, patch, profile, and
-snapshot summaries as the build path, then adds one `route=...` line per
-generated page and one `file=...` line per generated artifact. This is intended
-for quick checks of first-screen bytes, update payloads, scene marker pressure,
-diagnostic counts, file kinds, file bytes, and checksums before opening WeChat
-DevTools.
+snapshot summaries as the build path, then adds a project inspection summary,
+the highest-risk route, one route-inspection line per generated page, one
+`route=...` manifest line per generated page, and one `file=...` line per
+generated artifact. This is intended for quick checks of first-screen bytes,
+update payloads, scene marker pressure, diagnostic counts, file kinds, file
+bytes, and checksums before opening WeChat DevTools.
 
 To inspect component mapping and platform capability limits:
 
@@ -184,6 +185,8 @@ Route manifests also include a `diagnostics` array for render, payload, and
 interaction issues attributable to that page, plus per-route and app-level
 diagnostic counts/status fields so large apps can rank problematic routes
 without parsing every diagnostic string.
+`@bunnia.inspect_wechat_project(...)` and the `inspect` command use those
+signals to identify the top route by diagnostic and payload/render pressure.
 Backend-aware manifests also record reachable backend, stream, and review
 endpoint counts per route, making agentic request pressure attributable before
 opening the mini-app IDE.
