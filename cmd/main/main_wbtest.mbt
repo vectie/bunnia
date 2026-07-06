@@ -65,6 +65,34 @@ test "help command is explicit and does not write generated output" {
 }
 
 ///|
+test "unknown positional command does not fall through to build" {
+  assert_eq(command_from_args(["node", "main.js", "buid"]), "unknown")
+  assert_eq(unknown_command_from_args(["node", "main.js", "buid"]), "buid")
+  assert_eq(
+    command_from_args([
+      "/Users/kq/.nvm/versions/node/v22.22.1/bin/node", "/tmp/main.js", "build",
+    ]),
+    "build",
+  )
+  assert_eq(
+    command_from_args(["node", "main.js", "--budget", "tight"]),
+    "build",
+  )
+  assert_eq(
+    command_from_args(["node", "main.js", "--example", "agent_map"]),
+    "build",
+  )
+  assert_eq(
+    command_from_args(["node", "main.js", "--strict", "wat"]),
+    "unknown",
+  )
+  assert_eq(
+    unknown_command_from_args(["node", "main.js", "--strict", "wat"]),
+    "wat",
+  )
+}
+
+///|
 test "build budgets come from shared named profiles" {
   let render = render_budget_from_args(["node", "main.js", "--budget", "tight"])
   let shared_render = @bunnia.render_budget_for_profile("tight")

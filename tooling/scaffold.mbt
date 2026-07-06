@@ -82,6 +82,10 @@ fn cmd_main_mbt() -> String {
   "  let strict = strict_from_args(@env.args())\n" +
   "  if command == \"help\" {\n" +
   "    print_help()\n" +
+  "  } else if command == \"unknown\" {\n" +
+  "    println(\"unsupported command=\\{unknown_command_from_args(@env.args())}\")\n" +
+  "    print_help()\n" +
+  "    panic()\n" +
   "  } else if command == \"ci-plan\" {\n" +
   "    if ci_script_from_args(@env.args()) {\n" +
   "      print_ci_script(strict)\n" +
@@ -127,7 +131,11 @@ fn cmd_main_mbt() -> String {
   "  if args.contains(\"help\") || args.contains(\"--help\") || args.contains(\"-h\") {\n" +
   "    return \"help\"\n" +
   "  }\n" +
-  "  for item in args {\n" +
+  "  for i in 0..<args.length() {\n" +
+  "    let item = args[i]\n" +
+  "    if command_arg_is_ignored(args, i) {\n" +
+  "      continue\n" +
+  "    }\n" +
   "    if item == \"inspect\" {\n" +
   "      return \"inspect\"\n" +
   "    } else if item == \"snapshot\" {\n" +
@@ -138,9 +146,49 @@ fn cmd_main_mbt() -> String {
   "      return \"limits\"\n" +
   "    } else if item == \"build\" {\n" +
   "      return \"build\"\n" +
+  "    } else {\n" +
+  "      return \"unknown\"\n" +
   "    }\n" +
   "  }\n" +
   "  \"build\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn unknown_command_from_args(args : Array[String]) -> String {\n" +
+  "  for i in 0..<args.length() {\n" +
+  "    let item = args[i]\n" +
+  "    if command_arg_is_ignored(args, i) {\n" +
+  "      continue\n" +
+  "    }\n" +
+  "    if !command_arg_is_known(item) {\n" +
+  "      return item\n" +
+  "    }\n" +
+  "  }\n" +
+  "  \"\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn command_arg_is_known(item : String) -> Bool {\n" +
+  "  item == \"build\" ||\n" +
+  "  item == \"inspect\" ||\n" +
+  "  item == \"snapshot\" ||\n" +
+  "  item == \"ci-plan\" ||\n" +
+  "  item == \"limits\"\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn command_arg_is_ignored(args : Array[String], index : Int) -> Bool {\n" +
+  "  let item = args[index]\n" +
+  "  command_arg_is_runner(item) ||\n" +
+  "  item.has_prefix(\"-\") ||\n" +
+  "  (index > 0 && command_option_consumes_value(args[index - 1]))\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn command_arg_is_runner(item : String) -> Bool {\n" +
+  "  item == \"node\" || item.has_suffix(\"/node\") || item.has_suffix(\".js\")\n" +
+  "}\n\n" +
+  "///|\n" +
+  "fn command_option_consumes_value(item : String) -> Bool {\n" +
+  "  item == \"--target\" ||\n" +
+  "  item == \"--out\" ||\n" +
+  "  item == \"--snapshot-out\"\n" +
   "}\n\n" +
   "///|\n" +
   "fn print_help() -> Unit {\n" +

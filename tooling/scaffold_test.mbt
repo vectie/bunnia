@@ -53,6 +53,21 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "cmd/main/main.mbt").contains("command_from_args"),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "unknown_command_from_args",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "command_arg_is_ignored",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "item.has_suffix(\"/node\")",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains("print_help"),
   )
   assert_true(
@@ -141,6 +156,11 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "command=inspect writes=false",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "unsupported command=\\{unknown_command_from_args(@env.args())}",
     ),
   )
   assert_true(

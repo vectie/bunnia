@@ -66,6 +66,9 @@ Print the CLI command map without writing generated output:
 moon run cmd/main -- help
 ```
 
+Unknown positional commands fail before the generator writes files, so command
+typos do not accidentally produce stale output.
+
 ```bash
 moon run cmd/main
 ```

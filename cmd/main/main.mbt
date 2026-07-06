@@ -5,6 +5,10 @@ fn main {
   let command = command_from_args(@env.args())
   if command == "help" {
     print_help()
+  } else if command == "unknown" {
+    println("unsupported command=\{unknown_command_from_args(@env.args())}")
+    print_help()
+    panic()
   } else if command == "init" {
     let name = scaffold_name_from_args(@env.args())
     let output_dir = scaffold_output_dir_from_args(@env.args(), name)
@@ -52,7 +56,11 @@ fn command_from_args(args : Array[String]) -> String {
   if args.contains("help") || args.contains("--help") || args.contains("-h") {
     return "help"
   }
-  for item in args {
+  for i in 0..<args.length() {
+    let item = args[i]
+    if command_arg_is_ignored(args, i) {
+      continue
+    }
     if item == "build" {
       return "build"
     } else if item == "init" {
@@ -67,9 +75,62 @@ fn command_from_args(args : Array[String]) -> String {
       return "limits"
     } else if item == "ci-plan" {
       return "ci-plan"
+    } else {
+      return "unknown"
     }
   }
   default_command()
+}
+
+///|
+fn unknown_command_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    let item = args[i]
+    if command_arg_is_ignored(args, i) {
+      continue
+    }
+    if !command_arg_is_known(item) {
+      return item
+    }
+  }
+  ""
+}
+
+///|
+fn command_arg_is_known(item : String) -> Bool {
+  item == "build" ||
+  item == "init" ||
+  item == "watch" ||
+  item == "snapshot" ||
+  item == "inspect" ||
+  item == "limits" ||
+  item == "ci-plan"
+}
+
+///|
+fn command_arg_is_ignored(args : Array[String], index : Int) -> Bool {
+  let item = args[index]
+  command_arg_is_runner(item) ||
+  item.has_prefix("-") ||
+  (index > 0 && command_option_consumes_value(args[index - 1]))
+}
+
+///|
+fn command_arg_is_runner(item : String) -> Bool {
+  item == "node" || item.has_suffix("/node") || item.has_suffix(".js")
+}
+
+///|
+fn command_option_consumes_value(item : String) -> Bool {
+  item == "--target" ||
+  item == "--example" ||
+  item == "--budget" ||
+  item == "--render-budget" ||
+  item == "--out" ||
+  item == "--snapshot-out" ||
+  item == "--snapshot-dir" ||
+  item == "--name" ||
+  item == "--module"
 }
 
 ///|
