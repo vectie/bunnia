@@ -7,7 +7,11 @@ import {
 }
 
 // Values
+pub fn agent_cancel_endpoint(String, String, String, String) -> BackendEndpoint
+
 pub fn agent_message_endpoint(String, String, String, String) -> BackendEndpoint
+
+pub fn agent_retry_endpoint(String, String, String, String) -> BackendEndpoint
 
 pub fn agent_stream_endpoint(String, String, String, String) -> BackendEndpoint
 
@@ -156,6 +160,8 @@ pub(all) enum BackendEndpointKind {
   HandoffSubmit
   ReviewDecision
   ToolAck
+  AgentOperationCancel
+  AgentOperationRetry
   GenericEndpoint
 } derive(Eq, @debug.Debug)
 
@@ -164,6 +170,8 @@ pub struct BackendPlan {
   endpoint_count : Int
   streaming_count : Int
   review_required_count : Int
+  cancel_count : Int
+  retry_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

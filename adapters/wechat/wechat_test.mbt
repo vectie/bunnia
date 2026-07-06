@@ -37,6 +37,43 @@ test "wechat request adapter maps backend result states" {
 }
 
 ///|
+test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
+  let contract = @effects.backend_contract(id="agent-ops", endpoints=[
+    @effects.agent_cancel_endpoint(
+      "cancel-agent-run", "/agent/run/cancel", "runCancel", "cancelResult",
+    ),
+    @effects.agent_retry_endpoint(
+      "retry-agent-run", "/agent/run/retry", "runRetry", "retryResult",
+    ),
+  ])
+  let project = generate_project_with_runtime_and_backend(
+    name="Agent Ops",
+    route="pages/ops/index",
+    root=@core.page([
+      @core.button("Cancel", "cancel-agent-run"),
+      @core.button("Retry", "retry-agent-run"),
+    ]),
+    runtime=runtime(event_patches=[
+      event_patch("cancel-agent-run", [
+        @core.set_string("backend.cancel-agent-run.state", "cancelled"),
+      ]),
+      event_patch("retry-agent-run", [
+        @core.set_string("backend.retry-agent-run.state", "loading"),
+      ]),
+    ]),
+    backend_contract=contract,
+  )
+  let js = project.page.js
+  let backend_js = file_content(project.files, "bunnia.backend.js")
+  assert_true(js.contains("return __bunniaRequest(page, endpointId)"))
+  assert_true(js.contains("__bunniaRetryRequest(page, endpointId)"))
+  assert_true(js.contains("endpoint.kind === 'agent-operation-cancel'"))
+  assert_true(js.contains("endpoint.kind === 'agent-operation-retry'"))
+  assert_true(backend_js.contains("kind:\"agent-operation-cancel\""))
+  assert_true(backend_js.contains("kind:\"agent-operation-retry\""))
+}
+
+///|
 test "wechat runtime preserves patch operation kinds" {
   let js = generate_set_data_call([
     @core.set_string("review.state", "approved"),

@@ -246,6 +246,8 @@ test "build profile aggregates normal project signals" {
   assert_eq(profile.backend_endpoint_count, 1)
   assert_eq(profile.backend_streaming_count, 0)
   assert_eq(profile.backend_review_required_count, 0)
+  assert_eq(profile.backend_cancel_count, 0)
+  assert_eq(profile.backend_retry_count, 0)
   assert_eq(profile.scene_marker_count, 1)
   assert_eq(profile.scene_visible_marker_count, 1)
   assert_eq(profile.scene_asset_count, 1)
@@ -292,6 +294,8 @@ test "build profile aggregates normal project signals" {
   assert_true(profile.summary.contains("backend_endpoints=1"))
   assert_true(profile.summary.contains("backend_streams=0"))
   assert_true(profile.summary.contains("backend_reviews=0"))
+  assert_true(profile.summary.contains("backend_cancels=0"))
+  assert_true(profile.summary.contains("backend_retries=0"))
   assert_true(profile.summary.contains("pages=1"))
   assert_true(profile.summary.contains("list_items=0/0"))
   assert_true(profile.summary.contains("unwindowed_list_children=0"))
@@ -346,6 +350,12 @@ test "build profile prefixes diagnostics by budget source" {
     @effects.backend_contract(id="profile-backend", endpoints=[
       @effects.operator_submit_endpoint(
         "submit", "/submit", "payload", "result",
+      ),
+      @effects.agent_cancel_endpoint(
+        "cancel-run", "/agent/run/cancel", "cancel", "cancelResult",
+      ),
+      @effects.agent_retry_endpoint(
+        "retry-run", "/agent/run/retry", "retry", "retryResult",
       ),
     ]),
     @effects.backend_budget(
@@ -561,9 +571,13 @@ test "build profile prefixes diagnostics by budget source" {
   assert_eq(profile.effect_count, 2)
   assert_eq(profile.cloud_function_count, 1)
   assert_eq(profile.stream_effect_count, 1)
-  assert_eq(profile.backend_endpoint_count, 1)
+  assert_eq(profile.backend_endpoint_count, 3)
   assert_eq(profile.backend_streaming_count, 0)
   assert_eq(profile.backend_review_required_count, 1)
+  assert_eq(profile.backend_cancel_count, 1)
+  assert_eq(profile.backend_retry_count, 1)
+  assert_true(profile.summary.contains("backend_cancels=1"))
+  assert_true(profile.summary.contains("backend_retries=1"))
   assert_eq(profile.communication_count, 2)
   assert_eq(profile.communication_visible_count, 1)
   assert_eq(profile.communication_unresolved_review_count, 1)
@@ -684,7 +698,7 @@ test "build profile prefixes diagnostics by budget source" {
   assert_true(profile.diagnostics.contains("patch:patch-count-over-budget:1/0"))
   assert_true(
     profile.diagnostics.contains(
-      "backend:backend-endpoint-count-over-budget:1/0",
+      "backend:backend-endpoint-count-over-budget:3/0",
     ),
   )
   assert_true(

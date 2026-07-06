@@ -1078,6 +1078,12 @@ test "backend contracts plan request and streaming effects" {
       "review-decision", "/review/decision", "review", "reviewResult",
     ),
     @bunnia.tool_ack_endpoint("ack-tool", "/tool/ack", "toolResult"),
+    @bunnia.agent_cancel_endpoint(
+      "cancel-agent-run", "/agent/run/cancel", "runCancel", "cancelResult",
+    ),
+    @bunnia.agent_retry_endpoint(
+      "retry-agent-run", "/agent/run/retry", "runRetry", "retryResult",
+    ),
   ]
   let contract = @bunnia.backend_contract(
     id="agent-backend",
@@ -1107,6 +1113,8 @@ test "backend contracts plan request and streaming effects" {
     ),
   )
   let stream_effect = @bunnia.endpoint_effect(endpoints[3])
+  let cancel_effect = @bunnia.endpoint_effect(endpoints[6])
+  let retry_effect = @bunnia.endpoint_effect(endpoints[7])
   let patches = @bunnia.plan_patches([
     @bunnia.backend_state_patch(
       "stream-agent-status",
@@ -1129,14 +1137,16 @@ test "backend contracts plan request and streaming effects" {
     ]),
     backend_contract=contract,
   )
-  assert_eq(plan.endpoint_count, 6)
+  assert_eq(plan.endpoint_count, 8)
   assert_eq(plan.streaming_count, 1)
   assert_eq(plan.review_required_count, 2)
-  assert_eq(effect_plan.effect_count, 6)
+  assert_eq(plan.cancel_count, 1)
+  assert_eq(plan.retry_count, 1)
+  assert_eq(effect_plan.effect_count, 8)
   assert_eq(effect_plan.stream_effect_count, 1)
   assert_eq(effect_plan.cloud_function_count, 0)
   assert_eq(effect_plan.diagnostics.length(), 0)
-  assert_eq(no_stream_effect_plan.effect_count, 6)
+  assert_eq(no_stream_effect_plan.effect_count, 8)
   assert_true(
     no_stream_effect_plan.diagnostics.contains(
       "effect-stream-unsupported:wechat-request-only:1",
@@ -1144,7 +1154,7 @@ test "backend contracts plan request and streaming effects" {
   )
   assert_eq(plan.diagnostics.length(), 3)
   assert_true(
-    plan.diagnostics.contains("backend-endpoint-count-over-budget:6/3"),
+    plan.diagnostics.contains("backend-endpoint-count-over-budget:8/3"),
   )
   assert_true(
     plan.diagnostics.contains("backend-streaming-count-over-budget:1/0"),
@@ -1153,10 +1163,22 @@ test "backend contracts plan request and streaming effects" {
   assert_eq(@bunnia.effect_kind_id(stream_effect.kind), "stream")
   assert_eq(stream_effect.target, "/agent/status")
   assert_eq(stream_effect.message, "stream-agent-status")
+  assert_eq(@bunnia.effect_kind_id(cancel_effect.kind), "cancel")
+  assert_eq(@bunnia.effect_kind_id(retry_effect.kind), "retry")
+  assert_eq(
+    @bunnia.backend_endpoint_kind_id(@bunnia.endpoint_agent_operation_cancel()),
+    "agent-operation-cancel",
+  )
+  assert_eq(
+    @bunnia.backend_endpoint_kind_id(@bunnia.endpoint_agent_operation_retry()),
+    "agent-operation-retry",
+  )
   assert_true(patches.total_estimated_bytes < 160)
   assert_true(adapter.contains("wx.request"))
   assert_true(adapter.contains("baseUrlKey:\"backendBaseUrl\""))
   assert_true(adapter.contains("\"stream-agent-status\""))
+  assert_true(adapter.contains("agent-operation-cancel"))
+  assert_true(adapter.contains("agent-operation-retry"))
   assert_true(adapter.contains("streaming:true"))
   assert_true(adapter.contains("requiresReview:true"))
   assert_true(!adapter.contains("secret"))

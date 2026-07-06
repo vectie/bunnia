@@ -1245,7 +1245,7 @@ fn project_page_js_with_backend(
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
-  "const { __bunniaRequest } = require('\{backend_require_path(route)}')\n" +
+  "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest } = require('\{backend_require_path(route)}')\n" +
   "const __bunniaBackendEvents = \{backend_event_object(contract, plan)}\n" +
   "\n" +
   backend_request_dispatch_js() +
@@ -1327,7 +1327,16 @@ fn page_definition_js(
 fn backend_request_dispatch_js() -> String {
   "function __bunniaMaybeRequest(page, message) {\n" +
   "  const endpointId = __bunniaBackendEvents[message]\n" +
-  "  if (endpointId) __bunniaRequest(page, endpointId)\n" +
+  "  if (!endpointId) return\n" +
+  "  const endpoint = __bunniaBackend.endpoints[endpointId]\n" +
+  "  if (!endpoint) return\n" +
+  "  if (endpoint.kind === 'agent-operation-cancel') {\n" +
+  "    return __bunniaRequest(page, endpointId)\n" +
+  "  }\n" +
+  "  if (endpoint.kind === 'agent-operation-retry') {\n" +
+  "    return __bunniaRetryRequest(page, endpointId)\n" +
+  "  }\n" +
+  "  return __bunniaRequest(page, endpointId)\n" +
   "}\n"
 }
 

@@ -54,3 +54,27 @@ test "backend result kind ids stay stable for generated runtimes" {
   assert_eq(backend_result_kind_id(BackendMalformed), "malformed")
   assert_eq(backend_result_kind_id(BackendCancelled), "cancelled")
 }
+
+///|
+test "agent cancel and retry endpoints lower to explicit effects" {
+  let cancel = agent_cancel_endpoint(
+    "cancel-agent-run", "/agent/run/cancel", "runCancel", "cancelResult",
+  )
+  let retry = agent_retry_endpoint(
+    "retry-agent-run", "/agent/run/retry", "runRetry", "retryResult",
+  )
+  let plan = plan_backend_contract(
+    backend_contract(id="agent-operations", endpoints=[cancel, retry]),
+  )
+  let cancel_effect = endpoint_effect(cancel)
+  let retry_effect = endpoint_effect(retry)
+  assert_eq(backend_endpoint_kind_id(cancel.kind), "agent-operation-cancel")
+  assert_eq(backend_endpoint_kind_id(retry.kind), "agent-operation-retry")
+  assert_eq(plan.cancel_count, 1)
+  assert_eq(plan.retry_count, 1)
+  assert_eq(effect_kind_id(cancel_effect.kind), "cancel")
+  assert_eq(effect_kind_id(retry_effect.kind), "retry")
+  assert_eq(cancel_effect.target, "/agent/run/cancel")
+  assert_eq(retry_effect.target, "/agent/run/retry")
+  assert_true(plan.summary.contains("cancel=1 retry=1"))
+}

@@ -2339,6 +2339,26 @@ pub fn tool_ack_endpoint(
 }
 
 ///|
+pub fn agent_cancel_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.agent_cancel_endpoint(id, path, payload_key, response_key)
+}
+
+///|
+pub fn agent_retry_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  @effects.agent_retry_endpoint(id, path, payload_key, response_key)
+}
+
+///|
 pub fn generic_endpoint(
   id : String,
   path : String,
@@ -2537,6 +2557,16 @@ pub fn endpoint_review_decision() -> BackendEndpointKind {
 ///|
 pub fn endpoint_tool_ack() -> BackendEndpointKind {
   @effects.ToolAck
+}
+
+///|
+pub fn endpoint_agent_operation_cancel() -> BackendEndpointKind {
+  @effects.AgentOperationCancel
+}
+
+///|
+pub fn endpoint_agent_operation_retry() -> BackendEndpointKind {
+  @effects.AgentOperationRetry
 }
 
 ///|

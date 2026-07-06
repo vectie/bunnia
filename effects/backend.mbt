@@ -9,6 +9,8 @@ pub(all) enum BackendEndpointKind {
   HandoffSubmit
   ReviewDecision
   ToolAck
+  AgentOperationCancel
+  AgentOperationRetry
   GenericEndpoint
 } derive(Debug, Eq)
 
@@ -66,6 +68,8 @@ pub struct BackendPlan {
   endpoint_count : Int
   streaming_count : Int
   review_required_count : Int
+  cancel_count : Int
+  retry_count : Int
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -131,12 +135,20 @@ pub fn plan_backend_contract_with_budget(
   let diagnostics : Array[String] = []
   let mut streaming_count = 0
   let mut review_required_count = 0
+  let mut cancel_count = 0
+  let mut retry_count = 0
   for endpoint in contract.endpoints {
     if endpoint.streaming {
       streaming_count += 1
     }
     if endpoint.requires_review {
       review_required_count += 1
+    }
+    if endpoint.kind is AgentOperationCancel {
+      cancel_count += 1
+    }
+    if endpoint.kind is AgentOperationRetry {
+      retry_count += 1
     }
   }
   if contract.endpoints.length() > budget.max_endpoints {
@@ -159,8 +171,10 @@ pub fn plan_backend_contract_with_budget(
     endpoint_count: contract.endpoints.length(),
     streaming_count,
     review_required_count,
+    cancel_count,
+    retry_count,
     diagnostics,
-    summary: "Bunnia backend plan: contract=\{contract.id} endpoints=\{contract.endpoints.length()} streaming=\{streaming_count} review=\{review_required_count} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia backend plan: contract=\{contract.id} endpoints=\{contract.endpoints.length()} streaming=\{streaming_count} review=\{review_required_count} cancel=\{cancel_count} retry=\{retry_count} diagnostics=\{diagnostics.length()}",
   }
 }
 
@@ -169,11 +183,20 @@ pub fn endpoint_effect(endpoint : BackendEndpoint, id? : String = "") -> Effect 
   let effect_id = if id == "" { endpoint.id } else { id }
   effect(
     id=effect_id,
-    kind=if endpoint.streaming { Stream } else { Request },
+    kind=backend_endpoint_effect_kind(endpoint),
     target=endpoint.path,
     payload_key=endpoint.payload_key,
     message=endpoint.id,
   )
+}
+
+///|
+fn backend_endpoint_effect_kind(endpoint : BackendEndpoint) -> EffectKind {
+  match endpoint.kind {
+    AgentOperationCancel => Cancel
+    AgentOperationRetry => Retry
+    _ => if endpoint.streaming { Stream } else { Request }
+  }
 }
 
 ///|
@@ -333,6 +356,40 @@ pub fn tool_ack_endpoint(
 }
 
 ///|
+pub fn agent_cancel_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  backend_endpoint(
+    id~,
+    kind=AgentOperationCancel,
+    http_method=Post,
+    path~,
+    payload_key~,
+    response_key~,
+  )
+}
+
+///|
+pub fn agent_retry_endpoint(
+  id : String,
+  path : String,
+  payload_key : String,
+  response_key : String,
+) -> BackendEndpoint {
+  backend_endpoint(
+    id~,
+    kind=AgentOperationRetry,
+    http_method=Post,
+    path~,
+    payload_key~,
+    response_key~,
+  )
+}
+
+///|
 pub fn generic_endpoint(
   id : String,
   path : String,
@@ -394,6 +451,8 @@ pub fn backend_endpoint_kind_id(kind : BackendEndpointKind) -> String {
     HandoffSubmit => "handoff-submit"
     ReviewDecision => "review-decision"
     ToolAck => "tool-ack"
+    AgentOperationCancel => "agent-operation-cancel"
+    AgentOperationRetry => "agent-operation-retry"
     GenericEndpoint => "generic"
   }
 }

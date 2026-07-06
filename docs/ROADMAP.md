@@ -555,6 +555,8 @@ Current evidence:
 - Endpoint helpers cover snapshot/status loads, operator submit, agent message
   send, agent status stream, thread load, handoff submit, review decision, and
   tool-result acknowledgment.
+- Endpoint helpers now also cover agent operation cancel and retry as explicit
+  backend endpoint kinds that lower to `Cancel` and `Retry` effects.
 - Backend contracts can derive request/stream effect plans, so examples avoid
   duplicating endpoint intent when profiling runtime pressure.
 - Build profiles aggregate backend endpoint, streaming, and review-required
@@ -585,6 +587,9 @@ Current evidence:
 - The generated WeChat request helper stores request payloads and replay keys,
   distinguishes timeout and malformed responses, and exposes retry/cancel
   helpers without forcing a full page rerender.
+- Backend-aware generated WeChat pages dispatch cancel and retry events through
+  endpoint metadata, keeping agent operation recovery contract-driven instead
+  of ad hoc page code.
 - Backend-aware generated projects package that request helper as
   `bunnia.backend.js`, so agentic examples carry their contract-derived
   request boundary without embedding Moontown-specific execution logic.
@@ -838,6 +843,9 @@ Current evidence:
   so request and stream pressure is visible in normal CLI output.
 - Backend stream/review counts are included in profile summaries, keeping
   agent-operation review pressure visible during strict builds.
+- Backend cancel/retry counts are included in profile summaries, keeping
+  long-running agent operation recovery visible beside request and stream
+  pressure.
 - Effect capability diagnostics include custom stream support, so strict builds
   can catch unsupported agent streaming before target-specific generation.
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
