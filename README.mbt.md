@@ -328,9 +328,10 @@ moon run cmd/main -- init --name my_miniapp --module local/my_miniapp --out /tmp
 
 The generated starter keeps agent chat and map-heavy surfaces first-class while
 splitting app view, agent feed, scene model, bounded updates, budget checks, and
-starter tests into separate files. It also writes a local `moon.work` that
-includes the starter app and the current Bunnia checkout for pre-registry
-development.
+WeChat generation into separate files. Starter tests check render budgets,
+scene output, bounded patches, and clean WeChat event wiring. The command also
+writes a local `moon.work` that includes the starter app and the current Bunnia
+checkout for pre-registry development.
 
 Generate the Wenyu proof slice with:
 

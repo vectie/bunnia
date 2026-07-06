@@ -897,9 +897,10 @@ Current evidence:
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package that splits app view,
   windowed agentic message feed, static scene map, bounded updates, budget
-  checks, and starter tests into separate files, plus a local `moon.work` that
-  includes the starter app and the Bunnia checkout for development before
-  registry publication.
+  checks, WeChat generation, and starter tests into separate files. The
+  generated tests cover render budgets, scene output, bounded patches, and
+  clean WeChat event wiring, while the local `moon.work` includes the starter
+  app and the Bunnia checkout for development before registry publication.
 
 ## Phase 8: Production Readiness
 
