@@ -73,6 +73,22 @@ test "wechat projects share generated patch runtime" {
 }
 
 ///|
+test "wechat projects share default styles at app level" {
+  let project = generate_project_with_runtime(
+    name="Style Split",
+    route="pages/style/index",
+    root=@core.page([@core.view([@core.text("Styled")])]),
+    runtime=default_runtime(),
+  )
+  assert_true(has_file(project.files, "app.wxss"))
+  assert_true(!has_file(project.files, "pages/style/index.wxss"))
+  assert_eq(project.page.wxss, "")
+  assert_true(file_content(project.files, "app.wxss").contains(".bunnia-scene"))
+  assert_eq(project.manifest.files[4].path, "app.wxss")
+  assert_eq(project.manifest.files[4].route, "")
+}
+
+///|
 test "wechat build reports missing and orphan event patches" {
   let project = generate_project_with_runtime(
     name="Runtime Coverage",

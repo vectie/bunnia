@@ -287,7 +287,20 @@ fn page_first_screen_bytes(
   page : WechatProjectPage,
   files : Array[WechatFile],
 ) -> Int {
-  route_file_bytes(page.route, files) + page.runtime.initial_data_json.length()
+  route_file_bytes(page.route, files) +
+  shared_first_screen_bytes(files) +
+  page.runtime.initial_data_json.length()
+}
+
+///|
+fn shared_first_screen_bytes(files : Array[WechatFile]) -> Int {
+  let mut total = 0
+  for file in files {
+    if file.path == "app.wxss" || file.path == "bunnia.runtime.js" {
+      total += file.content.length()
+    }
+  }
+  total
 }
 
 ///|

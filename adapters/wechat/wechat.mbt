@@ -120,7 +120,7 @@ fn generate_project_page_with_runtime(
   let plan = @core.plan(root, @core.Wechat)
   {
     wxml: render_node(root, @core.adapter(@core.Wechat)),
-    wxss: default_wxss(),
+    wxss: "",
     js: project_page_js(name, route, plan, runtime),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
@@ -177,10 +177,13 @@ pub fn generate_project_from_pages(
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
     wechat_file("bunnia.runtime.js", runtime_js()),
+    wechat_file("app.wxss", default_wxss()),
   ]
   for item in pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
-    files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
+    if item.page.wxss != "" {
+      files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
+    }
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
@@ -395,11 +398,11 @@ fn manifest_file_kind(path : String) -> String {
 
 ///|
 fn manifest_file_route(path : String) -> String {
-  if path.has_suffix(".wxml") {
+  if path.has_suffix(".wxml") && path.has_prefix("pages/") {
     trim_suffix(path, ".wxml")
-  } else if path.has_suffix(".wxss") {
+  } else if path.has_suffix(".wxss") && path.has_prefix("pages/") {
     trim_suffix(path, ".wxss")
-  } else if path.has_suffix(".js") {
+  } else if path.has_suffix(".js") && path.has_prefix("pages/") {
     trim_suffix(path, ".js")
   } else if path.has_suffix(".json") && path.has_prefix("pages/") {
     trim_suffix(path, ".json")

@@ -34,6 +34,7 @@ test "generated snapshots record deterministic file pressure" {
   )
   assert_true(snapshot.content.contains("- app.json kind=json bytes="))
   assert_true(snapshot.content.contains("- bunnia.runtime.js kind=js bytes="))
+  assert_true(snapshot.content.contains("- app.wxss kind=wxss bytes="))
   assert_true(snapshot.content.contains("pages/snapshot/index.wxml kind=wxml"))
   assert_true(snapshot.content.contains("checksum="))
   assert_true(!snapshot.content.contains("checksum=-"))

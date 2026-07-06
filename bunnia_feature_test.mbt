@@ -910,9 +910,10 @@ test "wechat project generator emits deterministic mini-program files" {
   assert_true(has_file(project.files, "project.config.json"))
   assert_true(has_file(project.files, "sitemap.json"))
   assert_true(has_file(project.files, "bunnia.runtime.js"))
+  assert_true(has_file(project.files, "app.wxss"))
   assert_true(has_file(project.files, "bunnia.manifest.json"))
   assert_true(has_file(project.files, "pages/home/home.wxml"))
-  assert_true(has_file(project.files, "pages/home/home.wxss"))
+  assert_true(!has_file(project.files, "pages/home/home.wxss"))
   assert_true(has_file(project.files, "pages/home/home.js"))
   assert_true(has_file(project.files, "pages/home/home.json"))
   assert_eq(project.report.file_count, 9)
@@ -947,6 +948,7 @@ test "wechat project generator emits deterministic mini-program files" {
       "module.exports = { __bunniaReadPath, __bunniaApplyPatches }",
     ),
   )
+  assert_true(file_content(project.files, "app.wxss").contains(".bunnia-list"))
 }
 
 ///|
@@ -1007,9 +1009,9 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.page_count, 2)
   assert_eq(project.pages.length(), 2)
   assert_eq(project.route, "pages/home/home")
-  assert_eq(project.files.length(), 13)
+  assert_eq(project.files.length(), 12)
   assert_true(project.summary.contains("pages=2"))
-  assert_eq(project.manifest.app_file_count, 12)
+  assert_eq(project.manifest.app_file_count, 11)
   assert_eq(project.manifest.pages.length(), 2)
   assert_eq(project.manifest.pages[0].route, "pages/home/home")
   assert_eq(project.manifest.pages[1].route, "pages/chat/index")
@@ -1021,8 +1023,8 @@ test "wechat project generator supports multiple app routes" {
   assert_eq(project.manifest.pages[1].unwindowed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].unkeyed_list_child_count, 0)
   assert_eq(project.manifest.pages[1].duplicate_list_key_count, 0)
-  assert_eq(
-    project.manifest.pages[1].first_screen_bytes,
+  assert_true(
+    project.manifest.pages[1].first_screen_bytes >
     project.manifest.pages[1].file_bytes +
     project.manifest.pages[1].initial_data_bytes,
   )
@@ -1031,6 +1033,9 @@ test "wechat project generator supports multiple app routes" {
     project.manifest.pages[1].event_patch_bytes,
   )
   assert_eq(project.manifest.pages[1].render_diagnostics.length(), 0)
+  assert_true(has_file(project.files, "app.wxss"))
+  assert_true(!has_file(project.files, "pages/home/home.wxss"))
+  assert_true(!has_file(project.files, "pages/chat/index.wxss"))
   assert_true(has_file(project.files, "pages/chat/index.wxml"))
   assert_true(
     file_content(project.files, "app.json").contains("pages/chat/index"),
