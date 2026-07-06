@@ -35,6 +35,7 @@ pub fn scaffold_project(
     scaffold_file("README.md", readme_content),
     scaffold_file(".gitignore", gitignore()),
     scaffold_file("scripts/ci.sh", ci_script()),
+    scaffold_file("scripts/validate_boundaries.sh", boundary_script()),
     scaffold_file(".github/workflows/ci.yml", github_ci_workflow()),
   ]
   {
@@ -74,6 +75,40 @@ fn ci_script() -> String {
   "mkdir -p _build\n" +
   "moon run cmd/main -- ci-plan --script --strict > _build/bunnia-ci.sh\n" +
   "sh _build/bunnia-ci.sh\n"
+}
+
+///|
+fn boundary_script() -> String {
+  let blocked_module = "vectie/moon" + "town"
+  let forbidden = starter_forbidden_pattern()
+  "#!/usr/bin/env sh\n" +
+  "set -eu\n\n" +
+  "blocked_module='\{blocked_module}'\n" +
+  "forbidden='\{forbidden}'\n\n" +
+  "if grep -n \"$blocked_module\" moon.mod moon.pkg cmd/main/moon.pkg; then\n" +
+  "  printf '%s\\n' 'boundary violation: starter must not depend on blocked product module'\n" +
+  "  exit 1\n" +
+  "fi\n\n" +
+  "if grep -n -E -i \"$forbidden\" app.mbt agent_feed.mbt scene.mbt updates.mbt quality.mbt wechat.mbt app_test.mbt cmd/main/main.mbt README.mbt.md README.md; then\n" +
+  "  printf '%s\\n' 'boundary violation: starter must stay product-neutral; move product nouns into downstream app examples'\n" +
+  "  exit 1\n" +
+  "fi\n\n" +
+  "printf '%s\\n' 'boundary=ok'\n"
+}
+
+///|
+fn starter_forbidden_pattern() -> String {
+  "moon" +
+  "town|wen" +
+  "yu|may" +
+  "or|civ" +
+  "ic[_ -]?build" +
+  "ing|" +
+  "moon" +
+  "book|moon" +
+  "claw|stand" +
+  "ing[_ -]?watch|to" +
+  "wn[_ -]?module"
 }
 
 ///|
@@ -365,7 +400,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"# \\{target_support.summary}\")\n" +
   "  println(\"\")\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"# Bunnia starter CI plan: steps=8 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=9 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    println(\"echo 'Bunnia starter CI plan diagnostics:'\")\n" +
   "    for item in target_support.diagnostics {\n" +
   "      println(\"echo '\\{item}'\")\n" +
@@ -379,7 +414,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"# Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"# Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}\")\n" +
   "    println(\"# \\{inspection_gate.summary}\")\n" +
   "    println(\"# \\{profile_gate.summary}\")\n" +
   "    println(\"\")\n" +
@@ -395,6 +430,8 @@ fn cmd_main_mbt() -> String {
   "      println(\"moon info\")\n" +
   "      println(\"echo '==> fmt'\")\n" +
   "      println(\"moon fmt\")\n" +
+  "      println(\"echo '==> boundary'\")\n" +
+  "      println(\"sh scripts/validate_boundaries.sh\")\n" +
   "      println(\"echo '==> limits'\")\n" +
   "      println(\"moon run cmd/main -- limits --target \\{target_support.target}\")\n" +
   "      println(\"echo '==> inspect'\")\n" +
@@ -417,7 +454,7 @@ fn cmd_main_mbt() -> String {
   "  println(\"strict=\\{strict}\")\n" +
   "  println(target_support.summary)\n" +
   "  if !target_support.generator_available {\n" +
-  "    println(\"Bunnia starter CI plan: steps=8 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=9 diagnostics=\\{target_support.diagnostics.length()}\")\n" +
   "    print_target_diagnostics(target_support)\n" +
   "  } else {\n" +
   "    let project = @app.starter_wechat_project()\n" +
@@ -427,7 +464,7 @@ fn cmd_main_mbt() -> String {
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
   "      profile_gate.diagnostics.length()\n" +
-  "    println(\"Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}\")\n" +
+  "    println(\"Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}\")\n" +
   "    println(inspection_gate.summary)\n" +
   "    println(profile_gate.summary)\n" +
   "    for item in project.report.diagnostics {\n" +
@@ -448,6 +485,7 @@ fn cmd_main_mbt() -> String {
   "    println(\"step=test command=moon test\")\n" +
   "    println(\"step=info command=moon info\")\n" +
   "    println(\"step=fmt command=moon fmt\")\n" +
+  "    println(\"step=boundary command=sh scripts/validate_boundaries.sh\")\n" +
   "    println(\"step=limits command=moon run cmd/main -- limits --target \\{target_support.target}\")\n" +
   "    println(\"step=inspect command=moon run cmd/main -- inspect --target \\{target_support.target}\\{strict_flag}\")\n" +
   "    println(\"step=snapshot command=moon run cmd/main -- snapshot --target \\{target_support.target} --snapshot-out _build/snapshots/wechat/starter.snapshot.txt\\{strict_flag}\")\n" +
@@ -760,6 +798,7 @@ fn readme(name : String) -> String {
   "moon run cmd/main -- ci-plan --strict\n" +
   "moon run cmd/main -- ci-plan --script --strict\n" +
   "sh scripts/ci.sh\n" +
+  "sh scripts/validate_boundaries.sh\n" +
   "# GitHub Actions runs the same script from .github/workflows/ci.yml\n" +
   "moon run cmd/main -- limits --target wechat\n" +
   "moon run cmd/main -- inspect --target wechat --strict\n" +

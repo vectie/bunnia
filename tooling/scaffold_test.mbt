@@ -3,7 +3,7 @@ test "scaffold project creates a small standalone starter" {
   let plan = scaffold_project(name="starter", module_name="local/starter")
   assert_eq(plan.name, "starter")
   assert_eq(plan.module_name, "local/starter")
-  assert_eq(plan.files.length(), 16)
+  assert_eq(plan.files.length(), 17)
   assert_true(has_file(plan.files, "moon.mod"))
   assert_true(has_file(plan.files, "moon.pkg"))
   assert_true(has_file(plan.files, "cmd/main/moon.pkg"))
@@ -19,6 +19,7 @@ test "scaffold project creates a small standalone starter" {
   assert_true(has_file(plan.files, "README.md"))
   assert_true(has_file(plan.files, ".gitignore"))
   assert_true(has_file(plan.files, "scripts/ci.sh"))
+  assert_true(has_file(plan.files, "scripts/validate_boundaries.sh"))
   assert_true(has_file(plan.files, ".github/workflows/ci.yml"))
   assert_eq(
     file_content(plan.files, "README.md"),
@@ -34,6 +35,26 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "scripts/ci.sh").contains("sh _build/bunnia-ci.sh"),
+  )
+  assert_true(
+    file_content(plan.files, "scripts/validate_boundaries.sh").contains(
+      "blocked_module=",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "scripts/validate_boundaries.sh").contains(
+      "blocked product module",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "scripts/validate_boundaries.sh").contains(
+      "starter must stay product-neutral",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "scripts/validate_boundaries.sh").contains(
+      "boundary=ok",
+    ),
   )
   assert_true(
     file_content(plan.files, ".github/workflows/ci.yml").contains(
@@ -193,7 +214,17 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
-      "Bunnia starter CI plan: steps=8 diagnostics=\\{diagnostics}",
+      "Bunnia starter CI plan: steps=9 diagnostics=\\{diagnostics}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "step=boundary command=sh scripts/validate_boundaries.sh",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "println(\"sh scripts/validate_boundaries.sh\")",
     ),
   )
   assert_true(
@@ -382,6 +413,11 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
+      "sh scripts/validate_boundaries.sh",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
       ".github/workflows/ci.yml",
     ),
   )
@@ -391,7 +427,7 @@ test "scaffold project creates a small standalone starter" {
       "build --target wechat --out _build/wechat",
     ),
   )
-  assert_true(plan.summary.contains("files=16"))
+  assert_true(plan.summary.contains("files=17"))
 }
 
 ///|
