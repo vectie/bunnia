@@ -574,6 +574,8 @@ Current evidence:
 - Static scenes can render windowed communication-thread badges beside map
   markers, preserving visible/total counts and cheap patches for map-heavy
   agentic UIs.
+- Scene surface plans make static, canvas, and lightweight rendering intent
+  explicit and report fallback when a platform cannot honor the requested mode.
 
 Acceptance checks:
 
@@ -670,6 +672,8 @@ Current evidence:
 - Build profiles and generated manifests expose unkeyed/duplicate repeated-row
   counts alongside page, list, route first-screen, update-payload, and
   generated-size signals.
+- Build profiles expose scene surface mode counts and fallback counts so
+  canvas/static/lightweight map decisions are visible in normal CLI output.
 - The CLI prints build-profile summaries for both `agent_map` and
   `wenyu_overview`, including backend endpoint count, scene marker pressure,
   scene asset count, package-byte signals, visual-quality issue count, and

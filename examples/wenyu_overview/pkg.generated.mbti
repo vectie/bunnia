@@ -28,6 +28,8 @@ pub fn demo_runtime() -> @wechat.WechatRuntime
 
 pub fn demo_scene_render_plan() -> @scene.SceneRenderPlan
 
+pub fn demo_scene_surface_plan() -> @scene.SceneSurfacePlan
+
 pub fn demo_scene_visual_quality_plan() -> @scene.SceneVisualQualityPlan
 
 pub fn demo_view() -> @core.Node

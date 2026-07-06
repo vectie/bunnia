@@ -129,6 +129,9 @@ and traces can update predictably.
 For map-heavy surfaces, use `@bunnia.static_scene_view_with_viewport(...)` and
 `@bunnia.plan_scene_render_viewport(...)`. Scene plans and build profiles report
 visible/total marker counts so large maps can stay spatially bounded.
+Use `@bunnia.plan_scene_surface_for_platform(...)` to make the intended
+static/canvas/lightweight surface mode and any fallback explicit in build
+profiles before adding platform-specific rendering.
 Use `@bunnia.plan_scene_visual_quality(...)` for a checklist covering scene
 size, marker status, tap targets, asset references, unresolved assets, and
 degraded output.

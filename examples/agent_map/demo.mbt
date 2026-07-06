@@ -92,6 +92,15 @@ pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
 }
 
 ///|
+pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
+  @bunnia.plan_scene_surface_for_platform(
+    demo_scene(),
+    @bunnia.wechat(),
+    preference=@bunnia.prefer_static_surface(),
+  )
+}
+
+///|
 pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
   @bunnia.plan_scene_assets(demo_scene_assets())
 }

@@ -2190,6 +2190,7 @@ pub fn profile_wechat_project(
   backend_plans? : Array[BackendPlan] = [],
   asset_plans? : Array[SceneAssetPlan] = [],
   scene_plans? : Array[SceneRenderPlan] = [],
+  surface_plans? : Array[SceneSurfacePlan] = [],
   quality_plans? : Array[SceneVisualQualityPlan] = [],
 ) -> BuildProfile {
   @tooling.profile_wechat_project(
@@ -2199,6 +2200,7 @@ pub fn profile_wechat_project(
     backend_plans~,
     asset_plans~,
     scene_plans~,
+    surface_plans~,
     quality_plans~,
   )
 }

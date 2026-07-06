@@ -230,6 +230,7 @@ fn profile_for_example(
       ],
       asset_plans=[@wenyu.demo_asset_plan()],
       scene_plans=[@wenyu.demo_scene_render_plan()],
+      surface_plans=[@wenyu.demo_scene_surface_plan()],
       quality_plans=[@wenyu.demo_scene_visual_quality_plan()],
     )
   } else if example == "agent_map" {
@@ -238,6 +239,7 @@ fn profile_for_example(
       patches,
       asset_plans=[@demo.demo_asset_plan()],
       scene_plans=[@demo.demo_scene_render_plan()],
+      surface_plans=[@demo.demo_scene_surface_plan()],
       quality_plans=[@demo.demo_scene_visual_quality_plan()],
     )
   } else {

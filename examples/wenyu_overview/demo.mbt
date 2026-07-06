@@ -111,6 +111,16 @@ pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
 }
 
 ///|
+pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
+  @bunnia.plan_scene_surface_for_platform(
+    demo_scene(demo_projection()),
+    @bunnia.wechat(),
+    preference=@bunnia.prefer_static_surface(),
+    budget=@bunnia.default_scene_render_budget(),
+  )
+}
+
+///|
 pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
   @bunnia.plan_scene_visual_quality_viewport(
     demo_scene(demo_projection()),

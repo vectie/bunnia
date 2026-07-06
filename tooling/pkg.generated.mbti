@@ -10,7 +10,7 @@ import {
 }
 
 // Values
-pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
+pub fn profile_wechat_project(@wechat.WechatProject, @core.PatchPlan, effect_plans? : Array[@effects.EffectPlan], backend_plans? : Array[@effects.BackendPlan], asset_plans? : Array[@scene.SceneAssetPlan], scene_plans? : Array[@scene.SceneRenderPlan], surface_plans? : Array[@scene.SceneSurfacePlan], quality_plans? : Array[@scene.SceneVisualQualityPlan]) -> BuildProfile
 
 pub fn scaffold_file(String, String) -> ScaffoldFile
 
@@ -48,6 +48,10 @@ pub struct BuildProfile {
   scene_visible_marker_count : Int
   scene_asset_count : Int
   scene_package_bytes : Int
+  scene_static_surface_count : Int
+  scene_canvas_surface_count : Int
+  scene_lightweight_surface_count : Int
+  scene_surface_fallback_count : Int
   scene_quality_issue_count : Int
   degraded_scene_count : Int
   diagnostics : Array[String]
