@@ -1,0 +1,75 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/examples/wenyu_overview"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/core",
+  "vectie/bunnia/effects",
+  "vectie/bunnia/scene",
+}
+
+// Values
+pub fn civic_building(id~ : String, name~ : String, status~ : String, summary~ : String, x~ : Int, y~ : Int, asset_ref? : String) -> CivicBuilding
+
+pub fn dashboard_metric(id~ : String, label~ : String, value~ : String, status~ : String) -> DashboardMetric
+
+pub fn demo_asset_plan() -> @scene.SceneAssetPlan
+
+pub fn demo_backend_contract() -> @effects.BackendContract
+
+pub fn demo_patch_plan() -> @core.PatchPlan
+
+pub fn demo_projection() -> WenyuProjection
+
+pub fn demo_projection_json() -> String
+
+pub fn demo_runtime() -> @wechat.WechatRuntime
+
+pub fn demo_view() -> @core.Node
+
+pub fn demo_wechat_page() -> @wechat.WechatPage
+
+pub fn demo_wechat_project() -> @wechat.WechatProject
+
+pub fn large_projection(Int) -> WenyuProjection
+
+pub fn migration_notes() -> Array[String]
+
+pub fn overview_view(WenyuProjection) -> @core.Node
+
+pub fn wenyu_projection(id~ : String, title~ : String, status~ : String, selected_building~ : String, buildings~ : Array[CivicBuilding], metrics~ : Array[DashboardMetric]) -> WenyuProjection
+
+// Errors
+
+// Types and methods
+pub struct CivicBuilding {
+  id : String
+  name : String
+  status : String
+  summary : String
+  x : Int
+  y : Int
+  asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct DashboardMetric {
+  id : String
+  label : String
+  value : String
+  status : String
+} derive(Eq, @debug.Debug)
+
+pub struct WenyuProjection {
+  id : String
+  title : String
+  status : String
+  selected_building : String
+  buildings : Array[CivicBuilding]
+  metrics : Array[DashboardMetric]
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

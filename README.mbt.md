@@ -49,6 +49,8 @@ phase-by-phase implementation plan.
 - `adapters/wechat`: WeChat Mini Program output generation.
 - `examples/agent_map`: small downstream example combining agentic UI, review
   controls, patches, and a static map surface.
+- `examples/wenyu_overview`: product-shaped proof slice that keeps Wenyu
+  projection/view code outside the framework core.
 - root package: small `@bunnia` facade for app authors.
 
 ## Generate The Demo
@@ -65,6 +67,12 @@ prints render, file-size, initial-data, and event-patch budget summaries. Use
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map
+```
+
+Generate the Wenyu proof slice with:
+
+```bash
+moon run cmd/main -- --example wenyu_overview
 ```
 
 ```mbt check

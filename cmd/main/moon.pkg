@@ -1,6 +1,7 @@
 import {
   "vectie/bunnia",
   "vectie/bunnia/examples/agent_map" @demo,
+  "vectie/bunnia/examples/wenyu_overview" @wenyu,
   "moonbitlang/core/env",
 }
 

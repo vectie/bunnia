@@ -403,6 +403,18 @@ Acceptance checks:
   observations from WeChat DevTools or generated-output inspection.
 - Any Moontown-shaped helper is kept out of the core package namespace.
 
+Current evidence:
+
+- `examples/wenyu_overview` owns a Wenyu-shaped projection DTO, fixture JSON,
+  view mapping, backend contract, migration notes, and large synthetic fixture.
+- The proof slice generates a separate WeChat route, `pages/wenyu/index`, with
+  header status, metrics, four building cards, review controls, scene markers,
+  operator request patches, and communication trace rows.
+- Tests verify the proof slice is generated from projection data, keeps updates
+  and assets bounded, and leaves framework core packages product-neutral.
+- `moon run cmd/main -- --example wenyu_overview` generates the proof app
+  without changing source code.
+
 Do not build yet:
 
 - Live daemon connection.

@@ -2,10 +2,12 @@
 /// Entry point for local framework probes.
 /// Run with `moon run cmd/main` from the project root.
 fn main {
-  let output_dir = output_dir_from_args(@env.args())
-  let project = @demo.demo_wechat_project()
-  let patches = @demo.demo_patch_plan()
+  let example = example_from_args(@env.args())
+  let output_dir = output_dir_from_args(@env.args(), example)
+  let project = project_for_example(example)
+  let patches = patches_for_example(example)
   write_project(output_dir, project)
+  println("example=\{example}")
   println(project.page.plan.summary)
   println(project.summary)
   println(project.report.summary)
@@ -15,18 +17,57 @@ fn main {
 }
 
 ///|
-fn default_output_dir() -> String {
-  "_build/bunnia/wechat/agent_map"
+fn default_example() -> String {
+  "agent_map"
 }
 
 ///|
-fn output_dir_from_args(args : Array[String]) -> String {
+fn default_output_dir_for_example(example : String) -> String {
+  "_build/bunnia/wechat/\{example}"
+}
+
+///|
+fn example_from_args(args : Array[String]) -> String {
+  for i in 0..<args.length() {
+    if args[i] == "--example" && i + 1 < args.length() {
+      return args[i + 1]
+    }
+  }
+  default_example()
+}
+
+///|
+fn output_dir_from_args(args : Array[String], example : String) -> String {
   for i in 0..<args.length() {
     if args[i] == "--out" && i + 1 < args.length() {
       return args[i + 1]
     }
   }
-  default_output_dir()
+  default_output_dir_for_example(example)
+}
+
+///|
+fn project_for_example(example : String) -> @bunnia.WechatProject {
+  if example == "wenyu_overview" {
+    @wenyu.demo_wechat_project()
+  } else if example == "agent_map" {
+    @demo.demo_wechat_project()
+  } else {
+    println("unsupported example=\{example}")
+    panic()
+  }
+}
+
+///|
+fn patches_for_example(example : String) -> @bunnia.PatchPlan {
+  if example == "wenyu_overview" {
+    @wenyu.demo_patch_plan()
+  } else if example == "agent_map" {
+    @demo.demo_patch_plan()
+  } else {
+    println("unsupported example=\{example}")
+    panic()
+  }
 }
 
 ///|
