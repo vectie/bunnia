@@ -44,6 +44,8 @@ pub fn event(String, String) -> @core.EventBinding
 
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
+pub fn generate_wechat_project(name~ : String, route? : String, root~ : @core.Node) -> @wechat.WechatProject
+
 pub fn generate_wechat_set_data_call(Array[@core.Patch]) -> String
 
 pub fn id(String) -> @core.Attr
@@ -179,7 +181,11 @@ pub using @scene {type SceneMarker}
 
 pub using @scene {type SceneSize}
 
+pub using @wechat {type WechatFile}
+
 pub using @wechat {type WechatPage}
+
+pub using @wechat {type WechatProject}
 
 // Traits
 

@@ -9,17 +9,33 @@ import {
 // Values
 pub fn generate_page(String, @core.Node) -> WechatPage
 
+pub fn generate_project(name~ : String, route? : String, root~ : @core.Node) -> WechatProject
+
 pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
 // Errors
 
 // Types and methods
+pub struct WechatFile {
+  path : String
+  content : String
+} derive(Eq, @debug.Debug)
+
 pub struct WechatPage {
   wxml : String
   wxss : String
   js : String
   json : String
   plan : @core.RenderPlan
+} derive(Eq, @debug.Debug)
+
+pub struct WechatProject {
+  name : String
+  route : String
+  page : WechatPage
+  files : Array[WechatFile]
+  total_bytes : Int
+  summary : String
 } derive(Eq, @debug.Debug)
 
 // Type aliases

@@ -13,6 +13,8 @@ pub fn demo_view() -> @core.Node
 
 pub fn demo_wechat_page() -> @wechat.WechatPage
 
+pub fn demo_wechat_project() -> @wechat.WechatProject
+
 // Errors
 
 // Types and methods

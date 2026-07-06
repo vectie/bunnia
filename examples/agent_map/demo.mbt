@@ -61,6 +61,11 @@ pub fn demo_wechat_page() -> @bunnia.WechatPage {
 }
 
 ///|
+pub fn demo_wechat_project() -> @bunnia.WechatProject {
+  @bunnia.generate_wechat_project(name="Agent Map", root=demo_view())
+}
+
+///|
 pub fn demo_patch_plan() -> @bunnia.PatchPlan {
   @bunnia.plan_patches([
     @bunnia.set_string("__bunnia.lastMessage", "select-zone-b"),

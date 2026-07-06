@@ -76,6 +76,32 @@ test "wechat generator emits page files with targeted event routing" {
 }
 
 ///|
+test "wechat project generator emits deterministic mini-program files" {
+  let root = @bunnia.page([
+    @bunnia.view([@bunnia.text("Demo"), @bunnia.button("Open", "open-detail")]),
+  ])
+  let project = @bunnia.generate_wechat_project(
+    name="Demo",
+    route="pages/home/home",
+    root~,
+  )
+  assert_eq(project.files.length(), 7)
+  assert_eq(project.route, "pages/home/home")
+  assert_true(project.summary.contains("files=7"))
+  assert_true(project.total_bytes > project.page.wxml.length())
+  assert_true(has_file(project.files, "app.json"))
+  assert_true(has_file(project.files, "project.config.json"))
+  assert_true(has_file(project.files, "sitemap.json"))
+  assert_true(has_file(project.files, "pages/home/home.wxml"))
+  assert_true(has_file(project.files, "pages/home/home.wxss"))
+  assert_true(has_file(project.files, "pages/home/home.js"))
+  assert_true(has_file(project.files, "pages/home/home.json"))
+  assert_true(
+    file_content(project.files, "app.json").contains("pages/home/home"),
+  )
+}
+
+///|
 test "patch plans keep mini-app updates bounded" {
   let patches = [
     @bunnia.set_string("__bunnia.lastMessage", "open-detail"),
@@ -92,4 +118,24 @@ test "patch plans keep mini-app updates bounded" {
   assert_true(js.contains("this.setData"))
   assert_true(js.contains("\"__bunnia.lastMessage\":\"open-detail\""))
   assert_true(js.contains("\"scene.markers.marker-a.status\":\"running\""))
+}
+
+///|
+fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
+  for item in files {
+    if item.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn file_content(files : Array[@bunnia.WechatFile], path : String) -> String {
+  for item in files {
+    if item.path == path {
+      return item.content
+    }
+  }
+  ""
 }

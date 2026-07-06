@@ -9,6 +9,15 @@ test "agent map demo generates wechat output" {
 }
 
 ///|
+test "agent map demo generates a mini-program file set" {
+  let project = demo_wechat_project()
+  assert_eq(project.files.length(), 7)
+  assert_eq(project.route, "pages/index/index")
+  assert_true(project.summary.contains("Bunnia WeChat project"))
+  assert_true(project.total_bytes > 1800)
+}
+
+///|
 test "agent map demo keeps updates as patches" {
   let patches = demo_patch_plan()
   assert_eq(patches.patches.length(), 2)

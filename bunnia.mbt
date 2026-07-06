@@ -71,6 +71,12 @@ pub type Effect = @effects.Effect
 pub type WechatPage = @wechat.WechatPage
 
 ///|
+pub type WechatFile = @wechat.WechatFile
+
+///|
+pub type WechatProject = @wechat.WechatProject
+
+///|
 pub fn attr(name : String, value : String) -> Attr {
   @core.attr(name, value)
 }
@@ -424,6 +430,15 @@ pub fn effect_chip(item : Effect) -> Node {
 ///|
 pub fn generate_wechat_page(name : String, root : Node) -> WechatPage {
   @wechat.generate_page(name, root)
+}
+
+///|
+pub fn generate_wechat_project(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+) -> WechatProject {
+  @wechat.generate_project(name~, route~, root~)
 }
 
 ///|

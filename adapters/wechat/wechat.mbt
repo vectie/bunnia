@@ -8,6 +8,22 @@ pub struct WechatPage {
 } derive(Debug, Eq)
 
 ///|
+pub struct WechatFile {
+  path : String
+  content : String
+} derive(Debug, Eq)
+
+///|
+pub struct WechatProject {
+  name : String
+  route : String
+  page : WechatPage
+  files : Array[WechatFile]
+  total_bytes : Int
+  summary : String
+} derive(Debug, Eq)
+
+///|
 pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
   let plan = @core.plan(root, @core.Wechat)
   {
@@ -20,8 +36,83 @@ pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
 }
 
 ///|
+pub fn generate_project(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : @core.Node,
+) -> WechatProject {
+  let page = generate_page(name, root)
+  let files = [
+    wechat_file("app.json", app_json(route)),
+    wechat_file("project.config.json", project_config_json(name)),
+    wechat_file("sitemap.json", sitemap_json()),
+    wechat_file("\{route}.wxml", page.wxml),
+    wechat_file("\{route}.wxss", page.wxss),
+    wechat_file("\{route}.js", page.js),
+    wechat_file("\{route}.json", page.json),
+  ]
+  let total = total_file_bytes(files)
+  {
+    name,
+    route,
+    page,
+    files,
+    total_bytes: total,
+    summary: "Bunnia WeChat project: files=\{files.length()} bytes=\{total} route=\{route}",
+  }
+}
+
+///|
 pub fn generate_set_data_call(patches : Array[@core.Patch]) -> String {
   "this.setData(\{patches_to_object(patches)})"
+}
+
+///|
+fn wechat_file(path : String, content : String) -> WechatFile {
+  { path, content }
+}
+
+///|
+fn total_file_bytes(files : Array[WechatFile]) -> Int {
+  let mut total = 0
+  for item in files {
+    total += item.content.length()
+  }
+  total
+}
+
+///|
+fn app_json(route : String) -> String {
+  "{\n" +
+  "  \"pages\": [\"\{escape_json(route)}\"],\n" +
+  "  \"window\": {\n" +
+  "    \"navigationBarTitleText\": \"Bunnia\",\n" +
+  "    \"navigationBarBackgroundColor\": \"#ffffff\",\n" +
+  "    \"navigationBarTextStyle\": \"black\"\n" +
+  "  }\n" +
+  "}\n"
+}
+
+///|
+fn project_config_json(name : String) -> String {
+  "{\n" +
+  "  \"appid\": \"touristappid\",\n" +
+  "  \"projectname\": \"\{escape_json(name)}\",\n" +
+  "  \"compileType\": \"miniprogram\",\n" +
+  "  \"setting\": {\n" +
+  "    \"es6\": true,\n" +
+  "    \"minified\": false\n" +
+  "  }\n" +
+  "}\n"
+}
+
+///|
+fn sitemap_json() -> String {
+  "{\n" +
+  "  \"rules\": [\n" +
+  "    { \"action\": \"allow\", \"page\": \"*\" }\n" +
+  "  ]\n" +
+  "}\n"
 }
 
 ///|
