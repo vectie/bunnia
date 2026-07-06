@@ -244,8 +244,20 @@ pub struct GeneratedSnapshot {
   max_update_operation_count : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
+  unwindowed_list_child_count : Int
+  unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
+  communication_unresolved_review_count : Int
+  tool_result_missing_ack_count : Int
+  agent_duplicate_stream_chunk_count : Int
+  snapshot_full_replace_count : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
+  scene_thread_orphan_link_count : Int
+  scene_camera_clamped_count : Int
+  scene_surface_fallback_count : Int
+  scene_quality_issue_count : Int
+  degraded_scene_count : Int
   top_route : String
   route_risk_score : Int
   profile_gate_diagnostic_count : Int

@@ -975,6 +975,11 @@ Current evidence:
   pressure, scene asset references, profile, profile-gate diagnostics, and
   per-file byte/checksum lines for CI diffing without writing the full generated
   mini-program output directory.
+- Generator snapshots also carry first-class repeated-list, unresolved review,
+  missing tool acknowledgment, duplicate stream chunk, full snapshot replace,
+  scene thread orphan, clamped camera, surface fallback, visual-quality, and
+  degraded-scene counters, so agent/map regressions are diffable without parsing
+  the profile summary string.
 - Snapshot artifacts record the active build report from the selected
   generated-output budget profile, including route, report, profile, and
   profile-gate diagnostic lines for CI diffs.

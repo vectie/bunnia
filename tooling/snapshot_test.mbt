@@ -26,8 +26,20 @@ test "generated snapshots record deterministic file pressure" {
   assert_eq(snapshot.max_update_operation_count, 1)
   assert_eq(snapshot.route_diagnostic_route_count, 0)
   assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.unwindowed_list_child_count, 0)
+  assert_eq(snapshot.unkeyed_list_child_count, 0)
+  assert_eq(snapshot.duplicate_list_key_count, 0)
+  assert_eq(snapshot.communication_unresolved_review_count, 0)
+  assert_eq(snapshot.tool_result_missing_ack_count, 0)
+  assert_eq(snapshot.agent_duplicate_stream_chunk_count, 0)
+  assert_eq(snapshot.snapshot_full_replace_count, 0)
   assert_eq(snapshot.scene_asset_count, 0)
   assert_eq(snapshot.scene_remote_asset_count, 0)
+  assert_eq(snapshot.scene_thread_orphan_link_count, 0)
+  assert_eq(snapshot.scene_camera_clamped_count, 0)
+  assert_eq(snapshot.scene_surface_fallback_count, 0)
+  assert_eq(snapshot.scene_quality_issue_count, 0)
+  assert_eq(snapshot.degraded_scene_count, 0)
   assert_eq(snapshot.top_route, "pages/snapshot/index")
   assert_true(snapshot.route_risk_score > 0)
   assert_eq(snapshot.profile_gate_diagnostic_count, 0)
@@ -38,8 +50,20 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.summary.contains("risk_score="))
   assert_true(snapshot.summary.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.summary.contains("route_diagnostics=0"))
+  assert_true(snapshot.summary.contains("unwindowed_list_children=0"))
+  assert_true(snapshot.summary.contains("unkeyed_list_children=0"))
+  assert_true(snapshot.summary.contains("duplicate_list_keys=0"))
+  assert_true(snapshot.summary.contains("communication_unresolved_reviews=0"))
+  assert_true(snapshot.summary.contains("tool_result_missing_acks=0"))
+  assert_true(snapshot.summary.contains("agent_duplicate_stream_chunks=0"))
+  assert_true(snapshot.summary.contains("snapshot_full_replaces=0"))
   assert_true(snapshot.summary.contains("scene_assets=0"))
   assert_true(snapshot.summary.contains("scene_remote_assets=0"))
+  assert_true(snapshot.summary.contains("scene_thread_orphans=0"))
+  assert_true(snapshot.summary.contains("scene_camera_clamped=0"))
+  assert_true(snapshot.summary.contains("scene_surface_fallbacks=0"))
+  assert_true(snapshot.summary.contains("scene_quality_issues=0"))
+  assert_true(snapshot.summary.contains("degraded_scenes=0"))
   assert_true(snapshot.summary.contains("profile_gate_diagnostics=0"))
   assert_true(snapshot.summary.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
@@ -51,8 +75,20 @@ test "generated snapshots record deterministic file pressure" {
   assert_true(snapshot.content.contains("risk_score="))
   assert_true(snapshot.content.contains("route_diagnostic_routes=0"))
   assert_true(snapshot.content.contains("route_diagnostics=0"))
+  assert_true(snapshot.content.contains("unwindowed_list_children=0"))
+  assert_true(snapshot.content.contains("unkeyed_list_children=0"))
+  assert_true(snapshot.content.contains("duplicate_list_keys=0"))
+  assert_true(snapshot.content.contains("communication_unresolved_reviews=0"))
+  assert_true(snapshot.content.contains("tool_result_missing_acks=0"))
+  assert_true(snapshot.content.contains("agent_duplicate_stream_chunks=0"))
+  assert_true(snapshot.content.contains("snapshot_full_replaces=0"))
   assert_true(snapshot.content.contains("scene_assets=0"))
   assert_true(snapshot.content.contains("scene_remote_assets=0"))
+  assert_true(snapshot.content.contains("scene_thread_orphans=0"))
+  assert_true(snapshot.content.contains("scene_camera_clamped=0"))
+  assert_true(snapshot.content.contains("scene_surface_fallbacks=0"))
+  assert_true(snapshot.content.contains("scene_quality_issues=0"))
+  assert_true(snapshot.content.contains("degraded_scenes=0"))
   assert_true(snapshot.content.contains("profile_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("inspection_gate_diagnostics=0"))
   assert_true(snapshot.content.contains("report=Bunnia WeChat build report:"))
@@ -97,6 +133,139 @@ test "generated snapshots record deterministic file pressure" {
   )
   assert_true(snapshot.content.contains("checksum="))
   assert_true(!snapshot.content.contains("checksum=-"))
+}
+
+///|
+test "generated snapshots expose agent and map pressure counters" {
+  let scene = @scene.scene("map", @scene.scene_size(120, 80), [
+    @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),
+  ])
+  let project = @wechat.generate_project(
+    name="Snapshot Pressure",
+    route="pages/pressure/index",
+    root=@core.page([
+      @core.list(["agent", "map"], value => @core.view([@core.text(value)])),
+      @core.list(["one", "two"], value => {
+        @core.keyed("duplicate-row", @core.view([@core.text(value)]))
+      }),
+    ]),
+  )
+  let profile = profile_wechat_project(
+    project,
+    @core.plan_patches([]),
+    communication_plans=[
+      @agent.plan_communications([
+        @agent.review_request(
+          id="review",
+          thread_id="thread",
+          from_actor_id="agent",
+          to_actor_id="human",
+          text="Review needed",
+        ),
+      ]),
+    ],
+    tool_result_plans=[
+      @agent.plan_tool_result_cards([
+        @agent.tool_result_card(
+          id="tool",
+          tool_name="search",
+          title="Search",
+          summary="Waiting for acknowledgment",
+          status=@agent.WaitingReview,
+        ),
+      ]),
+    ],
+    agent_delta_plans=[
+      @agent.plan_agent_deltas([
+        @agent.append_stream_chunk_delta("agent.stream", "chunk", "first"),
+        @agent.append_stream_chunk_delta("agent.stream", "chunk", "second"),
+      ]),
+    ],
+    snapshot_plans=[
+      @effects.plan_snapshot_deltas([
+        @effects.replace_snapshot_delta("projection", "{\"all\":true}"),
+      ]),
+    ],
+    thread_plans=[
+      @scene.plan_scene_threads(scene, [
+        @scene.scene_marker_thread_link(
+          id="thread-link",
+          scene_id="map",
+          marker_id="missing",
+          thread_id="thread",
+        ),
+      ]),
+    ],
+    camera_plans=[
+      @scene.plan_scene_camera(
+        scene,
+        @scene.scene_camera(
+          scene_id="wrong-map",
+          x=999,
+          y=999,
+          width=40,
+          height=40,
+          zoom_percent=600,
+        ),
+      ),
+    ],
+    surface_plans=[
+      @scene.plan_scene_surface(
+        scene,
+        @core.platform_adapter(
+          platform=@core.Wechat,
+          id="wechat-lite",
+          page_component="page",
+          tap_event="bindtap",
+          supports_canvas=false,
+        ),
+        preference=@scene.PreferCanvasSurface,
+      ),
+    ],
+    quality_plans=[@scene.plan_scene_visual_quality(scene)],
+  )
+  let snapshot = snapshot_wechat_project(
+    target="wechat",
+    example="snapshot_pressure",
+    project,
+    profile,
+  )
+  assert_eq(snapshot.unwindowed_list_child_count, 4)
+  assert_eq(snapshot.unkeyed_list_child_count, 2)
+  assert_eq(snapshot.duplicate_list_key_count, 1)
+  assert_eq(snapshot.communication_unresolved_review_count, 1)
+  assert_eq(snapshot.tool_result_missing_ack_count, 1)
+  assert_eq(snapshot.agent_duplicate_stream_chunk_count, 1)
+  assert_eq(snapshot.snapshot_full_replace_count, 1)
+  assert_eq(snapshot.scene_thread_orphan_link_count, 1)
+  assert_eq(snapshot.scene_camera_clamped_count, 1)
+  assert_eq(snapshot.scene_surface_fallback_count, 1)
+  assert_eq(snapshot.scene_quality_issue_count, 5)
+  assert_eq(snapshot.degraded_scene_count, 1)
+  assert_true(snapshot.summary.contains("unwindowed_list_children=4"))
+  assert_true(snapshot.summary.contains("unkeyed_list_children=2"))
+  assert_true(snapshot.summary.contains("duplicate_list_keys=1"))
+  assert_true(snapshot.summary.contains("communication_unresolved_reviews=1"))
+  assert_true(snapshot.summary.contains("tool_result_missing_acks=1"))
+  assert_true(snapshot.summary.contains("agent_duplicate_stream_chunks=1"))
+  assert_true(snapshot.summary.contains("snapshot_full_replaces=1"))
+  assert_true(snapshot.summary.contains("scene_thread_orphans=1"))
+  assert_true(snapshot.summary.contains("scene_camera_clamped=1"))
+  assert_true(snapshot.summary.contains("scene_surface_fallbacks=1"))
+  assert_true(snapshot.summary.contains("scene_quality_issues=5"))
+  assert_true(snapshot.summary.contains("degraded_scenes=1"))
+  assert_true(snapshot.content.contains("unwindowed_list_children=4"))
+  assert_true(snapshot.content.contains("unkeyed_list_children=2"))
+  assert_true(snapshot.content.contains("duplicate_list_keys=1"))
+  assert_true(snapshot.content.contains("communication_unresolved_reviews=1"))
+  assert_true(snapshot.content.contains("tool_result_missing_acks=1"))
+  assert_true(snapshot.content.contains("agent_duplicate_stream_chunks=1"))
+  assert_true(snapshot.content.contains("snapshot_full_replaces=1"))
+  assert_true(snapshot.content.contains("scene_thread_orphans=1"))
+  assert_true(snapshot.content.contains("scene_camera_clamped=1"))
+  assert_true(snapshot.content.contains("scene_surface_fallbacks=1"))
+  assert_true(snapshot.content.contains("scene_quality_issues=5"))
+  assert_true(snapshot.content.contains("degraded_scenes=1"))
 }
 
 ///|

@@ -22,8 +22,20 @@ pub struct GeneratedSnapshot {
   max_update_operation_count : Int
   route_diagnostic_route_count : Int
   route_diagnostic_count : Int
+  unwindowed_list_child_count : Int
+  unkeyed_list_child_count : Int
+  duplicate_list_key_count : Int
+  communication_unresolved_review_count : Int
+  tool_result_missing_ack_count : Int
+  agent_duplicate_stream_chunk_count : Int
+  snapshot_full_replace_count : Int
   scene_asset_count : Int
   scene_remote_asset_count : Int
+  scene_thread_orphan_link_count : Int
+  scene_camera_clamped_count : Int
+  scene_surface_fallback_count : Int
+  scene_quality_issue_count : Int
+  degraded_scene_count : Int
   top_route : String
   route_risk_score : Int
   profile_gate_diagnostic_count : Int
@@ -77,7 +89,7 @@ pub fn snapshot_wechat_project_with_report(
     profile.diagnostics.length() +
     profile_gate.diagnostics.length() +
     inspection_gate.diagnostics.length()
-  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} scene_assets=\{scene_asset_count} scene_remote_assets=\{scene_remote_asset_count} profile_gate_diagnostics=\{profile_gate.diagnostics.length()} inspection_gate_diagnostics=\{inspection_gate.diagnostics.length()} diagnostics=\{diagnostic_count}"
+  let summary = "Bunnia generated snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{inspection.top_route} risk_score=\{inspection.risk_score} route_diagnostic_routes=\{route_diagnostic_route_count} route_diagnostics=\{route_diagnostic_count} unwindowed_list_children=\{profile.unwindowed_list_child_count} unkeyed_list_children=\{profile.unkeyed_list_child_count} duplicate_list_keys=\{profile.duplicate_list_key_count} communication_unresolved_reviews=\{profile.communication_unresolved_review_count} tool_result_missing_acks=\{profile.tool_result_missing_ack_count} agent_duplicate_stream_chunks=\{profile.agent_duplicate_stream_chunk_count} snapshot_full_replaces=\{profile.snapshot_full_replace_count} scene_assets=\{scene_asset_count} scene_remote_assets=\{scene_remote_asset_count} scene_thread_orphans=\{profile.scene_thread_orphan_link_count} scene_camera_clamped=\{profile.scene_camera_clamped_count} scene_surface_fallbacks=\{profile.scene_surface_fallback_count} scene_quality_issues=\{profile.scene_quality_issue_count} degraded_scenes=\{profile.degraded_scene_count} profile_gate_diagnostics=\{profile_gate.diagnostics.length()} inspection_gate_diagnostics=\{inspection_gate.diagnostics.length()} diagnostics=\{diagnostic_count}"
   let content = snapshot_content(
     target, example, budget_profile, render_budget_profile, project, report, profile,
     inspection, profile_gate, inspection_gate, files, summary,
@@ -97,8 +109,20 @@ pub fn snapshot_wechat_project_with_report(
     max_update_operation_count: report.max_page_update_operation_count,
     route_diagnostic_route_count,
     route_diagnostic_count,
+    unwindowed_list_child_count: profile.unwindowed_list_child_count,
+    unkeyed_list_child_count: profile.unkeyed_list_child_count,
+    duplicate_list_key_count: profile.duplicate_list_key_count,
+    communication_unresolved_review_count: profile.communication_unresolved_review_count,
+    tool_result_missing_ack_count: profile.tool_result_missing_ack_count,
+    agent_duplicate_stream_chunk_count: profile.agent_duplicate_stream_chunk_count,
+    snapshot_full_replace_count: profile.snapshot_full_replace_count,
     scene_asset_count,
     scene_remote_asset_count,
+    scene_thread_orphan_link_count: profile.scene_thread_orphan_link_count,
+    scene_camera_clamped_count: profile.scene_camera_clamped_count,
+    scene_surface_fallback_count: profile.scene_surface_fallback_count,
+    scene_quality_issue_count: profile.scene_quality_issue_count,
+    degraded_scene_count: profile.degraded_scene_count,
     top_route: inspection.top_route,
     route_risk_score: inspection.risk_score,
     profile_gate_diagnostic_count: profile_gate.diagnostics.length(),
@@ -207,6 +231,41 @@ fn snapshot_content(
   )
   write_snapshot_field(
     out,
+    "unwindowed_list_children",
+    profile.unwindowed_list_child_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "unkeyed_list_children",
+    profile.unkeyed_list_child_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "duplicate_list_keys",
+    profile.duplicate_list_key_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "communication_unresolved_reviews",
+    profile.communication_unresolved_review_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "tool_result_missing_acks",
+    profile.tool_result_missing_ack_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "agent_duplicate_stream_chunks",
+    profile.agent_duplicate_stream_chunk_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "snapshot_full_replaces",
+    profile.snapshot_full_replace_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
     "scene_assets",
     project.manifest.scene_asset_count.to_string(),
   )
@@ -214,6 +273,31 @@ fn snapshot_content(
     out,
     "scene_remote_assets",
     project.manifest.scene_remote_asset_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "scene_thread_orphans",
+    profile.scene_thread_orphan_link_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "scene_camera_clamped",
+    profile.scene_camera_clamped_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "scene_surface_fallbacks",
+    profile.scene_surface_fallback_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "scene_quality_issues",
+    profile.scene_quality_issue_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "degraded_scenes",
+    profile.degraded_scene_count.to_string(),
   )
   write_snapshot_field(out, "risk_route", inspection.top_route)
   write_snapshot_field(out, "risk_score", inspection.risk_score.to_string())
