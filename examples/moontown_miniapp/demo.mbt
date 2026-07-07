@@ -199,7 +199,7 @@ fn moontown_map_page_methods_js() -> String {
   "    this.__moontownClampMapViewport(x,y,scale,false)\n" +
   "  },\n" +
   "  __moontownClampMapViewport(x,y,scale,immediate){\n" +
-  "    const s=this.__moontownClampNumber(scale,1.9,2.8)\n" +
+  "    const s=this.__moontownClampNumber(scale,2.1,2.8)\n" +
   "    const fit=(rawX,rawY,padPx)=>{\n" +
   "      const win=this.__mw||(this.__mw=(wx.getWindowInfo?wx.getWindowInfo():wx.getSystemInfoSync()))\n" +
   "      const k=2*s*win.windowWidth/750\n" +
@@ -243,7 +243,7 @@ fn moontown_map_page_methods_js() -> String {
   "      const sx=this.__moontownClampNumber(-Number(rawX||0)/k,xr[0],xr[1])\n" +
   "      return {x:-sx*k,y:-sy*k,scale:s}\n" +
   "    }\n" +
-  "    const soft=fit(x,y,18)\n" +
+  "    const soft=fit(x,y,6)\n" +
   "    const strict=fit(soft.x,soft.y,0)\n" +
   "    const crossed=Math.abs(strict.x-x)>1||Math.abs(strict.y-y)>1||Math.abs(s-scale)>0.01\n" +
   "    clearTimeout(this.__moontownMapBounceTimer)\n" +
@@ -251,7 +251,7 @@ fn moontown_map_page_methods_js() -> String {
   "      this.setData({'mapViewport.x':soft.x,'mapViewport.y':soft.y,'mapViewport.scale':s})\n" +
   "      this.__moontownMapBounceTimer=setTimeout(()=>{\n" +
   "        this.setData({'mapViewport.x':strict.x,'mapViewport.y':strict.y,'mapViewport.scale':s})\n" +
-  "      }, 45)\n" +
+  "      },16)\n" +
   "    } else {\n" +
   "      this.setData({'mapViewport.x':strict.x,'mapViewport.y':strict.y,'mapViewport.scale':s})\n" +
   "    }\n" +
@@ -579,10 +579,10 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
             @bunnia.class_name("moontown-map-drag-content"),
             @bunnia.attr("direction", "all"),
             @bunnia.attr("inertia", "false"),
-            @bunnia.attr("animation", "true"),
+            @bunnia.attr("animation", "false"),
             @bunnia.attr("out-of-bounds", "false"),
             @bunnia.attr("scale", "true"),
-            @bunnia.attr("scale-min", "1.9"),
+            @bunnia.attr("scale-min", "2.1"),
             @bunnia.attr("scale-max", "2.8"),
             @bunnia.attr("scale-value", "{{mapViewport.scale}}"),
             @bunnia.attr("x", "{{mapViewport.x}}"),
@@ -949,5 +949,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.0},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }

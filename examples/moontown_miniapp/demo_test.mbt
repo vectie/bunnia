@@ -9,8 +9,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-map-drag-content"))
   assert_true(page.wxml.contains("direction=\"all\""))
   assert_true(page.wxml.contains("inertia=\"false\""))
+  assert_true(page.wxml.contains("animation=\"false\""))
   assert_true(page.wxml.contains("scale=\"true\""))
-  assert_true(page.wxml.contains("scale-min=\"1.9\""))
+  assert_true(page.wxml.contains("scale-min=\"2.1\""))
   assert_true(page.wxml.contains("scale-max=\"2.8\""))
   assert_true(page.wxml.contains("scale-value=\"{{mapViewport.scale}}\""))
   assert_true(page.wxml.contains("x=\"{{mapViewport.x}}\""))
@@ -124,7 +125,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2",
+      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2",
     ),
   )
   assert_true(
