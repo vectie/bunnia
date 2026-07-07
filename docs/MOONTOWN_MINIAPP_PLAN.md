@@ -446,6 +446,18 @@ Acceptance:
 - Run status is visible as pending/running/waiting-review/done/failed/cancelled.
 - Retry and cancel are represented in backend contract and mini-app UI.
 
+Current evidence:
+
+- Moontown `src/miniapp_agents` owns pure agent creation, building attachment,
+  chat-send, cancel, retry, and review-accept transitions over
+  `MiniappTownSnapshot`.
+- `MiniappTownSnapshot` now carries message and audit-event collections, so
+  threads, runs, and review actions can be projected and audited without
+  treating agent output as durable truth.
+- Agent runtime tests cover user-scoped agent creation, building attachment,
+  hidden-building rejection, reviewable chat runs, cancel/retry/accept status
+  transitions, and projection of messages/audit events.
+
 ## Phase 7: Publishing, Discovery, And Moderation
 
 Classification: feature with safety hardening.
@@ -535,6 +547,17 @@ Acceptance:
 - Two users have isolated private data.
 - Public buildings are shared through search.
 - Bunnia generated UI can exercise the complete loop.
+
+Current evidence:
+
+- Moontown `src/miniapp_local_backend` owns a deterministic local backend state
+  and route catalog for dev login, snapshot, search, create/place building,
+  create agent, chat send, cancel, retry, and review accept operations.
+- The local backend remains pure and storage-free, so a tiny HTTP wrapper can
+  later call the same APIs without changing product policy.
+- `moon run src/cmd/main -- miniapp ...` exposes one-shot local commands for
+  routes, login-backed snapshot/search, building create/place, agent create,
+  chat send, and run/review actions.
 
 ## Phase 9: Real Backend And Deployment
 
