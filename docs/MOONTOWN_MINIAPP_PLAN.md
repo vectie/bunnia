@@ -6,8 +6,8 @@ dogfood Bunnia without mixing Moontown product semantics into the framework.
 The goal is a multi-user Moontown client:
 
 - a full-screen town map as the primary surface
-- buildings that users can inspect, query, create, share, publish, search, and
-  place
+- buildings that users can inspect, query, create, share, publish, archive,
+  search, and place
 - agent/chat flows for asking buildings questions and creating agents
 - durable book-backed memory behind buildings
 - clear ownership, permissions, publishing, audit, and review boundaries
@@ -541,6 +541,7 @@ moon run src/cmd/main -- miniapp snapshot --user user-a
 moon run src/cmd/main -- miniapp buildings search --query policy
 moon run src/cmd/main -- miniapp buildings create ...
 moon run src/cmd/main -- miniapp buildings publish ...
+moon run src/cmd/main -- miniapp buildings archive ...
 moon run src/cmd/main -- miniapp chat send ...
 ```
 
@@ -550,6 +551,8 @@ Acceptance:
 - DevTools can call it.
 - Two users have isolated private data.
 - Public buildings are shared through search.
+- Archived buildings are hidden from normal snapshot/search surfaces while
+  preserved for audit/history.
 - Bunnia generated UI can exercise the complete loop.
 
 Current evidence:
@@ -576,10 +579,13 @@ Current evidence:
 - The local backend route catalog and HTTP wrapper also include
   `POST /miniapp/buildings/share`, so a user can share a private draft into the
   team workspace and the target user can see it before public publication.
+- The local backend route catalog and HTTP wrapper include
+  `POST /miniapp/buildings/archive`, so a user can retire a private draft and
+  remove it from visible map/search surfaces without losing audit history.
 - Bunnia `examples/moontown_miniapp` now includes generated Login and Load
-  controls plus seeded request payloads, including share and publish, so the
+  controls plus seeded request payloads, including share, publish, and archive, so the
   generated project can call the local backend through dev login before
-  snapshot/search/chat/create/share/publish actions.
+  snapshot/search/chat/create/share/publish/archive actions.
 
 ## Phase 9: Real Backend And Deployment
 
