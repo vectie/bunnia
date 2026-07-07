@@ -573,10 +573,13 @@ Current evidence:
 - The local backend route catalog and HTTP wrapper include
   `POST /miniapp/buildings/publish`, so a user can create a private draft,
   publish it to town, and another user can discover it through building search.
+- The local backend route catalog and HTTP wrapper also include
+  `POST /miniapp/buildings/share`, so a user can share a private draft into the
+  team workspace and the target user can see it before public publication.
 - Bunnia `examples/moontown_miniapp` now includes generated Login and Load
-  controls plus seeded request payloads, including publish, so the generated
-  project can call the local backend through dev login before
-  snapshot/search/chat/create/publish actions.
+  controls plus seeded request payloads, including share and publish, so the
+  generated project can call the local backend through dev login before
+  snapshot/search/chat/create/share/publish actions.
 
 ## Phase 9: Real Backend And Deployment
 
