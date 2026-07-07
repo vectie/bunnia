@@ -1006,13 +1006,13 @@ Current evidence:
 - `bunnia init`-style scaffolding is available through `moon run cmd/main --
   init`, generating a small standalone MoonBit package that splits app view,
   windowed agentic message feed, static scene map, bounded updates, budget
-  checks, backend contract, inspection/profile gates, WeChat generation, a local
-  build command, and starter tests into separate files. The generated tests
-  cover render budgets, scene output, bounded patches, backend visibility,
-  profile gates, inspection gates, and clean WeChat event wiring, while
+  checks, backend contract, inspection/profile gates, release readiness, WeChat
+  generation, a local build command, and starter tests into separate files. The
+  generated tests cover render budgets, scene output, bounded patches, backend
+  visibility, release readiness, profile gates, inspection gates, and clean WeChat event wiring, while
   `moon run cmd/main` writes the starter's WeChat files with optional
   `--strict` diagnostics gating or runs no-write `inspect` route/backend/map/file
-  pressure checks and deterministic `snapshot` artifact generation. The
+  pressure and release-readiness checks plus deterministic `snapshot` artifact generation. The
   scaffold writes both `README.mbt.md` and `README.md` from the same content, so
   documentation stays testable by MoonBit while remaining visible on GitHub, and
   the generated README documents the starter module ownership split plus the
@@ -1028,8 +1028,8 @@ Current evidence:
   guarded git diff checks, product-neutral boundary check, platform-limits,
   inspect, snapshot, and explicit strict build commands, prints actionable
   diagnostic lines, and can emit the same workflow as a deterministic `sh`
-  script with `--script`, plus the active inspection/profile-gate thresholds
-  and current diagnostic count.
+  script with `--script`, plus the active inspection/profile/release readiness
+  thresholds and current diagnostic count.
   Starter `help` is also no-write, unknown starter commands fail before writing
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while

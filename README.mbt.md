@@ -438,20 +438,21 @@ moon run cmd/main -- init --name my_miniapp --module local/my_miniapp --out /tmp
 
 The generated starter keeps agent chat and map-heavy surfaces first-class while
 splitting app view, agent feed, scene model, bounded updates, budget checks,
-backend contract, inspection/profile gates, and WeChat generation into separate files,
-plus a local `cmd/main` build command that writes the starter's WeChat files and
-supports `--strict` diagnostic gating. The same command has an `inspect` mode
-for no-write route, backend, map, and file pressure checks and a `snapshot` mode
-for deterministic generated-output artifacts, plus a no-write `limits` mode for
-platform capabilities and generator status. WeChat build, inspect, snapshot, and
-CI-plan paths reuse Bunnia's target-support gate; Alipay/TikTok currently use a
-generic build-only path, while unknown targets report diagnostics before
-artifacts are generated. It also prints a local `ci-plan` with check, test, interface,
-format, product-neutral boundary, platform-limits, inspect, snapshot, strict
-build, one-shot watch commands, and the active inspection/profile-gate thresholds. Its summary
-reports the current generated-output and gate diagnostic count. Starter tests
-check render budgets, scene output, bounded patches, backend visibility,
-profile gates, and clean WeChat event wiring. The command also writes a local
+backend contract, inspection/profile gates, release readiness, and WeChat
+generation into separate files, plus a local `cmd/main` build command that
+writes the starter's WeChat files and supports `--strict` diagnostic gating.
+The same command has an `inspect` mode for no-write route, backend, map, file
+pressure, and release-readiness checks and a `snapshot` mode for deterministic
+generated-output artifacts, plus a no-write `limits` mode for platform
+capabilities and generator status. WeChat build, inspect, snapshot, and CI-plan
+paths reuse Bunnia's target-support gate; Alipay/TikTok currently use a generic
+build-only path, while unknown targets report diagnostics before artifacts are
+generated. It also prints a local `ci-plan` with check, test, interface, format,
+product-neutral boundary, platform-limits, inspect, snapshot, strict build,
+one-shot watch commands, and the active inspection/profile/release thresholds.
+Its summary reports the current generated-output and gate diagnostic count.
+Starter tests check render budgets, scene output, bounded patches, backend
+visibility, release readiness, profile gates, and clean WeChat event wiring. The command also writes a local
 `moon.work` that includes the starter app and the current Bunnia checkout for
 pre-registry development.
 

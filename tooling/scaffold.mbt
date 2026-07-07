@@ -184,10 +184,12 @@ fn cmd_main_mbt() -> String {
   "    println(project.report.summary)\n" +
   "    let inspection_gate = @app.inspection_gate(project)\n" +
   "    let profile_gate = @app.profile_gate(project)\n" +
+  "    let release = @app.release_readiness(project)\n" +
   "    println(inspection_gate.summary)\n" +
   "    println(profile_gate.summary)\n" +
+  "    println(release.summary)\n" +
   "    if command == \"inspect\" {\n" +
-  "      print_inspect_result(project, profile_gate, inspection_gate)\n" +
+  "      print_inspect_result(project, profile_gate, inspection_gate, release)\n" +
   "    } else if command == \"snapshot\" {\n" +
   "      let snapshot = starter_snapshot(project)\n" +
   "      let snapshot_path = snapshot_output_path_from_args(@env.args())\n" +
@@ -200,7 +202,7 @@ fn cmd_main_mbt() -> String {
   "      }\n" +
   "      println(\"wrote=\\{project.files.length()} output=\\{output_dir}\")\n" +
   "    }\n" +
-  "    if should_fail(strict, project, profile_gate, inspection_gate) {\n" +
+  "    if should_fail(strict, project, profile_gate, inspection_gate, release) {\n" +
   "      println(\"build_failed=diagnostics\")\n" +
   "      panic()\n" +
   "    }\n" +
@@ -357,12 +359,14 @@ fn cmd_main_mbt() -> String {
   "  project : @bunnia.WechatProject,\n" +
   "  profile_gate : @bunnia.BuildProfileGate,\n" +
   "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
+  "  release : @bunnia.ReleaseReadinessReport,\n" +
   ") -> Bool {\n" +
   "  strict && (\n" +
   "    project.report.diagnostics.length() > 0 ||\n" +
   "    project.manifest.diagnostic_count > 0 ||\n" +
   "    profile_gate.diagnostics.length() > 0 ||\n" +
-  "    inspection_gate.diagnostics.length() > 0\n" +
+  "    inspection_gate.diagnostics.length() > 0 ||\n" +
+  "    release.diagnostics.length() > 0\n" +
   "  )\n" +
   "}\n\n" +
   "///|\n" +
@@ -383,6 +387,7 @@ fn cmd_main_mbt() -> String {
   "  project : @bunnia.WechatProject,\n" +
   "  profile_gate : @bunnia.BuildProfileGate,\n" +
   "  inspection_gate : @bunnia.ProjectInspectionGate,\n" +
+  "  release : @bunnia.ReleaseReadinessReport,\n" +
   ") -> Unit {\n" +
   "  let inspection = @app.project_inspection(project)\n" +
   "  let profile = @app.build_profile(project)\n" +
@@ -397,6 +402,9 @@ fn cmd_main_mbt() -> String {
   "  }\n" +
   "  for item in profile_gate.diagnostics {\n" +
   "    println(\"profile_gate_diagnostic=\\{item}\")\n" +
+  "  }\n" +
+  "  for item in release.diagnostics {\n" +
+  "    println(\"release_diagnostic=\\{item}\")\n" +
   "  }\n" +
   "  for file in project.manifest.files {\n" +
   "    println(\"file=\\{file.path} kind=\\{file.kind} bytes=\\{file.bytes}\")\n" +
@@ -425,13 +433,16 @@ fn cmd_main_mbt() -> String {
   "    let project = @app.starter_wechat_project()\n" +
   "    let inspection_gate = @app.inspection_gate(project)\n" +
   "    let profile_gate = @app.profile_gate(project)\n" +
+  "    let release = @app.release_readiness(project)\n" +
   "    let diagnostics = project.report.diagnostics.length() +\n" +
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
-  "      profile_gate.diagnostics.length()\n" +
+  "      profile_gate.diagnostics.length() +\n" +
+  "      release.diagnostics.length()\n" +
   "    println(\"# Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}\")\n" +
   "    println(\"# \\{inspection_gate.summary}\")\n" +
   "    println(\"# \\{profile_gate.summary}\")\n" +
+  "    println(\"# \\{release.summary}\")\n" +
   "    println(\"\")\n" +
   "    if diagnostics > 0 {\n" +
   "      println(\"echo 'Bunnia starter CI plan has diagnostics; run moon run cmd/main -- ci-plan --strict for details.'\")\n" +
@@ -481,13 +492,16 @@ fn cmd_main_mbt() -> String {
   "    let project = @app.starter_wechat_project()\n" +
   "    let inspection_gate = @app.inspection_gate(project)\n" +
   "    let profile_gate = @app.profile_gate(project)\n" +
+  "    let release = @app.release_readiness(project)\n" +
   "    let diagnostics = project.report.diagnostics.length() +\n" +
   "      project.manifest.diagnostic_count +\n" +
   "      inspection_gate.diagnostics.length() +\n" +
-  "      profile_gate.diagnostics.length()\n" +
+  "      profile_gate.diagnostics.length() +\n" +
+  "      release.diagnostics.length()\n" +
   "    println(\"Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}\")\n" +
   "    println(inspection_gate.summary)\n" +
   "    println(profile_gate.summary)\n" +
+  "    println(release.summary)\n" +
   "    for item in project.report.diagnostics {\n" +
   "      println(\"diagnostic=\\{item}\")\n" +
   "    }\n" +
@@ -501,6 +515,9 @@ fn cmd_main_mbt() -> String {
   "    }\n" +
   "    for item in profile_gate.diagnostics {\n" +
   "      println(\"profile_gate_diagnostic=\\{item}\")\n" +
+  "    }\n" +
+  "    for item in release.diagnostics {\n" +
+  "      println(\"release_diagnostic=\\{item}\")\n" +
   "    }\n" +
   "    println(\"step=check command=moon check\")\n" +
   "    println(\"step=test command=moon test\")\n" +
@@ -782,6 +799,23 @@ fn quality_mbt() -> String {
   "    @bunnia.build_profile_budget_for_profile(\"tight\"),\n" +
   "    budget_profile=\"tight\",\n" +
   "  )\n" +
+  "}\n\n" +
+  "///|\n" +
+  "pub fn release_readiness(\n" +
+  "  project : @bunnia.WechatProject,\n" +
+  ") -> @bunnia.ReleaseReadinessReport {\n" +
+  "  let profile = build_profile(project)\n" +
+  "  let inspection = project_inspection(project)\n" +
+  "  @bunnia.release_readiness_report(\n" +
+  "    target=\"wechat\",\n" +
+  "    example=\"starter\",\n" +
+  "    budget_profile=\"tight\",\n" +
+  "    project,\n" +
+  "    profile,\n" +
+  "    profile_gate(project),\n" +
+  "    inspection,\n" +
+  "    inspection_gate(project),\n" +
+  "  )\n" +
   "}\n"
 }
 
@@ -861,6 +895,8 @@ fn app_test_mbt() -> String {
   "  assert_eq(backend_plan().endpoint_count, 1)\n" +
   "  assert_eq(profile_gate(project).diagnostics.length(), 0)\n" +
   "  assert_eq(inspection_gate(project).diagnostics.length(), 0)\n" +
+  "  assert_eq(release_readiness(project).status, \"ready\")\n" +
+  "  assert_eq(release_readiness(project).diagnostics.length(), 0)\n" +
   "  assert_true(project.files.length() > 0)\n" +
   "}\n"
 }
@@ -869,13 +905,13 @@ fn app_test_mbt() -> String {
 fn readme(name : String) -> String {
   "# \{name}\n\n" +
   "A Bunnia mini-app starter generated by `bunnia init`.\n\n" +
-  "The starter keeps app view, agent feed, scene model, bounded updates, backend contract, inspection gates, WeChat generation, a local build command, and starter tests in separate files so the app can grow without mixing product code into the framework.\n\n" +
+  "The starter keeps app view, agent feed, scene model, bounded updates, backend contract, inspection gates, release readiness, WeChat generation, a local build command, and starter tests in separate files so the app can grow without mixing product code into the framework.\n\n" +
   "## Files\n\n" +
   "- `app.mbt` owns the page view and keeps product UI platform-neutral.\n" +
   "- `agent_feed.mbt` keeps the first agentic surface windowed and keyed.\n" +
   "- `scene.mbt` owns the static map scene, region, marker, and render plan.\n" +
   "- `updates.mbt` owns bounded patch plans for agent and scene updates.\n" +
-  "- `quality.mbt` owns render, backend, inspection, and profile gates.\n" +
+  "- `quality.mbt` owns render, backend, inspection, profile, and release-readiness gates.\n" +
   "- `wechat.mbt` is the only starter app file that generates WeChat output.\n" +
   "- `cmd/main/main.mbt` owns build, watch, inspect, snapshot, limits, and CI commands.\n\n" +
   "## Workflow\n\n" +
@@ -899,7 +935,7 @@ fn readme(name : String) -> String {
   "moon run cmd/main -- watch --target wechat --out _build/wechat-watch --once --strict\n" +
   "moon run cmd/main -- watch --target wechat --out _build/wechat-watch --strict\n" +
   "```\n\n" +
-  "`inspect` is the no-write route, backend, map, and file pressure report. `snapshot` writes a deterministic review artifact. `watch --once` tests the watch generation path without staying open, while `watch` keeps regenerating WeChat output during local iteration.\n\n" +
+  "`inspect` is the no-write route, backend, map, file pressure, and release-readiness report. `snapshot` writes a deterministic review artifact. `watch --once` tests the watch generation path without staying open, while `watch` keeps regenerating WeChat output during local iteration.\n\n" +
   "`limits --target wechat` prints the active component mapping and capabilities. `limits --target alipay` or `limits --target tiktok` reports the generic mini-app generator status; inspect, snapshot, and watch remain WeChat-only until their diagnostics match the WeChat path.\n"
 }
 

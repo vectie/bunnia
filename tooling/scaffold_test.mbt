@@ -263,6 +263,21 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
+      "let release = @app.release_readiness(project)",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "release.diagnostics.length()",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "println(release.summary)",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
       "Bunnia starter CI plan: steps=12 diagnostics=\\{diagnostics}",
     ),
   )
@@ -335,6 +350,11 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "cmd/main/main.mbt").contains(
       "profile_gate_diagnostic=\\{item}",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "release_diagnostic=\\{item}",
     ),
   )
   assert_true(
@@ -450,6 +470,12 @@ test "scaffold project creates a small standalone starter" {
     file_content(plan.files, "quality.mbt").contains("pub fn profile_gate"),
   )
   assert_true(
+    file_content(plan.files, "quality.mbt").contains("pub fn release_readiness"),
+  )
+  assert_true(
+    file_content(plan.files, "quality.mbt").contains("release_readiness_report"),
+  )
+  assert_true(
     file_content(plan.files, "quality.mbt").contains(
       "render_budget_for_profile",
     ),
@@ -485,6 +511,11 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(file_content(plan.files, "app_test.mbt").contains("profile_gate"))
   assert_true(
+    file_content(plan.files, "app_test.mbt").contains(
+      "release_readiness(project).status",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "updates.mbt").contains(
       "append_stream_chunk_delta",
     ),
@@ -516,7 +547,12 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
-      "`quality.mbt` owns render, backend, inspection, and profile gates",
+      "`quality.mbt` owns render, backend, inspection, profile, and release-readiness gates",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "release-readiness report",
     ),
   )
   assert_true(
@@ -578,7 +614,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
-      "`inspect` is the no-write route, backend, map, and file pressure report",
+      "`inspect` is the no-write route, backend, map, file pressure, and release-readiness report",
     ),
   )
   assert_true(
