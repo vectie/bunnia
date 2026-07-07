@@ -757,6 +757,10 @@ Current evidence:
 - Generic mini-app builds include `bunnia.manifest.json`, so cross-platform
   outputs have a deterministic page/file inventory, route diagnostics, scene
   counts, and byte totals before vendor-specific behavior is expanded.
+- Generic mini-app builds now run a named inspection gate for page count, file
+  count, total bytes, route diagnostics, node depth, event pressure, and scene
+  pressure, so strict Alipay/TikTok builds can fail on budget regressions before
+  full inspect/snapshot/watch parity exists.
 
 Later expansion:
 

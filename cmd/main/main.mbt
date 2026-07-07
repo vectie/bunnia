@@ -642,12 +642,23 @@ fn run_generic_miniapp_build(
   let project = generic_miniapp_project_for_build(
     target_support, example, render_budget,
   )
+  let inspection = @bunnia.inspect_miniapp_project(target~, example~, project)
+  let inspection_gate = @bunnia.gate_miniapp_inspection(
+    inspection,
+    @bunnia.miniapp_inspection_budget_for_profile(budget_profile),
+    budget_profile~,
+  )
   write_miniapp_project(output_dir, project)
   print_generic_miniapp_build_result(
     command, target, example, budget_profile, render_budget_profile, output_dir,
-    project,
+    project, inspection, inspection_gate,
   )
-  if strict && project.page.plan.diagnostics.length() > 0 {
+  if strict &&
+    (
+      project.page.plan.diagnostics.length() > 0 ||
+      project.manifest.diagnostic_count > 0 ||
+      inspection_gate.diagnostics.length() > 0
+    ) {
     println("build_failed=diagnostics")
     panic()
   }
@@ -791,6 +802,8 @@ fn print_generic_miniapp_build_result(
   render_budget_profile : String,
   output_dir : String,
   project : @bunnia.MiniappProject,
+  inspection : @bunnia.MiniappInspection,
+  inspection_gate : @bunnia.MiniappInspectionGate,
 ) -> Unit {
   println("command=\{command}")
   println("target=\{target}")
@@ -800,9 +813,12 @@ fn print_generic_miniapp_build_result(
   println(project.page.plan.summary)
   println(project.summary)
   println(project.manifest.summary)
+  println(inspection.summary)
+  println(inspection_gate.summary)
+  print_miniapp_inspection_gate_diagnostics(inspection_gate.diagnostics)
   print_diagnostics(project.page.plan.diagnostics)
   println(
-    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count}",
+    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()}",
   )
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
@@ -891,6 +907,13 @@ fn print_profile_gate_diagnostics(items : Array[String]) -> Unit {
 fn print_release_diagnostics(items : Array[String]) -> Unit {
   for item in items {
     println("release_diagnostic=\{item}")
+  }
+}
+
+///|
+fn print_miniapp_inspection_gate_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("miniapp_inspection_diagnostic=\{item}")
   }
 }
 

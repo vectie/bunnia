@@ -233,6 +233,8 @@ pub fn form(String, Array[@core.Node]) -> @core.Node
 
 pub fn gate_build_profile(@tooling.BuildProfile, @tooling.BuildProfileBudget, budget_profile? : String) -> @tooling.BuildProfileGate
 
+pub fn gate_miniapp_inspection(@tooling.MiniappInspection, @tooling.MiniappInspectionBudget, budget_profile? : String) -> @tooling.MiniappInspectionGate
+
 pub fn gate_project_inspection(@tooling.ProjectInspection, @tooling.ProjectInspectionBudget, budget_profile? : String) -> @tooling.ProjectInspectionGate
 
 pub fn generate_alipay_page(String, @core.Node) -> @miniapp.MiniappPage
@@ -303,6 +305,8 @@ pub fn image_asset(String, String, Int) -> @scene.SceneAsset
 
 pub fn input(name~ : String, value? : String, input_message? : String) -> @core.Node
 
+pub fn inspect_miniapp_project(target~ : String, example~ : String, @miniapp.MiniappProject) -> @tooling.MiniappInspection
+
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> @tooling.ProjectInspection
 
 pub fn inspection_budget(max_route_risk_score~ : Int, max_update_payload_bytes~ : Int, max_update_operations~ : Int, max_unwindowed_list_children~ : Int, max_unkeyed_list_children~ : Int, max_duplicate_list_keys~ : Int, max_backend_events~ : Int, max_backend_streams~ : Int, max_backend_reviews~ : Int, max_backend_cancels~ : Int, max_backend_retries~ : Int, max_scene_assets~ : Int, max_scene_remote_assets~ : Int, max_scene_package_bytes~ : Int) -> @tooling.ProjectInspectionBudget
@@ -330,6 +334,10 @@ pub fn message_event(id~ : String, thread_id~ : String, from_actor_id~ : String,
 pub fn message_feed(Array[@agent.Message]) -> @core.Node
 
 pub fn message_row(@agent.Message) -> @core.Node
+
+pub fn miniapp_inspection_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_route_diagnostic_routes~ : Int, max_route_diagnostics~ : Int, max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_scene_markers~ : Int, max_scene_regions~ : Int, max_scene_assets~ : Int) -> @tooling.MiniappInspectionBudget
+
+pub fn miniapp_inspection_budget_for_profile(String) -> @tooling.MiniappInspectionBudget
 
 pub fn navigate(String, String) -> @effects.Effect
 
@@ -825,6 +833,12 @@ pub using @effects {type HttpMethod}
 pub using @agent {type Message}
 
 pub using @miniapp {type MiniappFile}
+
+pub using @tooling {type MiniappInspection}
+
+pub using @tooling {type MiniappInspectionBudget}
+
+pub using @tooling {type MiniappInspectionGate}
 
 pub using @miniapp {type MiniappManifestFile}
 

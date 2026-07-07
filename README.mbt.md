@@ -186,9 +186,9 @@ status is `available` for WeChat plus the generic Alipay/TikTok generators, and
 The same target-support model is reused by `ci-plan` and build-style commands,
 so unknown targets fail before artifacts are generated. Alipay and TikTok can
 write generic mini-app projects through `build`, including a deterministic
-`bunnia.manifest.json` route/file inventory for cross-platform diagnostics;
-inspect, snapshot, and watch remain WeChat-only until their reporting and budget
-diagnostics match the WeChat path.
+`bunnia.manifest.json` route/file inventory plus named budget gates for
+cross-platform diagnostics; inspect, snapshot, and watch remain WeChat-only
+until their reporting diagnostics match the WeChat path.
 
 To print the canonical local/CI workflow for the tight proof examples:
 

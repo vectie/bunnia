@@ -178,6 +178,71 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
 }
 
 ///|
+pub fn miniapp_inspection_budget_for_profile(
+  name : String,
+) -> MiniappInspectionBudget {
+  match name {
+    "default" =>
+      miniapp_inspection_budget(
+        max_pages=8,
+        max_files=32,
+        max_total_bytes=131072,
+        max_route_diagnostic_routes=0,
+        max_route_diagnostics=0,
+        max_nodes=512,
+        max_depth=16,
+        max_events=96,
+        max_scene_markers=256,
+        max_scene_regions=128,
+        max_scene_assets=64,
+      )
+    "tight" =>
+      miniapp_inspection_budget(
+        max_pages=4,
+        max_files=16,
+        max_total_bytes=32768,
+        max_route_diagnostic_routes=0,
+        max_route_diagnostics=0,
+        max_nodes=128,
+        max_depth=12,
+        max_events=32,
+        max_scene_markers=64,
+        max_scene_regions=32,
+        max_scene_assets=16,
+      )
+    "large" =>
+      miniapp_inspection_budget(
+        max_pages=8,
+        max_files=64,
+        max_total_bytes=262144,
+        max_route_diagnostic_routes=0,
+        max_route_diagnostics=0,
+        max_nodes=512,
+        max_depth=16,
+        max_events=96,
+        max_scene_markers=256,
+        max_scene_regions=128,
+        max_scene_assets=64,
+      )
+    "tiny" =>
+      miniapp_inspection_budget(
+        max_pages=1,
+        max_files=1,
+        max_total_bytes=128,
+        max_route_diagnostic_routes=0,
+        max_route_diagnostics=0,
+        max_nodes=8,
+        max_depth=2,
+        max_events=1,
+        max_scene_markers=1,
+        max_scene_regions=1,
+        max_scene_assets=0,
+      )
+    _ => panic()
+  }
+}
+
+///|
 pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
   match name {
     "default" =>

@@ -332,6 +332,15 @@ pub type ProjectInspectionGate = @tooling.ProjectInspectionGate
 pub type ReleaseReadinessReport = @tooling.ReleaseReadinessReport
 
 ///|
+pub type MiniappInspection = @tooling.MiniappInspection
+
+///|
+pub type MiniappInspectionBudget = @tooling.MiniappInspectionBudget
+
+///|
+pub type MiniappInspectionGate = @tooling.MiniappInspectionGate
+
+///|
 pub type ScaffoldFile = @tooling.ScaffoldFile
 
 ///|
@@ -3059,6 +3068,13 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
 }
 
 ///|
+pub fn miniapp_inspection_budget_for_profile(
+  name : String,
+) -> MiniappInspectionBudget {
+  @tooling.miniapp_inspection_budget_for_profile(name)
+}
+
+///|
 pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
   @tooling.build_profile_budget_for_profile(name)
 }
@@ -3140,12 +3156,59 @@ pub fn build_profile_budget(
 }
 
 ///|
+pub fn miniapp_inspection_budget(
+  max_pages~ : Int,
+  max_files~ : Int,
+  max_total_bytes~ : Int,
+  max_route_diagnostic_routes~ : Int,
+  max_route_diagnostics~ : Int,
+  max_nodes~ : Int,
+  max_depth~ : Int,
+  max_events~ : Int,
+  max_scene_markers~ : Int,
+  max_scene_regions~ : Int,
+  max_scene_assets~ : Int,
+) -> MiniappInspectionBudget {
+  @tooling.miniapp_inspection_budget(
+    max_pages~,
+    max_files~,
+    max_total_bytes~,
+    max_route_diagnostic_routes~,
+    max_route_diagnostics~,
+    max_nodes~,
+    max_depth~,
+    max_events~,
+    max_scene_markers~,
+    max_scene_regions~,
+    max_scene_assets~,
+  )
+}
+
+///|
 pub fn gate_project_inspection(
   inspection : ProjectInspection,
   budget : ProjectInspectionBudget,
   budget_profile? : String = "custom",
 ) -> ProjectInspectionGate {
   @tooling.gate_project_inspection(inspection, budget, budget_profile~)
+}
+
+///|
+pub fn inspect_miniapp_project(
+  target~ : String,
+  example~ : String,
+  project : MiniappProject,
+) -> MiniappInspection {
+  @tooling.inspect_miniapp_project(target~, example~, project)
+}
+
+///|
+pub fn gate_miniapp_inspection(
+  inspection : MiniappInspection,
+  budget : MiniappInspectionBudget,
+  budget_profile? : String = "custom",
+) -> MiniappInspectionGate {
+  @tooling.gate_miniapp_inspection(inspection, budget, budget_profile~)
 }
 
 ///|

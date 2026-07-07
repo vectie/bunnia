@@ -3,6 +3,7 @@ package "vectie/bunnia/tooling"
 
 import {
   "moonbitlang/core/debug",
+  "vectie/bunnia/adapters/miniapp",
   "vectie/bunnia/adapters/wechat",
   "vectie/bunnia/agent",
   "vectie/bunnia/core",
@@ -21,7 +22,11 @@ pub fn ci_plan_shell_script(CiPlan) -> String
 
 pub fn gate_build_profile(BuildProfile, BuildProfileBudget, budget_profile? : String) -> BuildProfileGate
 
+pub fn gate_miniapp_inspection(MiniappInspection, MiniappInspectionBudget, budget_profile? : String) -> MiniappInspectionGate
+
 pub fn gate_project_inspection(ProjectInspection, ProjectInspectionBudget, budget_profile? : String) -> ProjectInspectionGate
+
+pub fn inspect_miniapp_project(target~ : String, example~ : String, @miniapp.MiniappProject) -> MiniappInspection
 
 pub fn inspect_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport) -> ProjectInspection
 
@@ -30,6 +35,10 @@ pub fn inspection_budget(max_route_risk_score~ : Int, max_update_payload_bytes~ 
 pub fn inspection_budget_for_profile(String) -> ProjectInspectionBudget
 
 pub fn is_named_budget_profile(String) -> Bool
+
+pub fn miniapp_inspection_budget(max_pages~ : Int, max_files~ : Int, max_total_bytes~ : Int, max_route_diagnostic_routes~ : Int, max_route_diagnostics~ : Int, max_nodes~ : Int, max_depth~ : Int, max_events~ : Int, max_scene_markers~ : Int, max_scene_regions~ : Int, max_scene_assets~ : Int) -> MiniappInspectionBudget
+
+pub fn miniapp_inspection_budget_for_profile(String) -> MiniappInspectionBudget
 
 pub fn platform_generator_available(PlatformGeneratorStatus) -> Bool
 
@@ -278,6 +287,55 @@ pub struct GeneratedSnapshotFile {
   kind : String
   bytes : Int
   checksum : Int
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappInspection {
+  target : String
+  example : String
+  page_count : Int
+  file_count : Int
+  total_bytes : Int
+  diagnostic_route_count : Int
+  diagnostic_count : Int
+  max_node_count : Int
+  max_depth : Int
+  max_event_count : Int
+  max_scene_marker_count : Int
+  max_scene_region_count : Int
+  max_scene_asset_count : Int
+  status : String
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappInspectionBudget {
+  max_pages : Int
+  max_files : Int
+  max_total_bytes : Int
+  max_route_diagnostic_routes : Int
+  max_route_diagnostics : Int
+  max_nodes : Int
+  max_depth : Int
+  max_events : Int
+  max_scene_markers : Int
+  max_scene_regions : Int
+  max_scene_assets : Int
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappInspectionGate {
+  budget_profile : String
+  max_pages : Int
+  max_files : Int
+  max_total_bytes : Int
+  max_route_diagnostic_routes : Int
+  max_route_diagnostics : Int
+  max_nodes : Int
+  max_depth : Int
+  max_events : Int
+  max_scene_markers : Int
+  max_scene_regions : Int
+  max_scene_assets : Int
+  diagnostics : Array[String]
+  summary : String
 } derive(Eq, @debug.Debug)
 
 pub struct PlatformComponentMapping {
