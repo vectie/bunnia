@@ -221,41 +221,8 @@ fn moontown_map_page_methods_js() -> String {
   "      const k=this.__mk(s)\n" +
   "      const vw=win.windowWidth/k\n" +
   "      const vh=win.windowHeight/k\n" +
-  "      const rows=this.__er||(this.__er=[[0,276,279],[40,209,349],[80,129,429],[120,49,510],[160,0,589],[200,0,669],[240,0,750],[280,0,830],[320,0,910],[360,0,990],[400,0,1070],[440,0,1150],[480,0,1230],[520,78,1310],[560,158,1355],[600,238,1275],[640,318,1195],[680,398,1115],[720,478,1035],[760,559,955],[800,639,874],[840,719,794],[858,755,759]])\n" +
-  "      const edge=(yy,i)=>{\n" +
-  "        if(yy<=rows[0][0])return rows[0][i]\n" +
-  "        for(let n=1;n<rows.length;n+=1){\n" +
-  "          const a=rows[n-1]\n" +
-  "          const b=rows[n]\n" +
-  "          if(yy<=b[0])return a[i]+(b[i]-a[i])*(yy-a[0])/(b[0]-a[0])\n" +
-  "        }\n" +
-  "        return rows[rows.length-1][i]\n" +
-  "      }\n" +
-  "      const xRange=(sy)=>{\n" +
-  "        const top=sy\n" +
-  "        const bottom=sy+vh\n" +
-  "        let left=Math.max(edge(top,1),edge(bottom,1))\n" +
-  "        let right=Math.min(edge(top,2),edge(bottom,2))\n" +
-  "        for(const row of rows)if(row[0]>top&&row[0]<bottom){left=Math.max(left,row[1]);right=Math.min(right,row[2])}\n" +
-  "        return [left,right-vw]\n" +
-  "      }\n" +
-  "      const key=[Math.round(vw),Math.round(vh)].join(':')\n" +
-  "      const cache=this.__myc||(this.__myc={})\n" +
-  "      let yRange=cache[key]\n" +
-  "      if(!yRange){\n" +
-  "        const end=rows[rows.length-1][0]-vh\n" +
-  "        let first=null\n" +
-  "        let last=null\n" +
-  "        for(let sy=0;sy<=end;sy+=4){\n" +
-  "          const xr=xRange(sy)\n" +
-  "          if(xr[1]>=xr[0]){first=first==null?sy:first;last=sy}\n" +
-  "        }\n" +
-  "        const fallback=Math.max(0,end/2)\n" +
-  "        yRange=cache[key]=[first==null?fallback:first,last==null?fallback:last]\n" +
-  "      }\n" +
-  "      const sy=this.__cl(-Number(rawY||0)/k,yRange[0],yRange[1])\n" +
-  "      const xr=xRange(sy)\n" +
-  "      const sx=this.__cl(-Number(rawX||0)/k,xr[0],xr[1])\n" +
+  "      const sx=this.__cl(-Number(rawX||0)/k,0,Math.max(0,1400-vw))\n" +
+  "      const sy=this.__cl(-Number(rawY||0)/k,0,Math.max(0,1400-vh))\n" +
   "      return {x:-sx*k,y:-sy*k}\n" +
   "    }\n" +
   "    const next=fit(x,y)\n" +
@@ -424,7 +391,7 @@ fn moontown_map_width() -> Int {
 
 ///|
 fn moontown_map_height() -> Int {
-  880
+  1400
 }
 
 ///|
@@ -444,17 +411,17 @@ fn moontown_map_display_height() -> Int {
 
 ///|
 fn moontown_map_asset_src() -> String {
-  "/assets/wenyu_reference_tilemap_iso_mobile.png"
+  "/assets/wenyu_reference_tilemap_iso_mobile.jpg"
 }
 
 ///|
 fn moontown_map_asset_source() -> String {
-  "examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.png"
+  "examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.jpg"
 }
 
 ///|
 fn moontown_map_asset_bytes() -> Int {
-  1872 * 1024
+  2020 * 1024
 }
 
 ///|

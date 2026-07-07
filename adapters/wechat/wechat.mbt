@@ -606,7 +606,15 @@ fn packaged_scene_asset_content(asset : WechatSceneAsset) -> String {
 fn scene_asset_should_be_packaged(asset : WechatSceneAsset) -> Bool {
   !asset.remote &&
   asset.src.has_prefix("/assets/") &&
-  asset.src.has_suffix(".png")
+  scene_asset_is_static_image(asset.src)
+}
+
+///|
+fn scene_asset_is_static_image(src : String) -> Bool {
+  src.has_suffix(".png") ||
+  src.has_suffix(".jpg") ||
+  src.has_suffix(".jpeg") ||
+  src.has_suffix(".webp")
 }
 
 ///|
