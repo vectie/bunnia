@@ -57,11 +57,10 @@ pub fn demo_wechat_project_with_render_budget(
 
 ///|
 fn moontown_wxss() -> String {
-  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #6f9278; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
-  ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #6f9278; }\n" +
-  ".moontown-map-drag-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #6f9278; }\n" +
-  ".moontown-map-drag-content { position: relative; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; background: #6f9278; }\n" +
-  ".moontown-map-backfill { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; background: #6f9278; }\n" +
+  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
+  ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
+  ".moontown-map-drag-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
+  ".moontown-map-drag-content { position: relative; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
   ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.26); box-sizing: border-box; }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -178,7 +177,64 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
   @bunnia.wechat_runtime(
     initial_data_json=demo_initial_data_json(),
     event_patches=patches,
+    page_methods_js=moontown_map_page_methods_js(),
   )
+}
+
+///|
+fn moontown_map_page_methods_js() -> String {
+  "  onLoad() {\n" +
+  "    this.__moontownMapBounceTimer = null\n" +
+  "    this.__moontownClampMapViewport(this.data.mapViewport.x, this.data.mapViewport.y, this.data.mapViewport.scale, true)\n" +
+  "  },\n" +
+  "  onMoontownMapMove(event) {\n" +
+  "    const detail = event.detail || {}\n" +
+  "    this.__moontownClampMapViewport(detail.x, detail.y, this.data.mapViewport.scale, false)\n" +
+  "  },\n" +
+  "  onMoontownMapScale(event) {\n" +
+  "    const detail = event.detail || {}\n" +
+  "    const scale = detail.scale || this.data.mapViewport.scale\n" +
+  "    const x = detail.x == null ? this.data.mapViewport.x : detail.x\n" +
+  "    const y = detail.y == null ? this.data.mapViewport.y : detail.y\n" +
+  "    this.__moontownClampMapViewport(x, y, scale, false)\n" +
+  "  },\n" +
+  "  __moontownClampMapViewport(x, y, scale, immediate) {\n" +
+  "    const limits = this.__moontownMapLimits(scale)\n" +
+  "    const nextX = this.__moontownClampNumber(x, limits.minX, limits.maxX)\n" +
+  "    const nextY = this.__moontownClampNumber(y, limits.minY, limits.maxY)\n" +
+  "    const boundedScale = this.__moontownClampNumber(scale, 1.9, 2.8)\n" +
+  "    const crossed = Math.abs(nextX - x) > 1 || Math.abs(nextY - y) > 1 || Math.abs(boundedScale - scale) > 0.01\n" +
+  "    clearTimeout(this.__moontownMapBounceTimer)\n" +
+  "    if (crossed && !immediate) {\n" +
+  "      this.setData({ 'mapViewport.x': x, 'mapViewport.y': y, 'mapViewport.scale': boundedScale })\n" +
+  "      this.__moontownMapBounceTimer = setTimeout(() => {\n" +
+  "        this.setData({ 'mapViewport.x': nextX, 'mapViewport.y': nextY, 'mapViewport.scale': boundedScale })\n" +
+  "      }, 90)\n" +
+  "    } else {\n" +
+  "      this.setData({ 'mapViewport.x': nextX, 'mapViewport.y': nextY, 'mapViewport.scale': boundedScale })\n" +
+  "    }\n" +
+  "  },\n" +
+  "  __moontownMapLimits(scale) {\n" +
+  "    const windowInfo = this.__moontownWindowInfo || (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync())\n" +
+  "    this.__moontownWindowInfo = windowInfo\n" +
+  "    const pxPerRpx = windowInfo.windowWidth / 750\n" +
+  "    const viewportWidthSource = windowInfo.windowWidth / (2 * scale * pxPerRpx)\n" +
+  "    const viewportHeightSource = windowInfo.windowHeight / (2 * scale * pxPerRpx)\n" +
+  "    const safe = { left: 155, top: 55, right: 900, bottom: 820 }\n" +
+  "    const minSourceX = safe.left\n" +
+  "    const maxSourceX = Math.max(safe.left, safe.right - viewportWidthSource)\n" +
+  "    const minSourceY = safe.top\n" +
+  "    const maxSourceY = Math.max(safe.top, safe.bottom - viewportHeightSource)\n" +
+  "    return {\n" +
+  "      minX: -maxSourceX * 2 * scale * pxPerRpx,\n" +
+  "      maxX: -minSourceX * 2 * scale * pxPerRpx,\n" +
+  "      minY: -maxSourceY * 2 * scale * pxPerRpx,\n" +
+  "      maxY: -minSourceY * 2 * scale * pxPerRpx\n" +
+  "    }\n" +
+  "  },\n" +
+  "  __moontownClampNumber(value, min, max) {\n" +
+  "    return Math.max(min, Math.min(max, Number(value || 0)))\n" +
+  "  },\n"
 }
 
 ///|
@@ -499,15 +555,18 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
             @bunnia.class_name("moontown-map-drag-content"),
             @bunnia.attr("direction", "all"),
             @bunnia.attr("inertia", "true"),
+            @bunnia.attr("animation", "true"),
             @bunnia.attr("out-of-bounds", "false"),
-            @bunnia.attr("x", "-360"),
-            @bunnia.attr("y", "-160"),
+            @bunnia.attr("scale", "true"),
+            @bunnia.attr("scale-min", "1.9"),
+            @bunnia.attr("scale-max", "2.8"),
+            @bunnia.attr("scale-value", "{{mapViewport.scale}}"),
+            @bunnia.attr("x", "{{mapViewport.x}}"),
+            @bunnia.attr("y", "{{mapViewport.y}}"),
+            @bunnia.attr("bindchange", "onMoontownMapMove"),
+            @bunnia.attr("bindscale", "onMoontownMapScale"),
           ],
-          [
-            moontown_map_backfill(),
-            moontown_map_image(),
-            map_markers(projection),
-          ],
+          [moontown_map_image(), map_markers(projection)],
         ),
       ],
     ),
@@ -521,11 +580,6 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
       ),
     ]),
   ])
-}
-
-///|
-fn moontown_map_backfill() -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-backfill")], [])
 }
 
 ///|
@@ -871,5 +925,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.0},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }

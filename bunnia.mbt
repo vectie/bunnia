@@ -3001,8 +3001,9 @@ pub fn default_wechat_runtime() -> WechatRuntime {
 pub fn wechat_runtime(
   initial_data_json? : String = "{}",
   event_patches? : Array[WechatEventPatch] = [],
+  page_methods_js? : String = "",
 ) -> WechatRuntime {
-  @wechat.runtime(initial_data_json~, event_patches~)
+  @wechat.runtime(initial_data_json~, event_patches~, page_methods_js~)
 }
 
 ///|

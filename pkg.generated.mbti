@@ -751,7 +751,7 @@ pub fn wechat_project_page_with_wxss(@wechat.WechatProjectPage, String) -> @wech
 
 pub fn wechat_project_with_report(@wechat.WechatProject, @wechat.WechatBuildReport) -> @wechat.WechatProject
 
-pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
+pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch], page_methods_js? : String) -> @wechat.WechatRuntime
 
 pub fn when(Bool, @core.Node) -> @core.Node
 

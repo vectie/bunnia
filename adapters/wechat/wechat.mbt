@@ -29,6 +29,7 @@ pub struct WechatEventPatch {
 pub struct WechatRuntime {
   initial_data_json : String
   event_patches : Array[WechatEventPatch]
+  page_methods_js : String
 } derive(Debug, Eq)
 
 ///|
@@ -204,13 +205,14 @@ fn generate_project_page_with_runtime(
   name : String,
   route : String,
   root : @core.Node,
+  runtime : WechatRuntime,
   render_budget : @core.RenderBudget,
 ) -> WechatPage {
   let plan = @core.plan_with_budget(root, Wechat, render_budget)
   {
     wxml: render_node(root, @core.adapter(Wechat)),
     wxss: "",
-    js: project_page_js(name, route, plan),
+    js: project_page_js(name, route, plan, runtime),
     json: "{ \"navigationBarTitleText\": \"\{escape_json(name)}\" }",
     plan,
     render_budget,
@@ -307,7 +309,9 @@ pub fn project_page(
   {
     name,
     route,
-    page: generate_project_page_with_runtime(name, route, root, render_budget),
+    page: generate_project_page_with_runtime(
+      name, route, root, runtime, render_budget,
+    ),
     runtime,
   }
 }
@@ -427,10 +431,11 @@ fn project_page_with_backend_js(
       item.name,
       item.route,
       item.page.plan,
+      item.runtime,
       contract,
     )
   } else {
-    project_page_js(item.name, item.route, item.page.plan)
+    project_page_js(item.name, item.route, item.page.plan, item.runtime)
   }
   {
     name: item.name,
@@ -463,15 +468,16 @@ fn backend_has_reachable_event(
 
 ///|
 pub fn default_runtime() -> WechatRuntime {
-  { initial_data_json: "{}", event_patches: [] }
+  { initial_data_json: "{}", event_patches: [], page_methods_js: "" }
 }
 
 ///|
 pub fn runtime(
   initial_data_json? : String = "{}",
   event_patches? : Array[WechatEventPatch] = [],
+  page_methods_js? : String = "",
 ) -> WechatRuntime {
-  { initial_data_json, event_patches }
+  { initial_data_json, event_patches, page_methods_js }
 }
 
 ///|
@@ -1400,7 +1406,13 @@ fn page_js(
   "\n" +
   runtime_helpers_js() +
   "\n" +
-  page_definition_js(name, plan, runtime.initial_data_json, "")
+  page_definition_js(
+    name,
+    plan,
+    runtime.initial_data_json,
+    "",
+    runtime.page_methods_js,
+  )
 }
 
 ///|
@@ -1408,11 +1420,18 @@ fn project_page_js(
   name : String,
   route : String,
   plan : @core.RenderPlan,
+  runtime : WechatRuntime,
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
   "\n" +
-  page_definition_js(name, plan, "__bunniaInitialData", "")
+  page_definition_js(
+    name,
+    plan,
+    "__bunniaInitialData",
+    "",
+    runtime.page_methods_js,
+  )
 }
 
 ///|
@@ -1420,6 +1439,7 @@ fn project_page_js_with_backend(
   name : String,
   route : String,
   plan : @core.RenderPlan,
+  runtime : WechatRuntime,
   contract : @effects.BackendContract,
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
@@ -1430,7 +1450,11 @@ fn project_page_js_with_backend(
   backend_request_dispatch_js() +
   "\n" +
   page_definition_js(
-    name, plan, "__bunniaInitialData", "    __bunniaMaybeRequest(this, message)\n",
+    name,
+    plan,
+    "__bunniaInitialData",
+    "    __bunniaMaybeRequest(this, message)\n",
+    runtime.page_methods_js,
   )
 }
 
@@ -1477,6 +1501,7 @@ fn page_definition_js(
   plan : @core.RenderPlan,
   initial_data_expr : String,
   after_event_js : String,
+  page_methods_js : String,
 ) -> String {
   "Page({\n" +
   "  data: {\n" +
@@ -1489,6 +1514,7 @@ fn page_definition_js(
   "    },\n" +
   "    ...(\{initial_data_expr})\n" +
   "  },\n" +
+  page_methods_js +
   "  __bunniaEvent(event) {\n" +
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
   "    const patches = __bunniaEventPatches[message] || []\n" +

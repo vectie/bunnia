@@ -7,11 +7,17 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-map-drag-area"))
   assert_true(page.wxml.contains("movable-view"))
   assert_true(page.wxml.contains("moontown-map-drag-content"))
-  assert_true(page.wxml.contains("moontown-map-backfill"))
   assert_true(page.wxml.contains("direction=\"all\""))
   assert_true(page.wxml.contains("inertia=\"true\""))
-  assert_true(page.wxml.contains("x=\"-360\""))
-  assert_true(page.wxml.contains("y=\"-160\""))
+  assert_true(page.wxml.contains("scale=\"true\""))
+  assert_true(page.wxml.contains("scale-min=\"1.9\""))
+  assert_true(page.wxml.contains("scale-max=\"2.8\""))
+  assert_true(page.wxml.contains("scale-value=\"{{mapViewport.scale}}\""))
+  assert_true(page.wxml.contains("x=\"{{mapViewport.x}}\""))
+  assert_true(page.wxml.contains("y=\"{{mapViewport.y}}\""))
+  assert_true(page.wxml.contains("bindchange=\"onMoontownMapMove\""))
+  assert_true(page.wxml.contains("bindscale=\"onMoontownMapScale\""))
+  assert_true(!page.wxml.contains("moontown-map-backfill"))
   assert_true(page.wxml.contains("moontown-wenyu-map-image"))
   assert_true(page.wxml.contains("data-asset-id=\"moontown-wenyu-map\""))
   assert_true(page.wxml.contains("left: 958rpx; top: 776rpx;"))
@@ -37,8 +43,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxss.contains(".bunnia-scene"))
   assert_true(page.wxss.contains(".moontown-map-drag-area"))
   assert_true(page.wxss.contains(".moontown-map-drag-content"))
-  assert_true(page.wxss.contains(".moontown-map-backfill"))
-  assert_true(page.wxss.contains("background: #6f9278"))
+  assert_true(!page.wxss.contains(".moontown-map-backfill"))
   assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
   assert_true(page.wxss.contains("width: 2800rpx; height: 1760rpx;"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
@@ -48,6 +53,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("\"switch-user-b\""))
   assert_true(page.js.contains("\"dev-login\""))
   assert_true(page.js.contains("\"load-town-snapshot\""))
+  assert_true(page.js.contains("onMoontownMapMove"))
+  assert_true(page.js.contains("onMoontownMapScale"))
+  assert_true(page.js.contains("__moontownClampMapViewport"))
   assert_true(page.js.contains("\"ask-selected-building\""))
   assert_true(page.js.contains("\"create-private-building\""))
   assert_true(page.js.contains("\"place-published-building\""))
@@ -110,6 +118,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains("bunniaSessionId"),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2",
+    ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(

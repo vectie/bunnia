@@ -56,7 +56,7 @@ pub fn report_project_pages(Array[WechatFile], Array[WechatProjectPage], WechatB
 
 pub fn report_project_with_budget(WechatProject, WechatRuntime, WechatBuildBudget) -> WechatBuildReport
 
-pub fn runtime(initial_data_json? : String, event_patches? : Array[WechatEventPatch]) -> WechatRuntime
+pub fn runtime(initial_data_json? : String, event_patches? : Array[WechatEventPatch], page_methods_js? : String) -> WechatRuntime
 
 // Errors
 
@@ -215,6 +215,7 @@ pub struct WechatProjectPage {
 pub struct WechatRuntime {
   initial_data_json : String
   event_patches : Array[WechatEventPatch]
+  page_methods_js : String
 } derive(Eq, @debug.Debug)
 
 pub struct WechatSceneAsset {
