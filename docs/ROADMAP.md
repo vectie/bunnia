@@ -760,18 +760,22 @@ Current evidence:
 - Generic mini-app builds now run a named inspection gate for page count, file
   count, total bytes, route diagnostics, node depth, event pressure, and scene
   pressure, so strict Alipay/TikTok builds and inspect runs can fail on budget
-  regressions before full snapshot/watch parity exists.
-- Generic Alipay/TikTok build and inspect paths now run a target-neutral
+  regressions before full watch parity exists.
+- Generic Alipay/TikTok build, inspect, and snapshot paths now run a target-neutral
   release-readiness report for target/manifest consistency, required manifest
   files, frontend secret markers, route diagnostics, and inspection-gate
   diagnostics, so Phase 8 preflight checks are not WeChat-only.
+- `moon run cmd/main -- snapshot --target alipay|tiktok` writes a compact
+  deterministic generic snapshot with route/file checksums, top route risk,
+  inspection-gate diagnostics, and release-readiness status without writing the
+  generated project directory.
 
 Later expansion:
 
 - Deep vendor features before the common adapter model is stable.
 - Automatic parity claims for every component.
-- CLI snapshot/watch parity for Alipay/TikTok after generic output has route
-  manifests, diagnostics, and budget gates matching the WeChat path.
+- CLI watch parity for Alipay/TikTok after generic output has route manifests,
+  diagnostics, snapshots, and budget gates matching the WeChat path.
 
 ## Phase 7: Tooling And Developer Workflow
 
@@ -1041,7 +1045,7 @@ Current evidence:
   Starter `help` is also no-write, unknown starter commands fail before writing
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while
-  Alipay/TikTok use generic build and inspect paths until full snapshot/watch
+  Alipay/TikTok use generic build, inspect, and snapshot paths until full watch
   parity is implemented. Starter watch support now mirrors the build path
   with `watch --once` for CI/smoke validation and a compact JS source watcher
   for local WeChat regeneration. Starter inspect output carries the same
@@ -1088,8 +1092,8 @@ Current evidence:
   diagnostics, and generic inspection gates before vendor-specific release
   packaging exists.
 - The CLI prints release readiness during build, inspect, and snapshot flows,
-  including generic Alipay/TikTok build and inspect flows, and `--strict`
-  treats release diagnostics as build-blocking.
+  including generic Alipay/TikTok build, inspect, and snapshot flows, and
+  `--strict` treats release diagnostics as build-blocking.
 
 Leave room now:
 

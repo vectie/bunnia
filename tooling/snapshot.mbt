@@ -135,6 +135,75 @@ pub fn snapshot_wechat_project_with_report(
 }
 
 ///|
+pub fn snapshot_miniapp_project(
+  target~ : String,
+  example~ : String,
+  project : @miniapp.MiniappProject,
+  inspection : MiniappInspection,
+  inspection_gate : MiniappInspectionGate,
+  release : ReleaseReadinessReport,
+  budget_profile? : String = "default",
+  render_budget_profile? : String = "default",
+) -> GeneratedSnapshot {
+  let files : Array[GeneratedSnapshotFile] = []
+  for item in project.files {
+    files.push(miniapp_snapshot_file(item))
+  }
+  let top_route = miniapp_top_route(project.manifest.pages)
+  let route_risk_score = miniapp_route_risk_score(
+    top_route,
+    project.manifest.pages,
+  )
+  let diagnostic_count = project.manifest.diagnostic_count +
+    inspection_gate.diagnostics.length() +
+    release.diagnostics.length()
+  let summary = "Bunnia generic miniapp snapshot: target=\{target} example=\{example} budget=\{budget_profile} render_budget=\{render_budget_profile} route=\{project.route} files=\{project.files.length()} bytes=\{project.total_bytes} risk_route=\{top_route} risk_score=\{route_risk_score} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} route_diagnostics=\{project.manifest.diagnostic_count} scene_assets=\{inspection.max_scene_asset_count} profile_gate_diagnostics=0 inspection_gate_diagnostics=\{inspection_gate.diagnostics.length()} release_status=\{release.status} diagnostics=\{diagnostic_count}"
+  let content = miniapp_snapshot_content(
+    target, example, budget_profile, render_budget_profile, project, inspection,
+    inspection_gate, release, files, top_route, route_risk_score, diagnostic_count,
+    summary,
+  )
+  {
+    target,
+    example,
+    budget_profile,
+    render_budget_profile,
+    project_name: project.name,
+    route: project.route,
+    page_count: project.manifest.page_count,
+    file_count: project.files.length(),
+    total_bytes: project.total_bytes,
+    max_first_screen_bytes: max_miniapp_route_file_bytes(project.manifest.pages),
+    max_update_payload_bytes: 0,
+    max_update_operation_count: 0,
+    route_diagnostic_route_count: project.manifest.diagnostic_route_count,
+    route_diagnostic_count: project.manifest.diagnostic_count,
+    unwindowed_list_child_count: 0,
+    unkeyed_list_child_count: 0,
+    duplicate_list_key_count: 0,
+    communication_unresolved_review_count: 0,
+    tool_result_missing_ack_count: 0,
+    agent_duplicate_stream_chunk_count: 0,
+    snapshot_full_replace_count: 0,
+    scene_asset_count: inspection.max_scene_asset_count,
+    scene_remote_asset_count: 0,
+    scene_thread_orphan_link_count: 0,
+    scene_camera_clamped_count: 0,
+    scene_surface_fallback_count: 0,
+    scene_quality_issue_count: 0,
+    degraded_scene_count: 0,
+    top_route,
+    route_risk_score,
+    profile_gate_diagnostic_count: 0,
+    inspection_gate_diagnostic_count: inspection_gate.diagnostics.length(),
+    diagnostic_count,
+    files,
+    summary,
+    content,
+  }
+}
+
+///|
 fn snapshot_profile_gate(
   profile : BuildProfile,
   budget_profile : String,
@@ -161,6 +230,16 @@ fn snapshot_inspection_gate(
 }
 
 ///|
+fn miniapp_snapshot_file(input : @miniapp.MiniappFile) -> GeneratedSnapshotFile {
+  {
+    path: input.path,
+    kind: file_kind(input.path),
+    bytes: input.content.length(),
+    checksum: checksum_string(input.content),
+  }
+}
+
+///|
 fn snapshot_file(input : @wechat.WechatFile) -> GeneratedSnapshotFile {
   {
     path: input.path,
@@ -168,6 +247,98 @@ fn snapshot_file(input : @wechat.WechatFile) -> GeneratedSnapshotFile {
     bytes: input.content.length(),
     checksum: checksum_string(input.content),
   }
+}
+
+///|
+fn miniapp_snapshot_content(
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  project : @miniapp.MiniappProject,
+  inspection : MiniappInspection,
+  inspection_gate : MiniappInspectionGate,
+  release : ReleaseReadinessReport,
+  files : Array[GeneratedSnapshotFile],
+  top_route : String,
+  route_risk_score : Int,
+  diagnostic_count : Int,
+  summary : String,
+) -> String {
+  let out = StringBuilder()
+  out.write_string("bunnia-generated-snapshot-v1\n")
+  write_snapshot_field(out, "target", target)
+  write_snapshot_field(out, "example", example)
+  write_snapshot_field(out, "budget_profile", budget_profile)
+  write_snapshot_field(out, "render_budget_profile", render_budget_profile)
+  write_snapshot_field(out, "project", project.name)
+  write_snapshot_field(out, "route", project.route)
+  write_snapshot_field(out, "pages", project.manifest.page_count.to_string())
+  write_snapshot_field(out, "files", project.files.length().to_string())
+  write_snapshot_field(out, "total_bytes", project.total_bytes.to_string())
+  write_snapshot_field(
+    out,
+    "max_first_screen",
+    max_miniapp_route_file_bytes(project.manifest.pages).to_string(),
+  )
+  write_snapshot_field(out, "max_update_payload", "0")
+  write_snapshot_field(out, "max_update_ops", "0")
+  write_snapshot_field(out, "diagnostics", diagnostic_count.to_string())
+  write_snapshot_field(
+    out,
+    "route_diagnostic_routes",
+    project.manifest.diagnostic_route_count.to_string(),
+  )
+  write_snapshot_field(
+    out,
+    "route_diagnostics",
+    project.manifest.diagnostic_count.to_string(),
+  )
+  write_snapshot_field(out, "unwindowed_list_children", "0")
+  write_snapshot_field(out, "unkeyed_list_children", "0")
+  write_snapshot_field(out, "duplicate_list_keys", "0")
+  write_snapshot_field(out, "communication_unresolved_reviews", "0")
+  write_snapshot_field(out, "tool_result_missing_acks", "0")
+  write_snapshot_field(out, "agent_duplicate_stream_chunks", "0")
+  write_snapshot_field(out, "snapshot_full_replaces", "0")
+  write_snapshot_field(
+    out,
+    "scene_assets",
+    inspection.max_scene_asset_count.to_string(),
+  )
+  write_snapshot_field(out, "scene_remote_assets", "0")
+  write_snapshot_field(out, "scene_thread_orphans", "0")
+  write_snapshot_field(out, "scene_camera_clamped", "0")
+  write_snapshot_field(out, "scene_surface_fallbacks", "0")
+  write_snapshot_field(out, "scene_quality_issues", "0")
+  write_snapshot_field(out, "degraded_scenes", "0")
+  write_snapshot_field(out, "risk_route", top_route)
+  write_snapshot_field(out, "risk_score", route_risk_score.to_string())
+  write_snapshot_field(out, "profile_gate_diagnostics", "0")
+  write_snapshot_field(
+    out,
+    "inspection_gate_diagnostics",
+    inspection_gate.diagnostics.length().to_string(),
+  )
+  write_snapshot_field(out, "inspection", inspection.summary)
+  write_snapshot_field(out, "inspection_gate", inspection_gate.summary)
+  write_snapshot_field(out, "release", release.summary)
+  write_snapshot_field(out, "summary", summary)
+  write_miniapp_snapshot_routes(out, project.manifest.pages)
+  write_miniapp_snapshot_route_diagnostics(out, project.manifest.pages)
+  write_snapshot_diagnostics(
+    out,
+    "inspection_gate_diagnostics",
+    inspection_gate.diagnostics,
+  )
+  write_snapshot_diagnostics(out, "release_diagnostics", release.diagnostics)
+  out.write_string("files:\n")
+  for item in files {
+    out.write_string(
+      "- \{item.path} kind=\{item.kind} bytes=\{item.bytes} checksum=\{item.checksum}\n",
+    )
+  }
+  out.to_string()
 }
 
 ///|
@@ -342,6 +513,19 @@ fn snapshot_content(
 }
 
 ///|
+fn write_miniapp_snapshot_routes(
+  out : StringBuilder,
+  pages : Array[@miniapp.MiniappManifestPage],
+) -> Unit {
+  out.write_string("route_inspections:\n")
+  for page in pages {
+    out.write_string(
+      "- \{page.route} status=\{page.status} risk_score=\{miniapp_page_risk_score(page)} diagnostics=\{page.diagnostic_count} first_screen=\{page.file_bytes} update_payload=0 update_ops=0 nodes=\{page.node_count} events=\{page.event_count} windowed_lists=\{page.windowed_list_count} list_items=\{page.list_visible_count}/\{page.list_total_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_asset_count}\n",
+    )
+  }
+}
+
+///|
 fn write_snapshot_route_inspections(
   out : StringBuilder,
   routes : Array[RouteInspection],
@@ -364,6 +548,22 @@ fn write_snapshot_scene_assets(
     out.write_string(
       "- \{item.route}:\{item.id} kind=\{item.kind} src=\{item.src} remote=\{item.remote} estimated_bytes=\{item.estimated_bytes}\n",
     )
+  }
+}
+
+///|
+fn write_miniapp_snapshot_route_diagnostics(
+  out : StringBuilder,
+  pages : Array[@miniapp.MiniappManifestPage],
+) -> Unit {
+  out.write_string("route_diagnostics:\n")
+  for page in pages {
+    if page.diagnostics.length() > 0 {
+      out.write_string("- \{page.route}\n")
+      for item in page.diagnostics {
+        out.write_string("  - \{item}\n")
+      }
+    }
   }
 }
 
@@ -396,6 +596,58 @@ fn write_snapshot_diagnostics(
 }
 
 ///|
+fn miniapp_top_route(pages : Array[@miniapp.MiniappManifestPage]) -> String {
+  let mut route = ""
+  let mut risk = -1
+  for page in pages {
+    let current = miniapp_page_risk_score(page)
+    if current > risk {
+      risk = current
+      route = page.route
+    }
+  }
+  route
+}
+
+///|
+fn miniapp_route_risk_score(
+  route : String,
+  pages : Array[@miniapp.MiniappManifestPage],
+) -> Int {
+  for page in pages {
+    if page.route == route {
+      return miniapp_page_risk_score(page)
+    }
+  }
+  0
+}
+
+///|
+fn miniapp_page_risk_score(page : @miniapp.MiniappManifestPage) -> Int {
+  page.file_bytes +
+  page.node_count * 32 +
+  page.depth * 64 +
+  page.event_count * 128 +
+  page.scene_marker_count * 32 +
+  page.scene_region_count * 32 +
+  page.scene_asset_count * 256 +
+  page.diagnostic_count * 10000
+}
+
+///|
+fn max_miniapp_route_file_bytes(
+  pages : Array[@miniapp.MiniappManifestPage],
+) -> Int {
+  let mut max = 0
+  for page in pages {
+    if page.file_bytes > max {
+      max = page.file_bytes
+    }
+  }
+  max
+}
+
+///|
 fn write_snapshot_field(
   out : StringBuilder,
   name : String,
@@ -408,6 +660,14 @@ fn write_snapshot_field(
 fn file_kind(path : String) -> String {
   if path == "bunnia.backend.js" {
     "backend-js"
+  } else if path.has_suffix(".axml") {
+    "axml"
+  } else if path.has_suffix(".acss") {
+    "acss"
+  } else if path.has_suffix(".ttml") {
+    "ttml"
+  } else if path.has_suffix(".ttss") {
+    "ttss"
   } else if path.has_suffix(".wxml") {
     "wxml"
   } else if path.has_suffix(".wxss") {

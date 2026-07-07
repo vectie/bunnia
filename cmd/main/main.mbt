@@ -633,9 +633,9 @@ fn run_generic_miniapp_build(
   let render_budget_profile = render_budget_profile_from_args(args)
   let budget_profile = budget_profile_from_args(args)
   let strict = strict_from_args(args)
-  if command != "build" && command != "inspect" {
+  if command != "build" && command != "inspect" && command != "snapshot" {
     println(
-      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-inspect-only",
+      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-inspect-snapshot-only",
     )
     panic()
   }
@@ -661,6 +661,25 @@ fn run_generic_miniapp_build(
       target, example, budget_profile, render_budget_profile, project, inspection,
       inspection_gate, release,
     )
+  } else if command == "snapshot" {
+    let snapshot = @bunnia.snapshot_miniapp_project(
+      target~,
+      example~,
+      project,
+      inspection,
+      inspection_gate,
+      release,
+      budget_profile~,
+      render_budget_profile~,
+    )
+    print_generic_miniapp_snapshot_result(
+      target, example, budget_profile, render_budget_profile, project, inspection,
+      inspection_gate, release, snapshot,
+    )
+    let snapshot_path = snapshot_output_path_from_args(args, target, example)
+    write_text_file(snapshot_path, snapshot.content)
+    println(snapshot.summary)
+    println("snapshot=\{snapshot_path}")
   } else {
     write_miniapp_project(output_dir, project)
     print_generic_miniapp_build_result(
@@ -807,6 +826,37 @@ fn print_build_result(
   println(release.summary)
   print_release_diagnostics(release.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn print_generic_miniapp_snapshot_result(
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  project : @bunnia.MiniappProject,
+  inspection : @bunnia.MiniappInspection,
+  inspection_gate : @bunnia.MiniappInspectionGate,
+  release : @bunnia.MiniappReleaseReadinessReport,
+  snapshot : @bunnia.GeneratedSnapshot,
+) -> Unit {
+  println("command=snapshot")
+  println("target=\{target}")
+  println("example=\{example}")
+  println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  println(project.manifest.summary)
+  println(inspection.summary)
+  println(inspection_gate.summary)
+  print_miniapp_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
+  print_diagnostics(project.page.plan.diagnostics)
+  println(
+    "snapshot_preview=target=\{target} example=\{example} pages=\{snapshot.page_count} files=\{snapshot.file_count} bytes=\{snapshot.total_bytes} risk_route=\{snapshot.top_route} risk_score=\{snapshot.route_risk_score} route_diagnostic_routes=\{snapshot.route_diagnostic_route_count} route_diagnostics=\{snapshot.route_diagnostic_count} gate_diagnostics=\{snapshot.inspection_gate_diagnostic_count} release_status=\{release.status} diagnostics=\{snapshot.diagnostic_count}",
+  )
 }
 
 ///|

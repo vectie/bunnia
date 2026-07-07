@@ -3417,6 +3417,29 @@ pub fn snapshot_wechat_project_with_report(
 }
 
 ///|
+pub fn snapshot_miniapp_project(
+  target~ : String,
+  example~ : String,
+  project : MiniappProject,
+  inspection : MiniappInspection,
+  inspection_gate : MiniappInspectionGate,
+  release : MiniappReleaseReadinessReport,
+  budget_profile? : String = "default",
+  render_budget_profile? : String = "default",
+) -> GeneratedSnapshot {
+  @tooling.snapshot_miniapp_project(
+    target~,
+    example~,
+    project,
+    inspection,
+    inspection_gate,
+    release,
+    budget_profile~,
+    render_budget_profile~,
+  )
+}
+
+///|
 pub fn inspect_wechat_project(
   target~ : String,
   example~ : String,

@@ -399,19 +399,69 @@ test "generic miniapp inspect accepts non wechat targets without project write" 
 }
 
 ///|
-test "generic miniapp non build inspect commands stay unsupported" {
+test "generic miniapp snapshot accepts non wechat targets without project write" {
+  let args = [
+    "node", "main.js", "snapshot", "--target", "alipay", "--example", "agent_map",
+    "--budget", "tight", "--render-budget", "tight",
+  ]
+  let support = target_support_from_args(args)
+  let project = generic_miniapp_project_for_build(
+    support,
+    "agent_map",
+    render_budget_from_args(args),
+  )
+  let inspection = @bunnia.inspect_miniapp_project(
+    target="alipay",
+    example="agent_map",
+    project,
+  )
+  let gate = @bunnia.gate_miniapp_inspection(
+    inspection,
+    @bunnia.miniapp_inspection_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  let release = @bunnia.miniapp_release_readiness_report(
+    target="alipay",
+    example="agent_map",
+    budget_profile="tight",
+    project,
+    inspection,
+    gate,
+  )
+  let snapshot = @bunnia.snapshot_miniapp_project(
+    target="alipay",
+    example="agent_map",
+    project,
+    inspection,
+    gate,
+    release,
+    budget_profile="tight",
+    render_budget_profile="tight",
+  )
   assert_eq(
     command_from_args(["node", "main.js", "snapshot", "--target", "alipay"]),
     "snapshot",
   )
+  assert_eq(support.target, "alipay")
+  assert_eq(support.generator_available, true)
+  assert_eq(snapshot.target, "alipay")
+  assert_eq(snapshot.file_count, project.files.length())
+  assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.inspection_gate_diagnostic_count, 0)
+  assert_eq(snapshot.diagnostic_count, 0)
+  assert_true(snapshot.summary.contains("release_status=ready"))
+  assert_true(snapshot.content.contains("pages/index/index.axml kind=axml"))
+  assert_true(snapshot.content.contains("release_diagnostics:"))
+}
+
+///|
+test "generic miniapp watch stays unsupported" {
   assert_eq(
     command_from_args(["node", "main.js", "watch", "--target", "tiktok"]),
     "watch",
   )
   assert_true(
-    target_support_from_args([
-      "node", "main.js", "snapshot", "--target", "alipay",
-    ]).generator_available,
+    target_support_from_args(["node", "main.js", "watch", "--target", "tiktok"]).generator_available,
   )
 }
 

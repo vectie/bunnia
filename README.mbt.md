@@ -189,8 +189,9 @@ write generic mini-app projects through `build`, including a deterministic
 `bunnia.manifest.json` route/file inventory plus named budget gates for
 cross-platform diagnostics. They also support no-write `inspect` reports. Both
 generic build and inspect paths print a target-neutral release-readiness report
-and strict mode treats its diagnostics as blocking. Snapshot and watch remain
-WeChat-only until their artifacts match the WeChat path.
+and strict mode treats its diagnostics as blocking. Generic Alipay/TikTok
+`snapshot` writes a compact deterministic route/file/release review artifact.
+Watch remains WeChat-only until its generated artifacts match the WeChat path.
 
 To print the canonical local/CI workflow for the tight proof examples:
 
@@ -448,8 +449,8 @@ pressure, and release-readiness checks and a `snapshot` mode for deterministic
 generated-output artifacts, plus a no-write `limits` mode for platform
 capabilities and generator status. WeChat build, inspect, snapshot, and CI-plan
 paths reuse Bunnia's target-support gate; Alipay/TikTok currently use generic
-build and inspect paths with release-readiness preflight, while unknown targets
-report diagnostics before artifacts are generated. It also prints a local `ci-plan` with check, test, interface, format,
+build, inspect, and snapshot paths with release-readiness preflight, while
+unknown targets report diagnostics before artifacts are generated. It also prints a local `ci-plan` with check, test, interface, format,
 product-neutral boundary, platform-limits, inspect, snapshot, strict build,
 one-shot watch commands, and the active inspection/profile/release thresholds.
 Its summary reports the current generated-output and gate diagnostic count.

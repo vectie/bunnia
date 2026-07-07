@@ -136,6 +136,92 @@ test "generated snapshots record deterministic file pressure" {
 }
 
 ///|
+test "generic miniapp snapshots record route and file pressure" {
+  let project = @miniapp.generate_project_with_budget(
+    name="Generic Snapshot",
+    route="pages/generic/index",
+    root=@core.page([
+      @core.view([@core.button("Open", "open"), @core.text("Generic")]),
+    ]),
+    platform=@core.TikTok,
+    render_budget=@core.render_budget(
+      max_nodes=32,
+      max_depth=8,
+      max_events=8,
+      max_initial_data_bytes=2048,
+      max_scene_markers=8,
+      max_scene_regions=8,
+      max_scene_assets=8,
+    ),
+  )
+  let inspection = inspect_miniapp_project(
+    target="tiktok",
+    example="generic_snapshot",
+    project,
+  )
+  let inspection_gate = gate_miniapp_inspection(
+    inspection,
+    miniapp_inspection_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  let release = miniapp_release_readiness_report(
+    target="tiktok",
+    example="generic_snapshot",
+    budget_profile="tight",
+    project,
+    inspection,
+    inspection_gate,
+  )
+  let snapshot = snapshot_miniapp_project(
+    target="tiktok",
+    example="generic_snapshot",
+    project,
+    inspection,
+    inspection_gate,
+    release,
+    budget_profile="tight",
+    render_budget_profile="tight",
+  )
+  assert_eq(snapshot.target, "tiktok")
+  assert_eq(snapshot.example, "generic_snapshot")
+  assert_eq(snapshot.route, "pages/generic/index")
+  assert_eq(snapshot.file_count, project.files.length())
+  assert_eq(snapshot.total_bytes, project.total_bytes)
+  assert_eq(snapshot.max_update_payload_bytes, 0)
+  assert_eq(snapshot.max_update_operation_count, 0)
+  assert_eq(snapshot.route_diagnostic_count, 0)
+  assert_eq(snapshot.inspection_gate_diagnostic_count, 0)
+  assert_eq(snapshot.diagnostic_count, 0)
+  assert_eq(snapshot.top_route, "pages/generic/index")
+  assert_true(snapshot.route_risk_score > 0)
+  assert_true(snapshot.summary.contains("generic miniapp snapshot"))
+  assert_true(snapshot.summary.contains("release_status=ready"))
+  assert_true(snapshot.content.contains("bunnia-generated-snapshot-v1"))
+  assert_true(snapshot.content.contains("target=tiktok"))
+  assert_true(snapshot.content.contains("render_budget_profile=tight"))
+  assert_true(
+    snapshot.content.contains(
+      "release=Bunnia generic miniapp release readiness:",
+    ),
+  )
+  assert_true(
+    snapshot.content.contains(
+      "route_inspections:\n- pages/generic/index status=ok",
+    ),
+  )
+  assert_true(snapshot.content.contains("update_payload=0"))
+  assert_true(snapshot.content.contains("route_diagnostics:"))
+  assert_true(
+    snapshot.content.contains(
+      "inspection_gate_diagnostics:\nrelease_diagnostics:",
+    ),
+  )
+  assert_true(snapshot.content.contains("pages/generic/index.ttml kind=ttml"))
+  assert_true(snapshot.content.contains("pages/generic/index.ttss kind=ttss"))
+  assert_true(snapshot.content.contains("checksum="))
+}
+
+///|
 test "generated snapshots expose agent and map pressure counters" {
   let scene = @scene.scene("map", @scene.scene_size(120, 80), [
     @scene.layer("markers", 1, [@scene.marker(id="a", label="A", x=20, y=20)]),

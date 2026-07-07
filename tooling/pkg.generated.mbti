@@ -64,6 +64,8 @@ pub fn scaffold_file(String, String) -> ScaffoldFile
 
 pub fn scaffold_project(name~ : String, module_name? : String) -> ScaffoldPlan
 
+pub fn snapshot_miniapp_project(target~ : String, example~ : String, @miniapp.MiniappProject, MiniappInspection, MiniappInspectionGate, ReleaseReadinessReport, budget_profile? : String, render_budget_profile? : String) -> GeneratedSnapshot
+
 pub fn snapshot_wechat_project(target~ : String, example~ : String, @wechat.WechatProject, BuildProfile) -> GeneratedSnapshot
 
 pub fn snapshot_wechat_project_with_report(target~ : String, example~ : String, @wechat.WechatProject, @wechat.WechatBuildReport, BuildProfile, budget_profile? : String, render_budget_profile? : String) -> GeneratedSnapshot
