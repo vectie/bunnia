@@ -230,6 +230,15 @@ pub type MiniappProjectPage = @miniapp.MiniappProjectPage
 pub type MiniappFile = @miniapp.MiniappFile
 
 ///|
+pub type MiniappManifestFile = @miniapp.MiniappManifestFile
+
+///|
+pub type MiniappManifestPage = @miniapp.MiniappManifestPage
+
+///|
+pub type MiniappProjectManifest = @miniapp.MiniappProjectManifest
+
+///|
 pub type MiniappProject = @miniapp.MiniappProject
 
 ///|

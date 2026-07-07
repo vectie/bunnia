@@ -26,6 +26,52 @@ pub struct MiniappFile {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniappManifestFile {
+  path : String
+  kind : String
+  route : String
+  bytes : Int
+} derive(Debug, Eq)
+
+///|
+pub struct MiniappManifestPage {
+  name : String
+  route : String
+  node_count : Int
+  depth : Int
+  component_count : Int
+  event_count : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
+  scene_asset_count : Int
+  file_bytes : Int
+  diagnostics : Array[String]
+  diagnostic_count : Int
+  status : String
+} derive(Debug, Eq)
+
+///|
+pub struct MiniappProjectManifest {
+  name : String
+  platform_id : String
+  entry_route : String
+  page_count : Int
+  file_count : Int
+  total_bytes : Int
+  diagnostic_route_count : Int
+  diagnostic_count : Int
+  pages : Array[MiniappManifestPage]
+  files : Array[MiniappManifestFile]
+  summary : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniappProject {
   platform : @core.Platform
   adapter : @core.PlatformAdapter
@@ -34,6 +80,7 @@ pub struct MiniappProject {
   page : MiniappPage
   pages : Array[MiniappProjectPage]
   files : Array[MiniappFile]
+  manifest : MiniappProjectManifest
   total_bytes : Int
   summary : String
 } derive(Debug, Eq)
@@ -162,6 +209,8 @@ pub fn generate_project_from_pages(
     files.push(miniapp_file("\{item.route}.js", item.page.js))
     files.push(miniapp_file("\{item.route}.json", item.page.json))
   }
+  let manifest = project_manifest(name, platform, entry.route, pages, files)
+  files.push(miniapp_file("bunnia.manifest.json", manifest_json(manifest)))
   let total = total_file_bytes(files)
   {
     platform,
@@ -171,6 +220,7 @@ pub fn generate_project_from_pages(
     page: entry.page,
     pages,
     files,
+    manifest,
     total_bytes: total,
     summary: "Bunnia \{@core.platform_id(platform)} project: pages=\{pages.length()} files=\{files.length()} bytes=\{total} route=\{entry.route}",
   }
@@ -188,6 +238,169 @@ fn total_file_bytes(files : Array[MiniappFile]) -> Int {
     total += item.content.length()
   }
   total
+}
+
+///|
+fn project_manifest(
+  name : String,
+  platform : @core.Platform,
+  entry_route : String,
+  pages : Array[MiniappProjectPage],
+  files : Array[MiniappFile],
+) -> MiniappProjectManifest {
+  let manifest_files = manifest_files(files)
+  let manifest_pages = manifest_pages(pages, files)
+  let total = total_file_bytes(files)
+  let diagnostic_route_count = manifest_diagnostic_route_count(manifest_pages)
+  let diagnostic_count = manifest_diagnostic_count(manifest_pages)
+  {
+    name,
+    platform_id: @core.platform_id(platform),
+    entry_route,
+    page_count: pages.length(),
+    file_count: files.length(),
+    total_bytes: total,
+    diagnostic_route_count,
+    diagnostic_count,
+    pages: manifest_pages,
+    files: manifest_files,
+    summary: "Bunnia generic miniapp manifest: platform=\{@core.platform_id(platform)} pages=\{pages.length()} files=\{files.length()} bytes=\{total} diagnostic_routes=\{diagnostic_route_count} diagnostics=\{diagnostic_count} entry=\{entry_route}",
+  }
+}
+
+///|
+fn manifest_files(files : Array[MiniappFile]) -> Array[MiniappManifestFile] {
+  let output : Array[MiniappManifestFile] = []
+  for file in files {
+    output.push({
+      path: file.path,
+      kind: manifest_file_kind(file.path),
+      route: manifest_file_route(file.path),
+      bytes: file.content.length(),
+    })
+  }
+  output
+}
+
+///|
+fn manifest_pages(
+  pages : Array[MiniappProjectPage],
+  files : Array[MiniappFile],
+) -> Array[MiniappManifestPage] {
+  let output : Array[MiniappManifestPage] = []
+  for item in pages {
+    let diagnostics = item.page.plan.diagnostics
+    output.push({
+      name: item.name,
+      route: item.route,
+      node_count: item.page.plan.node_count,
+      depth: item.page.plan.depth,
+      component_count: item.page.plan.component_kinds.length(),
+      event_count: item.page.plan.event_messages.length(),
+      windowed_list_count: item.page.plan.windowed_list_count,
+      list_total_count: item.page.plan.list_total_count,
+      list_visible_count: item.page.plan.list_visible_count,
+      scene_count: item.page.plan.scene_count,
+      scene_marker_count: item.page.plan.scene_marker_count,
+      scene_visible_marker_count: item.page.plan.scene_visible_marker_count,
+      scene_region_count: item.page.plan.scene_region_count,
+      scene_visible_region_count: item.page.plan.scene_visible_region_count,
+      scene_asset_count: item.page.plan.scene_asset_count,
+      file_bytes: route_file_bytes(item.route, files),
+      diagnostics,
+      diagnostic_count: diagnostics.length(),
+      status: if diagnostics.length() == 0 {
+        "ok"
+      } else {
+        "diagnostic"
+      },
+    })
+  }
+  output
+}
+
+///|
+fn manifest_diagnostic_route_count(pages : Array[MiniappManifestPage]) -> Int {
+  let mut total = 0
+  for page in pages {
+    if page.diagnostic_count > 0 {
+      total += 1
+    }
+  }
+  total
+}
+
+///|
+fn manifest_diagnostic_count(pages : Array[MiniappManifestPage]) -> Int {
+  let mut total = 0
+  for page in pages {
+    total += page.diagnostic_count
+  }
+  total
+}
+
+///|
+fn route_file_bytes(route : String, files : Array[MiniappFile]) -> Int {
+  let mut total = 0
+  for file in files {
+    if manifest_file_route(file.path) == route {
+      total += file.content.length()
+    }
+  }
+  total
+}
+
+///|
+fn manifest_file_kind(path : String) -> String {
+  if path == "app.json" {
+    "app"
+  } else if path == "bunnia.manifest.json" {
+    "manifest"
+  } else if path.has_suffix(".axml") ||
+    path.has_suffix(".ttml") ||
+    path.has_suffix(".wxml") {
+    "markup"
+  } else if path.has_suffix(".acss") ||
+    path.has_suffix(".ttss") ||
+    path.has_suffix(".wxss") {
+    "style"
+  } else if path.has_suffix(".js") {
+    "js"
+  } else if path.has_suffix(".json") {
+    "json"
+  } else {
+    "asset"
+  }
+}
+
+///|
+fn manifest_file_route(path : String) -> String {
+  if !path.has_prefix("pages/") {
+    ""
+  } else if path.has_suffix(".axml") {
+    trim_suffix(path, ".axml")
+  } else if path.has_suffix(".ttml") {
+    trim_suffix(path, ".ttml")
+  } else if path.has_suffix(".wxml") {
+    trim_suffix(path, ".wxml")
+  } else if path.has_suffix(".acss") {
+    trim_suffix(path, ".acss")
+  } else if path.has_suffix(".ttss") {
+    trim_suffix(path, ".ttss")
+  } else if path.has_suffix(".wxss") {
+    trim_suffix(path, ".wxss")
+  } else if path.has_suffix(".js") {
+    trim_suffix(path, ".js")
+  } else if path.has_suffix(".json") {
+    trim_suffix(path, ".json")
+  } else {
+    ""
+  }
+}
+
+///|
+fn trim_suffix(value : String, suffix : String) -> String {
+  value.sub(start=0, end=value.length() - suffix.length()).to_owned()
 }
 
 ///|
@@ -217,6 +430,97 @@ fn page_routes_json(pages : Array[MiniappProjectPage]) -> String {
 ///|
 fn page_json(name : String) -> String {
   "{ \"defaultTitle\": \"\{escape_json(name)}\" }"
+}
+
+///|
+fn manifest_json(input : MiniappProjectManifest) -> String {
+  "{\n" +
+  "  \"name\": \"\{escape_json(input.name)}\",\n" +
+  "  \"platform\": \"\{escape_json(input.platform_id)}\",\n" +
+  "  \"entryRoute\": \"\{escape_json(input.entry_route)}\",\n" +
+  "  \"pageCount\": \{input.page_count},\n" +
+  "  \"fileCount\": \{input.file_count},\n" +
+  "  \"totalBytes\": \{input.total_bytes},\n" +
+  "  \"diagnosticRouteCount\": \{input.diagnostic_route_count},\n" +
+  "  \"diagnosticCount\": \{input.diagnostic_count},\n" +
+  "  \"pages\": \{manifest_pages_json(input.pages)},\n" +
+  "  \"files\": \{manifest_files_json(input.files)}\n" +
+  "}\n"
+}
+
+///|
+fn manifest_pages_json(items : Array[MiniappManifestPage]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string(manifest_page_json(items[i]))
+  }
+  out.write_string("]")
+  out.to_string()
+}
+
+///|
+fn manifest_page_json(item : MiniappManifestPage) -> String {
+  "{" +
+  "\"name\":\"\{escape_json(item.name)}\"," +
+  "\"route\":\"\{escape_json(item.route)}\"," +
+  "\"status\":\"\{escape_json(item.status)}\"," +
+  "\"nodes\":\{item.node_count}," +
+  "\"depth\":\{item.depth}," +
+  "\"components\":\{item.component_count}," +
+  "\"events\":\{item.event_count}," +
+  "\"windowedLists\":\{item.windowed_list_count}," +
+  "\"listItems\":\"\{item.list_visible_count}/\{item.list_total_count}\"," +
+  "\"scenes\":\{item.scene_count}," +
+  "\"sceneMarkers\":\"\{item.scene_visible_marker_count}/\{item.scene_marker_count}\"," +
+  "\"sceneRegions\":\"\{item.scene_visible_region_count}/\{item.scene_region_count}\"," +
+  "\"sceneAssets\":\{item.scene_asset_count}," +
+  "\"fileBytes\":\{item.file_bytes}," +
+  "\"diagnostics\":\{string_array_json(item.diagnostics)}" +
+  "}"
+}
+
+///|
+fn manifest_files_json(items : Array[MiniappManifestFile]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string(manifest_file_json(items[i]))
+  }
+  out.write_string("]")
+  out.to_string()
+}
+
+///|
+fn manifest_file_json(item : MiniappManifestFile) -> String {
+  "{" +
+  "\"path\":\"\{escape_json(item.path)}\"," +
+  "\"kind\":\"\{escape_json(item.kind)}\"," +
+  "\"route\":\"\{escape_json(item.route)}\"," +
+  "\"bytes\":\{item.bytes}" +
+  "}"
+}
+
+///|
+fn string_array_json(items : Array[String]) -> String {
+  let out = StringBuilder::new()
+  out.write_string("[")
+  for i in 0..<items.length() {
+    if i > 0 {
+      out.write_string(", ")
+    }
+    out.write_string("\"")
+    out.write_string(escape_json(items[i]))
+    out.write_string("\"")
+  }
+  out.write_string("]")
+  out.to_string()
 }
 
 ///|

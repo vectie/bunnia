@@ -316,11 +316,16 @@ test "generic miniapp build selects non wechat project files" {
   )
   assert_eq(project.platform, @bunnia.alipay())
   assert_eq(project.route, "pages/index/index")
-  assert_eq(project.files.length(), 6)
+  assert_eq(project.files.length(), 7)
+  assert_eq(project.manifest.page_count, 1)
+  assert_eq(project.manifest.file_count, 6)
+  assert_eq(project.manifest.diagnostic_count, 0)
   assert_true(has_miniapp_file(project.files, "pages/index/index.axml"))
   assert_true(has_miniapp_file(project.files, "pages/index/index.acss"))
+  assert_true(has_miniapp_file(project.files, "bunnia.manifest.json"))
   assert_true(project.page.markup.contains("onTap=\"__bunniaEvent\""))
   assert_true(project.summary.contains("Bunnia alipay project"))
+  assert_true(project.manifest.summary.contains("platform=alipay"))
 }
 
 ///|

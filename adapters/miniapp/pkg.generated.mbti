@@ -33,6 +33,35 @@ pub struct MiniappFile {
   content : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniappManifestFile {
+  path : String
+  kind : String
+  route : String
+  bytes : Int
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappManifestPage {
+  name : String
+  route : String
+  node_count : Int
+  depth : Int
+  component_count : Int
+  event_count : Int
+  windowed_list_count : Int
+  list_total_count : Int
+  list_visible_count : Int
+  scene_count : Int
+  scene_marker_count : Int
+  scene_visible_marker_count : Int
+  scene_region_count : Int
+  scene_visible_region_count : Int
+  scene_asset_count : Int
+  file_bytes : Int
+  diagnostics : Array[String]
+  diagnostic_count : Int
+  status : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniappPage {
   platform : @core.Platform
   adapter : @core.PlatformAdapter
@@ -54,7 +83,22 @@ pub struct MiniappProject {
   page : MiniappPage
   pages : Array[MiniappProjectPage]
   files : Array[MiniappFile]
+  manifest : MiniappProjectManifest
   total_bytes : Int
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappProjectManifest {
+  name : String
+  platform_id : String
+  entry_route : String
+  page_count : Int
+  file_count : Int
+  total_bytes : Int
+  diagnostic_route_count : Int
+  diagnostic_count : Int
+  pages : Array[MiniappManifestPage]
+  files : Array[MiniappManifestFile]
   summary : String
 } derive(Eq, @debug.Debug)
 

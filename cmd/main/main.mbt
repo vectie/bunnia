@@ -783,9 +783,10 @@ fn print_generic_miniapp_build_result(
   println("render_budget=\{render_budget_profile}")
   println(project.page.plan.summary)
   println(project.summary)
+  println(project.manifest.summary)
   print_diagnostics(project.page.plan.diagnostics)
   println(
-    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} diagnostics=\{project.page.plan.diagnostics.length()}",
+    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count}",
   )
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }

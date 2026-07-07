@@ -45,12 +45,28 @@ test "generic miniapp project packages platform file extensions" {
   )
   assert_eq(project.platform, @core.Alipay)
   assert_eq(project.route, "pages/index/index")
-  assert_eq(project.files.length(), 6)
+  assert_eq(project.files.length(), 7)
+  assert_eq(project.manifest.page_count, 1)
+  assert_eq(project.manifest.file_count, 6)
+  assert_eq(project.manifest.diagnostic_count, 0)
+  assert_eq(project.manifest.pages[0].event_count, 1)
+  assert_eq(project.manifest.pages[0].status, "ok")
   assert_true(miniapp_test_has_file(project.files, "app.json"))
   assert_true(miniapp_test_has_file(project.files, "app.acss"))
   assert_true(miniapp_test_has_file(project.files, "pages/index/index.axml"))
   assert_true(miniapp_test_has_file(project.files, "pages/index/index.acss"))
+  assert_true(miniapp_test_has_file(project.files, "bunnia.manifest.json"))
   assert_true(project.summary.contains("Bunnia alipay project"))
+  assert_true(
+    miniapp_test_file_content(project.files, "bunnia.manifest.json").contains(
+      "\"platform\": \"alipay\"",
+    ),
+  )
+  assert_true(
+    miniapp_test_file_content(project.files, "bunnia.manifest.json").contains(
+      "\"sceneMarkers\":\"0/0\"",
+    ),
+  )
 }
 
 ///|
@@ -61,4 +77,17 @@ fn miniapp_test_has_file(files : Array[MiniappFile], path : String) -> Bool {
     }
   }
   false
+}
+
+///|
+fn miniapp_test_file_content(
+  files : Array[MiniappFile],
+  path : String,
+) -> String {
+  for item in files {
+    if item.path == path {
+      return item.content
+    }
+  }
+  ""
 }

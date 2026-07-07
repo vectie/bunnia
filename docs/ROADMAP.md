@@ -754,13 +754,16 @@ Current evidence:
 - `moon run cmd/main -- build --target alipay|tiktok` writes generic mini-app
   artifacts for the selected example, while inspect/snapshot/watch stay scoped
   to the WeChat reporting path.
+- Generic mini-app builds include `bunnia.manifest.json`, so cross-platform
+  outputs have a deterministic page/file inventory, route diagnostics, scene
+  counts, and byte totals before vendor-specific behavior is expanded.
 
-Do not build yet:
+Later expansion:
 
 - Deep vendor features before the common adapter model is stable.
 - Automatic parity claims for every component.
-- CLI build/inspect parity for Alipay/TikTok before generic output has route
-  manifests, diagnostics, and budget gates matching the WeChat path.
+- CLI inspect/snapshot/watch parity for Alipay/TikTok after generic output has
+  route manifests, diagnostics, and budget gates matching the WeChat path.
 
 ## Phase 7: Tooling And Developer Workflow
 
@@ -1061,6 +1064,9 @@ Acceptance checks:
 - All network domains are declared and approved.
 - User data collection is documented and minimal.
 - The Moontown backend has explicit audit logs for submitted requests.
+- Build artifacts expose deterministic manifests, file sizes, diagnostics, and
+  platform targets so a release candidate can be reviewed without manual
+  reverse engineering.
 
 Leave room now:
 
@@ -1068,7 +1074,7 @@ Leave room now:
 - Keep frontend output free of app secrets and privileged keys.
 - Keep generated files deterministic so release review is auditable later.
 
-Do not build now:
+Later expansion:
 
 - App-store review workflow.
 - Release packaging automation.

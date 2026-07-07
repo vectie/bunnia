@@ -824,9 +824,15 @@ pub using @agent {type Message}
 
 pub using @miniapp {type MiniappFile}
 
+pub using @miniapp {type MiniappManifestFile}
+
+pub using @miniapp {type MiniappManifestPage}
+
 pub using @miniapp {type MiniappPage}
 
 pub using @miniapp {type MiniappProject}
+
+pub using @miniapp {type MiniappProjectManifest}
 
 pub using @miniapp {type MiniappProjectPage}
 
