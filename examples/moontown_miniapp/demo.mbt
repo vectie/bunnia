@@ -57,10 +57,11 @@ pub fn demo_wechat_project_with_render_budget(
 
 ///|
 fn moontown_wxss() -> String {
-  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
-  ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
-  ".moontown-map-drag-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; }\n" +
-  ".moontown-map-drag-content { position: relative; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; }\n" +
+  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #6f9278; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
+  ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #6f9278; }\n" +
+  ".moontown-map-drag-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #6f9278; }\n" +
+  ".moontown-map-drag-content { position: relative; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; background: #6f9278; }\n" +
+  ".moontown-map-backfill { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; background: #6f9278; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
   ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.26); box-sizing: border-box; }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -502,7 +503,11 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
             @bunnia.attr("x", "-360"),
             @bunnia.attr("y", "-160"),
           ],
-          [moontown_map_image(), map_markers(projection)],
+          [
+            moontown_map_backfill(),
+            moontown_map_image(),
+            map_markers(projection),
+          ],
         ),
       ],
     ),
@@ -516,6 +521,11 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
       ),
     ]),
   ])
+}
+
+///|
+fn moontown_map_backfill() -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-backfill")], [])
 }
 
 ///|
