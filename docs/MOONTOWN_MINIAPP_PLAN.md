@@ -487,6 +487,20 @@ Acceptance:
 - Other users can place it on their map.
 - Rejected building remains private with review reason.
 
+Current evidence:
+
+- Moontown `src/miniapp_publishing` owns publication policy, validation,
+  moderation decisions, safe public previews, and ranked public discovery
+  without mixing storage, HTTP, or Bunnia framework concerns into product logic.
+- Validation checks metadata, owner/publisher permission, category/kind match,
+  summary length and private/secret material, primary book public projection,
+  allowed asset refs, tag quality, and duplicate public title signals.
+- Tests cover valid and invalid publication requests, submit/approve/reject
+  flows with review reasons, official/system discovery ranking over
+  user-published buildings, category/capability/owner/freshness filters, public
+  preview hiding for private drafts, placement eligibility, and moderator
+  hiding of already-published buildings.
+
 ## Phase 8: Local Backend On This Mac
 
 Classification: feature.
