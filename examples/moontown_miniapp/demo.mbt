@@ -59,8 +59,8 @@ pub fn demo_wechat_project_with_render_budget(
 fn moontown_wxss() -> String {
   ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
   ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
-  ".moontown-map-drag-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
-  ".moontown-map-drag-content { position: relative; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; }\n" +
+  ".moontown-map-touch-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
+  ".moontown-map-drag-content { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; transform-origin: 0 0; will-change: transform; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
   ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.26); box-sizing: border-box; }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -184,27 +184,44 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 ///|
 fn moontown_map_page_methods_js() -> String {
   "  onLoad(){\n" +
-  "    this.__moontownClampMapViewport(this.data.mapViewport.x,this.data.mapViewport.y,this.data.mapViewport.scale,true)\n" +
+  "    this.__mc(this.data.mapViewport.x,this.data.mapViewport.y,this.data.mapViewport.scale)\n" +
   "  },\n" +
-  "  onMoontownMapMove(event){\n" +
-  "    const detail=event.detail||{}\n" +
-  "    this.__moontownClampMapViewport(detail.x,detail.y,this.data.mapViewport.scale,false)\n" +
+  "  onMoontownMapTouchStart(e){\n" +
+  "    const t=e.touches||[]\n" +
+  "    if(!t.length)return\n" +
+  "    const v=this.data.mapViewport\n" +
+  "    if(t.length>1){\n" +
+  "      const c=this.__tc(t)\n" +
+  "      const k=this.__mk(v.scale)\n" +
+  "      this.__mt={n:2,d:this.__td(t),s:v.scale,ax:(c.x-v.x)/k,ay:(c.y-v.y)/k}\n" +
+  "    }else{\n" +
+  "      this.__mt={n:1,x:t[0].clientX,y:t[0].clientY,vx:v.x,vy:v.y,s:v.scale}\n" +
+  "    }\n" +
   "  },\n" +
-  "  onMoontownMapScale(event){\n" +
-  "    const detail=event.detail||{}\n" +
-  "    const scale=detail.scale||this.data.mapViewport.scale\n" +
-  "    const x=detail.x==null?this.data.mapViewport.x:detail.x\n" +
-  "    const y=detail.y==null?this.data.mapViewport.y:detail.y\n" +
-  "    this.__moontownClampMapViewport(x,y,scale,false)\n" +
+  "  onMoontownMapTouchMove(e){\n" +
+  "    const t=e.touches||[]\n" +
+  "    const m=this.__mt\n" +
+  "    if(!m||!t.length)return\n" +
+  "    if(t.length>1&&m.n===2){\n" +
+  "      const c=this.__tc(t)\n" +
+  "      const s=this.__cl(m.s*this.__td(t)/(m.d||1),2.1,2.8)\n" +
+  "      const k=this.__mk(s)\n" +
+  "      this.__mc(c.x-m.ax*k,c.y-m.ay*k,s)\n" +
+  "    }else{\n" +
+  "      this.__mc(m.vx+t[0].clientX-m.x,m.vy+t[0].clientY-m.y,m.s)\n" +
+  "    }\n" +
   "  },\n" +
-  "  __moontownClampMapViewport(x,y,scale,immediate){\n" +
-  "    const s=this.__moontownClampNumber(scale,2.1,2.8)\n" +
+  "  onMoontownMapTouchEnd(){\n" +
+  "    this.__mt=null\n" +
+  "  },\n" +
+  "  __mc(x,y,scale){\n" +
+  "    const s=this.__cl(scale,2.1,2.8)\n" +
   "    const fit=(rawX,rawY)=>{\n" +
-  "      const win=this.__mw||(this.__mw=(wx.getWindowInfo?wx.getWindowInfo():wx.getSystemInfoSync()))\n" +
-  "      const k=2*s*win.windowWidth/750\n" +
+  "      const win=this.__wi()\n" +
+  "      const k=this.__mk(s)\n" +
   "      const vw=win.windowWidth/k\n" +
   "      const vh=win.windowHeight/k\n" +
-  "      const rows=this.__moontownEdgeRows||(this.__moontownEdgeRows=[[0,276,279],[40,208,350],[80,128,430],[120,48,510],[160,0,590],[200,0,670],[240,0,750],[280,0,830],[320,0,910],[360,0,990],[400,0,1070],[440,0,1150],[480,0,1230],[520,78,1310],[560,158,1354],[600,238,1274],[640,319,1194],[680,398,1114],[720,478,1034],[760,559,954],[800,639,874],[840,720,794],[858,756,758]])\n" +
+  "      const rows=this.__er||(this.__er=[[0,276,279],[40,208,350],[80,128,430],[120,48,510],[160,0,590],[200,0,670],[240,0,750],[280,0,830],[320,0,910],[360,0,990],[400,0,1070],[440,0,1150],[480,0,1230],[520,78,1310],[560,158,1354],[600,238,1274],[640,319,1194],[680,398,1114],[720,478,1034],[760,559,954],[800,639,874],[840,720,794],[858,756,758]])\n" +
   "      const edge=(yy,i)=>{\n" +
   "        if(yy<=rows[0][0])return rows[0][i]\n" +
   "        for(let n=1;n<rows.length;n+=1){\n" +
@@ -236,15 +253,29 @@ fn moontown_map_page_methods_js() -> String {
   "        const fallback=Math.max(0,end/2)\n" +
   "        yRange=cache[key]=[first==null?fallback:first,last==null?fallback:last]\n" +
   "      }\n" +
-  "      const sy=this.__moontownClampNumber(-Number(rawY||0)/k,yRange[0],yRange[1])\n" +
+  "      const sy=this.__cl(-Number(rawY||0)/k,yRange[0],yRange[1])\n" +
   "      const xr=xRange(sy)\n" +
-  "      const sx=this.__moontownClampNumber(-Number(rawX||0)/k,xr[0],xr[1])\n" +
-  "      return {x:-sx*k,y:-sy*k,scale:s}\n" +
+  "      const sx=this.__cl(-Number(rawX||0)/k,xr[0],xr[1])\n" +
+  "      return {x:-sx*k,y:-sy*k}\n" +
   "    }\n" +
   "    const next=fit(x,y)\n" +
-  "    this.setData({'mapViewport.x':next.x,'mapViewport.y':next.y,'mapViewport.scale':s})\n" +
+  "    this.setData({'mapViewport.x':next.x,'mapViewport.y':next.y,'mapViewport.scale':s,'mapViewport.style':'transform:translate('+next.x+'px,'+next.y+'px) scale('+s+')'})\n" +
   "  },\n" +
-  "  __moontownClampNumber(value,min,max){\n" +
+  "  __wi(){\n" +
+  "    return this.__mw||(this.__mw=(wx.getWindowInfo?wx.getWindowInfo():wx.getSystemInfoSync()))\n" +
+  "  },\n" +
+  "  __mk(scale){\n" +
+  "    return 2*scale*this.__wi().windowWidth/750\n" +
+  "  },\n" +
+  "  __tc(t){\n" +
+  "    return {x:(t[0].clientX+t[1].clientX)/2,y:(t[0].clientY+t[1].clientY)/2}\n" +
+  "  },\n" +
+  "  __td(t){\n" +
+  "    const dx=t[0].clientX-t[1].clientX\n" +
+  "    const dy=t[0].clientY-t[1].clientY\n" +
+  "    return Math.sqrt(dx*dx+dy*dy)\n" +
+  "  },\n" +
+  "  __cl(value,min,max){\n" +
   "    return Math.max(min,Math.min(max,Number(value||0)))\n" +
   "  },\n"
 }
@@ -554,29 +585,19 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
   let camera_plan = @bunnia.plan_scene_camera(scene, camera)
   let thread_links = demo_scene_thread_links(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-fullscreen")], [
-    @bunnia.custom(
-      "movable-area",
+    @bunnia.view_with_attrs(
       [
-        @bunnia.class_name("moontown-map-drag-area"),
-        @bunnia.attr("scale-area", "false"),
+        @bunnia.class_name("moontown-map-touch-area"),
+        @bunnia.attr("bindtouchstart", "onMoontownMapTouchStart"),
+        @bunnia.attr("catchtouchmove", "onMoontownMapTouchMove"),
+        @bunnia.attr("bindtouchend", "onMoontownMapTouchEnd"),
+        @bunnia.attr("bindtouchcancel", "onMoontownMapTouchEnd"),
       ],
       [
-        @bunnia.custom(
-          "movable-view",
+        @bunnia.view_with_attrs(
           [
             @bunnia.class_name("moontown-map-drag-content"),
-            @bunnia.attr("direction", "all"),
-            @bunnia.attr("inertia", "false"),
-            @bunnia.attr("animation", "false"),
-            @bunnia.attr("out-of-bounds", "false"),
-            @bunnia.attr("scale", "true"),
-            @bunnia.attr("scale-min", "2.1"),
-            @bunnia.attr("scale-max", "2.8"),
-            @bunnia.attr("scale-value", "{{mapViewport.scale}}"),
-            @bunnia.attr("x", "{{mapViewport.x}}"),
-            @bunnia.attr("y", "{{mapViewport.y}}"),
-            @bunnia.attr("bindchange", "onMoontownMapMove"),
-            @bunnia.attr("bindscale", "onMoontownMapScale"),
+            @bunnia.attr("style", "{{mapViewport.style}}"),
           ],
           [moontown_map_image(), map_markers(projection)],
         ),
@@ -937,5 +958,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2,\"style\":\"transform:translate(-520px,-260px) scale(2.2)\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }
