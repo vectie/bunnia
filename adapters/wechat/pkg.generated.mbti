@@ -44,6 +44,8 @@ pub fn generate_set_data_call(Array[@core.Patch]) -> String
 
 pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime, render_budget? : @core.RenderBudget) -> WechatProjectPage
 
+pub fn project_with_report(WechatProject, WechatBuildReport) -> WechatProject
+
 pub fn report_project(WechatProject, WechatRuntime) -> WechatBuildReport
 
 pub fn report_project_pages(Array[WechatFile], Array[WechatProjectPage], WechatBuildBudget) -> WechatBuildReport

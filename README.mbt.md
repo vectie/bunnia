@@ -60,6 +60,9 @@ building ownership, publication, search, books, and agent interaction.
   controls, patches, and a static map surface.
 - `examples/wenyu_overview`: product-shaped proof slice that keeps Wenyu
   projection/view code outside the framework core.
+- `examples/moontown_miniapp`: product-shaped Moontown mini-app vertical slice
+  with full-screen map, building search/place flows, agent chat, mock local
+  backend contracts, and create-building/create-agent controls outside core.
 - root package: small `@bunnia` facade for app authors.
 
 ## Generate The Demo
@@ -78,7 +81,7 @@ moon run cmd/main
 ```
 
 This writes a WeChat Mini Program file set to
-`_build/bunnia/wechat/agent_map`. The demo includes initial page data plus
+`_build/bunnia/wechat/agent_map`. The default demo includes initial page data plus
 event-to-patch dispatch for review buttons, map regions, and map markers. The command also
 prints render, file-size, initial-data, event-patch byte/operation, patch,
 agent-delta, and build-profile budget summaries. Use `--out` to choose another
@@ -86,6 +89,13 @@ directory:
 
 ```bash
 moon run cmd/main -- --out /tmp/bunnia-agent-map
+```
+
+The Moontown mini-app slice uses the same build path:
+
+```bash
+moon run cmd/main -- build --target wechat --example moontown_miniapp --strict --budget large --render-budget large
+moon run cmd/main -- inspect --target wechat --example moontown_miniapp --budget large --render-budget large
 ```
 
 The same generator also accepts explicit build-style arguments:
@@ -175,15 +185,21 @@ status is `available` for the active WeChat generator, `deferred` for known
 targets such as Alipay and TikTok, and `unknown` for unsupported target ids.
 The same target-support model is reused by `ci-plan` and build-style commands,
 so deferred or unknown targets fail before WeChat artifacts are generated. This
-keeps Phase 6 room visible without enabling those generators.
+keeps Phase 6 adapter work explicit while unsupported targets remain gated.
 
-To print the canonical local/CI workflow for the active examples:
+To print the canonical local/CI workflow for the tight proof examples:
 
 ```bash
 moon run cmd/main -- ci-plan
 moon run cmd/main -- ci-plan --script
 sh scripts/scaffold_smoke.sh
 sh scripts/ci.sh
+```
+
+For the product-shaped Moontown route, use the explicit large-app lane:
+
+```bash
+moon run cmd/main -- ci-plan --example moontown_miniapp --budget large --render-budget large
 ```
 
 The repository GitHub Actions workflow in `.github/workflows/ci.yml` generates

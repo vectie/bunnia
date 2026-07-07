@@ -140,6 +140,14 @@ pub struct WechatProject {
 } derive(Debug, Eq)
 
 ///|
+pub fn project_with_report(
+  project : WechatProject,
+  report : WechatBuildReport,
+) -> WechatProject {
+  { ..project, report, }
+}
+
+///|
 pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
   generate_page_with_runtime(name, root, default_runtime())
 }

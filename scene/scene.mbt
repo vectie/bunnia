@@ -179,8 +179,8 @@ pub fn static_scene_view_with_viewport(
       @core.data("regions-visible", scene_region_count(rendered).to_string()),
       @core.data(
         "scene-degraded",
-        (plan.marker_count > scene_marker_count(rendered) ||
-        plan.region_count > scene_region_count(rendered)).to_string(),
+        (plan.visible_marker_count > scene_marker_count(rendered) ||
+        plan.visible_region_count > scene_region_count(rendered)).to_string(),
       ),
     ],
   )

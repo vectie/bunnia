@@ -1,6 +1,6 @@
 ///|
 pub fn is_named_budget_profile(name : String) -> Bool {
-  name == "default" || name == "tight" || name == "tiny"
+  name == "default" || name == "tight" || name == "large" || name == "tiny"
 }
 
 ///|
@@ -17,6 +17,18 @@ pub fn render_budget_for_profile(name : String) -> @core.RenderBudget {
         max_scene_markers=64,
         max_scene_regions=32,
         max_scene_assets=16,
+        max_degraded_scenes=0,
+      )
+    "large" =>
+      @core.render_budget(
+        max_nodes=512,
+        max_depth=16,
+        max_events=96,
+        max_initial_data_bytes=16384,
+        max_unwindowed_list_children=64,
+        max_scene_markers=256,
+        max_scene_regions=128,
+        max_scene_assets=64,
         max_degraded_scenes=0,
       )
     "tiny" =>
@@ -55,6 +67,21 @@ pub fn wechat_build_budget_for_profile(
         max_page_first_screen_bytes=24576,
         max_page_update_payload_bytes=1024,
         max_page_update_operations=16,
+      )
+    "large" =>
+      @wechat.build_budget(
+        max_pages=8,
+        max_files=32,
+        max_total_bytes=131072,
+        max_wxml_bytes=49152,
+        max_wxss_bytes=16384,
+        max_js_bytes=16384,
+        max_initial_data_bytes=4096,
+        max_event_patch_bytes=4096,
+        max_event_patch_operations=64,
+        max_page_first_screen_bytes=49152,
+        max_page_update_payload_bytes=4096,
+        max_page_update_operations=64,
       )
     "tiny" =>
       @wechat.build_budget(
@@ -111,6 +138,23 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
         max_scene_assets=16,
         max_scene_remote_assets=4,
         max_scene_package_bytes=256 * 1024,
+      )
+    "large" =>
+      inspection_budget(
+        max_route_risk_score=250000,
+        max_update_payload_bytes=4096,
+        max_update_operations=64,
+        max_unwindowed_list_children=64,
+        max_unkeyed_list_children=0,
+        max_duplicate_list_keys=0,
+        max_backend_events=64,
+        max_backend_streams=16,
+        max_backend_reviews=16,
+        max_backend_cancels=16,
+        max_backend_retries=16,
+        max_scene_assets=64,
+        max_scene_remote_assets=16,
+        max_scene_package_bytes=1024 * 1024,
       )
     "tiny" =>
       inspection_budget(
@@ -170,6 +214,26 @@ pub fn build_profile_budget_for_profile(name : String) -> BuildProfileBudget {
         max_scene_thread_orphans=0,
         max_scene_camera_clamped=0,
         max_scene_surface_fallbacks=0,
+        max_scene_insecure_remote_assets=0,
+        max_scene_unapproved_remote_assets=0,
+        max_scene_deferred_assets=0,
+        max_scene_quality_issues=0,
+        max_degraded_scenes=0,
+      )
+    "large" =>
+      build_profile_budget(
+        max_route_diagnostic_routes=0,
+        max_route_diagnostics=0,
+        max_unwindowed_list_children=64,
+        max_unkeyed_list_children=0,
+        max_duplicate_list_keys=0,
+        max_communication_unresolved_reviews=16,
+        max_tool_result_missing_acks=0,
+        max_agent_duplicate_stream_chunks=0,
+        max_snapshot_full_replaces=1,
+        max_scene_thread_orphans=0,
+        max_scene_camera_clamped=0,
+        max_scene_surface_fallbacks=4,
         max_scene_insecure_remote_assets=0,
         max_scene_unapproved_remote_assets=0,
         max_scene_deferred_assets=0,

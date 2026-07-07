@@ -398,6 +398,8 @@ fn project_for_example(
 ) -> @bunnia.WechatProject {
   if example == "wenyu_overview" {
     @wenyu.demo_wechat_project_with_render_budget(render_budget)
+  } else if example == "moontown_miniapp" {
+    @moontown.demo_wechat_project_with_render_budget(render_budget)
   } else if example == "agent_map" {
     @demo.demo_wechat_project_with_render_budget(render_budget)
   } else {
@@ -416,6 +418,8 @@ fn patches_for_build(target : String, example : String) -> @bunnia.PatchPlan {
 fn patches_for_example(example : String) -> @bunnia.PatchPlan {
   if example == "wenyu_overview" {
     @wenyu.demo_patch_plan()
+  } else if example == "moontown_miniapp" {
+    @moontown.demo_patch_plan()
   } else if example == "agent_map" {
     @demo.demo_patch_plan()
   } else {
@@ -430,9 +434,14 @@ fn profile_for_build(
   example : String,
   project : @bunnia.WechatProject,
   patches : @bunnia.PatchPlan,
+  report : @bunnia.WechatBuildReport,
 ) -> @bunnia.BuildProfile {
   ensure_target_generator_available(@bunnia.platform_target_support(target~))
-  profile_for_example(example, project, patches)
+  profile_for_example(
+    example,
+    @bunnia.wechat_project_with_report(project, report),
+    patches,
+  )
 }
 
 ///|
@@ -456,6 +465,29 @@ fn profile_for_example(
       scene_plans=[@wenyu.demo_scene_render_plan()],
       surface_plans=[@wenyu.demo_scene_surface_plan()],
       quality_plans=[@wenyu.demo_scene_visual_quality_plan()],
+    )
+  } else if example == "moontown_miniapp" {
+    @bunnia.profile_wechat_project(
+      project,
+      patches,
+      effect_plans=[@moontown.demo_effect_plan()],
+      communication_plans=[@moontown.demo_communication_plan()],
+      agent_delta_plans=[@moontown.demo_agent_delta_plan()],
+      backend_plans=[
+        @bunnia.plan_backend_contract(@moontown.demo_backend_contract()),
+      ],
+      snapshot_plans=[@moontown.demo_snapshot_delta_plan()],
+      asset_plans=[@moontown.demo_asset_plan()],
+      thread_plans=[@moontown.demo_scene_thread_plan()],
+      camera_plans=[
+        @bunnia.plan_scene_camera(
+          @moontown.demo_scene(),
+          @moontown.demo_camera(),
+        ),
+      ],
+      scene_plans=[@moontown.demo_scene_render_plan()],
+      surface_plans=[@moontown.demo_scene_surface_plan()],
+      quality_plans=[@moontown.demo_scene_visual_quality_plan()],
     )
   } else if example == "agent_map" {
     @bunnia.profile_wechat_project(
@@ -493,13 +525,13 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let render_budget_profile = render_budget_profile_from_args(args)
   let project = project_for_build(target, example, render_budget)
   let patches = patches_for_build(target, example)
-  let profile = profile_for_build(target, example, project, patches)
   let budget_profile = budget_profile_from_args(args)
   let report = @bunnia.report_wechat_project_with_budget(
     project,
     @bunnia.default_wechat_runtime(),
     wechat_build_budget_from_args(args),
   )
+  let profile = profile_for_build(target, example, project, patches, report)
   let inspection = @bunnia.inspect_wechat_project(
     target~,
     example~,

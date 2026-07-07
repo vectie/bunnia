@@ -58,9 +58,18 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
   for building in visible_buildings(projection) {
-    patches.push(select_building_patch(building))
-    patches.push(open_building_thread_patch(building))
+    if building_is_first_screen_selectable(building) {
+      patches.push(select_building_patch(building))
+    }
+    if building_in_initial_viewport(building) {
+      patches.push(open_building_thread_patch(building))
+    }
   }
+  patches.push(
+    @bunnia.wechat_event_patch("search-buildings", [
+      @bunnia.set_string("town.searchQuery", "policy"),
+    ]),
+  )
   patches.push(
     @bunnia.wechat_event_patch("switch-user-a", [
       @bunnia.set_string("session.activeUserId", "user-a"),
@@ -119,7 +128,6 @@ fn select_building_patch(
 ) -> @bunnia.WechatEventPatch {
   @bunnia.wechat_event_patch("select-\{building.id}", [
     @bunnia.set_string("town.selectedBuildingId", building.id),
-    @bunnia.select_scene_marker("moontown-map", building.id),
   ])
 }
 
@@ -134,6 +142,18 @@ fn open_building_thread_patch(
       "thread-\{building.id}",
     ),
   ])
+}
+
+///|
+fn building_is_first_screen_selectable(building : MiniTownBuilding) -> Bool {
+  building_in_initial_viewport(building) ||
+  building.id == "market-square" ||
+  building.id == "published-agent-lab"
+}
+
+///|
+fn building_in_initial_viewport(building : MiniTownBuilding) -> Bool {
+  building.x >= 0 && building.x <= 640 && building.y >= 0 && building.y <= 480
 }
 
 ///|

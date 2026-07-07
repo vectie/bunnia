@@ -217,15 +217,13 @@ Active phases:
 - Phase 3: Moontown/Wenyu Proof Slice
 - Phase 4: Runtime Effects And Backend Contract
 - Phase 5: Visual Surface
-- Phase 7: Tooling And Developer Workflow
-
-Deferred phases:
-
 - Phase 6: Alipay And TikTok Adapters
+- Phase 7: Tooling And Developer Workflow
 - Phase 8: Production Readiness
 
-Deferred phases are not scheduled now. The active work should preserve the
-interfaces that make them possible later.
+Phase 6 and Phase 8 are active for the current task. They should still land
+incrementally: start with explicit capability reports, adapter boundaries, and
+release-readiness gates before adding deep vendor-specific behavior.
 
 ## Phase 0: Framework Shape
 
@@ -718,7 +716,7 @@ Do not build yet:
 
 ## Phase 6: Alipay And TikTok Adapters
 
-Status: deferred.
+Status: active.
 
 Goal: validate that Bunnia's modular split is real when there is a reason to
 target a second mini-app ecosystem.
@@ -892,10 +890,10 @@ Current evidence:
   map pan/zoom issues are visible during strict builds.
 - Build profiles expose snapshot-delta counts and full-replacement diagnostics
   so backend refresh regressions can be caught without opening the mini-app IDE.
-- The CLI prints build-profile summaries for both `agent_map` and
-  `wenyu_overview`, including backend endpoint count, scene marker pressure,
-  scene asset count, package-byte signals, visual-quality issue count, and
-  degraded-scene count.
+- The CLI prints build-profile summaries for `agent_map`,
+  `wenyu_overview`, and `moontown_miniapp`, including backend endpoint count,
+  scene marker pressure, scene asset count, package-byte signals,
+  visual-quality issue count, and degraded-scene count.
 - The CLI accepts build-style usage, `build --target wechat`, keeps generated
   output target-scoped, and supports `--strict` / `--fail-on-diagnostics` for
   CI-style budget gates.
@@ -958,10 +956,11 @@ Current evidence:
   aggregate agent/map regressions even when lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
-  WeChat target limits visible while Alipay/TikTok generators stay deferred.
+  WeChat target limits visible while Alipay/TikTok generator work is active and
+  staged behind explicit capability gates.
 - Platform limit reports now distinguish generator status as `available`,
-  `deferred`, or `unknown`, so known future targets remain explicit without
-  turning Phase 6 adapters on.
+  `deferred`, or `unknown`, so Phase 6 adapter work can progress without
+  accidentally routing unsupported targets through the WeChat generator path.
 - Platform target support is now a reusable tooling/facade record consumed by
   limits, CI-plan diagnostics, and build-style CLI commands, so deferred or
   unknown targets fail before the WeChat generator path can write misleading
@@ -1028,7 +1027,7 @@ Current evidence:
 
 ## Phase 8: Production Readiness
 
-Status: deferred.
+Status: active.
 
 Goal: make the WeChat path suitable for a real China-market pilot after the
 framework and product proof slice are useful.

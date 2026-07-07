@@ -3069,6 +3069,14 @@ pub fn report_wechat_project_with_budget(
 }
 
 ///|
+pub fn wechat_project_with_report(
+  project : WechatProject,
+  report : WechatBuildReport,
+) -> WechatProject {
+  @wechat.project_with_report(project, report)
+}
+
+///|
 pub fn profile_wechat_project(
   project : WechatProject,
   patches : PatchPlan,

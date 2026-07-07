@@ -157,9 +157,10 @@ test "viewport scene view renders only spatially visible markers" {
   assert_eq(render.scene_marker_count, 12)
   assert_eq(render.scene_visible_marker_count, 4)
   assert_eq(render.scene_asset_count, 1)
-  assert_eq(render.degraded_scene_count, 1)
-  assert_true(
+  assert_eq(render.degraded_scene_count, 0)
+  assert_eq(
     render.diagnostics.contains("scene-degraded-count-over-budget:1/0"),
+    false,
   )
   assert_eq(render.event_messages.length(), 4)
   assert_true(render.event_messages.contains("select-marker-0"))

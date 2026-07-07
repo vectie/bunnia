@@ -714,6 +714,8 @@ pub fn wechat_event_patch(String, Array[@core.Patch]) -> @wechat.WechatEventPatc
 
 pub fn wechat_project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : @wechat.WechatRuntime, render_budget? : @core.RenderBudget) -> @wechat.WechatProjectPage
 
+pub fn wechat_project_with_report(@wechat.WechatProject, @wechat.WechatBuildReport) -> @wechat.WechatProject
+
 pub fn wechat_runtime(initial_data_json? : String, event_patches? : Array[@wechat.WechatEventPatch]) -> @wechat.WechatRuntime
 
 pub fn when(Bool, @core.Node) -> @core.Node

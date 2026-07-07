@@ -190,16 +190,17 @@ test "inspect command exposes generated artifact metrics without output path" {
     target_from_args(args),
     example_from_args(args),
   )
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(args),
+  )
   let profile = profile_for_build(
     target_from_args(args),
     example_from_args(args),
     project,
     patches,
-  )
-  let report = @bunnia.report_wechat_project_with_budget(
-    project,
-    @bunnia.default_wechat_runtime(),
-    wechat_build_budget_from_args(args),
+    report,
   )
   let snapshot = snapshot_for_build(
     target=target_from_args(args),
@@ -402,6 +403,22 @@ test "ci plan command can emit shell script" {
 }
 
 ///|
+test "ci plan can target Moontown miniapp with large-app budgets" {
+  let args = [
+    "node", "main.js", "ci-plan", "--example", "moontown_miniapp", "--budget", "large",
+  ]
+  let plan = ci_plan_from_args(args)
+  assert_eq(plan.examples.length(), 1)
+  assert_eq(plan.examples[0], "moontown_miniapp")
+  assert_eq(plan.budget_profile, "large")
+  assert_eq(plan.render_budget_profile, "large")
+  assert_eq(plan.step_count, 13)
+  assert_true(plan.steps[8].command.contains("--example moontown_miniapp"))
+  assert_true(plan.steps[8].command.contains("--budget large"))
+  assert_true(plan.steps[11].command.contains("moontown_miniapp.snapshot.txt"))
+}
+
+///|
 test "ci plan command reports unknown budget profiles" {
   let args = [
     "node", "main.js", "ci-plan", "--target", "alipay", "--budget", "oversized",
@@ -479,6 +496,18 @@ test "build example flag selects Wenyu proof output folder" {
 }
 
 ///|
+test "build example flag selects Moontown miniapp output folder" {
+  let example = example_from_args([
+    "node", "main.js", "--example", "moontown_miniapp",
+  ])
+  assert_eq(example, "moontown_miniapp")
+  assert_eq(
+    output_dir_from_args(["node", "main.js"], default_target(), example),
+    "_build/bunnia/wechat/moontown_miniapp",
+  )
+}
+
+///|
 test "build example flag selects Wenyu project" {
   let project = project_for_build(
     "wechat",
@@ -486,11 +515,13 @@ test "build example flag selects Wenyu project" {
     render_budget_from_args(["node", "main.js", "--budget", "tight"]),
   )
   let patches = patches_for_build("wechat", "wenyu_overview")
-  let profile = profile_for_build("wechat", "wenyu_overview", project, patches)
   let report = @bunnia.report_wechat_project_with_budget(
     project,
     @bunnia.default_wechat_runtime(),
     wechat_build_budget_from_args(["node", "main.js", "--budget", "tight"]),
+  )
+  let profile = profile_for_build(
+    "wechat", "wenyu_overview", project, patches, report,
   )
   assert_eq(project.route, "pages/wenyu/index")
   assert_eq(patches.patches.length(), 2)
@@ -559,6 +590,79 @@ test "build example flag selects Wenyu project" {
 }
 
 ///|
+test "build example flag selects Moontown miniapp project" {
+  let project = project_for_build(
+    "wechat",
+    "moontown_miniapp",
+    render_budget_from_args(["node", "main.js", "--budget", "large"]),
+  )
+  let patches = patches_for_build("wechat", "moontown_miniapp")
+  let report = @bunnia.report_wechat_project_with_budget(
+    project,
+    @bunnia.default_wechat_runtime(),
+    wechat_build_budget_from_args(["node", "main.js", "--budget", "large"]),
+  )
+  let profile = profile_for_build(
+    "wechat", "moontown_miniapp", project, patches, report,
+  )
+  let inspection = @bunnia.inspect_wechat_project(
+    target="wechat",
+    example="moontown_miniapp",
+    project,
+    report,
+  )
+  assert_eq(project.route, "pages/moontown/index")
+  assert_eq(patches.patches.length(), 3)
+  assert_eq(report.diagnostics.length(), 0)
+  assert_eq(profile.effect_count, 7)
+  assert_eq(profile.backend_endpoint_count, 7)
+  assert_eq(profile.backend_streaming_count, 0)
+  assert_eq(profile.backend_review_required_count, 3)
+  assert_eq(profile.communication_count, 3)
+  assert_eq(profile.communication_visible_count, 3)
+  assert_eq(profile.communication_unresolved_review_count, 1)
+  assert_eq(profile.agent_delta_count, 2)
+  assert_eq(profile.snapshot_delta_count, 3)
+  assert_eq(profile.snapshot_section_update_count, 1)
+  assert_eq(profile.snapshot_append_item_count, 2)
+  assert_eq(profile.snapshot_full_replace_count, 0)
+  assert_true(profile.scene_marker_count >= 8)
+  assert_eq(profile.scene_region_count, 2)
+  assert_eq(profile.scene_asset_count, 1)
+  assert_true(profile.scene_thread_link_count >= 8)
+  assert_true(profile.scene_thread_visible_link_count >= 5)
+  assert_eq(profile.scene_thread_orphan_link_count, 0)
+  assert_eq(profile.scene_camera_count, 1)
+  assert_eq(profile.scene_camera_clamped_count, 0)
+  assert_eq(profile.scene_static_surface_count, 1)
+  assert_eq(profile.scene_surface_fallback_count, 0)
+  assert_eq(profile.scene_quality_issue_count, 0)
+  assert_eq(profile.degraded_scene_count, 0)
+  assert_eq(inspection.top_route, "pages/moontown/index")
+  assert_eq(inspection.max_backend_event_count >= 3, true)
+  assert_true(inspection.max_scene_marker_count >= 5)
+  assert_true(project.page.wxml.contains("moontown-map-fullscreen"))
+  assert_true(project.page.js.contains("__bunniaEventPatches"))
+  assert_true(profile.summary.contains("backend_endpoints=7"))
+  assert_true(profile.summary.contains("agent_deltas=2"))
+  assert_true(profile.summary.contains("snapshot_deltas=3"))
+  let gate = inspection_gate_for_test(
+    "wechat", "moontown_miniapp", project, report,
+  )
+  let profile_gate = @bunnia.gate_build_profile(
+    profile,
+    @bunnia.build_profile_budget_for_profile("large"),
+    budget_profile="large",
+  )
+  assert_eq(
+    should_fail_build(
+      true, project, report, patches, profile, profile_gate, gate,
+    ),
+    false,
+  )
+}
+
+///|
 test "build profile keeps agent map diagnostics visible" {
   let project = project_for_build(
     "wechat",
@@ -566,11 +670,13 @@ test "build profile keeps agent map diagnostics visible" {
     render_budget_from_args(["node", "main.js"]),
   )
   let patches = patches_for_build("wechat", "agent_map")
-  let profile = profile_for_build("wechat", "agent_map", project, patches)
   let report = @bunnia.report_wechat_project_with_budget(
     project,
     @bunnia.default_wechat_runtime(),
     wechat_build_budget_from_args(["node", "main.js"]),
+  )
+  let profile = profile_for_build(
+    "wechat", "agent_map", project, patches, report,
   )
   let tiny_report = @bunnia.report_wechat_project_with_budget(
     project,
@@ -675,11 +781,13 @@ test "build render budget can fail map-heavy routes before preview" {
     render_budget_from_args(["node", "main.js", "--render-budget", "tiny"]),
   )
   let patches = patches_for_build("wechat", "agent_map")
-  let profile = profile_for_build("wechat", "agent_map", project, patches)
   let report = @bunnia.report_wechat_project_with_budget(
     project,
     @bunnia.default_wechat_runtime(),
     wechat_build_budget_from_args(["node", "main.js"]),
+  )
+  let profile = profile_for_build(
+    "wechat", "agent_map", project, patches, report,
   )
   assert_true(
     project.page.plan.diagnostics.contains("node-count-over-budget:54/8"),

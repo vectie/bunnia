@@ -415,6 +415,8 @@ Current evidence:
 
 ## Phase 6: Agent And Chat Runtime
 
+Status: active for the current task.
+
 Classification: feature.
 
 Goal: make agent interaction first-class without making agents the source of
@@ -503,6 +505,8 @@ Current evidence:
 
 ## Phase 8: Local Backend On This Mac
 
+Status: active for the current task.
+
 Classification: feature.
 
 Goal: make the whole slice testable locally before production backend work.
@@ -574,8 +578,8 @@ Current evidence:
   network serving, deployment credentials, or local backend assumptions into the
   mini-app bundle or Bunnia framework.
 
-This phase overlaps with production readiness and should remain deferred until
-the local vertical slice proves product and rendering quality.
+This phase overlaps with production readiness and should follow the local
+vertical slice evidence for product and rendering quality.
 
 ## Helpful Things Not To Forget
 
