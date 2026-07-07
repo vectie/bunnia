@@ -558,6 +558,9 @@ Current evidence:
 - `moon run src/cmd/main -- miniapp ...` exposes one-shot local commands for
   routes, login-backed snapshot/search, building create/place, agent create,
   chat send, and run/review actions.
+- Moontown `scripts/miniapp-local-backend.mjs` starts a localhost HTTP wrapper
+  around the same route set for WeChat DevTools, with a built-in `--smoke`
+  check and `backendBaseUrl=http://127.0.0.1:18191`.
 
 ## Phase 9: Real Backend And Deployment
 
