@@ -287,6 +287,8 @@ test "limits command exposes platform mappings and generic targets" {
   assert_eq(report.supports_canvas, true)
   assert_eq(report.component_mappings.length(), 9)
   assert_eq(report.event_mappings[0].platform_event, "bindtap")
+  assert_eq(report.lifecycle_mappings.length(), 3)
+  assert_eq(report.request_mappings[0].platform_api, "wx.request")
   assert_eq(report.diagnostics.length(), 0)
   let generic = platform_limits_from_args([
     "node", "main.js", "limits", "--target", "tiktok",
@@ -294,6 +296,7 @@ test "limits command exposes platform mappings and generic targets" {
   assert_eq(generic.target, "tiktok")
   assert_eq(generic.generator_status_id, "available")
   assert_eq(generic.generator_available, true)
+  assert_eq(generic.request_mappings[0].platform_api, "tt.request")
   assert_eq(generic.diagnostics.length(), 0)
   let generic_support = target_support_from_args([
     "node", "main.js", "build", "--target", "tiktok",

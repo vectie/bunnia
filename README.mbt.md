@@ -180,9 +180,9 @@ moon run cmd/main -- limits --target wechat
 ```
 
 `limits` prints the active platform adapter's component mappings, tap-event
-mapping, canvas/cloud/stream capabilities, and explicit generator status. The
-status is `available` for WeChat plus the generic Alipay/TikTok generators, and
-`unknown` for unsupported target ids.
+mapping, lifecycle names, request API, canvas/cloud/stream capabilities, and
+explicit generator status. The status is `available` for WeChat plus the
+generic Alipay/TikTok generators, and `unknown` for unsupported target ids.
 The same target-support model is reused by `ci-plan` and build-style commands,
 so unknown targets fail before artifacts are generated. Alipay and TikTok can
 write generic mini-app projects through `build`, including a deterministic
@@ -341,8 +341,8 @@ test {
 ```
 Use `@bunnia.platform_limits(...)` or
 `@bunnia.platform_limits_for_adapter(...)` to inspect component mapping,
-tap-event mapping, and target capabilities from the same adapter boundary before
-choosing a generator.
+tap-event mapping, lifecycle mapping, request API mapping, and target
+capabilities from the same adapter boundary before choosing a generator.
 
 ```mbt check
 ///|
@@ -351,10 +351,12 @@ test {
   assert_eq(limits.generator_status_id, "available")
   assert_eq(limits.generator_available, true)
   assert_eq(limits.event_mappings[0].platform_event, "bindtap")
+  assert_eq(limits.request_mappings[0].platform_api, "wx.request")
   assert_true(limits.summary.contains("components=9"))
   let alipay = @bunnia.platform_limits(target="alipay")
   assert_eq(alipay.generator_status_id, "available")
   assert_eq(alipay.event_mappings[0].platform_event, "onTap")
+  assert_eq(alipay.request_mappings[0].platform_api, "my.request")
 }
 ```
 

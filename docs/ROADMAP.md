@@ -749,6 +749,9 @@ Current evidence:
   event mapping from the adapter boundary.
 - TikTok output uses `.ttml`/`.ttss`, `tt:*` component names, and `bindtap`
   event mapping from the adapter boundary.
+- `PlatformAdapter` now carries platform lifecycle names and request API names
+  such as `wx.request`, `my.request`, and `tt.request`, and `limits` prints
+  those mappings beside component, event, and capability facts.
 - The Agent Map example verifies the same MoonBit view has matching render-plan
   node counts across WeChat, Alipay, and TikTok lowering.
 - `moon run cmd/main -- build --target alipay|tiktok` writes generic mini-app
@@ -992,9 +995,10 @@ Current evidence:
   visual-quality issues, and degraded scenes, so strict builds can fail
   aggregate agent/map regressions even when lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
-  mapping, canvas/cloud/stream capabilities, and generator availability, keeping
-  WeChat target limits visible while Alipay/TikTok generic generator work is
-  active and staged behind explicit capability gates.
+  mapping, lifecycle mapping, request API mapping, canvas/cloud/stream
+  capabilities, and generator availability, keeping WeChat target limits visible
+  while Alipay/TikTok generic generator work is active and staged behind
+  explicit capability gates.
 - Platform limit reports now distinguish generator status as `available`,
   `deferred`, or `unknown`, so Phase 6 adapter work can progress without
   accidentally routing unsupported targets through the WeChat generator path.

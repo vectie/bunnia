@@ -1072,6 +1072,14 @@ fn print_platform_limits(report : @bunnia.PlatformLimitsReport) -> Unit {
   for item in report.event_mappings {
     println("event=\{item.bunnia_event} platform_event=\{item.platform_event}")
   }
+  for item in report.lifecycle_mappings {
+    println(
+      "lifecycle=\{item.bunnia_lifecycle} platform_lifecycle=\{item.platform_lifecycle}",
+    )
+  }
+  for item in report.request_mappings {
+    println("request=\{item.bunnia_request} platform_api=\{item.platform_api}")
+  }
 }
 
 ///|

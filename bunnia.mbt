@@ -296,6 +296,12 @@ pub type PlatformComponentMapping = @tooling.PlatformComponentMapping
 pub type PlatformEventMapping = @tooling.PlatformEventMapping
 
 ///|
+pub type PlatformLifecycleMapping = @tooling.PlatformLifecycleMapping
+
+///|
+pub type PlatformRequestMapping = @tooling.PlatformRequestMapping
+
+///|
 pub type PlatformGeneratorStatus = @tooling.PlatformGeneratorStatus
 
 ///|
@@ -632,6 +638,10 @@ pub fn platform_adapter(
   page_component~ : String,
   tap_event~ : String,
   component_prefix? : String = "",
+  app_launch_lifecycle? : String = "onLaunch",
+  page_load_lifecycle? : String = "onLoad",
+  page_ready_lifecycle? : String = "onReady",
+  request_api? : String = "request",
   supports_canvas? : Bool = true,
   supports_cloud? : Bool = false,
   supports_stream? : Bool = true,
@@ -642,6 +652,10 @@ pub fn platform_adapter(
     page_component~,
     tap_event~,
     component_prefix~,
+    app_launch_lifecycle~,
+    page_load_lifecycle~,
+    page_ready_lifecycle~,
+    request_api~,
     supports_canvas~,
     supports_cloud~,
     supports_stream~,

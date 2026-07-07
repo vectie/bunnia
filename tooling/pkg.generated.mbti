@@ -358,6 +358,11 @@ pub(all) enum PlatformGeneratorStatus {
   TargetUnknown
 } derive(Eq, @debug.Debug)
 
+pub struct PlatformLifecycleMapping {
+  bunnia_lifecycle : String
+  platform_lifecycle : String
+} derive(Eq, @debug.Debug)
+
 pub struct PlatformLimitsReport {
   target : String
   label : String
@@ -367,11 +372,18 @@ pub struct PlatformLimitsReport {
   generator_available : Bool
   component_mappings : Array[PlatformComponentMapping]
   event_mappings : Array[PlatformEventMapping]
+  lifecycle_mappings : Array[PlatformLifecycleMapping]
+  request_mappings : Array[PlatformRequestMapping]
   supports_canvas : Bool
   supports_cloud : Bool
   supports_stream : Bool
   diagnostics : Array[String]
   summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct PlatformRequestMapping {
+  bunnia_request : String
+  platform_api : String
 } derive(Eq, @debug.Debug)
 
 pub struct PlatformTargetSupport {

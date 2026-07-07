@@ -628,6 +628,11 @@ test "scaffold project creates a small standalone starter" {
     ),
   )
   assert_true(
+    file_content(plan.files, "cmd/main/main.mbt").contains(
+      "platform_api=\\{item.platform_api}",
+    ),
+  )
+  assert_true(
     file_content(plan.files, "README.mbt.md").contains(
       "generic mini-app generator status",
     ),

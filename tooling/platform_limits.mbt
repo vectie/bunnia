@@ -11,6 +11,18 @@ pub struct PlatformEventMapping {
 } derive(Debug, Eq)
 
 ///|
+pub struct PlatformLifecycleMapping {
+  bunnia_lifecycle : String
+  platform_lifecycle : String
+} derive(Debug, Eq)
+
+///|
+pub struct PlatformRequestMapping {
+  bunnia_request : String
+  platform_api : String
+} derive(Debug, Eq)
+
+///|
 pub(all) enum PlatformGeneratorStatus {
   GeneratorAvailable
   GeneratorDeferred
@@ -111,6 +123,8 @@ pub struct PlatformLimitsReport {
   generator_available : Bool
   component_mappings : Array[PlatformComponentMapping]
   event_mappings : Array[PlatformEventMapping]
+  lifecycle_mappings : Array[PlatformLifecycleMapping]
+  request_mappings : Array[PlatformRequestMapping]
   supports_canvas : Bool
   supports_cloud : Bool
   supports_stream : Bool
@@ -132,6 +146,23 @@ fn platform_limits_from_support(
   let event_mappings = [
     { bunnia_event: "tap", platform_event: adapter.tap_event },
   ]
+  let lifecycle_mappings = [
+    {
+      bunnia_lifecycle: "app-launch",
+      platform_lifecycle: adapter.app_launch_lifecycle,
+    },
+    {
+      bunnia_lifecycle: "page-load",
+      platform_lifecycle: adapter.page_load_lifecycle,
+    },
+    {
+      bunnia_lifecycle: "page-ready",
+      platform_lifecycle: adapter.page_ready_lifecycle,
+    },
+  ]
+  let request_mappings = [
+    { bunnia_request: "http-request", platform_api: adapter.request_api },
+  ]
   {
     target: support.target,
     label: support.label,
@@ -141,11 +172,13 @@ fn platform_limits_from_support(
     generator_available: support.generator_available,
     component_mappings,
     event_mappings,
+    lifecycle_mappings,
+    request_mappings,
     supports_canvas: adapter.supports_canvas,
     supports_cloud: adapter.supports_cloud,
     supports_stream: adapter.supports_stream,
     diagnostics: support.diagnostics,
-    summary: "Bunnia platform limits: target=\{support.target} label=\{support.label} generator=\{support.generator_available} generator_status=\{support.generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{support.diagnostics.length()}",
+    summary: "Bunnia platform limits: target=\{support.target} label=\{support.label} generator=\{support.generator_available} generator_status=\{support.generator_status_id} components=\{component_mappings.length()} events=\{event_mappings.length()} lifecycles=\{lifecycle_mappings.length()} requests=\{request_mappings.length()} request_api=\{adapter.request_api} canvas=\{adapter.supports_canvas} cloud=\{adapter.supports_cloud} stream=\{adapter.supports_stream} diagnostics=\{support.diagnostics.length()}",
   }
 }
 

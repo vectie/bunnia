@@ -62,7 +62,7 @@ pub fn plan_patches_with_budget(Array[Patch], PatchBudget) -> PatchPlan
 
 pub fn plan_with_budget(Node, Platform, RenderBudget) -> RenderPlan
 
-pub fn platform_adapter(platform~ : Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> PlatformAdapter
+pub fn platform_adapter(platform~ : Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, app_launch_lifecycle? : String, page_load_lifecycle? : String, page_ready_lifecycle? : String, request_api? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> PlatformAdapter
 
 pub fn platform_id(Platform) -> String
 
@@ -179,6 +179,10 @@ pub struct PlatformAdapter {
   page_component : String
   tap_event : String
   component_prefix : String
+  app_launch_lifecycle : String
+  page_load_lifecycle : String
+  page_ready_lifecycle : String
+  request_api : String
   supports_canvas : Bool
   supports_cloud : Bool
   supports_stream : Bool

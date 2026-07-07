@@ -429,7 +429,7 @@ pub fn plan_tool_result_cards_with_budget(Array[@agent.ToolResultCard], @agent.T
 
 pub fn plan_with_budget(@core.Node, @core.Platform, @core.RenderBudget) -> @core.RenderPlan
 
-pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> @core.PlatformAdapter
+pub fn platform_adapter(platform~ : @core.Platform, id~ : String, page_component~ : String, tap_event~ : String, component_prefix? : String, app_launch_lifecycle? : String, page_load_lifecycle? : String, page_ready_lifecycle? : String, request_api? : String, supports_canvas? : Bool, supports_cloud? : Bool, supports_stream? : Bool) -> @core.PlatformAdapter
 
 pub fn platform_generator_available(@tooling.PlatformGeneratorStatus) -> Bool
 
@@ -878,7 +878,11 @@ pub using @tooling {type PlatformEventMapping}
 
 pub using @tooling {type PlatformGeneratorStatus}
 
+pub using @tooling {type PlatformLifecycleMapping}
+
 pub using @tooling {type PlatformLimitsReport}
+
+pub using @tooling {type PlatformRequestMapping}
 
 pub using @tooling {type PlatformTargetSupport}
 

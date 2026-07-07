@@ -549,6 +549,12 @@ fn cmd_main_mbt() -> String {
   "  for item in report.event_mappings {\n" +
   "    println(\"event=\\{item.bunnia_event} platform_event=\\{item.platform_event}\")\n" +
   "  }\n" +
+  "  for item in report.lifecycle_mappings {\n" +
+  "    println(\"lifecycle=\\{item.bunnia_lifecycle} platform_lifecycle=\\{item.platform_lifecycle}\")\n" +
+  "  }\n" +
+  "  for item in report.request_mappings {\n" +
+  "    println(\"request=\\{item.bunnia_request} platform_api=\\{item.platform_api}\")\n" +
+  "  }\n" +
   "}\n\n" +
   "///|\n" +
   "fn join_path(left : String, right : String) -> String {\n" +
