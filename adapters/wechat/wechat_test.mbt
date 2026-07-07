@@ -20,6 +20,20 @@ test "wechat request adapter records replayable request data" {
 }
 
 ///|
+test "wechat request adapter carries session headers and response keys" {
+  let js = generate_request_adapter(test_backend_contract())
+  assert_true(js.contains("sessionTokenKey:\"bunniaSessionId\""))
+  assert_true(js.contains("sessionHeaderKey:\"x-miniapp-session\""))
+  assert_true(js.contains("header: __bunniaRequestHeaders(page)"))
+  assert_true(
+    js.contains(
+      "if (endpoint.responseKey) update[endpoint.responseKey] = res.data",
+    ),
+  )
+  assert_true(js.contains("__bunniaSessionIdFromResponse(res.data)"))
+}
+
+///|
 test "wechat request adapter maps backend result states" {
   let js = generate_request_adapter(test_backend_contract())
   assert_true(js.contains("state'] = 'ready'"))

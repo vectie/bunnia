@@ -21,6 +21,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"switch-user-a\""))
   assert_true(page.js.contains("\"switch-user-b\""))
+  assert_true(page.js.contains("\"dev-login\""))
+  assert_true(page.js.contains("\"load-town-snapshot\""))
   assert_true(page.js.contains("\"ask-selected-building\""))
   assert_true(page.js.contains("\"create-private-building\""))
   assert_true(page.js.contains("\"place-published-building\""))
@@ -48,6 +50,24 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/query",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "x-miniapp-session",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains("bunniaSessionId"),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"login\":{\"userId\":\"user-a\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.wxml").contains(
+      "data-bunnia-message=\"dev-login\"",
     ),
   )
   assert_true(project.manifest.pages[0].backend_event_count >= 3)

@@ -56,7 +56,7 @@ pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_req
 
 pub fn backend_cancelled(@effects.BackendRequest) -> @effects.BackendResult
 
-pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[@effects.BackendEndpoint]) -> @effects.BackendContract
+pub fn backend_contract(id~ : String, base_url_key? : String, session_token_key? : String, session_header_key? : String, endpoints~ : Array[@effects.BackendEndpoint]) -> @effects.BackendContract
 
 pub fn backend_contract_effects(@effects.BackendContract) -> Array[@effects.Effect]
 

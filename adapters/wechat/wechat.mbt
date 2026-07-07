@@ -496,6 +496,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "    url: baseUrl + endpoint.path,\n" +
   "    method: endpoint.method,\n" +
   "    data: requestPayload,\n" +
+  "    header: __bunniaRequestHeaders(page),\n" +
   "    timeout: endpoint.timeoutMs,\n" +
   "    success(res) {\n" +
   "      const update = {}\n" +
@@ -509,6 +510,9 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "        update['backend.' + endpointId + '.state'] = 'ready'\n" +
   "        update['backend.' + endpointId + '.response'] = res.data\n" +
   "        update['backend.' + endpointId + '.error'] = ''\n" +
+  "        if (endpoint.responseKey) update[endpoint.responseKey] = res.data\n" +
+  "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
+  "        if (sessionId && __bunniaBackend.sessionTokenKey) update[__bunniaBackend.sessionTokenKey] = sessionId\n" +
   "      }\n" +
   "      page.setData(update)\n" +
   "    },\n" +
@@ -520,6 +524,15 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      page.setData(update)\n" +
   "    }\n" +
   "  })\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaRequestHeaders(page) {\n" +
+  "  const k = __bunniaBackend.sessionTokenKey, h = __bunniaBackend.sessionHeaderKey, t = k && page && page.data ? page.data[k] : ''\n" +
+  "  return t && h ? { [h]: t } : {}\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaSessionIdFromResponse(data) {\n" +
+  "  return data && data.session && data.session.id ? data.session.id : (data && data.sessionId ? data.sessionId : (data && data.id && data.kind === 'session' ? data.id : ''))\n" +
   "}\n" +
   "\n" +
   "function __bunniaCancelRequest(page, endpointId) {\n" +
@@ -1548,6 +1561,10 @@ fn backend_event_object(
 fn backend_contract_object(contract : @effects.BackendContract) -> String {
   "{baseUrlKey:\"" +
   escape_json(contract.base_url_key) +
+  "\",sessionTokenKey:\"" +
+  escape_json(contract.session_token_key) +
+  "\",sessionHeaderKey:\"" +
+  escape_json(contract.session_header_key) +
   "\",endpoints:" +
   backend_endpoints_object(contract.endpoints) +
   "}"

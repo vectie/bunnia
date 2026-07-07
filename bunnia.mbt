@@ -2206,9 +2206,17 @@ pub fn backend_endpoint(
 pub fn backend_contract(
   id~ : String,
   base_url_key? : String = "backendBaseUrl",
+  session_token_key? : String = "bunniaSessionId",
+  session_header_key? : String = "x-miniapp-session",
   endpoints~ : Array[BackendEndpoint],
 ) -> BackendContract {
-  @effects.backend_contract(id~, base_url_key~, endpoints~)
+  @effects.backend_contract(
+    id~,
+    base_url_key~,
+    session_token_key~,
+    session_header_key~,
+    endpoints~,
+  )
 }
 
 ///|

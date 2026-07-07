@@ -412,6 +412,10 @@ Current evidence:
   visibility filtering, create/search/agent model operations, scene/render
   pressure, agent deltas, snapshot deltas, communication pressure, backend
   pressure, asset/quality plans, and WeChat project inspection.
+- Bunnia's WeChat backend adapter now captures login response sessions into a
+  configured `bunniaSessionId`, sends `x-miniapp-session` on later requests,
+  writes endpoint `response_key` data back to page state, and keeps the tight
+  backend JS budget green.
 
 ## Phase 6: Agent And Chat Runtime
 
@@ -561,6 +565,9 @@ Current evidence:
 - Moontown `scripts/miniapp-local-backend.mjs` starts a localhost HTTP wrapper
   around the same route set for WeChat DevTools, with a built-in `--smoke`
   check and `backendBaseUrl=http://127.0.0.1:18191`.
+- Bunnia `examples/moontown_miniapp` now includes generated Login and Load
+  controls plus seeded request payloads, so the generated project can call the
+  local backend through dev login before snapshot/search/chat/create actions.
 
 ## Phase 9: Real Backend And Deployment
 

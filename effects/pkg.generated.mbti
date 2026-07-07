@@ -21,7 +21,7 @@ pub fn backend_budget(max_endpoints~ : Int, max_streaming~ : Int, max_review_req
 
 pub fn backend_cancelled(BackendRequest) -> BackendResult
 
-pub fn backend_contract(id~ : String, base_url_key? : String, endpoints~ : Array[BackendEndpoint]) -> BackendContract
+pub fn backend_contract(id~ : String, base_url_key? : String, session_token_key? : String, session_header_key? : String, endpoints~ : Array[BackendEndpoint]) -> BackendContract
 
 pub fn backend_contract_effects(BackendContract) -> Array[Effect]
 
@@ -135,6 +135,8 @@ pub struct BackendBudget {
 pub struct BackendContract {
   id : String
   base_url_key : String
+  session_token_key : String
+  session_header_key : String
   endpoints : Array[BackendEndpoint]
 } derive(Eq, @debug.Debug)
 

@@ -16,6 +16,19 @@ fn test_backend_request() -> BackendRequest {
 }
 
 ///|
+test "backend contracts carry session handoff keys" {
+  let contract = backend_contract(
+    id="agent-operations",
+    session_token_key="sessionToken",
+    session_header_key="x-session",
+    endpoints=[test_operator_endpoint()],
+  )
+  assert_eq(contract.base_url_key, "backendBaseUrl")
+  assert_eq(contract.session_token_key, "sessionToken")
+  assert_eq(contract.session_header_key, "x-session")
+}
+
+///|
 test "backend request patches capture replayable loading state" {
   let patches = backend_request_patches(test_backend_request())
   let plan = @core.plan_patches(patches)

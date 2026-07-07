@@ -57,6 +57,8 @@ pub fn demo_wechat_project_with_render_budget(
 pub fn demo_runtime() -> @bunnia.WechatRuntime {
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
+  patches.push(@bunnia.wechat_event_patch("dev-login", []))
+  patches.push(@bunnia.wechat_event_patch("load-town-snapshot", []))
   for building in visible_buildings(projection) {
     if building_is_first_screen_selectable(building) {
       patches.push(select_building_patch(building))
@@ -212,36 +214,44 @@ pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
 
 ///|
 pub fn demo_backend_contract() -> @bunnia.BackendContract {
-  @bunnia.backend_contract(id="moontown-miniapp-backend", endpoints=[
-    @bunnia.snapshot_load_endpoint(
-      "load-town-snapshot", "/miniapp/town/snapshot", "townSnapshot",
-    ),
-    @bunnia.generic_endpoint(
-      "dev-login",
-      "/miniapp/auth/dev-login",
-      @bunnia.http_post(),
-      payload_key="login",
-      response_key="session",
-    ),
-    @bunnia.generic_endpoint(
-      "search-buildings",
-      "/miniapp/buildings/search",
-      @bunnia.http_get(),
-      response_key="buildingSearch",
-    ),
-    @bunnia.operator_submit_endpoint(
-      "create-private-building", "/miniapp/buildings", "buildingDraft", "buildingResult",
-    ),
-    @bunnia.operator_submit_endpoint(
-      "place-published-building", "/miniapp/buildings/place", "placementDraft", "placementResult",
-    ),
-    @bunnia.agent_message_endpoint(
-      "ask-selected-building", "/miniapp/buildings/query", "buildingQuestion", "queryResult",
-    ),
-    @bunnia.operator_submit_endpoint(
-      "create-agent", "/miniapp/agents", "agentDraft", "agentResult",
-    ),
-  ])
+  @bunnia.backend_contract(
+    id="moontown-miniapp-backend",
+    session_token_key="bunniaSessionId",
+    session_header_key="x-miniapp-session",
+    endpoints=[
+      @bunnia.snapshot_load_endpoint(
+        "load-town-snapshot", "/miniapp/town/snapshot", "townSnapshot",
+      ),
+      @bunnia.generic_endpoint(
+        "dev-login",
+        "/miniapp/auth/dev-login",
+        @bunnia.http_post(),
+        payload_key="login",
+        response_key="loginResult",
+      ),
+      @bunnia.generic_endpoint(
+        "search-buildings",
+        "/miniapp/buildings/search",
+        @bunnia.http_get(),
+        payload_key="buildingSearch",
+        response_key="buildingSearchResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "create-private-building", "/miniapp/buildings", "buildingDraft", "buildingResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "place-published-building", "/miniapp/buildings/place", "placementDraft",
+        "placementResult",
+      ),
+      @bunnia.agent_message_endpoint(
+        "ask-selected-building", "/miniapp/buildings/query", "buildingQuestion",
+        "queryResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "create-agent", "/miniapp/agents", "agentDraft", "agentResult",
+      ),
+    ],
+  )
 }
 
 ///|
@@ -401,6 +411,8 @@ fn visibility_chip(building : MiniTownBuilding) -> @bunnia.Node {
 fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-user-switcher")], [
     @bunnia.text("User: \{projection.active_user_id}"),
+    @bunnia.button("Login", "dev-login"),
+    @bunnia.button("Load", "load-town-snapshot"),
     @bunnia.button("Ada", "switch-user-a"),
     @bunnia.button("Bo", "switch-user-b"),
   ])
@@ -600,5 +612,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }

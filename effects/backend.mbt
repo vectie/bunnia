@@ -52,6 +52,8 @@ pub struct BackendEndpoint {
 pub struct BackendContract {
   id : String
   base_url_key : String
+  session_token_key : String
+  session_header_key : String
   endpoints : Array[BackendEndpoint]
 } derive(Debug, Eq)
 
@@ -103,9 +105,11 @@ pub fn backend_endpoint(
 pub fn backend_contract(
   id~ : String,
   base_url_key? : String = "backendBaseUrl",
+  session_token_key? : String = "bunniaSessionId",
+  session_header_key? : String = "x-miniapp-session",
   endpoints~ : Array[BackendEndpoint],
 ) -> BackendContract {
-  { id, base_url_key, endpoints }
+  { id, base_url_key, session_token_key, session_header_key, endpoints }
 }
 
 ///|
