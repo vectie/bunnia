@@ -999,8 +999,10 @@ Current evidence:
   pressure checks and deterministic `snapshot` artifact generation. The
   scaffold writes both `README.mbt.md` and `README.md` from the same content, so
   documentation stays testable by MoonBit while remaining visible on GitHub, and
-  includes a starter `.gitignore` for generated output and MoonBit build caches. The
-  starter also includes `scripts/ci.sh` and `scripts/validate_boundaries.sh`,
+  the generated README documents the starter module ownership split plus the
+  inspect/snapshot/watch/limits workflow. It also includes a starter `.gitignore`
+  for generated output and MoonBit build caches. The starter also includes
+  `scripts/ci.sh` and `scripts/validate_boundaries.sh`,
   so local starter CI delegates to the generated `ci-plan --script --strict`
   workflow while still rejecting proof-product nouns and Moontown dependencies,
   and `bunnia init` marks generated starter scripts executable when writing them.

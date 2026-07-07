@@ -492,6 +492,38 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("starter tests"),
   )
+  assert_true(file_content(plan.files, "README.mbt.md").contains("## Files"))
+  assert_true(file_content(plan.files, "README.mbt.md").contains("## Workflow"))
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`app.mbt` owns the page view",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`agent_feed.mbt` keeps the first agentic surface windowed and keyed",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`scene.mbt` owns the static map scene",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`updates.mbt` owns bounded patch plans",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`quality.mbt` owns render, backend, inspection, and profile gates",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`wechat.mbt` is the only starter app file that generates WeChat output",
+    ),
+  )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains("inspection gates"),
   )
@@ -542,6 +574,26 @@ test "scaffold project creates a small standalone starter" {
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
       "watch --target wechat --out _build/wechat-watch --strict",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`inspect` is the no-write route, backend, map, and file pressure report",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`snapshot` writes a deterministic review artifact",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "`limits --target wechat` prints the active component mapping",
+    ),
+  )
+  assert_true(
+    file_content(plan.files, "README.mbt.md").contains(
+      "deferred generator status",
     ),
   )
   assert_true(plan.summary.contains("files=17"))
