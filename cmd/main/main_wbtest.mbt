@@ -455,14 +455,44 @@ test "generic miniapp snapshot accepts non wechat targets without project write"
 }
 
 ///|
-test "generic miniapp watch stays unsupported" {
-  assert_eq(
-    command_from_args(["node", "main.js", "watch", "--target", "tiktok"]),
-    "watch",
+test "generic miniapp watch once can reuse build output path" {
+  let args = [
+    "node", "main.js", "watch", "--target", "tiktok", "--example", "agent_map", "--budget",
+    "tight", "--render-budget", "tight", "--once",
+  ]
+  let support = target_support_from_args(args)
+  let project = generic_miniapp_project_for_build(
+    support,
+    "agent_map",
+    render_budget_from_args(args),
   )
-  assert_true(
-    target_support_from_args(["node", "main.js", "watch", "--target", "tiktok"]).generator_available,
+  let inspection = @bunnia.inspect_miniapp_project(
+    target="tiktok",
+    example="agent_map",
+    project,
   )
+  let gate = @bunnia.gate_miniapp_inspection(
+    inspection,
+    @bunnia.miniapp_inspection_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  let release = @bunnia.miniapp_release_readiness_report(
+    target="tiktok",
+    example="agent_map",
+    budget_profile="tight",
+    project,
+    inspection,
+    gate,
+  )
+  assert_eq(command_from_args(args), "watch")
+  assert_eq(watch_once_from_args(args), true)
+  assert_eq(support.target, "tiktok")
+  assert_eq(support.generator_available, true)
+  assert_eq(project.platform, @bunnia.tiktok())
+  assert_eq(project.files.length(), 7)
+  assert_eq(gate.diagnostics.length(), 0)
+  assert_eq(release.status, "ready")
+  assert_true(has_miniapp_file(project.files, "pages/index/index.ttml"))
 }
 
 ///|

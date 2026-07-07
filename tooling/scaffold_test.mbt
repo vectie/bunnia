@@ -634,7 +634,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
-      "generic build and inspect paths are available",
+      "generic build, inspect, snapshot, and watch paths are available",
     ),
   )
   assert_true(

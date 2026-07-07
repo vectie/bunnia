@@ -633,9 +633,12 @@ fn run_generic_miniapp_build(
   let render_budget_profile = render_budget_profile_from_args(args)
   let budget_profile = budget_profile_from_args(args)
   let strict = strict_from_args(args)
-  if command != "build" && command != "inspect" && command != "snapshot" {
+  if command != "build" &&
+    command != "inspect" &&
+    command != "snapshot" &&
+    command != "watch" {
     println(
-      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-inspect-snapshot-only",
+      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-inspect-snapshot-watch-only",
     )
     panic()
   }
@@ -696,6 +699,13 @@ fn run_generic_miniapp_build(
     ) {
     println("build_failed=diagnostics")
     panic()
+  }
+  if command == "watch" {
+    if watch_once_from_args(args) {
+      println("watch=once")
+    } else {
+      watch_generated_output(target, example, output_dir, strict)
+    }
   }
 }
 
