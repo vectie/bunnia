@@ -565,6 +565,11 @@ Current evidence:
 - Moontown `scripts/miniapp-local-backend.mjs` starts a localhost HTTP wrapper
   around the same route set for WeChat DevTools, with a built-in `--smoke`
   check and `backendBaseUrl=http://127.0.0.1:18191`.
+- The local HTTP wrapper persists users, buildings, placements, agents,
+  threads, messages, runs, and audit events to
+  `.moontown/miniapp-local-backend-state.json` by default, keeps sessions
+  ephemeral, supports `--state` and `--reset-state`, and smoke-tests persistence
+  through a temporary state file.
 - Bunnia `examples/moontown_miniapp` now includes generated Login and Load
   controls plus seeded request payloads, so the generated project can call the
   local backend through dev login before snapshot/search/chat/create actions.
