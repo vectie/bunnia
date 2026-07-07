@@ -570,9 +570,13 @@ Current evidence:
   `.moontown/miniapp-local-backend-state.json` by default, keeps sessions
   ephemeral, supports `--state` and `--reset-state`, and smoke-tests persistence
   through a temporary state file.
+- The local backend route catalog and HTTP wrapper include
+  `POST /miniapp/buildings/publish`, so a user can create a private draft,
+  publish it to town, and another user can discover it through building search.
 - Bunnia `examples/moontown_miniapp` now includes generated Login and Load
-  controls plus seeded request payloads, so the generated project can call the
-  local backend through dev login before snapshot/search/chat/create actions.
+  controls plus seeded request payloads, including publish, so the generated
+  project can call the local backend through dev login before
+  snapshot/search/chat/create/publish actions.
 
 ## Phase 9: Real Backend And Deployment
 

@@ -26,6 +26,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("\"ask-selected-building\""))
   assert_true(page.js.contains("\"create-private-building\""))
   assert_true(page.js.contains("\"place-published-building\""))
+  assert_true(page.js.contains("\"publish-private-building\""))
   assert_true(page.plan.scene_count == 1)
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
@@ -54,6 +55,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/buildings/publish",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "x-miniapp-session",
     ),
   )
@@ -63,6 +69,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"login\":{\"userId\":\"user-a\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"publishDraft\":{\"buildingId\":\"created-agent-lab\"}",
     ),
   )
   assert_true(
@@ -116,8 +127,8 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 7)
-  assert_eq(effects.effect_count, 7)
+  assert_eq(backend.endpoint_count, 8)
+  assert_eq(effects.effect_count, 8)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

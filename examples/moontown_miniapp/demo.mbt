@@ -112,6 +112,11 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     ]),
   )
   patches.push(
+    @bunnia.wechat_event_patch("publish-private-building", [
+      @bunnia.set_string("town.lastPublishedBuildingId", "created-agent-lab"),
+    ]),
+  )
+  patches.push(
     @bunnia.wechat_event_patch("create-agent", [
       @bunnia.append_json(
         "agents.items", "{\"id\":\"agent-created\",\"buildingId\":\"private-agent-lab\",\"status\":\"idle\"}",
@@ -242,6 +247,10 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
       @bunnia.operator_submit_endpoint(
         "place-published-building", "/miniapp/buildings/place", "placementDraft",
         "placementResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "publish-private-building", "/miniapp/buildings/publish", "publishDraft",
+        "publishResult",
       ),
       @bunnia.agent_message_endpoint(
         "ask-selected-building", "/miniapp/buildings/query", "buildingQuestion",
@@ -435,6 +444,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text("visibility: \{building.visibility}"),
       @bunnia.button("Ask", "ask-selected-building"),
       @bunnia.button("Place", "place-published-building"),
+      @bunnia.button("Publish", "publish-private-building"),
     ],
   )
 }
@@ -612,5 +622,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastPublishedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }
