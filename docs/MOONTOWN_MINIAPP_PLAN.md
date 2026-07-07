@@ -258,6 +258,17 @@ Acceptance:
 - A shared building appears only for invited users.
 - Published/system buildings appear in search and public town snapshots.
 
+Current evidence:
+
+- Moontown `src/miniapp_identity` owns pure dev-login/session state,
+  user/org/workspace fixtures, membership and workspace-access roles, session
+  lookup, session-to-viewer-context conversion, and session-scoped snapshot
+  projection/search helpers.
+- Identity tests cover separate local sessions for two users, session expiry,
+  organization/workspace role propagation, private building isolation, shared
+  organization building visibility, and search that excludes invisible private
+  buildings.
+
 ## Phase 3: Building Registry And Map Placement
 
 Classification: feature.
