@@ -1,0 +1,584 @@
+///|
+pub fn demo_view() -> @bunnia.Node {
+  mini_town_view(demo_projection())
+}
+
+///|
+pub fn mini_town_view(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.page([
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-miniapp"),
+        @bunnia.data("active-user", projection.active_user_id),
+      ],
+      [
+        @bunnia.text("Moontown Miniapp"),
+        town_map_surface(projection),
+        user_switcher(projection),
+        visibility_strip(projection),
+        selected_building_drawer(projection),
+        search_drawer(projection),
+        chat_drawer(projection),
+        create_drawer(projection),
+      ],
+    ),
+  ])
+}
+
+///|
+pub fn demo_wechat_page() -> @bunnia.WechatPage {
+  @bunnia.generate_wechat_page_with_runtime(
+    "Moontown Miniapp",
+    demo_view(),
+    demo_runtime(),
+  )
+}
+
+///|
+pub fn demo_wechat_project() -> @bunnia.WechatProject {
+  demo_wechat_project_with_render_budget(@bunnia.default_render_budget())
+}
+
+///|
+pub fn demo_wechat_project_with_render_budget(
+  render_budget : @bunnia.RenderBudget,
+) -> @bunnia.WechatProject {
+  @bunnia.generate_wechat_project_with_runtime_and_budget_and_backend(
+    name="Moontown Miniapp",
+    route="pages/moontown/index",
+    root=demo_view(),
+    runtime=demo_runtime(),
+    render_budget~,
+    backend_contract=demo_backend_contract(),
+  )
+}
+
+///|
+pub fn demo_runtime() -> @bunnia.WechatRuntime {
+  let projection = demo_projection()
+  let patches : Array[@bunnia.WechatEventPatch] = []
+  for building in visible_buildings(projection) {
+    patches.push(select_building_patch(building))
+    patches.push(open_building_thread_patch(building))
+  }
+  patches.push(
+    @bunnia.wechat_event_patch("switch-user-a", [
+      @bunnia.set_string("session.activeUserId", "user-a"),
+      @bunnia.set_string("town.selectedBuildingId", "policy-hall"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("switch-user-b", [
+      @bunnia.set_string("session.activeUserId", "user-b"),
+      @bunnia.set_string("town.selectedBuildingId", "published-agent-lab"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("ask-selected-building", [
+      @bunnia.append_json(
+        "chat.messages", "{\"id\":\"msg-mock-answer\",\"actorId\":\"agent-policy-guide\",\"text\":\"Mock answer recorded as a run waiting for review.\"}",
+      ),
+      @bunnia.set_string("runs.activeRunStatus", "waiting-review"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("create-private-building", [
+      @bunnia.append_json(
+        "town.buildings", "{\"id\":\"created-agent-lab\",\"visibility\":\"private_draft\",\"ownerId\":\"user-a\"}",
+      ),
+      @bunnia.set_string("town.selectedBuildingId", "created-agent-lab"),
+      @bunnia.set_scene_marker_status(
+        "moontown-map", "private-agent-lab", "draft",
+      ),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("place-published-building", [
+      @bunnia.append_json(
+        "town.placements", "{\"id\":\"placement-published-agent-lab\",\"buildingId\":\"published-agent-lab\"}",
+      ),
+      @bunnia.select_scene_marker("moontown-map", "published-agent-lab"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("create-agent", [
+      @bunnia.append_json(
+        "agents.items", "{\"id\":\"agent-created\",\"buildingId\":\"private-agent-lab\",\"status\":\"idle\"}",
+      ),
+    ]),
+  )
+  @bunnia.wechat_runtime(
+    initial_data_json=demo_initial_data_json(),
+    event_patches=patches,
+  )
+}
+
+///|
+fn select_building_patch(
+  building : MiniTownBuilding,
+) -> @bunnia.WechatEventPatch {
+  @bunnia.wechat_event_patch("select-\{building.id}", [
+    @bunnia.set_string("town.selectedBuildingId", building.id),
+    @bunnia.select_scene_marker("moontown-map", building.id),
+  ])
+}
+
+///|
+fn open_building_thread_patch(
+  building : MiniTownBuilding,
+) -> @bunnia.WechatEventPatch {
+  @bunnia.wechat_event_patch("open-thread-\{building.id}", [
+    @bunnia.select_scene_marker_thread(
+      "moontown-map",
+      building.id,
+      "thread-\{building.id}",
+    ),
+  ])
+}
+
+///|
+pub fn demo_patch_plan() -> @bunnia.PatchPlan {
+  @bunnia.plan_patches([
+    @bunnia.set_string("town.selectedBuildingId", "published-agent-lab"),
+    @bunnia.select_scene_marker("moontown-map", "published-agent-lab"),
+    @bunnia.append_json(
+      "chat.messages", "{\"id\":\"msg-mock-answer\",\"text\":\"Mock answer.\"}",
+    ),
+  ])
+}
+
+///|
+pub fn demo_snapshot_delta_plan() -> @bunnia.SnapshotDeltaPlan {
+  @bunnia.plan_snapshot_deltas([
+    @bunnia.set_snapshot_section_delta(
+      "moontown-miniapp", "selectedBuildingId", "\"policy-hall\"",
+    ),
+    @bunnia.append_snapshot_item_delta(
+      "moontown-miniapp", "buildings", "created-agent-lab", "{\"id\":\"created-agent-lab\",\"visibility\":\"private_draft\"}",
+    ),
+    @bunnia.append_snapshot_item_delta(
+      "moontown-miniapp", "messages", "msg-mock-answer", "{\"id\":\"msg-mock-answer\",\"status\":\"waiting-review\"}",
+    ),
+  ])
+}
+
+///|
+pub fn demo_agent_delta_plan() -> @bunnia.AgentDeltaPlan {
+  @bunnia.plan_agent_deltas([
+    @bunnia.append_message_delta(
+      "chat.messages",
+      @bunnia.message(
+        id="msg-mock-answer",
+        actor_id="agent-policy-guide",
+        thread_id="thread-policy-hall",
+        text="Mock answer recorded as a run waiting for review.",
+        status=@bunnia.run_waiting_review(),
+      ),
+    ),
+    @bunnia.set_run_status_delta(
+      "runs.activeRunStatus",
+      @bunnia.run_waiting_review(),
+    ),
+  ])
+}
+
+///|
+pub fn demo_communication_plan() -> @bunnia.CommunicationPlan {
+  @bunnia.plan_communications_with_budget(
+    demo_communications(demo_projection()),
+    @bunnia.communication_budget(max_visible_count=8),
+  )
+}
+
+///|
+pub fn demo_backend_contract() -> @bunnia.BackendContract {
+  @bunnia.backend_contract(id="moontown-miniapp-backend", endpoints=[
+    @bunnia.snapshot_load_endpoint(
+      "load-town-snapshot", "/miniapp/town/snapshot", "townSnapshot",
+    ),
+    @bunnia.generic_endpoint(
+      "dev-login",
+      "/miniapp/auth/dev-login",
+      @bunnia.http_post(),
+      payload_key="login",
+      response_key="session",
+    ),
+    @bunnia.generic_endpoint(
+      "search-buildings",
+      "/miniapp/buildings/search",
+      @bunnia.http_get(),
+      response_key="buildingSearch",
+    ),
+    @bunnia.operator_submit_endpoint(
+      "create-private-building", "/miniapp/buildings", "buildingDraft", "buildingResult",
+    ),
+    @bunnia.operator_submit_endpoint(
+      "place-published-building", "/miniapp/buildings/place", "placementDraft", "placementResult",
+    ),
+    @bunnia.agent_message_endpoint(
+      "ask-selected-building", "/miniapp/buildings/query", "buildingQuestion", "queryResult",
+    ),
+    @bunnia.operator_submit_endpoint(
+      "create-agent", "/miniapp/agents", "agentDraft", "agentResult",
+    ),
+  ])
+}
+
+///|
+pub fn demo_effect_plan() -> @bunnia.EffectPlan {
+  @bunnia.plan_backend_effects_for_platform(
+    demo_backend_contract(),
+    @bunnia.wechat(),
+  )
+}
+
+///|
+pub fn demo_scene() -> @bunnia.Scene {
+  let projection = demo_projection()
+  @bunnia.scene(
+    "moontown-map",
+    @bunnia.scene_size(1180, 720),
+    [
+      @bunnia.layer("districts", 1, [], regions=[
+        @bunnia.region(
+          id="central",
+          label="Central",
+          x=72,
+          y=80,
+          width=460,
+          height=260,
+          status="stable",
+          tap_message="select-policy-hall",
+        ),
+        @bunnia.region(
+          id="east-market",
+          label="East Market",
+          x=596,
+          y=178,
+          width=420,
+          height=320,
+          status="running",
+          tap_message="select-market-square",
+        ),
+      ]),
+      @bunnia.layer(
+        "buildings",
+        2,
+        markers_from_buildings(visible_buildings(projection)),
+      ),
+    ],
+    assets=demo_scene_assets(),
+  )
+}
+
+///|
+pub fn demo_camera() -> @bunnia.SceneCamera {
+  @bunnia.scene_camera(scene_id="moontown-map", x=0, y=0, width=640, height=480)
+}
+
+///|
+pub fn demo_scene_render_plan() -> @bunnia.SceneRenderPlan {
+  @bunnia.plan_scene_render_viewport(
+    demo_scene(),
+    @bunnia.scene_viewport(x=0, y=0, width=640, height=480),
+    @bunnia.default_scene_render_budget(),
+  )
+}
+
+///|
+pub fn demo_scene_surface_plan() -> @bunnia.SceneSurfacePlan {
+  @bunnia.plan_scene_surface_for_platform(
+    demo_scene(),
+    @bunnia.wechat(),
+    preference=@bunnia.prefer_static_surface(),
+  )
+}
+
+///|
+pub fn demo_scene_thread_plan() -> @bunnia.SceneThreadPlan {
+  let scene = demo_scene()
+  let camera = demo_camera()
+  let camera_plan = @bunnia.plan_scene_camera(scene, camera)
+  @bunnia.plan_scene_threads_viewport_with_budget(
+    scene,
+    camera_plan.viewport,
+    demo_scene_thread_links(demo_projection()),
+    @bunnia.scene_thread_budget(max_visible_links=8, max_unread_total=12),
+  )
+}
+
+///|
+pub fn demo_asset_plan() -> @bunnia.SceneAssetPlan {
+  @bunnia.plan_scene_assets(demo_scene_assets())
+}
+
+///|
+pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
+  @bunnia.plan_scene_visual_quality_viewport(
+    demo_scene(),
+    @bunnia.scene_viewport(x=0, y=0, width=640, height=480),
+    @bunnia.default_scene_render_budget(),
+    @bunnia.default_scene_asset_budget(),
+    @bunnia.default_scene_visual_quality_budget(),
+  )
+}
+
+///|
+pub fn demo_project_inspection() -> @bunnia.ProjectInspection {
+  let project = demo_wechat_project()
+  let report = @bunnia.report_wechat_project(project, demo_runtime())
+  @bunnia.inspect_wechat_project(
+    target="wechat",
+    example="moontown_miniapp",
+    project,
+    report,
+  )
+}
+
+///|
+fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
+  let scene = demo_scene()
+  let camera = demo_camera()
+  let camera_plan = @bunnia.plan_scene_camera(scene, camera)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-fullscreen")], [
+    @bunnia.static_scene_view_with_camera(scene, camera),
+    @bunnia.windowed_anchored_scene_thread_overlay_with_viewport(
+      scene,
+      camera_plan.viewport,
+      demo_scene_thread_links(projection),
+      total_count=demo_scene_thread_links(projection).length(),
+    ),
+  ])
+}
+
+///|
+fn visibility_strip(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-visibility-strip")], [
+    @bunnia.windowed_list(
+      visible_buildings(projection),
+      total_count=visible_buildings(projection).length(),
+      render=visibility_chip,
+    ),
+  ])
+}
+
+///|
+fn visibility_chip(building : MiniTownBuilding) -> @bunnia.Node {
+  @bunnia.keyed(
+    "visibility-\{building.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-visibility-chip"),
+        @bunnia.data("building-id", building.id),
+        @bunnia.data("visibility", building.visibility),
+      ],
+      [@bunnia.text("\{building.title}: \{building.visibility}")],
+    ),
+  )
+}
+
+///|
+fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-user-switcher")], [
+    @bunnia.text("User: \{projection.active_user_id}"),
+    @bunnia.button("Ada", "switch-user-a"),
+    @bunnia.button("Bo", "switch-user-b"),
+  ])
+}
+
+///|
+fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
+  let building = selected_building(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name(
+        "moontown-building-drawer bunnia-status-\{building.status}",
+      ),
+      @bunnia.data("building-id", building.id),
+      @bunnia.data("visibility", building.visibility),
+    ],
+    [
+      @bunnia.text(building.title),
+      @bunnia.text(building.summary),
+      @bunnia.text("visibility: \{building.visibility}"),
+      @bunnia.button("Ask", "ask-selected-building"),
+      @bunnia.button("Place", "place-published-building"),
+    ],
+  )
+}
+
+///|
+fn search_drawer(projection : MiniTownProjection) -> @bunnia.Node {
+  let results = search_results(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-search-drawer")], [
+    @bunnia.input(
+      name="buildingSearch",
+      value=projection.search_query,
+      input_message="search-buildings",
+    ),
+    @bunnia.windowed_list(
+      results,
+      total_count=results.length(),
+      render=building_result,
+    ),
+  ])
+}
+
+///|
+fn building_result(building : MiniTownBuilding) -> @bunnia.Node {
+  @bunnia.keyed(
+    building.id,
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name(
+          "moontown-search-result bunnia-status-\{building.status}",
+        ),
+        @bunnia.data("building-id", building.id),
+      ],
+      [
+        @bunnia.text(building.title),
+        @bunnia.text(building.kind),
+        @bunnia.button("Open", "select-\{building.id}"),
+      ],
+    ),
+  )
+}
+
+///|
+fn chat_drawer(projection : MiniTownProjection) -> @bunnia.Node {
+  let agent = selected_agent(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-chat-drawer")], [
+    @bunnia.text("Agent: \{agent.name}"),
+    @bunnia.windowed_message_feed(
+      bunnia_messages(projection.messages),
+      total_count=projection.messages.length(),
+    ),
+    @bunnia.review_controls(
+      @bunnia.review_action(
+        id="accept-book-memory",
+        label="Accept memory",
+        approve_message="ask-selected-building",
+        reject_message="create-agent",
+      ),
+    ),
+  ])
+}
+
+///|
+fn create_drawer(_projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-create-drawer")], [
+    @bunnia.form("create-private-building", [
+      @bunnia.input(name="buildingTitle", value="New Agent Lab"),
+      @bunnia.button("Create Building", "create-private-building"),
+    ]),
+    @bunnia.form("create-agent", [
+      @bunnia.input(name="agentName", value="New Agent"),
+      @bunnia.button("Create Agent", "create-agent"),
+    ]),
+  ])
+}
+
+///|
+fn markers_from_buildings(
+  buildings : Array[MiniTownBuilding],
+) -> Array[@bunnia.SceneMarker] {
+  let markers : Array[@bunnia.SceneMarker] = []
+  for building in buildings {
+    markers.push(
+      @bunnia.marker(
+        id=building.id,
+        label=building.title,
+        x=building.x,
+        y=building.y,
+        status=building.status,
+        tap_message="select-\{building.id}",
+        asset_ref=building.asset_ref,
+        hit_width=52,
+        hit_height=52,
+      ),
+    )
+  }
+  markers
+}
+
+///|
+fn bunnia_messages(messages : Array[MiniTownMessage]) -> Array[@bunnia.Message] {
+  let output : Array[@bunnia.Message] = []
+  for item in messages {
+    output.push(
+      @bunnia.message(
+        id=item.id,
+        actor_id=item.actor_id,
+        thread_id=item.thread_id,
+        text=item.text,
+        status=item.status,
+      ),
+    )
+  }
+  output
+}
+
+///|
+fn demo_scene_thread_links(
+  projection : MiniTownProjection,
+) -> Array[@bunnia.SceneThreadLink] {
+  let links : Array[@bunnia.SceneThreadLink] = []
+  for building in visible_buildings(projection) {
+    links.push(
+      @bunnia.scene_marker_thread_link(
+        id="thread-link-\{building.id}",
+        scene_id="moontown-map",
+        marker_id=building.id,
+        thread_id="thread-\{building.id}",
+        subject_ref="scene://moontown-map/\{building.id}",
+        status=building.status,
+        unread_count=if building.status == "review" { 1 } else { 0 },
+        open_message="open-thread-\{building.id}",
+      ),
+    )
+  }
+  links
+}
+
+///|
+fn demo_communications(
+  projection : MiniTownProjection,
+) -> Array[@bunnia.Communication] {
+  [
+    @bunnia.message_event(
+      id="comm-town-loaded",
+      thread_id="thread-policy-hall",
+      from_actor_id="system",
+      text="Mock town snapshot loaded for the active user.",
+    ),
+    @bunnia.message_event(
+      id="comm-building-query",
+      thread_id="thread-policy-hall",
+      from_actor_id=selected_agent(projection).id,
+      text="Building query produced a mock answer.",
+      artifact_ref="artifact://book-policy-hall",
+    ),
+    @bunnia.review_request(
+      id="comm-memory-review",
+      thread_id="thread-policy-hall",
+      from_actor_id=selected_agent(projection).id,
+      to_actor_id=projection.active_user_id,
+      text="Accept this answer into building book memory.",
+      artifact_ref="artifact://book-policy-hall",
+    ),
+  ]
+}
+
+///|
+fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
+  [
+    @bunnia.sprite_asset(
+      "moontown-building", "/assets/moontown-building.png", 4096,
+    ),
+  ]
+}
+
+///|
+fn demo_initial_data_json() -> String {
+  "{\"backendBaseUrl\":\"\",\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+}

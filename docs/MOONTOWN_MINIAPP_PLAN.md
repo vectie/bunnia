@@ -398,6 +398,21 @@ Acceptance:
 - Bunnia inspect reports first-screen, update-payload, scene, repeated-list,
   agent, and backend pressure.
 
+Current evidence:
+
+- Bunnia `examples/moontown_miniapp` generates a WeChat project at
+  `pages/moontown/index` with a full-screen Moontown scene, visible building
+  markers, selected-building drawer, search drawer, chat/review drawer, and
+  create-building/create-agent forms backed by runtime patches.
+- The example fixture has 2 users, 1 organization, 10 buildings across
+  private/shared/published/system-like ownership, 3 agents, mock messages, user
+  switching, private building creation, published building placement, building
+  search, and mock ask/answer review flow.
+- Tests cover generated WXML/JS/project files, backend endpoint wiring,
+  visibility filtering, create/search/agent model operations, scene/render
+  pressure, agent deltas, snapshot deltas, communication pressure, backend
+  pressure, asset/quality plans, and WeChat project inspection.
+
 ## Phase 6: Agent And Chat Runtime
 
 Classification: feature.

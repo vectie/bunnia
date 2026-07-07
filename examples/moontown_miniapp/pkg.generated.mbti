@@ -1,0 +1,130 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/examples/moontown_miniapp"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/adapters/wechat",
+  "vectie/bunnia/agent",
+  "vectie/bunnia/core",
+  "vectie/bunnia/effects",
+  "vectie/bunnia/scene",
+  "vectie/bunnia/tooling",
+}
+
+// Values
+pub fn create_agent_for_selected(MiniTownProjection, String, String) -> MiniTownProjection
+
+pub fn create_private_building(MiniTownProjection, String, String) -> MiniTownProjection
+
+pub fn demo_agent_delta_plan() -> @agent.AgentDeltaPlan
+
+pub fn demo_asset_plan() -> @scene.SceneAssetPlan
+
+pub fn demo_backend_contract() -> @effects.BackendContract
+
+pub fn demo_camera() -> @scene.SceneCamera
+
+pub fn demo_communication_plan() -> @agent.CommunicationPlan
+
+pub fn demo_effect_plan() -> @effects.EffectPlan
+
+pub fn demo_patch_plan() -> @core.PatchPlan
+
+pub fn demo_project_inspection() -> @tooling.ProjectInspection
+
+pub fn demo_projection() -> MiniTownProjection
+
+pub fn demo_runtime() -> @wechat.WechatRuntime
+
+pub fn demo_scene() -> @scene.Scene
+
+pub fn demo_scene_render_plan() -> @scene.SceneRenderPlan
+
+pub fn demo_scene_surface_plan() -> @scene.SceneSurfacePlan
+
+pub fn demo_scene_thread_plan() -> @scene.SceneThreadPlan
+
+pub fn demo_scene_visual_quality_plan() -> @scene.SceneVisualQualityPlan
+
+pub fn demo_snapshot_delta_plan() -> @effects.SnapshotDeltaPlan
+
+pub fn demo_view() -> @core.Node
+
+pub fn demo_wechat_page() -> @wechat.WechatPage
+
+pub fn demo_wechat_project() -> @wechat.WechatProject
+
+pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.WechatProject
+
+pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
+
+pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
+
+pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
+
+pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
+
+pub fn mini_town_view(MiniTownProjection) -> @core.Node
+
+pub fn search_results(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
+
+pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
+
+pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
+
+pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
+
+// Errors
+
+// Types and methods
+pub struct MiniTownAgent {
+  id : String
+  name : String
+  building_id : String
+  status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownBuilding {
+  id : String
+  title : String
+  kind : String
+  visibility : String
+  owner_id : String
+  summary : String
+  tags : Array[String]
+  x : Int
+  y : Int
+  status : String
+  asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownMessage {
+  id : String
+  actor_id : String
+  thread_id : String
+  text : String
+  status : @agent.RunStatus
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownProjection {
+  id : String
+  active_user_id : String
+  organization_id : String
+  selected_building_id : String
+  search_query : String
+  users : Array[MiniTownUser]
+  buildings : Array[MiniTownBuilding]
+  agents : Array[MiniTownAgent]
+  messages : Array[MiniTownMessage]
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownUser {
+  id : String
+  name : String
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
