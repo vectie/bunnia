@@ -123,7 +123,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2,\"style\":\"transform:translate(-520px,-260px) scale(2.2)\"",
+      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",
     ),
   )
   assert_true(

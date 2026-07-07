@@ -204,7 +204,7 @@ fn moontown_map_page_methods_js() -> String {
   "    if(!m||!t.length)return\n" +
   "    if(t.length>1&&m.n===2){\n" +
   "      const c=this.__tc(t)\n" +
-  "      const s=this.__cl(m.s*this.__td(t)/(m.d||1),2.1,2.8)\n" +
+  "      const s=this.__cl(m.s*this.__td(t)/(m.d||1),2.6,3.4)\n" +
   "      const k=this.__mk(s)\n" +
   "      this.__mc(c.x-m.ax*k,c.y-m.ay*k,s)\n" +
   "    }else{\n" +
@@ -215,7 +215,7 @@ fn moontown_map_page_methods_js() -> String {
   "    this.__mt=null\n" +
   "  },\n" +
   "  __mc(x,y,scale){\n" +
-  "    const s=this.__cl(scale,2.1,2.8)\n" +
+  "    const s=this.__cl(scale,2.6,3.4)\n" +
   "    const fit=(rawX,rawY)=>{\n" +
   "      const win=this.__wi()\n" +
   "      const k=this.__mk(s)\n" +
@@ -958,5 +958,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.2,\"style\":\"transform:translate(-520px,-260px) scale(2.2)\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }
