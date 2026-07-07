@@ -96,3 +96,105 @@ test "release readiness blocks frontend secret markers" {
   )
   assert_true(release.summary.contains("diagnostics=1"))
 }
+
+///|
+test "generic miniapp release readiness passes clean project" {
+  let project = @miniapp.generate_project_with_budget(
+    name="Generic Release",
+    route="pages/generic/index",
+    root=@core.page([@core.button("Open", "open")]),
+    platform=@core.Alipay,
+    render_budget=@core.render_budget(
+      max_nodes=16,
+      max_depth=8,
+      max_events=4,
+      max_initial_data_bytes=1024,
+      max_scene_markers=4,
+      max_scene_regions=4,
+      max_scene_assets=4,
+    ),
+  )
+  let inspection = inspect_miniapp_project(
+    target="alipay",
+    example="generic_release",
+    project,
+  )
+  let inspection_gate = gate_miniapp_inspection(
+    inspection,
+    miniapp_inspection_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  let release = miniapp_release_readiness_report(
+    target="alipay",
+    example="generic_release",
+    budget_profile="tight",
+    project,
+    inspection,
+    inspection_gate,
+  )
+  assert_eq(release.status, "ready")
+  assert_eq(release.diagnostic_count, 0)
+  assert_eq(release.passed_count, release.checklist_count)
+  assert_true(release.summary.contains("generic miniapp release readiness"))
+  assert_true(release.summary.contains("checks=7/7"))
+}
+
+///|
+test "generic miniapp release readiness blocks target and budget diagnostics" {
+  let project = @miniapp.generate_project_with_budget(
+    name="Generic Blocked",
+    route="pages/generic-blocked/index",
+    root=@core.page([@core.button("Open", "open")]),
+    platform=@core.Alipay,
+    render_budget=@core.render_budget(
+      max_nodes=16,
+      max_depth=8,
+      max_events=4,
+      max_initial_data_bytes=1024,
+      max_scene_markers=4,
+      max_scene_regions=4,
+      max_scene_assets=4,
+    ),
+  )
+  let inspection = inspect_miniapp_project(
+    target="tiktok",
+    example="generic_blocked",
+    project,
+  )
+  let inspection_gate = gate_miniapp_inspection(
+    inspection,
+    miniapp_inspection_budget(
+      max_pages=1,
+      max_files=1,
+      max_total_bytes=128,
+      max_route_diagnostic_routes=0,
+      max_route_diagnostics=0,
+      max_nodes=1,
+      max_depth=1,
+      max_events=0,
+      max_scene_markers=0,
+      max_scene_regions=0,
+      max_scene_assets=0,
+    ),
+    budget_profile="tiny-custom",
+  )
+  let release = miniapp_release_readiness_report(
+    target="tiktok",
+    example="generic_blocked",
+    budget_profile="tiny-custom",
+    project,
+    inspection,
+    inspection_gate,
+  )
+  assert_eq(release.status, "blocked")
+  assert_true(
+    release.diagnostics.contains(
+      "release-miniapp-target-mismatch:alipay/tiktok",
+    ),
+  )
+  assert_true(
+    release.diagnostics.contains(
+      "release-miniapp-inspection-gate-diagnostics:\{inspection_gate.diagnostics.length()}",
+    ),
+  )
+}

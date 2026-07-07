@@ -648,23 +648,32 @@ fn run_generic_miniapp_build(
     @bunnia.miniapp_inspection_budget_for_profile(budget_profile),
     budget_profile~,
   )
+  let release = @bunnia.miniapp_release_readiness_report(
+    target~,
+    example~,
+    budget_profile~,
+    project,
+    inspection,
+    inspection_gate,
+  )
   if command == "inspect" {
     print_generic_miniapp_inspect_result(
       target, example, budget_profile, render_budget_profile, project, inspection,
-      inspection_gate,
+      inspection_gate, release,
     )
   } else {
     write_miniapp_project(output_dir, project)
     print_generic_miniapp_build_result(
       command, target, example, budget_profile, render_budget_profile, output_dir,
-      project, inspection, inspection_gate,
+      project, inspection, inspection_gate, release,
     )
   }
   if strict &&
     (
       project.page.plan.diagnostics.length() > 0 ||
       project.manifest.diagnostic_count > 0 ||
-      inspection_gate.diagnostics.length() > 0
+      inspection_gate.diagnostics.length() > 0 ||
+      release.diagnostics.length() > 0
     ) {
     println("build_failed=diagnostics")
     panic()
@@ -811,6 +820,7 @@ fn print_generic_miniapp_build_result(
   project : @bunnia.MiniappProject,
   inspection : @bunnia.MiniappInspection,
   inspection_gate : @bunnia.MiniappInspectionGate,
+  release : @bunnia.MiniappReleaseReadinessReport,
 ) -> Unit {
   println("command=\{command}")
   println("target=\{target}")
@@ -823,9 +833,11 @@ fn print_generic_miniapp_build_result(
   println(inspection.summary)
   println(inspection_gate.summary)
   print_miniapp_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
   print_diagnostics(project.page.plan.diagnostics)
   println(
-    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()}",
+    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()} release_status=\{release.status}",
   )
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
@@ -839,6 +851,7 @@ fn print_generic_miniapp_inspect_result(
   project : @bunnia.MiniappProject,
   inspection : @bunnia.MiniappInspection,
   inspection_gate : @bunnia.MiniappInspectionGate,
+  release : @bunnia.MiniappReleaseReadinessReport,
 ) -> Unit {
   println("command=inspect")
   println("target=\{target}")
@@ -851,9 +864,11 @@ fn print_generic_miniapp_inspect_result(
   println(inspection.summary)
   println(inspection_gate.summary)
   print_miniapp_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
   print_diagnostics(project.page.plan.diagnostics)
   println(
-    "inspect=target=\{target} example=\{example} pages=\{inspection.page_count} files=\{inspection.file_count} bytes=\{inspection.total_bytes} max_nodes=\{inspection.max_node_count} max_depth=\{inspection.max_depth} max_events=\{inspection.max_event_count} max_scene_markers=\{inspection.max_scene_marker_count} max_scene_regions=\{inspection.max_scene_region_count} max_scene_assets=\{inspection.max_scene_asset_count} route_diagnostic_routes=\{inspection.diagnostic_route_count} route_diagnostics=\{inspection.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()} status=\{inspection.status}",
+    "inspect=target=\{target} example=\{example} pages=\{inspection.page_count} files=\{inspection.file_count} bytes=\{inspection.total_bytes} max_nodes=\{inspection.max_node_count} max_depth=\{inspection.max_depth} max_events=\{inspection.max_event_count} max_scene_markers=\{inspection.max_scene_marker_count} max_scene_regions=\{inspection.max_scene_region_count} max_scene_assets=\{inspection.max_scene_asset_count} route_diagnostic_routes=\{inspection.diagnostic_route_count} route_diagnostics=\{inspection.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()} release_status=\{release.status} status=\{inspection.status}",
   )
   for page in project.manifest.pages {
     println(

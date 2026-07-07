@@ -761,6 +761,10 @@ Current evidence:
   count, total bytes, route diagnostics, node depth, event pressure, and scene
   pressure, so strict Alipay/TikTok builds and inspect runs can fail on budget
   regressions before full snapshot/watch parity exists.
+- Generic Alipay/TikTok build and inspect paths now run a target-neutral
+  release-readiness report for target/manifest consistency, required manifest
+  files, frontend secret markers, route diagnostics, and inspection-gate
+  diagnostics, so Phase 8 preflight checks are not WeChat-only.
 
 Later expansion:
 
@@ -1078,8 +1082,14 @@ Current evidence:
   frontend secret markers, backend request/audit hooks, remote scene-asset
   policy, profile gates, and inspection gates into a deterministic preflight
   status for generated WeChat projects.
+- `@bunnia.miniapp_release_readiness_report(...)` applies the same production
+  readiness shape to generic Alipay/TikTok output, covering target/manifest
+  consistency, required app/manifest files, frontend secret markers, route
+  diagnostics, and generic inspection gates before vendor-specific release
+  packaging exists.
 - The CLI prints release readiness during build, inspect, and snapshot flows,
-  and `--strict` treats release diagnostics as build-blocking.
+  including generic Alipay/TikTok build and inspect flows, and `--strict`
+  treats release diagnostics as build-blocking.
 
 Leave room now:
 

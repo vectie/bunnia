@@ -330,10 +330,20 @@ test "generic miniapp build selects non wechat project files" {
     @bunnia.miniapp_inspection_budget_for_profile("tight"),
     budget_profile="tight",
   )
+  let release = @bunnia.miniapp_release_readiness_report(
+    target="alipay",
+    example="agent_map",
+    budget_profile="tight",
+    project,
+    inspection,
+    gate,
+  )
   assert_eq(inspection.status, "ok")
   assert_eq(inspection.file_count, 7)
   assert_eq(inspection.max_event_count, 12)
   assert_eq(gate.diagnostics.length(), 0)
+  assert_eq(release.status, "ready")
+  assert_eq(release.diagnostics.length(), 0)
   assert_true(has_miniapp_file(project.files, "pages/index/index.axml"))
   assert_true(has_miniapp_file(project.files, "pages/index/index.acss"))
   assert_true(has_miniapp_file(project.files, "bunnia.manifest.json"))
@@ -364,6 +374,14 @@ test "generic miniapp inspect accepts non wechat targets without project write" 
     @bunnia.miniapp_inspection_budget_for_profile("tight"),
     budget_profile="tight",
   )
+  let release = @bunnia.miniapp_release_readiness_report(
+    target="tiktok",
+    example="agent_map",
+    budget_profile="tight",
+    project,
+    inspection,
+    gate,
+  )
   assert_eq(
     command_from_args(["node", "main.js", "inspect", "--target", "tiktok"]),
     "inspect",
@@ -374,8 +392,10 @@ test "generic miniapp inspect accepts non wechat targets without project write" 
   assert_eq(inspection.file_count, 7)
   assert_eq(inspection.diagnostic_count, 0)
   assert_eq(gate.diagnostics.length(), 0)
+  assert_eq(release.status, "ready")
   assert_true(inspection.summary.contains("status=ok"))
   assert_true(gate.summary.contains("budget=tight"))
+  assert_true(release.summary.contains("target=tiktok"))
 }
 
 ///|

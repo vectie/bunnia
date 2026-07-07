@@ -332,6 +332,9 @@ pub type ProjectInspectionGate = @tooling.ProjectInspectionGate
 pub type ReleaseReadinessReport = @tooling.ReleaseReadinessReport
 
 ///|
+pub type MiniappReleaseReadinessReport = @tooling.ReleaseReadinessReport
+
+///|
 pub type MiniappInspection = @tooling.MiniappInspection
 
 ///|
@@ -3238,6 +3241,25 @@ pub fn release_readiness_report(
     project,
     profile,
     profile_gate,
+    inspection,
+    inspection_gate,
+  )
+}
+
+///|
+pub fn miniapp_release_readiness_report(
+  target~ : String,
+  example~ : String,
+  budget_profile~ : String,
+  project : MiniappProject,
+  inspection : MiniappInspection,
+  inspection_gate : MiniappInspectionGate,
+) -> MiniappReleaseReadinessReport {
+  @tooling.miniapp_release_readiness_report(
+    target~,
+    example~,
+    budget_profile~,
+    project,
     inspection,
     inspection_gate,
   )

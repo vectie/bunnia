@@ -339,6 +339,8 @@ pub fn miniapp_inspection_budget(max_pages~ : Int, max_files~ : Int, max_total_b
 
 pub fn miniapp_inspection_budget_for_profile(String) -> @tooling.MiniappInspectionBudget
 
+pub fn miniapp_release_readiness_report(target~ : String, example~ : String, budget_profile~ : String, @miniapp.MiniappProject, @tooling.MiniappInspection, @tooling.MiniappInspectionGate) -> @tooling.ReleaseReadinessReport
+
 pub fn navigate(String, String) -> @effects.Effect
 
 pub fn node(kind~ : String, key? : String, attrs? : Array[@core.Attr], events? : Array[@core.EventBinding], children? : Array[@core.Node], text? : String) -> @core.Node
@@ -851,6 +853,8 @@ pub using @miniapp {type MiniappProject}
 pub using @miniapp {type MiniappProjectManifest}
 
 pub using @miniapp {type MiniappProjectPage}
+
+pub using @tooling {type ReleaseReadinessReport as MiniappReleaseReadinessReport}
 
 pub using @core {type Node}
 

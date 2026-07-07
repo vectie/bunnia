@@ -40,6 +40,8 @@ pub fn miniapp_inspection_budget(max_pages~ : Int, max_files~ : Int, max_total_b
 
 pub fn miniapp_inspection_budget_for_profile(String) -> MiniappInspectionBudget
 
+pub fn miniapp_release_readiness_report(target~ : String, example~ : String, budget_profile~ : String, @miniapp.MiniappProject, MiniappInspection, MiniappInspectionGate) -> ReleaseReadinessReport
+
 pub fn platform_generator_available(PlatformGeneratorStatus) -> Bool
 
 pub fn platform_generator_status_id(PlatformGeneratorStatus) -> String
