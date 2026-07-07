@@ -225,7 +225,10 @@ route-risk, update-operation ceilings, backend pressure, scene-asset ceilings,
 packaged scene-byte ceilings, duplicate stream chunks, full snapshot
 replacements, scene thread orphans, clamped cameras, surface fallbacks,
 visual-quality issues, and degraded scenes. That makes strict map-heavy and
-agent-heavy checks reviewable before the commands run. Add `--script` to emit a
+agent-heavy checks reviewable before the commands run. Build, inspect, and
+snapshot output also include a release-readiness line that aggregates manifest
+coverage, frontend secret checks, backend audit hooks, remote scene-asset policy,
+and the profile/inspection gates into a pilot preflight status. Add `--script` to emit a
 deterministic `sh` script from the same plan; invalid plans print diagnostics
 and exit before running generated commands.
 

@@ -329,6 +329,9 @@ pub type ProjectInspectionBudget = @tooling.ProjectInspectionBudget
 pub type ProjectInspectionGate = @tooling.ProjectInspectionGate
 
 ///|
+pub type ReleaseReadinessReport = @tooling.ReleaseReadinessReport
+
+///|
 pub type ScaffoldFile = @tooling.ScaffoldFile
 
 ///|
@@ -3152,6 +3155,29 @@ pub fn gate_build_profile(
   budget_profile? : String = "custom",
 ) -> BuildProfileGate {
   @tooling.gate_build_profile(profile, budget, budget_profile~)
+}
+
+///|
+pub fn release_readiness_report(
+  target~ : String,
+  example~ : String,
+  budget_profile~ : String,
+  project : WechatProject,
+  profile : BuildProfile,
+  profile_gate : BuildProfileGate,
+  inspection : ProjectInspection,
+  inspection_gate : ProjectInspectionGate,
+) -> ReleaseReadinessReport {
+  @tooling.release_readiness_report(
+    target~,
+    example~,
+    budget_profile~,
+    project,
+    profile,
+    profile_gate,
+    inspection,
+    inspection_gate,
+  )
 }
 
 ///|

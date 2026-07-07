@@ -1068,6 +1068,15 @@ Acceptance checks:
   platform targets so a release candidate can be reviewed without manual
   reverse engineering.
 
+Current evidence:
+
+- `@bunnia.release_readiness_report(...)` aggregates manifest coverage,
+  frontend secret markers, backend request/audit hooks, remote scene-asset
+  policy, profile gates, and inspection gates into a deterministic preflight
+  status for generated WeChat projects.
+- The CLI prints release readiness during build, inspect, and snapshot flows,
+  and `--strict` treats release diagnostics as build-blocking.
+
 Leave room now:
 
 - Keep security-sensitive operations in backend contracts.

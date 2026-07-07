@@ -451,6 +451,8 @@ pub fn recovery_notice(id~ : String, thread_id~ : String, from_actor_id~ : Strin
 
 pub fn region(id~ : String, label~ : String, x~ : Int, y~ : Int, width~ : Int, height~ : Int, status? : String, tap_message? : String) -> @scene.SceneRegion
 
+pub fn release_readiness_report(target~ : String, example~ : String, budget_profile~ : String, @wechat.WechatProject, @tooling.BuildProfile, @tooling.BuildProfileGate, @tooling.ProjectInspection, @tooling.ProjectInspectionGate) -> @tooling.ReleaseReadinessReport
+
 pub fn remote_image_asset(String, String) -> @scene.SceneAsset
 
 pub fn remove_path(String) -> @core.Patch
@@ -867,6 +869,8 @@ pub using @tooling {type ProjectInspection}
 pub using @tooling {type ProjectInspectionBudget}
 
 pub using @tooling {type ProjectInspectionGate}
+
+pub using @tooling {type ReleaseReadinessReport}
 
 pub using @core {type RenderBudget}
 

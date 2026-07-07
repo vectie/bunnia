@@ -552,6 +552,16 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     @bunnia.build_profile_budget_for_profile(budget_profile),
     budget_profile~,
   )
+  let release = @bunnia.release_readiness_report(
+    target~,
+    example~,
+    budget_profile~,
+    project,
+    profile,
+    profile_gate,
+    inspection,
+    inspection_gate,
+  )
   let strict = strict_from_args(args)
   if command == "inspect" {
     let snapshot = snapshot_for_build(
@@ -565,7 +575,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     )
     print_inspect_result(
       target, example, budget_profile, render_budget_profile, project, report, patches,
-      profile, profile_gate, snapshot, inspection, inspection_gate,
+      profile, profile_gate, snapshot, inspection, inspection_gate, release,
     )
   } else if command == "snapshot" {
     let snapshot = snapshot_for_build(
@@ -579,7 +589,7 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     )
     print_snapshot_result(
       target, example, budget_profile, render_budget_profile, project, report, patches,
-      profile, profile_gate, inspection_gate,
+      profile, profile_gate, inspection_gate, release,
     )
     let snapshot_path = snapshot_output_path_from_args(args, target, example)
     write_text_file(snapshot_path, snapshot.content)
@@ -589,14 +599,14 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
     write_project(output_dir, project)
     print_build_result(
       command, target, example, budget_profile, render_budget_profile, output_dir,
-      project, report, patches, profile, profile_gate, inspection_gate,
+      project, report, patches, profile, profile_gate, inspection_gate, release,
     )
   } else {
     println("unsupported command=\{command}")
     panic()
   }
   if should_fail_build(
-      strict, project, report, patches, profile, profile_gate, inspection_gate,
+      strict, project, report, patches, profile, profile_gate, inspection_gate, release,
     ) {
     println("build_failed=diagnostics")
     panic()
@@ -711,6 +721,7 @@ fn print_snapshot_result(
   profile : @bunnia.BuildProfile,
   profile_gate : @bunnia.BuildProfileGate,
   inspection_gate : @bunnia.ProjectInspectionGate,
+  release : @bunnia.ReleaseReadinessReport,
 ) -> Unit {
   println("command=snapshot")
   println("target=\{target}")
@@ -729,6 +740,8 @@ fn print_snapshot_result(
   print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
 }
 
 ///|
@@ -745,6 +758,7 @@ fn print_build_result(
   profile : @bunnia.BuildProfile,
   profile_gate : @bunnia.BuildProfileGate,
   inspection_gate : @bunnia.ProjectInspectionGate,
+  release : @bunnia.ReleaseReadinessReport,
 ) -> Unit {
   println("command=\{command}")
   println("target=\{target}")
@@ -763,6 +777,8 @@ fn print_build_result(
   print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
 
@@ -805,6 +821,7 @@ fn print_inspect_result(
   snapshot : @bunnia.GeneratedSnapshot,
   inspection : @bunnia.ProjectInspection,
   inspection_gate : @bunnia.ProjectInspectionGate,
+  release : @bunnia.ReleaseReadinessReport,
 ) -> Unit {
   println("command=inspect")
   println("target=\{target}")
@@ -823,6 +840,8 @@ fn print_inspect_result(
   print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println(release.summary)
+  print_release_diagnostics(release.diagnostics)
   println(snapshot.summary)
   println(inspection.summary)
   println(
@@ -865,6 +884,13 @@ fn print_inspection_gate_diagnostics(items : Array[String]) -> Unit {
 fn print_profile_gate_diagnostics(items : Array[String]) -> Unit {
   for item in items {
     println("profile_gate_diagnostic=\{item}")
+  }
+}
+
+///|
+fn print_release_diagnostics(items : Array[String]) -> Unit {
+  for item in items {
+    println("release_diagnostic=\{item}")
   }
 }
 
@@ -912,6 +938,7 @@ fn should_fail_build(
   profile : @bunnia.BuildProfile,
   profile_gate : @bunnia.BuildProfileGate,
   inspection_gate : @bunnia.ProjectInspectionGate,
+  release : @bunnia.ReleaseReadinessReport,
 ) -> Bool {
   strict &&
   (
@@ -920,7 +947,8 @@ fn should_fail_build(
     patches.diagnostics.length() > 0 ||
     profile.diagnostics.length() > 0 ||
     profile_gate.diagnostics.length() > 0 ||
-    inspection_gate.diagnostics.length() > 0
+    inspection_gate.diagnostics.length() > 0 ||
+    release.diagnostics.length() > 0
   )
 }
 

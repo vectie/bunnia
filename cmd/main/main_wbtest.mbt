@@ -592,15 +592,18 @@ test "build example flag selects Wenyu project" {
     "wechat", "wenyu_overview", project, report,
   )
   let profile_gate = profile_gate_for_test(profile)
+  let release = release_for_test(
+    "wechat", "wenyu_overview", project, report, profile, profile_gate, gate,
+  )
   assert_eq(
     should_fail_build(
-      false, project, report, patches, profile, profile_gate, gate,
+      false, project, report, patches, profile, profile_gate, gate, release,
     ),
     false,
   )
   assert_eq(
     should_fail_build(
-      true, project, report, patches, profile, profile_gate, gate,
+      true, project, report, patches, profile, profile_gate, gate, release,
     ),
     false,
   )
@@ -671,9 +674,12 @@ test "build example flag selects Moontown miniapp project" {
     @bunnia.build_profile_budget_for_profile("large"),
     budget_profile="large",
   )
+  let release = release_for_test_with_budget(
+    "wechat", "moontown_miniapp", project, report, profile, profile_gate, gate, "large",
+  )
   assert_eq(
     should_fail_build(
-      true, project, report, patches, profile, profile_gate, gate,
+      true, project, report, patches, profile, profile_gate, gate, release,
     ),
     false,
   )
@@ -708,6 +714,12 @@ test "build profile keeps agent map diagnostics visible" {
   let profile_gate = profile_gate_for_test(profile)
   let tiny_gate = inspection_gate_for_test_with_profile(
     "wechat", "agent_map", project, report, "tiny",
+  )
+  let release = release_for_test(
+    "wechat", "agent_map", project, report, profile, profile_gate, gate,
+  )
+  let tiny_release = release_for_test(
+    "wechat", "agent_map", project, report, profile, profile_gate, tiny_gate,
   )
   assert_eq(profile.route, "pages/index/index")
   assert_eq(profile.scene_marker_count, 2)
@@ -766,25 +778,25 @@ test "build profile keeps agent map diagnostics visible" {
   )
   assert_eq(
     should_fail_build(
-      false, project, report, bad_patches, profile, profile_gate, gate,
+      false, project, report, bad_patches, profile, profile_gate, gate, release,
     ),
     false,
   )
   assert_eq(
     should_fail_build(
-      true, project, report, bad_patches, profile, profile_gate, gate,
+      true, project, report, bad_patches, profile, profile_gate, gate, release,
     ),
     true,
   )
   assert_eq(
     should_fail_build(
-      true, project, tiny_report, patches, profile, profile_gate, gate,
+      true, project, tiny_report, patches, profile, profile_gate, gate, release,
     ),
     true,
   )
   assert_eq(
     should_fail_build(
-      true, project, report, patches, profile, profile_gate, tiny_gate,
+      true, project, report, patches, profile, profile_gate, tiny_gate, tiny_release,
     ),
     true,
   )
@@ -831,15 +843,18 @@ test "build render budget can fail map-heavy routes before preview" {
   )
   let gate = inspection_gate_for_test("wechat", "agent_map", project, report)
   let profile_gate = profile_gate_for_test(profile)
+  let release = release_for_test(
+    "wechat", "agent_map", project, report, profile, profile_gate, gate,
+  )
   assert_eq(
     should_fail_build(
-      false, project, report, patches, profile, profile_gate, gate,
+      false, project, report, patches, profile, profile_gate, gate, release,
     ),
     false,
   )
   assert_eq(
     should_fail_build(
-      true, project, report, patches, profile, profile_gate, gate,
+      true, project, report, patches, profile, profile_gate, gate, release,
     ),
     true,
   )
@@ -854,6 +869,44 @@ fn inspection_gate_for_test(
 ) -> @bunnia.ProjectInspectionGate {
   inspection_gate_for_test_with_profile(
     target, example, project, report, "default",
+  )
+}
+
+///|
+fn release_for_test(
+  target : String,
+  example : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
+  inspection_gate : @bunnia.ProjectInspectionGate,
+) -> @bunnia.ReleaseReadinessReport {
+  release_for_test_with_budget(
+    target, example, project, report, profile, profile_gate, inspection_gate, "tight",
+  )
+}
+
+///|
+fn release_for_test_with_budget(
+  target : String,
+  example : String,
+  project : @bunnia.WechatProject,
+  report : @bunnia.WechatBuildReport,
+  profile : @bunnia.BuildProfile,
+  profile_gate : @bunnia.BuildProfileGate,
+  inspection_gate : @bunnia.ProjectInspectionGate,
+  budget_profile : String,
+) -> @bunnia.ReleaseReadinessReport {
+  @bunnia.release_readiness_report(
+    target~,
+    example~,
+    budget_profile~,
+    project,
+    profile,
+    profile_gate,
+    @bunnia.inspect_wechat_project(target~, example~, project, report),
+    inspection_gate,
   )
 }
 
