@@ -287,23 +287,50 @@ test "ci plan shell script exits before bad workflow commands" {
 }
 
 ///|
-test "ci plan gives generic targets a build-only workflow" {
+test "ci plan gives generic targets the full generated-output workflow" {
   let plan = ci_plan(target="alipay", examples=["agent_map"])
   assert_eq(plan.target_known, true)
   assert_eq(plan.target_generator_status_id, "available")
   assert_eq(plan.target_generator_available, true)
   assert_eq(plan.diagnostics.length(), 0)
-  assert_eq(plan.step_count, 10)
+  assert_eq(plan.step_count, 13)
   assert_eq(
     plan.steps[7].command,
     "moon run cmd/main -- limits --target alipay",
   )
-  assert_eq(plan.steps[8].name, "build-agent_map")
-  assert_true(plan.steps[8].command.contains("build --target alipay"))
-  assert_true(!plan.steps[8].command.contains("inspect"))
-  assert_eq(plan.steps[9].name, "scaffold-smoke")
+  assert_eq(plan.steps[8].name, "inspect-agent_map")
+  assert_true(plan.steps[8].command.contains("inspect --target alipay"))
+  assert_true(plan.steps[8].purpose.contains("generic mini-app"))
+  assert_eq(plan.steps[9].name, "build-agent_map")
+  assert_true(plan.steps[9].command.contains("build --target alipay"))
+  assert_eq(plan.steps[10].name, "watch-once-agent_map")
+  assert_true(plan.steps[10].command.contains("watch --target alipay"))
+  assert_true(plan.steps[10].command.contains("--once"))
+  assert_eq(plan.steps[11].name, "snapshot-agent_map")
+  assert_true(plan.steps[11].command.contains("snapshot --target alipay"))
+  assert_true(plan.steps[11].command.contains("alipay/agent_map.snapshot.txt"))
+  assert_eq(plan.steps[12].name, "scaffold-smoke")
   assert_true(plan.summary.contains("target_generator_status=available"))
   assert_true(plan.summary.contains("target_generator=true"))
+}
+
+///|
+test "ci plan shell script includes generic target workflow" {
+  let plan = ci_plan(target="tiktok", examples=["agent_map"])
+  let script = ci_plan_shell_script(plan)
+  assert_eq(plan.step_count, 13)
+  assert_true(script.contains("moon run cmd/main -- inspect --target tiktok"))
+  assert_true(script.contains("moon run cmd/main -- build --target tiktok"))
+  assert_true(script.contains("moon run cmd/main -- watch --target tiktok"))
+  assert_true(script.contains("--out _build/bunnia/watch/tiktok/agent_map"))
+  assert_true(script.contains("moon run cmd/main -- snapshot --target tiktok"))
+  assert_true(
+    script.contains(
+      "--snapshot-out _build/bunnia/snapshots/tiktok/agent_map.snapshot.txt",
+    ),
+  )
+  assert_true(script.contains("printf '%s\\n' \"==> scaffold-smoke\""))
+  assert_true(!script.contains("exit 1"))
 }
 
 ///|

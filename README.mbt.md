@@ -221,7 +221,9 @@ stays product-neutral; the root CLI explicitly includes the Wenyu proof slice
 as an example stress test. Pass `--render-budget` to make render pressure
 stricter or looser than generated file-size gates. Unknown budget profile names
 and unsupported targets are printed as CI-plan diagnostics before contributors
-copy the generated commands. The CI plan also prints the inspection-gate and
+copy the generated commands. Use `--target alipay` or `--target tiktok` to print
+the same inspect, strict build, watch-once, and snapshot workflow for the
+generic mini-app adapters. The CI plan also prints the inspection-gate and
 profile-gate thresholds derived from the selected budget profile, including
 route-risk, update-operation ceilings, backend pressure, scene-asset ceilings,
 packaged scene-byte ceilings, duplicate stream chunks, full snapshot

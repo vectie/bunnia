@@ -952,6 +952,10 @@ Current evidence:
   generated-output and render budgets, plus a scaffold-smoke command that
   generates and validates a standalone starter, so contributors can inspect the
   workflow without reading shell docs.
+- `moon run cmd/main -- ci-plan --target alipay|tiktok` now emits the same
+  inspect, strict-build, watch-once, and snapshot workflow shape as WeChat for
+  the generic mini-app adapters, so Phase 6 parity is exercised by the normal
+  contributor gate instead of ad hoc commands.
 - `moon run cmd/main -- ci-plan --script` emits the same workflow as a
   deterministic `sh` script, including diagnostic-only failure output for
   unsupported targets or unknown budget profiles.

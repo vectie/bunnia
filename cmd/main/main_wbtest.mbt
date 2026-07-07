@@ -574,6 +574,30 @@ test "ci plan command accepts target budget example and snapshot dir" {
 }
 
 ///|
+test "ci plan command gives generic targets full workflow" {
+  let args = [
+    "node", "main.js", "ci-plan", "--target", "alipay", "--budget", "tight", "--render-budget",
+    "tight", "--example", "agent_map", "--snapshot-dir", "/tmp/bunnia-ci",
+  ]
+  let plan = ci_plan_from_args(args)
+  assert_eq(command_from_args(args), "ci-plan")
+  assert_eq(plan.target, "alipay")
+  assert_eq(plan.target_generator_available, true)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_eq(plan.step_count, 13)
+  assert_true(plan.steps[8].command.contains("inspect --target alipay"))
+  assert_true(plan.steps[9].command.contains("build --target alipay"))
+  assert_true(plan.steps[10].command.contains("watch --target alipay"))
+  assert_true(plan.steps[10].command.contains("--once"))
+  assert_true(
+    plan.steps[11].command.contains(
+      "/tmp/bunnia-ci/alipay/agent_map.snapshot.txt",
+    ),
+  )
+  assert_eq(plan.steps[12].command, "sh scripts/scaffold_smoke.sh")
+}
+
+///|
 test "ci plan command can emit shell script" {
   let args = [
     "node", "main.js", "ci-plan", "--script", "--example", "agent_map",
