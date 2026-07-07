@@ -184,7 +184,6 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 ///|
 fn moontown_map_page_methods_js() -> String {
   "  onLoad(){\n" +
-  "    this.__moontownMapBounceTimer=null\n" +
   "    this.__moontownClampMapViewport(this.data.mapViewport.x,this.data.mapViewport.y,this.data.mapViewport.scale,true)\n" +
   "  },\n" +
   "  onMoontownMapMove(event){\n" +
@@ -200,12 +199,11 @@ fn moontown_map_page_methods_js() -> String {
   "  },\n" +
   "  __moontownClampMapViewport(x,y,scale,immediate){\n" +
   "    const s=this.__moontownClampNumber(scale,2.1,2.8)\n" +
-  "    const fit=(rawX,rawY,padPx)=>{\n" +
+  "    const fit=(rawX,rawY)=>{\n" +
   "      const win=this.__mw||(this.__mw=(wx.getWindowInfo?wx.getWindowInfo():wx.getSystemInfoSync()))\n" +
   "      const k=2*s*win.windowWidth/750\n" +
   "      const vw=win.windowWidth/k\n" +
   "      const vh=win.windowHeight/k\n" +
-  "      const pad=padPx/k\n" +
   "      const rows=this.__moontownEdgeRows||(this.__moontownEdgeRows=[[0,275,280],[40,205,359],[80,114,440],[120,46,512],[160,0,592],[200,0,672],[240,0,752],[280,0,833],[320,0,912],[360,0,992],[400,0,1072],[440,0,1152],[480,0,1232],[520,77,1312],[560,157,1356],[600,237,1276],[640,317,1196],[680,397,1116],[720,477,1036],[760,557,956],[800,637,876],[840,717,796],[859,755,758]])\n" +
   "      const edge=(yy,i)=>{\n" +
   "        if(yy<=rows[0][0])return rows[0][i]\n" +
@@ -217,21 +215,21 @@ fn moontown_map_page_methods_js() -> String {
   "        return rows[rows.length-1][i]\n" +
   "      }\n" +
   "      const xRange=(sy)=>{\n" +
-  "        const top=sy-pad\n" +
-  "        const bottom=sy+vh+pad\n" +
+  "        const top=sy\n" +
+  "        const bottom=sy+vh\n" +
   "        let left=Math.max(edge(top,1),edge(bottom,1))\n" +
   "        let right=Math.min(edge(top,2),edge(bottom,2))\n" +
   "        for(const row of rows)if(row[0]>top&&row[0]<bottom){left=Math.max(left,row[1]);right=Math.min(right,row[2])}\n" +
-  "        return [left-pad,right-vw+pad]\n" +
+  "        return [left,right-vw]\n" +
   "      }\n" +
-  "      const key=[Math.round(vw),Math.round(vh),Math.round(pad*10)].join(':')\n" +
+  "      const key=[Math.round(vw),Math.round(vh)].join(':')\n" +
   "      const cache=this.__myc||(this.__myc={})\n" +
   "      let yRange=cache[key]\n" +
   "      if(!yRange){\n" +
   "        const end=rows[rows.length-1][0]-vh\n" +
   "        let first=null\n" +
   "        let last=null\n" +
-  "        for(let sy=-pad;sy<=end+pad;sy+=4){\n" +
+  "        for(let sy=0;sy<=end;sy+=4){\n" +
   "          const xr=xRange(sy)\n" +
   "          if(xr[1]>=xr[0]){first=first==null?sy:first;last=sy}\n" +
   "        }\n" +
@@ -243,18 +241,8 @@ fn moontown_map_page_methods_js() -> String {
   "      const sx=this.__moontownClampNumber(-Number(rawX||0)/k,xr[0],xr[1])\n" +
   "      return {x:-sx*k,y:-sy*k,scale:s}\n" +
   "    }\n" +
-  "    const soft=fit(x,y,6)\n" +
-  "    const strict=fit(soft.x,soft.y,0)\n" +
-  "    const crossed=Math.abs(strict.x-x)>1||Math.abs(strict.y-y)>1||Math.abs(s-scale)>0.01\n" +
-  "    clearTimeout(this.__moontownMapBounceTimer)\n" +
-  "    if(crossed&&!immediate){\n" +
-  "      this.setData({'mapViewport.x':soft.x,'mapViewport.y':soft.y,'mapViewport.scale':s})\n" +
-  "      this.__moontownMapBounceTimer=setTimeout(()=>{\n" +
-  "        this.setData({'mapViewport.x':strict.x,'mapViewport.y':strict.y,'mapViewport.scale':s})\n" +
-  "      },16)\n" +
-  "    } else {\n" +
-  "      this.setData({'mapViewport.x':strict.x,'mapViewport.y':strict.y,'mapViewport.scale':s})\n" +
-  "    }\n" +
+  "    const next=fit(x,y)\n" +
+  "    this.setData({'mapViewport.x':next.x,'mapViewport.y':next.y,'mapViewport.scale':s})\n" +
   "  },\n" +
   "  __moontownClampNumber(value,min,max){\n" +
   "    return Math.max(min,Math.min(max,Number(value||0)))\n" +
