@@ -936,7 +936,7 @@ fn readme(name : String) -> String {
   "moon run cmd/main -- watch --target wechat --out _build/wechat-watch --strict\n" +
   "```\n\n" +
   "`inspect` is the no-write route, backend, map, file pressure, and release-readiness report. `snapshot` writes a deterministic review artifact. `watch --once` tests the watch generation path without staying open, while `watch` keeps regenerating WeChat output during local iteration.\n\n" +
-  "`limits --target wechat` prints the active component mapping and capabilities. `limits --target alipay` or `limits --target tiktok` reports the generic mini-app generator status; inspect, snapshot, and watch remain WeChat-only until their diagnostics match the WeChat path.\n"
+  "`limits --target wechat` prints the active component mapping and capabilities. `limits --target alipay` or `limits --target tiktok` reports the generic mini-app generator status; generic build and inspect paths are available while snapshot and watch remain WeChat-only until their diagnostics match the WeChat path.\n"
 }
 
 ///|

@@ -633,9 +633,9 @@ fn run_generic_miniapp_build(
   let render_budget_profile = render_budget_profile_from_args(args)
   let budget_profile = budget_profile_from_args(args)
   let strict = strict_from_args(args)
-  if command != "build" {
+  if command != "build" && command != "inspect" {
     println(
-      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-only",
+      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-inspect-only",
     )
     panic()
   }
@@ -648,11 +648,18 @@ fn run_generic_miniapp_build(
     @bunnia.miniapp_inspection_budget_for_profile(budget_profile),
     budget_profile~,
   )
-  write_miniapp_project(output_dir, project)
-  print_generic_miniapp_build_result(
-    command, target, example, budget_profile, render_budget_profile, output_dir,
-    project, inspection, inspection_gate,
-  )
+  if command == "inspect" {
+    print_generic_miniapp_inspect_result(
+      target, example, budget_profile, render_budget_profile, project, inspection,
+      inspection_gate,
+    )
+  } else {
+    write_miniapp_project(output_dir, project)
+    print_generic_miniapp_build_result(
+      command, target, example, budget_profile, render_budget_profile, output_dir,
+      project, inspection, inspection_gate,
+    )
+  }
   if strict &&
     (
       project.page.plan.diagnostics.length() > 0 ||
@@ -821,6 +828,46 @@ fn print_generic_miniapp_build_result(
     "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} route_diagnostic_routes=\{project.manifest.diagnostic_route_count} diagnostics=\{project.manifest.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()}",
   )
   println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn print_generic_miniapp_inspect_result(
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  project : @bunnia.MiniappProject,
+  inspection : @bunnia.MiniappInspection,
+  inspection_gate : @bunnia.MiniappInspectionGate,
+) -> Unit {
+  println("command=inspect")
+  println("target=\{target}")
+  println("example=\{example}")
+  println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  println(project.manifest.summary)
+  println(inspection.summary)
+  println(inspection_gate.summary)
+  print_miniapp_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  print_diagnostics(project.page.plan.diagnostics)
+  println(
+    "inspect=target=\{target} example=\{example} pages=\{inspection.page_count} files=\{inspection.file_count} bytes=\{inspection.total_bytes} max_nodes=\{inspection.max_node_count} max_depth=\{inspection.max_depth} max_events=\{inspection.max_event_count} max_scene_markers=\{inspection.max_scene_marker_count} max_scene_regions=\{inspection.max_scene_region_count} max_scene_assets=\{inspection.max_scene_asset_count} route_diagnostic_routes=\{inspection.diagnostic_route_count} route_diagnostics=\{inspection.diagnostic_count} gate_diagnostics=\{inspection_gate.diagnostics.length()} status=\{inspection.status}",
+  )
+  for page in project.manifest.pages {
+    println(
+      "route=\{page.route} status=\{page.status} nodes=\{page.node_count} depth=\{page.depth} components=\{page.component_count} events=\{page.event_count} windowed_lists=\{page.windowed_list_count} list_items=\{page.list_visible_count}/\{page.list_total_count} scene_markers=\{page.scene_visible_marker_count}/\{page.scene_marker_count} scene_regions=\{page.scene_visible_region_count}/\{page.scene_region_count} scene_assets=\{page.scene_asset_count} file_bytes=\{page.file_bytes} diagnostics=\{page.diagnostic_count}",
+    )
+    for item in page.diagnostics {
+      println("route_diagnostic=\{page.route}:\{item}")
+    }
+  }
+  for file in project.manifest.files {
+    println(
+      "file=\{file.path} kind=\{file.kind} route=\{file.route} bytes=\{file.bytes}",
+    )
+  }
 }
 
 ///|

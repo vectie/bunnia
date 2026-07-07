@@ -752,22 +752,22 @@ Current evidence:
 - The Agent Map example verifies the same MoonBit view has matching render-plan
   node counts across WeChat, Alipay, and TikTok lowering.
 - `moon run cmd/main -- build --target alipay|tiktok` writes generic mini-app
-  artifacts for the selected example, while inspect/snapshot/watch stay scoped
-  to the WeChat reporting path.
+  artifacts for the selected example, and `inspect --target alipay|tiktok`
+  prints a no-write generic mini-app pressure report.
 - Generic mini-app builds include `bunnia.manifest.json`, so cross-platform
   outputs have a deterministic page/file inventory, route diagnostics, scene
   counts, and byte totals before vendor-specific behavior is expanded.
 - Generic mini-app builds now run a named inspection gate for page count, file
   count, total bytes, route diagnostics, node depth, event pressure, and scene
-  pressure, so strict Alipay/TikTok builds can fail on budget regressions before
-  full inspect/snapshot/watch parity exists.
+  pressure, so strict Alipay/TikTok builds and inspect runs can fail on budget
+  regressions before full snapshot/watch parity exists.
 
 Later expansion:
 
 - Deep vendor features before the common adapter model is stable.
 - Automatic parity claims for every component.
-- CLI inspect/snapshot/watch parity for Alipay/TikTok after generic output has
-  route manifests, diagnostics, and budget gates matching the WeChat path.
+- CLI snapshot/watch parity for Alipay/TikTok after generic output has route
+  manifests, diagnostics, and budget gates matching the WeChat path.
 
 ## Phase 7: Tooling And Developer Workflow
 
@@ -1037,8 +1037,8 @@ Current evidence:
   Starter `help` is also no-write, unknown starter commands fail before writing
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while
-  Alipay/TikTok use the generic build-only path until full inspection parity is
-  implemented. Starter watch support now mirrors the build path
+  Alipay/TikTok use generic build and inspect paths until full snapshot/watch
+  parity is implemented. Starter watch support now mirrors the build path
   with `watch --once` for CI/smoke validation and a compact JS source watcher
   for local WeChat regeneration. Starter inspect output carries the same
   repeated-list route pressure fields as the root inspection path, so generated

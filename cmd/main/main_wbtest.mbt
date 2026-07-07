@@ -345,6 +345,57 @@ test "generic miniapp build selects non wechat project files" {
 }
 
 ///|
+test "generic miniapp inspect accepts non wechat targets without project write" {
+  let support = target_support_from_args([
+    "node", "main.js", "inspect", "--target", "tiktok", "--example", "agent_map",
+  ])
+  let project = generic_miniapp_project_for_build(
+    support,
+    "agent_map",
+    render_budget_from_args(["node", "main.js", "--budget", "tight"]),
+  )
+  let inspection = @bunnia.inspect_miniapp_project(
+    target="tiktok",
+    example="agent_map",
+    project,
+  )
+  let gate = @bunnia.gate_miniapp_inspection(
+    inspection,
+    @bunnia.miniapp_inspection_budget_for_profile("tight"),
+    budget_profile="tight",
+  )
+  assert_eq(
+    command_from_args(["node", "main.js", "inspect", "--target", "tiktok"]),
+    "inspect",
+  )
+  assert_eq(support.target, "tiktok")
+  assert_eq(support.generator_available, true)
+  assert_eq(inspection.target, "tiktok")
+  assert_eq(inspection.file_count, 7)
+  assert_eq(inspection.diagnostic_count, 0)
+  assert_eq(gate.diagnostics.length(), 0)
+  assert_true(inspection.summary.contains("status=ok"))
+  assert_true(gate.summary.contains("budget=tight"))
+}
+
+///|
+test "generic miniapp non build inspect commands stay unsupported" {
+  assert_eq(
+    command_from_args(["node", "main.js", "snapshot", "--target", "alipay"]),
+    "snapshot",
+  )
+  assert_eq(
+    command_from_args(["node", "main.js", "watch", "--target", "tiktok"]),
+    "watch",
+  )
+  assert_true(
+    target_support_from_args([
+      "node", "main.js", "snapshot", "--target", "alipay",
+    ]).generator_available,
+  )
+}
+
+///|
 test "ci plan command prints active example workflow" {
   let args = ["node", "main.js", "ci-plan"]
   let plan = ci_plan_from_args(args)
