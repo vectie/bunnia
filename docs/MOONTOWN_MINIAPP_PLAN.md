@@ -346,6 +346,16 @@ Acceptance:
 - Accepted answers can become book memory through review.
 - Public building summaries do not expose private ledgers or drafts.
 
+Current evidence:
+
+- Moontown `src/miniapp_books` owns pure building-to-book binding, primary and
+  support book projection, ledger id derivation for requests, reviews, accepted
+  memory, publication, and runs, plus safe building book detail projection.
+- Book tests cover editor-visible private ledger ids, public viewer projection
+  without ledger exposure, query recording as a run against the building book,
+  accepted reviewed output becoming book memory counters, and hidden buildings
+  rejecting book detail/query access.
+
 ## Phase 5: Bunnia Mini-App Vertical Slice
 
 Classification: feature.
