@@ -558,6 +558,22 @@ Acceptance:
 - User data is scoped by permissions.
 - Published data is explicitly reviewed.
 
+Current evidence:
+
+- Moontown `src/miniapp_deployment` owns pure production readiness checks for
+  WeChat cloud or external HTTPS deployment targets, approved network domains,
+  backend-only WeChat secrets, token/session rotation, encrypted database and
+  object storage requirements, backups, rate limits, moderation, audit logs,
+  monitoring, error reporting, and healthcheck configuration.
+- Deployment tests cover a passing production config, blockers for missing app
+  id, HTTP/unapproved domains, frontend secret exposure, disabled token/session
+  controls, disabled database encryption/object storage/backups/audit logs/rate
+  limits/moderation/monitoring/error reporting, frontend bundle secret audits,
+  and permission-scope audits for phone-safe snapshots.
+- The readiness layer remains policy-only: it does not introduce storage,
+  network serving, deployment credentials, or local backend assumptions into the
+  mini-app bundle or Bunnia framework.
+
 This phase overlaps with production readiness and should remain deferred until
 the local vertical slice proves product and rendering quality.
 
