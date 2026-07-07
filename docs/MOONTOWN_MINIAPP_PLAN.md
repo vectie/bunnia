@@ -218,6 +218,18 @@ Acceptance:
 - Every response has ids, versions, timestamps, and permission hints.
 - Frontend can tell which actions are allowed without guessing policy.
 
+Current evidence:
+
+- Moontown `src/miniapp_contracts` owns serializable DTOs for users, sessions,
+  organizations, workspaces, buildings, placements, books, agents, threads,
+  messages, runs, permissions, audit events, search results, and town snapshots,
+  plus the endpoint catalog for login, town, building, chat, run, and review
+  operations.
+- Moontown `src/miniapp_projection` owns pure viewer-context, visibility,
+  edit/place/publish permission, snapshot filtering, and building-search policy
+  so frontend and backend can share the same product vocabulary before runtime
+  storage or HTTP serving exists.
+
 ## Phase 2: Identity, Login, And Tenancy
 
 Classification: feature.
