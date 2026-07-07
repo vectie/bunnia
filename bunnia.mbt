@@ -3305,6 +3305,22 @@ pub fn wechat_project_with_report(
 }
 
 ///|
+pub fn wechat_page_with_wxss(
+  page : @wechat.WechatPage,
+  wxss : String,
+) -> @wechat.WechatPage {
+  @wechat.page_with_wxss(page, wxss)
+}
+
+///|
+pub fn wechat_project_page_with_wxss(
+  page : WechatProjectPage,
+  wxss : String,
+) -> WechatProjectPage {
+  @wechat.project_page_with_wxss(page, wxss)
+}
+
+///|
 pub fn profile_wechat_project(
   project : WechatProject,
   patches : PatchPlan,

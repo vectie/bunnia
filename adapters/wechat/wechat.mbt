@@ -148,6 +148,19 @@ pub fn project_with_report(
 }
 
 ///|
+pub fn page_with_wxss(page : WechatPage, wxss : String) -> WechatPage {
+  { ..page, wxss, }
+}
+
+///|
+pub fn project_page_with_wxss(
+  page : WechatProjectPage,
+  wxss : String,
+) -> WechatProjectPage {
+  { ..page, page: page_with_wxss(page.page, wxss) }
+}
+
+///|
 pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
   generate_page_with_runtime(name, root, default_runtime())
 }
