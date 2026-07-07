@@ -3,8 +3,19 @@ test "moontown miniapp generates full vertical slice page" {
   let page = demo_wechat_page()
   assert_true(page.wxml.contains("Moontown"))
   assert_true(page.wxml.contains("moontown-map-fullscreen"))
-  assert_true(page.wxml.contains("moontown-map-backdrop"))
-  assert_true(page.wxml.contains("moontown-road road-main"))
+  assert_true(page.wxml.contains("movable-area"))
+  assert_true(page.wxml.contains("moontown-map-drag-area"))
+  assert_true(page.wxml.contains("movable-view"))
+  assert_true(page.wxml.contains("moontown-map-drag-content"))
+  assert_true(page.wxml.contains("direction=\"all\""))
+  assert_true(page.wxml.contains("inertia=\"true\""))
+  assert_true(page.wxml.contains("x=\"-360\""))
+  assert_true(page.wxml.contains("y=\"-160\""))
+  assert_true(page.wxml.contains("moontown-wenyu-map-image"))
+  assert_true(page.wxml.contains("data-asset-id=\"moontown-wenyu-map\""))
+  assert_true(page.wxml.contains("left: 958rpx; top: 776rpx;"))
+  assert_true(page.wxml.contains("moontown-map-marker"))
+  assert_true(page.wxml.contains("moontown-thread-pin"))
   assert_true(page.wxml.contains("moontown-topbar"))
   assert_true(page.wxml.contains("moontown-right-hud"))
   assert_true(page.wxml.contains("moontown-bottom-hud"))
@@ -23,7 +34,10 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("bunnia-scene-region"))
   assert_true(page.wxml.contains("bunnia-scene-thread-overlay"))
   assert_true(page.wxss.contains(".bunnia-scene"))
-  assert_true(page.wxss.contains(".moontown-map-backdrop"))
+  assert_true(page.wxss.contains(".moontown-map-drag-area"))
+  assert_true(page.wxss.contains(".moontown-map-drag-content"))
+  assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
+  assert_true(page.wxss.contains("width: 2800rpx; height: 1760rpx;"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
   assert_true(page.wxss.contains(".moontown-bottom-hud"))
   assert_true(page.js.contains("__bunniaEventPatches"))
@@ -40,7 +54,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.plan.scene_count == 1)
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
-  assert_true(page.plan.scene_asset_count == 1)
+  assert_true(page.plan.scene_asset_count == 2)
   assert_true(page.plan.windowed_list_count >= 2)
 }
 
@@ -51,6 +65,14 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_eq(project.page_count, 1)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
+  assert_true(
+    has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png"),
+  )
+  assert_true(
+    file_content(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png").contains(
+      "copy-file:examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.png",
+    ),
+  )
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
   assert_true(
@@ -163,7 +185,7 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)
   assert_true(threads.total_link_count >= 8)
-  assert_eq(assets.assets.length(), 1)
+  assert_eq(assets.assets.length(), 2)
   assert_eq(quality.diagnostics.length(), 0)
   assert_eq(inspection.route_count, 1)
   assert_true(inspection.max_update_payload_bytes > 0)

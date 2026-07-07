@@ -221,6 +221,7 @@ pub struct WechatSceneAsset {
   id : String
   kind : String
   src : String
+  source_path : String
   remote : Bool
   estimated_bytes : Int
 } derive(Eq, @debug.Debug)

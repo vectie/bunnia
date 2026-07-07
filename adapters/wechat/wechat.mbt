@@ -14,6 +14,7 @@ pub struct WechatSceneAsset {
   id : String
   kind : String
   src : String
+  source_path : String
   remote : Bool
   estimated_bytes : Int
 } derive(Debug, Eq)
@@ -579,10 +580,19 @@ fn append_packaged_scene_asset_files(
       if scene_asset_should_be_packaged(asset) {
         let path = scene_asset_file_path(asset.src)
         if !wechat_file_seen(files, path) {
-          files.push(wechat_file(path, packaged_scene_asset_png_base64()))
+          files.push(wechat_file(path, packaged_scene_asset_content(asset)))
         }
       }
     }
+  }
+}
+
+///|
+fn packaged_scene_asset_content(asset : WechatSceneAsset) -> String {
+  if asset.source_path != "" {
+    "copy-file:\{asset.source_path}"
+  } else {
+    packaged_scene_asset_png_base64()
   }
 }
 
@@ -1255,6 +1265,7 @@ fn collect_scene_assets_into(
       id,
       kind: attr_value(root.attrs, "data-asset-kind"),
       src: attr_value(root.attrs, "src"),
+      source_path: attr_value(root.attrs, "data-asset-source"),
       remote: attr_value(root.attrs, "data-asset-remote") == "true",
       estimated_bytes: attr_int_value(root.attrs, "data-asset-bytes"),
     })

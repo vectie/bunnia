@@ -842,7 +842,7 @@ test "build example flag selects Moontown miniapp project" {
   assert_eq(profile.snapshot_full_replace_count, 0)
   assert_true(profile.scene_marker_count >= 8)
   assert_eq(profile.scene_region_count, 2)
-  assert_eq(profile.scene_asset_count, 1)
+  assert_eq(profile.scene_asset_count, 2)
   assert_true(profile.scene_thread_link_count >= 8)
   assert_true(profile.scene_thread_visible_link_count >= 5)
   assert_eq(profile.scene_thread_orphan_link_count, 0)
@@ -860,8 +860,8 @@ test "build example flag selects Moontown miniapp project" {
   assert_true(profile.summary.contains("backend_endpoints=10"))
   assert_true(profile.summary.contains("agent_deltas=2"))
   assert_true(profile.summary.contains("snapshot_deltas=3"))
-  let gate = inspection_gate_for_test(
-    "wechat", "moontown_miniapp", project, report,
+  let gate = inspection_gate_for_test_with_profile(
+    "wechat", "moontown_miniapp", project, report, "large",
   )
   let profile_gate = @bunnia.gate_build_profile(
     profile,

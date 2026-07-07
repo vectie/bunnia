@@ -1129,6 +1129,11 @@ fn write_generated_file(path : String, content : String) -> Unit {
       path,
       content.sub(start=7, end=content.length()).to_owned(),
     )
+  } else if content.has_prefix("copy-file:") {
+    copy_binary_file(
+      content.sub(start=10, end=content.length()).to_owned(),
+      path,
+    )
   } else {
     write_text_file(path, content)
   }
@@ -1329,6 +1334,25 @@ extern "js" fn write_base64_file(path : String, content : String) -> Unit =
 ///|
 #cfg(not(target="js"))
 fn write_base64_file(_path : String, _content : String) -> Unit {
+  panic()
+}
+
+///|
+#cfg(target="js")
+extern "js" fn copy_binary_file(
+  source_path : String,
+  target_path : String,
+) -> Unit =
+  #| function(sourcePath, targetPath) {
+  #|   const fs = require("fs")
+  #|   const nodePath = require("path")
+  #|   fs.mkdirSync(nodePath.dirname(targetPath), { recursive: true })
+  #|   fs.copyFileSync(sourcePath, targetPath)
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn copy_binary_file(_source_path : String, _target_path : String) -> Unit {
   panic()
 }
 

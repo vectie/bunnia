@@ -79,7 +79,7 @@ pub fn wechat_build_budget_for_profile(
         max_initial_data_bytes=4096,
         max_event_patch_bytes=4096,
         max_event_patch_operations=64,
-        max_page_first_screen_bytes=49152,
+        max_page_first_screen_bytes=65536,
         max_page_update_payload_bytes=4096,
         max_page_update_operations=64,
       )
@@ -154,7 +154,7 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
         max_backend_retries=16,
         max_scene_assets=64,
         max_scene_remote_assets=16,
-        max_scene_package_bytes=1024 * 1024,
+        max_scene_package_bytes=2 * 1024 * 1024,
       )
     "tiny" =>
       inspection_budget(
