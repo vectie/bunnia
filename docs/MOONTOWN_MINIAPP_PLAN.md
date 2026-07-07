@@ -122,6 +122,8 @@ knowledge or ownership.
 
 ## Phase 0: Product And Architecture Boundary
 
+Classification: foundation.
+
 Goal: define the product slice and prevent framework/product mixing.
 
 Tasks:
@@ -146,6 +148,8 @@ Acceptance:
 - The first vertical slice can be built without a production backend.
 
 ## Phase 1: Contracts And Data Shape
+
+Classification: feature.
 
 Goal: define API and DTO contracts before building real backend behavior.
 
@@ -216,6 +220,8 @@ Acceptance:
 
 ## Phase 2: Identity, Login, And Tenancy
 
+Classification: feature.
+
 Goal: support different users and isolated private data.
 
 Tasks:
@@ -241,6 +247,8 @@ Acceptance:
 - Published/system buildings appear in search and public town snapshots.
 
 ## Phase 3: Building Registry And Map Placement
+
+Classification: feature.
 
 Goal: make buildings the core product object.
 
@@ -275,6 +283,8 @@ Acceptance:
 
 ## Phase 4: Books Behind Buildings
 
+Classification: feature.
+
 Goal: connect buildings to Moontown's durable architecture.
 
 Tasks:
@@ -304,6 +314,8 @@ Acceptance:
 - Public building summaries do not expose private ledgers or drafts.
 
 ## Phase 5: Bunnia Mini-App Vertical Slice
+
+Classification: feature.
 
 Goal: build the smallest real Moontown mini-app experience.
 
@@ -345,6 +357,8 @@ Acceptance:
 
 ## Phase 6: Agent And Chat Runtime
 
+Classification: feature.
+
 Goal: make agent interaction first-class without making agents the source of
 truth.
 
@@ -373,6 +387,8 @@ Acceptance:
 - Retry and cancel are represented in backend contract and mini-app UI.
 
 ## Phase 7: Publishing, Discovery, And Moderation
+
+Classification: feature with safety hardening.
 
 Goal: safely turn private buildings into searchable town assets.
 
@@ -415,6 +431,8 @@ Acceptance:
 
 ## Phase 8: Local Backend On This Mac
 
+Classification: feature.
+
 Goal: make the whole slice testable locally before production backend work.
 
 Recommended path:
@@ -443,6 +461,8 @@ Acceptance:
 - Bunnia generated UI can exercise the complete loop.
 
 ## Phase 9: Real Backend And Deployment
+
+Classification: hardening and production readiness.
 
 Goal: support real WeChat users.
 
