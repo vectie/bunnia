@@ -741,11 +741,23 @@ Leave room now:
 - Keep product views platform-neutral.
 - Keep WeChat-specific lowering behind a backend module.
 
-Do not build now:
+Current evidence:
 
-- Alipay or TikTok generated output.
+- `adapters/miniapp` now lowers a platform-neutral `Node` tree through
+  `PlatformAdapter` into generic mini-app page/project artifacts.
+- Alipay output uses `.axml`/`.acss`, `a:*` component names, and `onTap` style
+  event mapping from the adapter boundary.
+- TikTok output uses `.ttml`/`.ttss`, `tt:*` component names, and `bindtap`
+  event mapping from the adapter boundary.
+- The Agent Map example verifies the same MoonBit view has matching render-plan
+  node counts across WeChat, Alipay, and TikTok lowering.
+
+Do not build yet:
+
 - Deep vendor features before the common adapter model is stable.
 - Automatic parity claims for every component.
+- CLI build/inspect parity for Alipay/TikTok before generic output has route
+  manifests, diagnostics, and budget gates matching the WeChat path.
 
 ## Phase 7: Tooling And Developer Workflow
 

@@ -186,6 +186,10 @@ targets such as Alipay and TikTok, and `unknown` for unsupported target ids.
 The same target-support model is reused by `ci-plan` and build-style commands,
 so deferred or unknown targets fail before WeChat artifacts are generated. This
 keeps Phase 6 adapter work explicit while unsupported targets remain gated.
+The lower-level `adapters/miniapp` API already proves the common lowering
+boundary for Alipay and TikTok page/project artifacts; CLI build parity remains
+behind the target-support gate until reporting and budget diagnostics match the
+WeChat path.
 
 To print the canonical local/CI workflow for the tight proof examples:
 
@@ -308,6 +312,20 @@ generator.
 Effect plans can also be checked against a custom `PlatformAdapter`, so
 streaming agent operations fail as explicit diagnostics when a target runtime
 cannot support them.
+Generic mini-app pages can be lowered for Alipay and TikTok from the same
+platform-neutral view while the CLI target gate remains conservative:
+
+```mbt check
+///|
+test {
+  let root = @bunnia.page([@bunnia.button("Open", "open-detail")])
+  let alipay = @bunnia.generate_alipay_project(name="Adapter", root~)
+  let tiktok = @bunnia.generate_tiktok_project(name="Adapter", root~)
+  assert_true(alipay.files[2].path.has_suffix(".axml"))
+  assert_true(tiktok.files[2].path.has_suffix(".ttml"))
+  assert_eq(alipay.page.plan.node_count, tiktok.page.plan.node_count)
+}
+```
 Use `@bunnia.platform_limits(...)` or
 `@bunnia.platform_limits_for_adapter(...)` to inspect component mapping,
 tap-event mapping, and target capabilities from the same adapter boundary before

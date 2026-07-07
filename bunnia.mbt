@@ -221,6 +221,18 @@ pub type SnapshotDelta = @effects.SnapshotDelta
 pub type SnapshotDeltaPlan = @effects.SnapshotDeltaPlan
 
 ///|
+pub type MiniappPage = @miniapp.MiniappPage
+
+///|
+pub type MiniappProjectPage = @miniapp.MiniappProjectPage
+
+///|
+pub type MiniappFile = @miniapp.MiniappFile
+
+///|
+pub type MiniappProject = @miniapp.MiniappProject
+
+///|
 pub type WechatPage = @wechat.WechatPage
 
 ///|
@@ -2736,6 +2748,80 @@ pub fn retry(id : String, target : String) -> Effect {
 ///|
 pub fn effect_chip(item : Effect) -> Node {
   @effects.effect_chip(item)
+}
+
+///|
+pub fn generate_miniapp_page(
+  name : String,
+  root : Node,
+  platform~ : Platform,
+) -> MiniappPage {
+  @miniapp.generate_page(name, root, platform~)
+}
+
+///|
+pub fn generate_miniapp_page_with_budget(
+  name : String,
+  root : Node,
+  platform~ : Platform,
+  render_budget~ : RenderBudget,
+) -> MiniappPage {
+  @miniapp.generate_page_with_budget(name, root, platform~, render_budget~)
+}
+
+///|
+pub fn generate_alipay_page(name : String, root : Node) -> MiniappPage {
+  @miniapp.generate_alipay_page(name, root)
+}
+
+///|
+pub fn generate_tiktok_page(name : String, root : Node) -> MiniappPage {
+  @miniapp.generate_tiktok_page(name, root)
+}
+
+///|
+pub fn generate_miniapp_project(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  platform~ : Platform,
+) -> MiniappProject {
+  @miniapp.generate_project(name~, route~, root~, platform~)
+}
+
+///|
+pub fn generate_miniapp_project_with_budget(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+  platform~ : Platform,
+  render_budget~ : RenderBudget,
+) -> MiniappProject {
+  @miniapp.generate_project_with_budget(
+    name~,
+    route~,
+    root~,
+    platform~,
+    render_budget~,
+  )
+}
+
+///|
+pub fn generate_alipay_project(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+) -> MiniappProject {
+  @miniapp.generate_alipay_project(name~, route~, root~)
+}
+
+///|
+pub fn generate_tiktok_project(
+  name~ : String,
+  route? : String = "pages/index/index",
+  root~ : Node,
+) -> MiniappProject {
+  @miniapp.generate_tiktok_project(name~, route~, root~)
 }
 
 ///|

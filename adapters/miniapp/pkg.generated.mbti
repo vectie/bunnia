@@ -1,0 +1,70 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vectie/bunnia/adapters/miniapp"
+
+import {
+  "moonbitlang/core/debug",
+  "vectie/bunnia/core",
+}
+
+// Values
+pub fn generate_alipay_page(String, @core.Node) -> MiniappPage
+
+pub fn generate_alipay_project(name~ : String, route? : String, root~ : @core.Node) -> MiniappProject
+
+pub fn generate_page(String, @core.Node, platform~ : @core.Platform) -> MiniappPage
+
+pub fn generate_page_with_budget(String, @core.Node, platform~ : @core.Platform, render_budget~ : @core.RenderBudget) -> MiniappPage
+
+pub fn generate_project(name~ : String, route? : String, root~ : @core.Node, platform~ : @core.Platform) -> MiniappProject
+
+pub fn generate_project_from_pages(name~ : String, pages~ : Array[MiniappProjectPage]) -> MiniappProject
+
+pub fn generate_project_with_budget(name~ : String, route? : String, root~ : @core.Node, platform~ : @core.Platform, render_budget~ : @core.RenderBudget) -> MiniappProject
+
+pub fn generate_tiktok_page(String, @core.Node) -> MiniappPage
+
+pub fn generate_tiktok_project(name~ : String, route? : String, root~ : @core.Node) -> MiniappProject
+
+// Errors
+
+// Types and methods
+pub struct MiniappFile {
+  path : String
+  content : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappPage {
+  platform : @core.Platform
+  adapter : @core.PlatformAdapter
+  markup : String
+  style : String
+  js : String
+  json : String
+  plan : @core.RenderPlan
+  render_budget : @core.RenderBudget
+  markup_extension : String
+  style_extension : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappProject {
+  platform : @core.Platform
+  adapter : @core.PlatformAdapter
+  name : String
+  route : String
+  page : MiniappPage
+  pages : Array[MiniappProjectPage]
+  files : Array[MiniappFile]
+  total_bytes : Int
+  summary : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniappProjectPage {
+  name : String
+  route : String
+  page : MiniappPage
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
+

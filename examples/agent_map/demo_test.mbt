@@ -174,7 +174,42 @@ test "agent map demo generates a mini-program file set" {
 }
 
 ///|
+test "agent map demo lowers through generic alipay and tiktok adapters" {
+  let wechat = demo_wechat_project()
+  let alipay = @bunnia.generate_alipay_project(
+    name="Agent Map",
+    root=demo_view(),
+  )
+  let tiktok = @bunnia.generate_tiktok_project(
+    name="Agent Map",
+    root=demo_view(),
+  )
+  assert_eq(alipay.page.plan.node_count, wechat.page.plan.node_count)
+  assert_eq(tiktok.page.plan.node_count, wechat.page.plan.node_count)
+  assert_eq(alipay.page.markup_extension, "axml")
+  assert_eq(tiktok.page.markup_extension, "ttml")
+  assert_true(alipay.page.markup.contains("<a:view"))
+  assert_true(tiktok.page.markup.contains("<tt:view"))
+  assert_true(alipay.page.markup.contains("onTap=\"__bunniaEvent\""))
+  assert_true(tiktok.page.markup.contains("bindtap=\"__bunniaEvent\""))
+  assert_true(has_miniapp_file(alipay.files, "pages/index/index.axml"))
+  assert_true(has_miniapp_file(tiktok.files, "pages/index/index.ttml"))
+  assert_true(alipay.summary.contains("Bunnia alipay project"))
+  assert_true(tiktok.summary.contains("Bunnia tiktok project"))
+}
+
+///|
 fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
+  for item in files {
+    if item.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn has_miniapp_file(files : Array[@bunnia.MiniappFile], path : String) -> Bool {
   for item in files {
     if item.path == path {
       return true

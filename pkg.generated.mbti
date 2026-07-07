@@ -2,6 +2,7 @@
 package "vectie/bunnia"
 
 import {
+  "vectie/bunnia/adapters/miniapp",
   "vectie/bunnia/adapters/wechat",
   "vectie/bunnia/agent",
   "vectie/bunnia/core",
@@ -233,6 +234,22 @@ pub fn form(String, Array[@core.Node]) -> @core.Node
 pub fn gate_build_profile(@tooling.BuildProfile, @tooling.BuildProfileBudget, budget_profile? : String) -> @tooling.BuildProfileGate
 
 pub fn gate_project_inspection(@tooling.ProjectInspection, @tooling.ProjectInspectionBudget, budget_profile? : String) -> @tooling.ProjectInspectionGate
+
+pub fn generate_alipay_page(String, @core.Node) -> @miniapp.MiniappPage
+
+pub fn generate_alipay_project(name~ : String, route? : String, root~ : @core.Node) -> @miniapp.MiniappProject
+
+pub fn generate_miniapp_page(String, @core.Node, platform~ : @core.Platform) -> @miniapp.MiniappPage
+
+pub fn generate_miniapp_page_with_budget(String, @core.Node, platform~ : @core.Platform, render_budget~ : @core.RenderBudget) -> @miniapp.MiniappPage
+
+pub fn generate_miniapp_project(name~ : String, route? : String, root~ : @core.Node, platform~ : @core.Platform) -> @miniapp.MiniappProject
+
+pub fn generate_miniapp_project_with_budget(name~ : String, route? : String, root~ : @core.Node, platform~ : @core.Platform, render_budget~ : @core.RenderBudget) -> @miniapp.MiniappProject
+
+pub fn generate_tiktok_page(String, @core.Node) -> @miniapp.MiniappPage
+
+pub fn generate_tiktok_project(name~ : String, route? : String, root~ : @core.Node) -> @miniapp.MiniappProject
 
 pub fn generate_wechat_page(String, @core.Node) -> @wechat.WechatPage
 
@@ -804,6 +821,14 @@ pub using @tooling {type GeneratedSnapshotFile}
 pub using @effects {type HttpMethod}
 
 pub using @agent {type Message}
+
+pub using @miniapp {type MiniappFile}
+
+pub using @miniapp {type MiniappPage}
+
+pub using @miniapp {type MiniappProject}
+
+pub using @miniapp {type MiniappProjectPage}
 
 pub using @core {type Node}
 

@@ -4,6 +4,7 @@ import {
   "vectie/bunnia/scene",
   "vectie/bunnia/effects",
   "vectie/bunnia/program",
+  "vectie/bunnia/adapters/miniapp",
   "vectie/bunnia/adapters/wechat",
   "vectie/bunnia/tooling",
 }
