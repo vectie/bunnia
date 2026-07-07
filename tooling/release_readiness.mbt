@@ -283,6 +283,7 @@ fn miniapp_project_contains_literal_app_id(
   for file in project.files {
     if file.path == "app.json" &&
       file.content.contains("\"appid\"") &&
+      !file.content.contains("\"appid\": \"\"") &&
       !file.content.contains("\"appid\": \"touristappid\"") {
       return true
     }
@@ -295,6 +296,7 @@ fn project_contains_literal_app_id(project : @wechat.WechatProject) -> Bool {
   for file in project.files {
     if file.path == "project.config.json" &&
       file.content.contains("\"appid\"") &&
+      !file.content.contains("\"appid\": \"\"") &&
       !file.content.contains("\"appid\": \"touristappid\"") {
       return true
     }

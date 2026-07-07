@@ -1118,7 +1118,19 @@ fn project_has_render_diagnostics(project : @bunnia.WechatProject) -> Bool {
 ///|
 fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
   for file in project.files {
-    write_text_file(join_path(output_dir, file.path), file.content)
+    write_generated_file(join_path(output_dir, file.path), file.content)
+  }
+}
+
+///|
+fn write_generated_file(path : String, content : String) -> Unit {
+  if content.has_prefix("base64:") {
+    write_base64_file(
+      path,
+      content.sub(start=7, end=content.length()).to_owned(),
+    )
+  } else {
+    write_text_file(path, content)
   }
 }
 
@@ -1301,6 +1313,22 @@ extern "js" fn write_text_file(path : String, content : String) -> Unit =
 ///|
 #cfg(not(target="js"))
 fn write_text_file(_path : String, _content : String) -> Unit {
+  panic()
+}
+
+///|
+#cfg(target="js")
+extern "js" fn write_base64_file(path : String, content : String) -> Unit =
+  #| function(path, content) {
+  #|   const fs = require("fs")
+  #|   const nodePath = require("path")
+  #|   fs.mkdirSync(nodePath.dirname(path), { recursive: true })
+  #|   fs.writeFileSync(path, Buffer.from(content, "base64"))
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn write_base64_file(_path : String, _content : String) -> Unit {
   panic()
 }
 

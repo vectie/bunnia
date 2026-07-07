@@ -968,7 +968,7 @@ test "build profile keeps agent map diagnostics visible" {
   assert_true(profile.summary.contains("agent_duplicate_stream_chunks=0"))
   assert_eq(tiny_report.diagnostics.length() > 0, true)
   assert_true(
-    tiny_report.diagnostics.contains("wechat-file-count-over-budget:11/1"),
+    tiny_report.diagnostics.contains("wechat-file-count-over-budget:12/1"),
   )
   assert_eq(
     should_fail_build(

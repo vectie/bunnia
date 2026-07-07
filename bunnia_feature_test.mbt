@@ -1284,6 +1284,11 @@ test "wechat project generator emits deterministic mini-program files" {
     file_content(project.files, "app.json").contains("pages/home/home"),
   )
   assert_true(
+    file_content(project.files, "project.config.json").contains(
+      "\"appid\": \"\"",
+    ),
+  )
+  assert_true(
     file_content(project.files, "bunnia.manifest.json").contains(
       "\"entryRoute\": \"pages/home/home\"",
     ),

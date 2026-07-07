@@ -358,6 +358,7 @@ fn generate_project_from_pages_internal(
     files.push(wechat_file("\{item.route}.js", item.page.js))
     files.push(wechat_file("\{item.route}.json", item.page.json))
   }
+  append_packaged_scene_asset_files(files, generated_pages)
   let manifest = project_manifest(
     name,
     entry.route,
@@ -553,6 +554,54 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
 ///|
 fn wechat_file(path : String, content : String) -> WechatFile {
   { path, content }
+}
+
+///|
+fn append_packaged_scene_asset_files(
+  files : Array[WechatFile],
+  pages : Array[WechatProjectPage],
+) -> Unit {
+  for page in pages {
+    for asset in page.page.scene_assets {
+      if scene_asset_should_be_packaged(asset) {
+        let path = scene_asset_file_path(asset.src)
+        if !wechat_file_seen(files, path) {
+          files.push(wechat_file(path, packaged_scene_asset_png_base64()))
+        }
+      }
+    }
+  }
+}
+
+///|
+fn scene_asset_should_be_packaged(asset : WechatSceneAsset) -> Bool {
+  !asset.remote &&
+  asset.src.has_prefix("/assets/") &&
+  asset.src.has_suffix(".png")
+}
+
+///|
+fn scene_asset_file_path(src : String) -> String {
+  if src.has_prefix("/") {
+    src.sub(start=1, end=src.length()).to_owned()
+  } else {
+    src
+  }
+}
+
+///|
+fn wechat_file_seen(files : Array[WechatFile], path : String) -> Bool {
+  for file in files {
+    if file.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn packaged_scene_asset_png_base64() -> String {
+  "base64:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/l0z9ZAAAAABJRU5ErkJggg=="
 }
 
 ///|
@@ -1135,7 +1184,7 @@ fn page_routes_json(pages : Array[WechatProjectPage]) -> String {
 ///|
 fn project_config_json(name : String) -> String {
   "{\n" +
-  "  \"appid\": \"touristappid\",\n" +
+  "  \"appid\": \"\",\n" +
   "  \"projectname\": \"\{escape_json(name)}\",\n" +
   "  \"compileType\": \"miniprogram\",\n" +
   "  \"setting\": {\n" +

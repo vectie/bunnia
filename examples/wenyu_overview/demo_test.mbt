@@ -32,10 +32,11 @@ test "wenyu proof slice generates wechat output from projection" {
 ///|
 test "wenyu proof slice generates a separate mini-program route" {
   let project = demo_wechat_project()
-  assert_eq(project.files.length(), 11)
+  assert_eq(project.files.length(), 12)
   assert_eq(project.route, "pages/wenyu/index")
   assert_eq(project.page_count, 1)
   assert_eq(project.manifest.entry_route, "pages/wenyu/index")
+  assert_true(has_file(project.files, "assets/wenyu-building.png"))
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
   assert_true(project.page.js.contains("require('./index.data.js')"))
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
