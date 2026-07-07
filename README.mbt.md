@@ -181,15 +181,13 @@ moon run cmd/main -- limits --target wechat
 
 `limits` prints the active platform adapter's component mappings, tap-event
 mapping, canvas/cloud/stream capabilities, and explicit generator status. The
-status is `available` for the active WeChat generator, `deferred` for known
-targets such as Alipay and TikTok, and `unknown` for unsupported target ids.
+status is `available` for WeChat plus the generic Alipay/TikTok generators, and
+`unknown` for unsupported target ids.
 The same target-support model is reused by `ci-plan` and build-style commands,
-so deferred or unknown targets fail before WeChat artifacts are generated. This
-keeps Phase 6 adapter work explicit while unsupported targets remain gated.
-The lower-level `adapters/miniapp` API already proves the common lowering
-boundary for Alipay and TikTok page/project artifacts; CLI build parity remains
-behind the target-support gate until reporting and budget diagnostics match the
-WeChat path.
+so unknown targets fail before artifacts are generated. Alipay and TikTok can
+write generic mini-app projects through `build`; inspect, snapshot, and watch
+remain WeChat-only until their reporting and budget diagnostics match the WeChat
+path.
 
 To print the canonical local/CI workflow for the tight proof examples:
 
@@ -315,6 +313,11 @@ cannot support them.
 Generic mini-app pages can be lowered for Alipay and TikTok from the same
 platform-neutral view while the CLI target gate remains conservative:
 
+```bash
+moon run cmd/main -- build --target alipay --example agent_map --strict
+moon run cmd/main -- build --target tiktok --example agent_map --strict
+```
+
 ```mbt check
 ///|
 test {
@@ -339,8 +342,9 @@ test {
   assert_eq(limits.generator_available, true)
   assert_eq(limits.event_mappings[0].platform_event, "bindtap")
   assert_true(limits.summary.contains("components=9"))
-  let deferred = @bunnia.platform_limits(target="alipay")
-  assert_eq(deferred.generator_status_id, "deferred")
+  let alipay = @bunnia.platform_limits(target="alipay")
+  assert_eq(alipay.generator_status_id, "available")
+  assert_eq(alipay.event_mappings[0].platform_event, "onTap")
 }
 ```
 
@@ -433,10 +437,10 @@ plus a local `cmd/main` build command that writes the starter's WeChat files and
 supports `--strict` diagnostic gating. The same command has an `inspect` mode
 for no-write route, backend, map, and file pressure checks and a `snapshot` mode
 for deterministic generated-output artifacts, plus a no-write `limits` mode for
-WeChat platform capabilities and deferred target generator status. Build,
-inspect, snapshot, and CI-plan paths reuse Bunnia's target-support gate, so
-deferred or unknown targets report diagnostics before starter WeChat artifacts
-are generated. It also prints a local `ci-plan` with check, test, interface,
+platform capabilities and generator status. WeChat build, inspect, snapshot, and
+CI-plan paths reuse Bunnia's target-support gate; Alipay/TikTok currently use a
+generic build-only path, while unknown targets report diagnostics before
+artifacts are generated. It also prints a local `ci-plan` with check, test, interface,
 format, product-neutral boundary, platform-limits, inspect, snapshot, strict
 build, one-shot watch commands, and the active inspection/profile-gate thresholds. Its summary
 reports the current generated-output and gate diagnostic count. Starter tests

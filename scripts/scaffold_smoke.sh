@@ -11,16 +11,13 @@ moon run cmd/main -- init --name ci_starter --module local/ci_starter --out "$ou
   moon test
   mkdir -p _build
 
-  moon run cmd/main -- ci-plan --target alipay --script --strict > _build/alipay-ci.sh
-  if sh _build/alipay-ci.sh; then
-    printf '%s\n' "expected deferred alipay CI plan to fail"
+  moon run cmd/main -- ci-plan --target unknown-mini --script --strict > _build/unknown-ci.sh
+  if sh _build/unknown-ci.sh; then
+    printf '%s\n' "expected unknown target CI plan to fail"
     exit 1
   fi
 
-  if moon run cmd/main -- build --target alipay > _build/alipay-build.log 2>&1; then
-    printf '%s\n' "expected deferred alipay build to fail"
-    exit 1
-  fi
+  moon run cmd/main -- build --target alipay --strict > _build/alipay-build.log
 
   sh scripts/ci.sh
 )

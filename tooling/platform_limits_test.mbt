@@ -30,24 +30,22 @@ test "platform limits report documents active WeChat mapping" {
 }
 
 ///|
-test "platform limits keep deferred targets explicit" {
+test "platform limits expose generic Alipay generator support" {
   let support = platform_target_support(target="alipay")
   assert_eq(support.target, "alipay")
   assert_eq(support.known, true)
-  assert_eq(support.generator_status_id, "deferred")
-  assert_eq(support.generator_available, false)
-  assert_true(
-    support.diagnostics.contains("platform-generator-deferred:alipay"),
-  )
+  assert_eq(support.generator_status_id, "available")
+  assert_eq(support.generator_available, true)
+  assert_eq(support.diagnostics.length(), 0)
   let report = platform_limits(target="alipay")
   assert_eq(report.target, "alipay")
-  assert_eq(report.generator_status_id, "deferred")
-  assert_eq(platform_generator_status_id(report.generator_status), "deferred")
-  assert_eq(platform_generator_available(report.generator_status), false)
-  assert_eq(report.generator_available, false)
+  assert_eq(report.generator_status_id, "available")
+  assert_eq(platform_generator_status_id(report.generator_status), "available")
+  assert_eq(platform_generator_available(report.generator_status), true)
+  assert_eq(report.generator_available, true)
   assert_true(has_component_mapping(report, "view", "a:view"))
   assert_eq(report.event_mappings[0].platform_event, "onTap")
-  assert_true(report.diagnostics.contains("platform-generator-deferred:alipay"))
+  assert_eq(report.diagnostics.length(), 0)
 }
 
 ///|

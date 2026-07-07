@@ -101,34 +101,44 @@ pub fn ci_plan(
     ),
   )
   for example in examples {
-    steps.push(
-      ci_step(
-        "inspect-\{example}",
-        "moon run cmd/main -- inspect --target \{target} --example \{example} --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
-        "route-risk and generated-pressure inspection for \{example}",
-      ),
-    )
-    steps.push(
-      ci_step(
-        "build-\{example}",
-        "moon run cmd/main -- build --target \{target} --example \{example} --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
-        "strict generated-output budget gate for \{example}",
-      ),
-    )
-    steps.push(
-      ci_step(
-        "watch-once-\{example}",
-        "moon run cmd/main -- watch --target \{target} --example \{example} --out _build/bunnia/watch/\{target}/\{example} --once --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
-        "one-shot watch-path generation check for \{example}",
-      ),
-    )
-    steps.push(
-      ci_step(
-        "snapshot-\{example}",
-        "moon run cmd/main -- snapshot --target \{target} --example \{example} --snapshot-out \{snapshot_dir}/\{target}/\{example}.snapshot.txt --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
-        "deterministic generated-output snapshot for \{example}",
-      ),
-    )
+    if target == "wechat" {
+      steps.push(
+        ci_step(
+          "inspect-\{example}",
+          "moon run cmd/main -- inspect --target \{target} --example \{example} --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
+          "route-risk and generated-pressure inspection for \{example}",
+        ),
+      )
+      steps.push(
+        ci_step(
+          "build-\{example}",
+          "moon run cmd/main -- build --target \{target} --example \{example} --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
+          "strict generated-output budget gate for \{example}",
+        ),
+      )
+      steps.push(
+        ci_step(
+          "watch-once-\{example}",
+          "moon run cmd/main -- watch --target \{target} --example \{example} --out _build/bunnia/watch/\{target}/\{example} --once --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
+          "one-shot watch-path generation check for \{example}",
+        ),
+      )
+      steps.push(
+        ci_step(
+          "snapshot-\{example}",
+          "moon run cmd/main -- snapshot --target \{target} --example \{example} --snapshot-out \{snapshot_dir}/\{target}/\{example}.snapshot.txt --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
+          "deterministic generated-output snapshot for \{example}",
+        ),
+      )
+    } else {
+      steps.push(
+        ci_step(
+          "build-\{example}",
+          "moon run cmd/main -- build --target \{target} --example \{example} --strict --budget \{budget_profile} --render-budget \{active_render_budget_profile}",
+          "strict generic mini-app lowering check for \{example}",
+        ),
+      )
+    }
   }
   steps.push(
     ci_step(

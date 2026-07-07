@@ -279,12 +279,31 @@ test "ci plan shell script exits before bad workflow commands" {
   let script = ci_plan_shell_script(plan)
   assert_true(script.contains("Bunnia CI plan diagnostics:"))
   assert_eq(plan.target_known, true)
-  assert_eq(plan.target_generator_status_id, "deferred")
-  assert_eq(plan.target_generator_available, false)
-  assert_true(script.contains("ci-platform-generator-deferred:alipay"))
+  assert_eq(plan.target_generator_status_id, "available")
+  assert_eq(plan.target_generator_available, true)
   assert_true(script.contains("ci-budget-profile-unknown:oversized"))
   assert_true(script.contains("exit 1\n"))
   assert_true(!script.contains("moon run cmd/main -- build --target alipay"))
+}
+
+///|
+test "ci plan gives generic targets a build-only workflow" {
+  let plan = ci_plan(target="alipay", examples=["agent_map"])
+  assert_eq(plan.target_known, true)
+  assert_eq(plan.target_generator_status_id, "available")
+  assert_eq(plan.target_generator_available, true)
+  assert_eq(plan.diagnostics.length(), 0)
+  assert_eq(plan.step_count, 10)
+  assert_eq(
+    plan.steps[7].command,
+    "moon run cmd/main -- limits --target alipay",
+  )
+  assert_eq(plan.steps[8].name, "build-agent_map")
+  assert_true(plan.steps[8].command.contains("build --target alipay"))
+  assert_true(!plan.steps[8].command.contains("inspect"))
+  assert_eq(plan.steps[9].name, "scaffold-smoke")
+  assert_true(plan.summary.contains("target_generator_status=available"))
+  assert_true(plan.summary.contains("target_generator=true"))
 }
 
 ///|
@@ -295,20 +314,17 @@ test "ci plan diagnoses unknown budget profiles" {
     render_budget_profile="microscopic",
     examples=["agent_map"],
   )
-  assert_eq(plan.diagnostics.length(), 3)
+  assert_eq(plan.diagnostics.length(), 2)
   assert_eq(plan.target_known, true)
-  assert_eq(plan.target_generator_status_id, "deferred")
-  assert_eq(plan.target_generator_available, false)
-  assert_true(
-    plan.diagnostics.contains("ci-platform-generator-deferred:alipay"),
-  )
+  assert_eq(plan.target_generator_status_id, "available")
+  assert_eq(plan.target_generator_available, true)
   assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
   assert_true(
     plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),
   )
-  assert_true(plan.summary.contains("diagnostics=3"))
-  assert_true(plan.summary.contains("target_generator_status=deferred"))
-  assert_true(plan.summary.contains("target_generator=false"))
+  assert_true(plan.summary.contains("diagnostics=2"))
+  assert_true(plan.summary.contains("target_generator_status=available"))
+  assert_true(plan.summary.contains("target_generator=true"))
   assert_eq(plan.inspection_max_route_risk_score, 250000)
   assert_eq(plan.inspection_max_update_payload_bytes, 8192)
   assert_eq(plan.inspection_max_update_operations, 64)

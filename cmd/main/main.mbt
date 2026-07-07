@@ -519,6 +519,10 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
   let target = target_from_args(args)
   let target_support = target_support_from_args(args)
   ensure_target_generator_available(target_support)
+  if target != "wechat" {
+    run_generic_miniapp_build(command, args, target_support)
+    return
+  }
   let example = example_from_args(args)
   let output_dir = output_dir_from_args(args, target, example)
   let render_budget = render_budget_from_args(args)
@@ -607,6 +611,74 @@ fn run_build_or_watch(command : String, args : Array[String]) -> Unit {
 }
 
 ///|
+fn run_generic_miniapp_build(
+  command : String,
+  args : Array[String],
+  target_support : @bunnia.PlatformTargetSupport,
+) -> Unit {
+  let target = target_from_args(args)
+  let example = example_from_args(args)
+  let output_dir = output_dir_from_args(args, target, example)
+  let render_budget = render_budget_from_args(args)
+  let render_budget_profile = render_budget_profile_from_args(args)
+  let budget_profile = budget_profile_from_args(args)
+  let strict = strict_from_args(args)
+  if command != "build" {
+    println(
+      "unsupported command=\{command} target=\{target} reason=generic-miniapp-build-only",
+    )
+    panic()
+  }
+  let project = generic_miniapp_project_for_build(
+    target_support, example, render_budget,
+  )
+  write_miniapp_project(output_dir, project)
+  print_generic_miniapp_build_result(
+    command, target, example, budget_profile, render_budget_profile, output_dir,
+    project,
+  )
+  if strict && project.page.plan.diagnostics.length() > 0 {
+    println("build_failed=diagnostics")
+    panic()
+  }
+}
+
+///|
+fn generic_miniapp_project_for_build(
+  target_support : @bunnia.PlatformTargetSupport,
+  example : String,
+  render_budget : @bunnia.RenderBudget,
+) -> @bunnia.MiniappProject {
+  if example == "wenyu_overview" {
+    @bunnia.generate_miniapp_project_with_budget(
+      name="Wenyu Overview",
+      route="pages/wenyu/index",
+      root=@wenyu.demo_view(),
+      platform=target_support.adapter.platform,
+      render_budget~,
+    )
+  } else if example == "moontown_miniapp" {
+    @bunnia.generate_miniapp_project_with_budget(
+      name="Moontown Miniapp",
+      route="pages/moontown/index",
+      root=@moontown.demo_view(),
+      platform=target_support.adapter.platform,
+      render_budget~,
+    )
+  } else if example == "agent_map" {
+    @bunnia.generate_miniapp_project_with_budget(
+      name="Agent Map",
+      root=@demo.demo_view(),
+      platform=target_support.adapter.platform,
+      render_budget~,
+    )
+  } else {
+    println("unsupported example=\{example}")
+    panic()
+  }
+}
+
+///|
 fn snapshot_for_build(
   target~ : String,
   example~ : String,
@@ -691,6 +763,30 @@ fn print_build_result(
   print_profile_gate_diagnostics(profile_gate.diagnostics)
   println(inspection_gate.summary)
   print_inspection_gate_diagnostics(inspection_gate.diagnostics)
+  println("wrote=\{project.files.length()} output=\{output_dir}")
+}
+
+///|
+fn print_generic_miniapp_build_result(
+  command : String,
+  target : String,
+  example : String,
+  budget_profile : String,
+  render_budget_profile : String,
+  output_dir : String,
+  project : @bunnia.MiniappProject,
+) -> Unit {
+  println("command=\{command}")
+  println("target=\{target}")
+  println("example=\{example}")
+  println("budget=\{budget_profile}")
+  println("render_budget=\{render_budget_profile}")
+  println(project.page.plan.summary)
+  println(project.summary)
+  print_diagnostics(project.page.plan.diagnostics)
+  println(
+    "Bunnia generic miniapp build: platform=\{@bunnia.platform_id(project.platform)} files=\{project.files.length()} bytes=\{project.total_bytes} markup=\{project.page.markup_extension} style=\{project.page.style_extension} diagnostics=\{project.page.plan.diagnostics.length()}",
+  )
   println("wrote=\{project.files.length()} output=\{output_dir}")
 }
 
@@ -839,6 +935,16 @@ fn project_has_render_diagnostics(project : @bunnia.WechatProject) -> Bool {
 
 ///|
 fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
+  for file in project.files {
+    write_text_file(join_path(output_dir, file.path), file.content)
+  }
+}
+
+///|
+fn write_miniapp_project(
+  output_dir : String,
+  project : @bunnia.MiniappProject,
+) -> Unit {
   for file in project.files {
     write_text_file(join_path(output_dir, file.path), file.content)
   }

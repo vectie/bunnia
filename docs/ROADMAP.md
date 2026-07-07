@@ -751,6 +751,9 @@ Current evidence:
   event mapping from the adapter boundary.
 - The Agent Map example verifies the same MoonBit view has matching render-plan
   node counts across WeChat, Alipay, and TikTok lowering.
+- `moon run cmd/main -- build --target alipay|tiktok` writes generic mini-app
+  artifacts for the selected example, while inspect/snapshot/watch stay scoped
+  to the WeChat reporting path.
 
 Do not build yet:
 
@@ -945,9 +948,9 @@ Current evidence:
   packages and public API summaries. Examples, docs, and CLI fixture selection
   remain the only places that name the proof product.
 - `scripts/scaffold_smoke.sh` generates a starter through `bunnia init`, runs
-  its check/test/local CI path, and verifies deferred Alipay CI/build commands
-  fail before writing target artifacts, so scaffold regressions are caught by
-  the root CI plan.
+  its check/test/local CI path, and verifies unsupported target commands fail
+  before writing target artifacts, so scaffold regressions are caught by the
+  root CI plan.
 - CI plans diagnose unsupported targets and unknown generated-output or render
   budget profile names, so workflow mistakes are visible before a contributor
   copies a bad strict-build command.
@@ -968,15 +971,14 @@ Current evidence:
   aggregate agent/map regressions even when lower-level diagnostics are noisy.
 - `moon run cmd/main -- limits` prints platform component mapping, tap-event
   mapping, canvas/cloud/stream capabilities, and generator availability, keeping
-  WeChat target limits visible while Alipay/TikTok generator work is active and
-  staged behind explicit capability gates.
+  WeChat target limits visible while Alipay/TikTok generic generator work is
+  active and staged behind explicit capability gates.
 - Platform limit reports now distinguish generator status as `available`,
   `deferred`, or `unknown`, so Phase 6 adapter work can progress without
   accidentally routing unsupported targets through the WeChat generator path.
 - Platform target support is now a reusable tooling/facade record consumed by
-  limits, CI-plan diagnostics, and build-style CLI commands, so deferred or
-  unknown targets fail before the WeChat generator path can write misleading
-  artifacts.
+  limits, CI-plan diagnostics, and build-style CLI commands, so unknown targets
+  fail before any generator path can write misleading artifacts.
 - `moon run cmd/main -- watch` writes the selected WeChat example once, then
   watches source/docs/package files and reruns the deterministic build command
   on changes; `--once` keeps the same path testable without a long-running
@@ -1028,8 +1030,8 @@ Current evidence:
   Starter `help` is also no-write, unknown starter commands fail before writing
   generated output, and starter build/inspect/snapshot/CI-plan paths reuse the
   shared platform target-support gate, so WeChat reports as available while
-  Alipay/TikTok remain inspectable as deferred targets and fail before starter
-  WeChat artifacts are written. Starter watch support now mirrors the build path
+  Alipay/TikTok use the generic build-only path until full inspection parity is
+  implemented. Starter watch support now mirrors the build path
   with `watch --once` for CI/smoke validation and a compact JS source watcher
   for local WeChat regeneration. Starter inspect output carries the same
   repeated-list route pressure fields as the root inspection path, so generated

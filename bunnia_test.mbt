@@ -25,14 +25,14 @@ test "bunnia keeps mini-app platform adapters separate" {
   let wechat_limits = @bunnia.platform_limits(target="wechat")
   let alipay_limits = @bunnia.platform_limits(target="alipay")
   assert_eq(wechat_limits.generator_status_id, "available")
-  assert_eq(alipay_limits.generator_status_id, "deferred")
+  assert_eq(alipay_limits.generator_status_id, "available")
   assert_eq(
     @bunnia.platform_generator_status_id(alipay_limits.generator_status),
-    "deferred",
+    "available",
   )
   assert_eq(
     @bunnia.platform_generator_available(alipay_limits.generator_status),
-    false,
+    true,
   )
 }
 

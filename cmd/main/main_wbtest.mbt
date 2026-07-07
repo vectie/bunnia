@@ -273,7 +273,7 @@ test "inspect command exposes generated artifact metrics without output path" {
 }
 
 ///|
-test "limits command exposes platform mappings and deferred targets" {
+test "limits command exposes platform mappings and generic targets" {
   let args = ["node", "main.js", "limits", "--target", "wechat"]
   let support = target_support_from_args(args)
   assert_eq(support.target, "wechat")
@@ -288,24 +288,39 @@ test "limits command exposes platform mappings and deferred targets" {
   assert_eq(report.component_mappings.length(), 9)
   assert_eq(report.event_mappings[0].platform_event, "bindtap")
   assert_eq(report.diagnostics.length(), 0)
-  let deferred = platform_limits_from_args([
+  let generic = platform_limits_from_args([
     "node", "main.js", "limits", "--target", "tiktok",
   ])
-  assert_eq(deferred.target, "tiktok")
-  assert_eq(deferred.generator_status_id, "deferred")
-  assert_eq(deferred.generator_available, false)
-  assert_true(
-    deferred.diagnostics.contains("platform-generator-deferred:tiktok"),
-  )
-  let deferred_support = target_support_from_args([
+  assert_eq(generic.target, "tiktok")
+  assert_eq(generic.generator_status_id, "available")
+  assert_eq(generic.generator_available, true)
+  assert_eq(generic.diagnostics.length(), 0)
+  let generic_support = target_support_from_args([
     "node", "main.js", "build", "--target", "tiktok",
   ])
-  assert_eq(deferred_support.target, "tiktok")
-  assert_eq(deferred_support.generator_status_id, "deferred")
-  assert_eq(deferred_support.generator_available, false)
-  assert_true(
-    deferred_support.diagnostics.contains("platform-generator-deferred:tiktok"),
+  assert_eq(generic_support.target, "tiktok")
+  assert_eq(generic_support.generator_status_id, "available")
+  assert_eq(generic_support.generator_available, true)
+  assert_eq(generic_support.diagnostics.length(), 0)
+}
+
+///|
+test "generic miniapp build selects non wechat project files" {
+  let support = target_support_from_args([
+    "node", "main.js", "build", "--target", "alipay", "--example", "agent_map",
+  ])
+  let project = generic_miniapp_project_for_build(
+    support,
+    "agent_map",
+    render_budget_from_args(["node", "main.js", "--budget", "tight"]),
   )
+  assert_eq(project.platform, @bunnia.alipay())
+  assert_eq(project.route, "pages/index/index")
+  assert_eq(project.files.length(), 6)
+  assert_true(has_miniapp_file(project.files, "pages/index/index.axml"))
+  assert_true(has_miniapp_file(project.files, "pages/index/index.acss"))
+  assert_true(project.page.markup.contains("onTap=\"__bunniaEvent\""))
+  assert_true(project.summary.contains("Bunnia alipay project"))
 }
 
 ///|
@@ -428,11 +443,8 @@ test "ci plan command reports unknown budget profiles" {
   assert_eq(plan.target, "alipay")
   assert_eq(plan.budget_profile, "oversized")
   assert_eq(plan.render_budget_profile, "microscopic")
-  assert_eq(plan.target_generator_status_id, "deferred")
-  assert_eq(plan.target_generator_available, false)
-  assert_true(
-    plan.diagnostics.contains("ci-platform-generator-deferred:alipay"),
-  )
+  assert_eq(plan.target_generator_status_id, "available")
+  assert_eq(plan.target_generator_available, true)
   assert_true(plan.diagnostics.contains("ci-budget-profile-unknown:oversized"))
   assert_true(
     plan.diagnostics.contains("ci-render-budget-profile-unknown:microscopic"),
@@ -864,6 +876,16 @@ fn profile_gate_for_test(
     @bunnia.build_profile_budget_for_profile("default"),
     budget_profile="default",
   )
+}
+
+///|
+fn has_miniapp_file(files : Array[@bunnia.MiniappFile], path : String) -> Bool {
+  for item in files {
+    if item.path == path {
+      return true
+    }
+  }
+  false
 }
 
 ///|

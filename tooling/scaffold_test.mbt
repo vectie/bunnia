@@ -593,7 +593,7 @@ test "scaffold project creates a small standalone starter" {
   )
   assert_true(
     file_content(plan.files, "README.mbt.md").contains(
-      "deferred generator status",
+      "generic mini-app generator status",
     ),
   )
   assert_true(plan.summary.contains("files=17"))

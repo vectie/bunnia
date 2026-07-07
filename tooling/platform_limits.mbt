@@ -49,7 +49,7 @@ pub fn platform_target_support(
   target? : String = "wechat",
 ) -> PlatformTargetSupport {
   let (adapter, label, known) = adapter_for_target(target)
-  let generator_status = generator_status_for_target(known, target == "wechat")
+  let generator_status = generator_status_for_target(known, known)
   platform_target_support_from_parts(
     target, label, adapter, known, generator_status,
   )
