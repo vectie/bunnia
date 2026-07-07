@@ -304,6 +304,16 @@ Acceptance:
 - User can place a published building on their own map.
 - Placement changes do not fork the building's durable book.
 
+Current evidence:
+
+- Moontown `src/miniapp_buildings` owns pure create/update/share/publish/archive,
+  place/remove-placement, and filtered search policy over `MiniappTownSnapshot`
+  without introducing storage or HTTP coupling.
+- Building registry tests cover private building creation with a generated
+  book projection, edit/share/submit/publish flow, placement records that do
+  not fork building identity, and search filters for tag, owner, visibility,
+  capability, and layer while preserving visibility rules.
+
 ## Phase 4: Books Behind Buildings
 
 Classification: feature.
