@@ -35,6 +35,10 @@ core framework APIs.
 See [docs/ROADMAP.md](/Users/kq/Workspace/moonmini/docs/ROADMAP.md) for the
 phase-by-phase implementation plan.
 
+See [docs/MOONTOWN_MINIAPP_PLAN.md](/Users/kq/Workspace/moonmini/docs/MOONTOWN_MINIAPP_PLAN.md)
+for the Moontown product/backend dogfood plan, including user login,
+building ownership, publication, search, books, and agent interaction.
+
 ## Package Shape
 
 - `core`: platform-neutral tree, events, adapters, render planning, and generic
