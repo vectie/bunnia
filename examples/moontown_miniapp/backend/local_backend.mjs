@@ -26,6 +26,7 @@ function seedState() {
       profile("user-a", "Ada Builder", "builder", "avatar://ada", true, true),
       profile("user-b", "Bo Curator", "explorer", "avatar://bo", true, true),
     ],
+    shares: [],
     sessions: {},
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -87,6 +88,10 @@ function profile(userId, displayName, roleId, avatarRef, consentAccepted, setupC
   return { userId, displayName, roleId, avatarRef, consentAccepted, setupCompleted };
 }
 
+function shareGrant(id, buildingId, ownerId, targetUserId, scope, status) {
+  return { id, buildingId, ownerId, targetUserId, scope, status };
+}
+
 function audit(id, kind, title, summary, actorId, targetRef, buildingId, status, visibility) {
   return { id, kind, title, summary, actorId, targetRef, buildingId, status, visibility, timestamp: new Date().toISOString() };
 }
@@ -141,6 +146,7 @@ function loadState(statePath, resetState = false) {
 function normalizeState(state) {
   state.users = state.users || [];
   state.profiles = state.profiles || [];
+  state.shares = state.shares || [];
   state.sessions = state.sessions || {};
   for (const user of state.users) {
     ensureProfile(state, user.id, { displayName: user.name, roleId: user.roleId, setupCompleted: true, consentAccepted: true });
@@ -325,7 +331,20 @@ function titleizeUser(userId) {
 }
 
 function visibleBuildings(state, viewer) {
-  return state.buildings.filter((item) => item.visibility !== "archived" && (item.visibility === "published" || item.ownerId === viewer || item.ownerId === "org-a"));
+  return state.buildings.filter((item) => canSeeBuilding(state, item, viewer));
+}
+
+function canSeeBuilding(state, item, viewer) {
+  return item.visibility !== "archived" && (
+    item.visibility === "published" ||
+    item.ownerId === viewer ||
+    item.ownerId === "org-a" ||
+    (item.visibility === "shared_private" && isBuildingSharedWith(state, item.id, viewer))
+  );
+}
+
+function isBuildingSharedWith(state, buildingId, viewer) {
+  return state.shares.some((item) => item.buildingId === buildingId && item.targetUserId === viewer && item.status === "active");
 }
 
 function visiblePlacements(state, viewer) {
@@ -338,25 +357,27 @@ function visibleBooks(state, viewer) {
 }
 
 function snapshotFor(state, viewer) {
+  const buildings = visibleBuildings(state, viewer);
   return {
     viewer,
     profile: profileFor(state, viewer),
     users: state.users,
-    buildings: visibleBuildings(state, viewer),
+    buildings,
     placements: visiblePlacements(state, viewer),
     books: visibleBooks(state, viewer),
-    agents: state.agents.filter((item) => visibleBuildings(state, viewer).some((building) => building.id === item.buildingId)),
-    runs: state.runs.filter((item) => visibleBuildings(state, viewer).some((building) => building.id === item.buildingId)),
+    agents: state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId)),
+    runs: state.runs.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
     messages: state.messages,
     notifications: state.notifications,
-    auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer),
+    shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
+    auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
   };
 }
 
 function ownershipFor(state, viewer) {
   const profile = profileFor(state, viewer);
-  const buildings = state.buildings.filter((item) => item.ownerId === viewer || item.ownerId === "org-a");
+  const buildings = state.buildings.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || (item.visibility === "shared_private" && isBuildingSharedWith(state, item.id, viewer)));
   const placements = visiblePlacements(state, viewer);
   const buildingIds = new Set(buildings.map((item) => item.id));
   const books = state.books.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || buildingIds.has(item.buildingId));
@@ -392,7 +413,8 @@ function ownershipFor(state, viewer) {
   if (retryableRuns.length > 0) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
-  return { viewer, profile, stats, items, alerts, reviews };
+  const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
+  return { viewer, profile, stats, items, alerts, reviews, shares };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel) {
@@ -448,6 +470,11 @@ function changeBuildingVisibility(state, viewer, buildingId, visibility, status,
   const item = state.buildings.find((building) => building.id === buildingId);
   if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
   if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
+  let grant = null;
+  if (kind === "share" && target !== "org-a") {
+    ensureProfile(state, target, {});
+    grant = upsertShareGrant(state, item, viewer, target);
+  }
   item.visibility = visibility;
   item.status = status;
   for (const memory of state.books) {
@@ -457,13 +484,26 @@ function changeBuildingVisibility(state, viewer, buildingId, visibility, status,
     }
   }
   state.auditEvents.push(audit(`audit-${kind}-${buildingId}`, kind, `${item.title} ${kind}`, `Visibility changed for ${target}.`, viewer, `building:${buildingId}`, buildingId, status, visibility));
-  return changed({ building: item });
+  return changed(grant ? { building: item, share: grant } : { building: item });
+}
+
+function upsertShareGrant(state, building, ownerId, targetUserId) {
+  const id = `share-${building.id}-${targetUserId}`;
+  let grant = state.shares.find((item) => item.id === id);
+  if (!grant) {
+    grant = shareGrant(id, building.id, ownerId, targetUserId, "user", "active");
+    state.shares.push(grant);
+  } else {
+    grant.ownerId = ownerId;
+    grant.status = "active";
+  }
+  return grant;
 }
 
 function askBuilding(state, viewer, body) {
   const buildingId = body.buildingId || "policy-hall";
-  const item = state.buildings.find((building) => building.id === buildingId);
-  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
+  const item = visibleBuildings(state, viewer).find((building) => building.id === buildingId);
+  if (!item) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
   const runId = `run-local-${state.nextRun++}`;
   const messageId = `msg-local-${state.nextMessage++}`;
   const reviewId = `review-local-${state.nextReview++}`;
@@ -553,6 +593,19 @@ function smoke(options) {
   const registeredSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(registeredSnapshot.body.profile.displayName === "Chen Cartographer", "snapshot saved profile");
   assert(registeredSnapshot.body.users.some((item) => item.id === "user-c" && item.name === "Chen Cartographer"), "registered user list");
+  const bobLogin = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-b" } });
+  const bobHeaders = { "x-miniapp-session": bobLogin.body.session.id };
+  const sharedDraft = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "shared-lab", title: "Shared Lab" } });
+  assert(sharedDraft.body.building.visibility === "private_draft", "create shared draft");
+  const shared = dispatch(state, { method: "POST", path: "/miniapp/buildings/share", query: new URLSearchParams(), headers, body: { buildingId: "shared-lab", targetUserId: "user-b" } });
+  assert(shared.body.share.targetUserId === "user-b", "share target");
+  assert(shared.body.building.visibility === "shared_private", "share visibility");
+  const bobSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(bobSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "invited user sees shared building");
+  const chenSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
+  assert(!chenSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "uninvited user cannot see shared building");
+  const privateSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=shared"), headers: bobHeaders, body: {} });
+  assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });

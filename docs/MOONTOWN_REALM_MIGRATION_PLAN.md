@@ -338,7 +338,9 @@ snapshot load, publish, building query, and cache state visibility. My also
 exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
 buildings, books, agents, placements, and workbench alerts can be exercised
 locally. Dev login and profile save now update durable local user/profile state
-instead of returning a throwaway profile object.
+instead of returning a throwaway profile object. Shared-private local buildings
+now use explicit share grants, so invited users can see them while uninvited
+users and public search cannot.
 
 ### R9: Style And Performance Hardening
 
