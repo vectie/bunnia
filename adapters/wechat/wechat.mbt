@@ -1486,9 +1486,6 @@ fn render_children(
 ///|
 fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
   let out = StringBuilder::new()
-  if root.key != "" {
-    out.write_string(" data-bunnia-key=\"\{escape_xml(root.key)}\"")
-  }
   for attr in root.attrs {
     out.write_string(" \{attr.name}=\"\{escape_xml(wechat_attr_value(attr))}\"")
   }

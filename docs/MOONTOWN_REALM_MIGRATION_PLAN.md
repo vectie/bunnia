@@ -738,6 +738,10 @@ Done when:
 - inspect and tests stay green after every feature slice
 
 Current status: continuous after each slice.
+The WeChat adapter now keeps repeated-row keys inside the render plan for
+unkeyed/duplicate diagnostics, but omits `data-bunnia-key` from production WXML.
+That reclaims markup budget for Moontown's mature app surfaces without weakening
+list identity checks.
 
 ### R10: Production Backend Readiness
 

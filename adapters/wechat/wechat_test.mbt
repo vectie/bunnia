@@ -125,6 +125,23 @@ test "wechat event handler can navigate from route data" {
 }
 
 ///|
+test "wechat omits render-plan keys from production wxml" {
+  let project = generate_project(
+    name="Key Compact",
+    route="pages/key/index",
+    root=@core.page([
+      @core.view([
+        @core.keyed("row-a", @core.view([@core.text("A")])),
+        @core.keyed("row-b", @core.view([@core.text("B")])),
+      ]),
+    ]),
+  )
+  assert_true(!project.page.wxml.contains("data-bunnia-key"))
+  assert_eq(project.page.plan.unkeyed_list_child_count, 0)
+  assert_eq(project.page.plan.duplicate_list_key_count, 0)
+}
+
+///|
 test "wechat project backend module emits only route reachable endpoints" {
   let contract = @effects.backend_contract(id="route-filter", endpoints=[
     @effects.operator_submit_endpoint(
