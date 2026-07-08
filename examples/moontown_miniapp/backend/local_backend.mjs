@@ -428,16 +428,20 @@ function visibleBooks(state, viewer) {
 
 function snapshotFor(state, viewer) {
   const buildings = visibleBuildings(state, viewer);
+  const placements = visiblePlacements(state, viewer);
+  const books = visibleBooks(state, viewer);
+  const agents = state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId));
   const profile = profileFor(state, viewer);
   return {
     viewer,
     profile,
     permissions: permissionsFor(state, viewer, profile),
+    relationships: relationshipsFor(state, viewer, buildings, placements, books, agents),
     users: state.users,
     buildings,
-    placements: visiblePlacements(state, viewer),
-    books: visibleBooks(state, viewer),
-    agents: state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId)),
+    placements,
+    books,
+    agents,
     runs: state.runs.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     toolResults: state.toolResults.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
@@ -466,6 +470,7 @@ function ownershipFor(state, viewer) {
   const buildingIds = new Set(buildings.map((item) => item.id));
   const books = state.books.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || buildingIds.has(item.buildingId));
   const agents = state.agents.filter((item) => buildingIds.has(item.buildingId));
+  const relationships = relationshipsFor(state, viewer, buildings, placements, books, agents);
   const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
   const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
   const stats = [
@@ -498,7 +503,7 @@ function ownershipFor(state, viewer) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
-  return { viewer, profile, permissions, stats, items, alerts, reviews, shares };
+  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
@@ -517,6 +522,48 @@ function permissionsFor(state, viewer, profile) {
     canModerate: canModerate(state, viewer),
     canReview: state.reviews.some((item) => item.reviewerId === viewer && item.status === "pending"),
   };
+}
+
+function relationshipsFor(state, viewer, buildings, placements, books, agents) {
+  const buildingById = new Map(buildings.map((item) => [item.id, item]));
+  return [
+    ...buildings.map((item) => relationship("building", item.id, relationForBuilding(state, viewer, item), item.ownerId, item.visibility, item.id)),
+    ...placements.map((item) => relationship("placement", item.id, relationForPlacement(item, viewer), item.ownerId, item.layer, item.buildingId)),
+    ...books.map((item) => relationship("book", item.id, relationForBook(state, viewer, item, buildingById.get(item.buildingId)), item.ownerId, item.visibility, item.buildingId)),
+    ...agents.map((item) => {
+      const building = buildingById.get(item.buildingId) || state.buildings.find((candidate) => candidate.id === item.buildingId);
+      return relationship("agent", item.id, building ? relationForBuilding(state, viewer, building) : "detached", building ? building.ownerId : "", building ? building.visibility : "unknown", item.buildingId);
+    }),
+  ];
+}
+
+function relationship(kind, id, relation, ownerId, visibility, buildingId) {
+  return { kind, id, relation, ownerId, visibility, buildingId };
+}
+
+function relationForBuilding(state, viewer, item) {
+  if (item.ownerId === viewer) return "owner";
+  if (item.ownerId === "system") return "system";
+  if (item.ownerId === "org-a") return "team";
+  if (isBuildingSharedWith(state, item.id, viewer)) return "shared";
+  if (item.visibility === "published") return "public";
+  return "visible";
+}
+
+function relationForPlacement(item, viewer) {
+  if (item.ownerId === viewer) return "owner";
+  if (item.ownerId === "org-a") return "team";
+  if (item.layer === "town_public") return "public";
+  return "visible";
+}
+
+function relationForBook(state, viewer, item, building) {
+  if (item.ownerId === viewer) return "owner";
+  if (item.ownerId === "system") return "system";
+  if (item.ownerId === "org-a") return "team";
+  if (building) return relationForBuilding(state, viewer, building);
+  if (item.visibility === "published") return "public";
+  return "visible";
 }
 
 function actionForVisibility(visibility) {
@@ -1088,10 +1135,12 @@ function smoke(options) {
   assert(shared.body.building.visibility === "shared_private", "share visibility");
   const bobSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(bobSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "invited user sees shared building");
+  assert(hasRelationship(bobSnapshot.body.relationships, "building", "shared-lab", "shared"), "invited user shared relationship");
   assert(bobSnapshot.body.permissions.profileReady === true, "invited user profile ready");
   assert(bobSnapshot.body.permissions.canModerate === false, "invited user cannot moderate");
   const chenSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(!chenSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "uninvited user cannot see shared building");
+  assert(!hasRelationship(chenSnapshot.body.relationships, "building", "shared-lab", "shared"), "uninvited user has no shared relationship");
   assert(!chenSnapshot.body.messages.some((item) => item.threadId === "thread-private-agent-lab"), "private messages hidden from uninvited user");
   const privateSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=shared"), headers: bobHeaders, body: {} });
   assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
@@ -1168,6 +1217,9 @@ function smoke(options) {
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
   assert(snapshot.body.permissions.canModerate === true, "moderator snapshot permission");
   assert(snapshot.body.permissions.canReview === true, "reviewer snapshot permission");
+  assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
+  assert(hasRelationship(snapshot.body.relationships, "building", "team-studio", "team"), "snapshot team relationship");
+  assert(hasRelationship(snapshot.body.relationships, "placement", "placement-user-a-policy-hall", "owner"), "snapshot placement relationship");
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   assert(snapshot.body.toolResults.some((item) => item.id === "tool-policy-summary" && item.status === "done"), "snapshot tool result ack");
@@ -1178,6 +1230,9 @@ function smoke(options) {
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
   assert(ownership.body.permissions.canModerate === true, "ownership moderator permission");
   assert(ownership.body.permissions.profileReady === true, "ownership profile ready permission");
+  assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
+  assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
+  assert(hasRelationship(ownership.body.relationships, "agent", "agent-smoke", "owner"), "ownership agent relationship");
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke"), "ownership agent");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke-helper"), "ownership helper agent");
@@ -1191,6 +1246,10 @@ function smoke(options) {
 
 function assert(condition, label) {
   if (!condition) throw new Error(`smoke failed: ${label}`);
+}
+
+function hasRelationship(items, kind, id, relation) {
+  return items.some((item) => item.kind === kind && item.id === id && item.relation === relation);
 }
 
 const options = parseArgs(process.argv.slice(2));

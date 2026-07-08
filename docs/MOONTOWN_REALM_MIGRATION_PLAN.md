@@ -579,14 +579,18 @@ locally. Dev login and profile save now update durable local user/profile state
 instead of returning a throwaway profile object. Snapshot and ownership payloads
 now include explicit viewer permissions, keeping account readiness, review
 eligibility, and moderator trust backend-owned. Profile readiness is enforced
-for create, share, submit, publish, and place actions. Shared-private local
-buildings now use explicit share grants, so invited users can see them while
-uninvited users and public search cannot. Message send is also persisted locally
-through `/miniapp/messages/send`, and snapshots only return messages attached to
-buildings the viewer can see. Discover search now exercises multi-kind public
-results instead of a building-only route. Local building publication now goes
-through `/miniapp/buildings/submit` before `/miniapp/buildings/publish`, so the
-backend loop has a review state instead of direct draft-to-public publishing.
+for create, share, submit, publish, and place actions. Snapshot and ownership
+payloads also include derived object relationships for buildings, placements,
+books, and agents, so surfaces can distinguish owner, shared, team, system,
+public, and visible objects without copying backend visibility rules.
+Shared-private local buildings now use explicit share grants, so invited users
+can see them while uninvited users and public search cannot. Message send is
+also persisted locally through `/miniapp/messages/send`, and snapshots only
+return messages attached to buildings the viewer can see. Discover search now
+exercises multi-kind public results instead of a building-only route. Local
+building publication now goes through `/miniapp/buildings/submit` before
+`/miniapp/buildings/publish`, so the backend loop has a review state instead of
+direct draft-to-public publishing.
 The local review endpoints now accept or reject publication reviews as well as
 book-memory reviews, matching the mini-app queue. Local agent creation now
 validates building ownership, rejects duplicates, persists the agent, writes a
@@ -728,6 +732,16 @@ threads are conversations
 runs are auditable work
 reviews decide what becomes durable
 ```
+
+Backend snapshots should also expose the viewer relationship to visible objects:
+
+```text
+relationship = owner | shared | team | system | public | visible
+```
+
+This relationship is derived by the backend for buildings, placements, books,
+and agents. Mini-app surfaces should consume it as product state instead of
+re-implementing owner/share/visibility rules in WXML or page logic.
 
 ## Phase Checklist
 
