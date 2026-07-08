@@ -673,7 +673,13 @@ results are now visible as tile-styled cards in Messages, budgeted in the
 Bunnia build profile, and tied to acknowledgements instead of disappearing into
 raw run text. Run cancel/retry is now explicit and viewer-scoped: the backend no
 longer falls back to the newest run, and a user can only mutate a run attached
-to a building they can see.
+to a building they can see. The local backend now also exposes a bounded
+`/miniapp/messages/center` read contract for long-lived communication surfaces:
+the endpoint normalizes notifications, reviews, runs, tool results, threads,
+and messages into one tile mail stream with channel, status, building, thread,
+text query, limit, and cursor filters. It returns filter echo, all-counts,
+filtered counts, and page metadata, so Messages can grow around agent work
+without pushing every visible thread and notice through one snapshot update.
 
 ### R7: My Ownership Workbench
 
@@ -767,8 +773,10 @@ pre-publication rules.
 Shared-private local buildings now use explicit share grants, so invited users
 can see them while uninvited users and public search cannot. Message send is
 also persisted locally through `/miniapp/messages/send`, and snapshots now
-return durable visible threads plus messages attached to those threads. Discover
-search now exercises multi-kind public results instead of a building-only route. Local
+return durable visible threads plus messages attached to those threads. The
+local backend also exposes `/miniapp/messages/center` for filtered,
+cursor-windowed message, notice, review, run, tool-result, and thread sync.
+Discover search now exercises multi-kind public results instead of a building-only route. Local
 building publication now goes through `/miniapp/buildings/submit` before
 `/miniapp/buildings/publish`, so the backend loop has a review state instead of
 direct draft-to-public publishing.

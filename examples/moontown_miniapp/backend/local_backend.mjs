@@ -1241,6 +1241,9 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/discover/search") {
     return ok(discoverSearchResult(state, viewer, request.query, body));
   }
+  if (method === "GET" && path === "/miniapp/messages/center") {
+    return ok(messageCenterFor(state, viewer, request.query, body));
+  }
   if (method === "POST" && path === "/miniapp/discover/action") {
     return submitDiscoveryAction(state, viewer, body);
   }
@@ -1351,6 +1354,7 @@ function routeCatalog() {
     "GET /miniapp/town/snapshot",
     "GET /miniapp/me/ownership",
     "GET /miniapp/discover/search",
+    "GET /miniapp/messages/center",
     "POST /miniapp/discover/action",
     "POST /miniapp/me/profile",
     "POST /miniapp/buildings",
@@ -1529,6 +1533,96 @@ function discoveryActionsFor(state, viewer) {
 function visibleMessages(state, viewer) {
   const visibleThreadIds = new Set(visibleThreads(state, viewer).map((item) => item.id));
   return state.messages.filter((item) => visibleThreadIds.has(item.threadId));
+}
+
+function messageCenterFor(state, viewer, query = new URLSearchParams(), body = {}) {
+  const filters = messageCenterFilters(query, body);
+  const buildings = visibleBuildings(state, viewer);
+  const buildingIds = new Set(buildings.map((item) => item.id));
+  const threads = visibleThreads(state, viewer);
+  const messages = visibleMessages(state, viewer);
+  const notifications = visibleNotifications(state, viewer, buildings);
+  const runs = state.runs.filter((item) => buildingIds.has(item.buildingId));
+  const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
+  const toolResults = state.toolResults.filter((item) => buildingIds.has(item.buildingId));
+  const items = [
+    ...notifications.map((item) => messageCenterItem("notification", item.id, item.title, item.body, item.targetRef, item.buildingId, "", item.kind, item.state, item.unread, "Open", actionMessageForTargetRef(item.targetRef))),
+    ...reviews.map((item) => messageCenterItem("review", item.id, item.title, item.summary, `review:${item.id}`, item.buildingId, "", "review", item.status, item.status === "pending", "Review", "tab-messages")),
+    ...runs.map((item) => messageCenterItem("run", item.id, item.title, item.summary, `run:${item.id}`, item.buildingId, item.threadId, "run", item.status, item.status === "review", item.reviewRequired ? "Review" : "Open", "tab-messages")),
+    ...toolResults.map((item) => messageCenterItem("tool-result", item.id, item.title, item.summary, `tool-result:${item.id}`, item.buildingId, item.threadId, "tool", item.status, item.status === "waiting-review", item.status === "done" ? "Open" : "Ack", item.acknowledgeMessage || "ack-tool-result")),
+    ...threads.map((item) => messageCenterItem("thread", item.id, item.title, `Conversation attached to ${item.buildingId}.`, `thread:${item.id}`, item.buildingId, item.id, "thread", item.status, item.unreadCount > 0, "Open", "tab-messages")),
+    ...messages.map((item) => messageCenterItem("message", item.id, item.actorId, item.text, `message:${item.id}`, buildingIdFromThread(item.threadId), item.threadId, "message", item.status, item.status === "waiting-review", "Open", "tab-messages")),
+  ].reverse();
+  const filteredItems = items.filter((item) => messageCenterItemMatches(item, filters));
+  const page = discoverPage(filters, filteredItems.length);
+  const windowedItems = filteredItems.slice(page.offset, page.offset + page.limit);
+  return {
+    viewer,
+    query: filters.query,
+    filters,
+    counts: messageCenterCounts(filteredItems),
+    allCounts: messageCenterCounts(items),
+    page: {
+      ...page,
+      returned: windowedItems.length,
+    },
+    items: windowedItems,
+    threads,
+    notifications,
+    notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
+  };
+}
+
+function messageCenterFilters(query, body) {
+  return {
+    query: String(query.get("query") || body.query || "").trim(),
+    channel: normalizeMessageChannel(query.get("channel") || query.get("kind") || body.channel || body.kind || "all"),
+    status: normalizeMessageChannel(query.get("status") || body.status || "all"),
+    buildingId: String(query.get("buildingId") || body.buildingId || "").trim(),
+    threadId: String(query.get("threadId") || body.threadId || "").trim(),
+    limit: numberParam(query.get("limit") || body.limit, 30, 1, 50),
+    cursor: numberParam(query.get("cursor") || body.cursor || body.offset, 0, 0, 1000000),
+  };
+}
+
+function normalizeMessageChannel(value) {
+  const normalized = String(value || "all").trim();
+  if (!normalized || normalized === "all") return "all";
+  if (normalized === "notifications" || normalized === "notice" || normalized === "notices") return "notification";
+  if (normalized === "messages") return "message";
+  if (normalized === "threads") return "thread";
+  if (normalized === "runs") return "run";
+  if (normalized === "reviews") return "review";
+  if (normalized === "tools" || normalized === "tool-results") return "tool-result";
+  return normalized;
+}
+
+function messageCenterItem(kind, id, title, summary, targetRef, buildingId, threadId, channel, status, unread, actionLabel, actionMessage) {
+  return { id, kind, title, summary, targetRef, buildingId, threadId, channel, status, unread: Boolean(unread), actionLabel, actionMessage };
+}
+
+function messageCenterItemMatches(item, filters) {
+  if (filters.channel === "unread" && !item.unread) return false;
+  if (filters.channel === "failed" && !["failed", "rejected", "cancelled"].includes(item.status)) return false;
+  if (!["all", "unread", "failed"].includes(filters.channel) && item.kind !== filters.channel && item.channel !== filters.channel) return false;
+  if (filters.status !== "all" && item.status !== filters.status) return false;
+  if (filters.buildingId && item.buildingId !== filters.buildingId) return false;
+  if (filters.threadId && item.threadId !== filters.threadId && item.targetRef !== `thread:${filters.threadId}`) return false;
+  if (!filters.query) return true;
+  const needle = filters.query.toLowerCase();
+  return [item.id, item.kind, item.title, item.summary, item.targetRef, item.buildingId, item.threadId, item.channel, item.status]
+    .some((value) => String(value || "").toLowerCase().includes(needle));
+}
+
+function messageCenterCounts(items) {
+  const counts = {};
+  for (const item of items) {
+    counts[item.kind] = (counts[item.kind] || 0) + 1;
+    if (item.channel !== item.kind) counts[item.channel] = (counts[item.channel] || 0) + 1;
+    counts[item.status] = (counts[item.status] || 0) + 1;
+    if (item.unread) counts.unread = (counts.unread || 0) + 1;
+  }
+  return counts;
 }
 
 function buildingIdFromThread(threadId) {
@@ -3140,6 +3234,27 @@ function smoke(options) {
   assert(deniedWatch.status === 403, "private watch blocked");
   const bobAfterAck = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(bobAfterAck.body.notifications.some((item) => item.id === "notice-review" && item.unread === true), "ack is viewer scoped");
+  const messageCenter = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams("limit=2"), headers, body: {} });
+  assert(messageCenter.body.page.limit === 2, "message center page limit");
+  assert(messageCenter.body.page.returned === 2, "message center page returned");
+  assert(messageCenter.body.page.total > messageCenter.body.page.returned, "message center page total");
+  assert(messageCenter.body.page.hasMore === true, "message center has more");
+  assert(messageCenter.body.allCounts.message >= 1, "message center all message count");
+  const nextMessageCenter = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams(`limit=2&cursor=${messageCenter.body.page.nextCursor}`), headers, body: {} });
+  assert(nextMessageCenter.body.page.offset === 2, "message center next offset");
+  assert(nextMessageCenter.body.items[0].id !== messageCenter.body.items[0].id, "message center next item");
+  const messageChannel = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams("channel=messages&query=hello"), headers, body: {} });
+  assert(messageChannel.body.filters.channel === "message", "message center message channel");
+  assert(messageChannel.body.items.some((item) => item.targetRef === `message:${sent.body.message.id}`), "message center message query");
+  assert(messageChannel.body.items.every((item) => item.kind === "message"), "message center message scoped");
+  const reviewChannel = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams("channel=reviews"), headers, body: {} });
+  assert(reviewChannel.body.filters.channel === "review", "message center review channel");
+  assert(reviewChannel.body.items.some((item) => item.targetRef === "review:review-policy-memory"), "message center review item");
+  const unreadChannel = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams("channel=unread"), headers, body: {} });
+  assert(unreadChannel.body.items.length >= 1, "message center unread items");
+  assert(unreadChannel.body.items.every((item) => item.unread === true), "message center unread scoped");
+  const privateThreadCenter = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams("threadId=thread-private-agent-lab"), headers: registeredHeaders, body: {} });
+  assert(privateThreadCenter.body.page.total === 0, "message center private thread hidden");
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
   assert(report.body.case.targetRef === "building:published-agent-lab", "report target");
