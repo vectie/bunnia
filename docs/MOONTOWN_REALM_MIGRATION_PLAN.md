@@ -831,6 +831,12 @@ weight.
 Generated backend request dispatch now clones endpoint payload templates before
 overlaying row dataset fields such as `targetRef`, so Discover watch actions and
 retryable requests cannot mutate shared page data while building a request.
+The same dataset overlay path now accepts query-window fields (`query`, `filter`,
+`kind`, `channel`, `status`, `visibility`, `limit`, `cursor`,
+`placeableOnly`, and `includeAlerts`), so generated tile controls can request
+the next Discover, Messages, or My backend window without adding duplicate
+endpoint ids. The Moontown mini-app now exposes compact Next stamps for those
+three scalable surfaces while keeping the backend contract at 32 endpoints.
 
 ### R9: Style And Performance Hardening
 
@@ -873,6 +879,12 @@ endpoint, method, and path data attributes because the method/path are already
 visible text and the Run button already carries the endpoint message. This keeps
 the local backend panel inspectable while reclaiming WXML headroom for the next
 feature slice.
+The backend-window controls added for Discover, Messages, and My deliberately
+reuse existing endpoint ids and tiny dataset overlays. Strict WeChat build stays
+inside the large package budget at 262108/262144 bytes, with `event_patch_ops`
+unchanged at 156 and diagnostics at 0. This is the current pattern for large
+lists: add backend cursor windows first, then expose only the smallest tile
+control needed to exercise the next window.
 
 ### R10: Production Backend Readiness
 

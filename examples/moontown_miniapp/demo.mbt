@@ -1843,6 +1843,10 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
       value=projection.search_query,
       input_message="discover-search",
     ),
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-community-actions")],
+      [backend_window_button("Next", "discover-search", cursor=2, limit=2)],
+    ),
     discover_spotlight_section("Town People", people),
     discover_spotlight_section("Town Circles", circles),
     discover_spotlight_section("Town Market", market),
@@ -2147,6 +2151,10 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
       ),
     ]),
     message_backend_state_row(),
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-community-actions")],
+      [backend_window_button("Next", "load-message-center", cursor=2, limit=2)],
+    ),
     message_bucket_row(projection),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-message-channels")], [
       @bunnia.windowed_list(
@@ -2979,8 +2987,29 @@ fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
           "runtime: {{backendStatus.\{backend_status_key(step.endpoint_id)}.state || 'idle'}}",
         ),
       ]),
-      @bunnia.button("Sync", step.endpoint_id),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-community-actions")],
+        [backend_window_button("Next", step.endpoint_id, cursor=2, limit=2)],
+      ),
     ],
+  )
+}
+
+///|
+fn backend_window_button(
+  label : String,
+  message : String,
+  cursor~ : Int,
+  limit~ : Int,
+) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.data("cursor", "\{cursor}"),
+      @bunnia.data("limit", "\{limit}"),
+    ],
+    events=[@bunnia.event("tap", message)],
+    children=[@bunnia.text(label)],
   )
 }
 
