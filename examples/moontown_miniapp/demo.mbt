@@ -291,6 +291,7 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
   }
   add_setup_event_patches(patches, projection)
   add_discovery_filter_event_patches(patches, projection)
+  add_discovery_action_event_patches(patches)
   add_notification_channel_event_patches(patches, projection)
   add_ownership_filter_event_patches(patches, projection)
   for building in visible_buildings(projection) {
@@ -418,6 +419,16 @@ fn add_discovery_filter_event_patches(
       ]),
     )
   }
+}
+
+///|
+fn add_discovery_action_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+) -> Unit {
+  patches.push(@bunnia.wechat_event_patch("open-discovery-item", []))
+  patches.push(@bunnia.wechat_event_patch("request-discovery-item", []))
+  patches.push(@bunnia.wechat_event_patch("join-discovery-item", []))
+  patches.push(@bunnia.wechat_event_patch("read-discovery-item", []))
 }
 
 ///|
@@ -1925,10 +1936,76 @@ fn discover_entry_action(
     ])
   } else if item.visibility == "published" {
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-action")], [
+      discover_primary_action_button(item),
       discover_watch_button(item),
     ])
   } else {
     @bunnia.view([])
+  }
+}
+
+///|
+fn discover_primary_action_button(item : MiniTownDiscoveryItem) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.data("discovery-action", discover_primary_action_kind(item)),
+      @bunnia.data("discovery-id", item.id),
+      @bunnia.data("discovery-kind", item.kind),
+      @bunnia.data("target-ref", item.target_ref),
+    ],
+    events=[@bunnia.tap(discover_primary_action_message(item))],
+    children=[@bunnia.text(discover_primary_action_label(item))],
+  )
+}
+
+///|
+fn discover_primary_action_kind(item : MiniTownDiscoveryItem) -> String {
+  if item.kind == "demand" {
+    "request"
+  } else if item.kind == "event" || item.kind == "circle" {
+    "join"
+  } else if item.kind == "post" || item.kind == "book" {
+    "read"
+  } else {
+    "open"
+  }
+}
+
+///|
+fn discover_primary_action_message(item : MiniTownDiscoveryItem) -> String {
+  let kind = discover_primary_action_kind(item)
+  if kind == "request" {
+    "request-discovery-item"
+  } else if kind == "join" {
+    "join-discovery-item"
+  } else if kind == "read" {
+    "read-discovery-item"
+  } else {
+    "open-discovery-item"
+  }
+}
+
+///|
+fn discover_primary_action_label(item : MiniTownDiscoveryItem) -> String {
+  if item.kind == "product" {
+    "Open Product"
+  } else if item.kind == "demand" {
+    "Answer Demand"
+  } else if item.kind == "event" {
+    "Join Event"
+  } else if item.kind == "circle" {
+    "Enter Circle"
+  } else if item.kind == "post" {
+    "Read Note"
+  } else if item.kind == "book" {
+    "Read Book"
+  } else if item.kind == "agent" {
+    "Open Agent"
+  } else if item.kind == "user" {
+    "View Profile"
+  } else {
+    "Open"
   }
 }
 

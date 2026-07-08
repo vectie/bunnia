@@ -1442,7 +1442,7 @@ fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
       title="Team Studio Session",
       summary="Shared organization agent session for map and book planning.",
       target_ref="event:team-studio",
-      visibility="shared_private",
+      visibility="published",
       status="shared",
     ),
     mini_town_discovery_item(

@@ -285,8 +285,28 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     discover.wxml.contains("data-target-ref=\"product:agent-publishing-kit\""),
   )
+  assert_true(discover.wxml.contains("Open Product"))
+  assert_true(discover.wxml.contains("data-discovery-action=\"open\""))
+  assert_true(
+    discover.wxml.contains("data-bunnia-message=\"open-discovery-item\""),
+  )
+  assert_true(discover.wxml.contains("Answer Demand"))
+  assert_true(discover.wxml.contains("data-discovery-action=\"request\""))
+  assert_true(
+    discover.wxml.contains("data-bunnia-message=\"request-discovery-item\""),
+  )
   assert_true(discover.wxml.contains("Team Studio Session"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"event\""))
+  assert_true(discover.wxml.contains("Join Event"))
+  assert_true(discover.wxml.contains("data-discovery-action=\"join\""))
+  assert_true(
+    discover.wxml.contains("data-bunnia-message=\"join-discovery-item\""),
+  )
+  assert_true(discover.wxml.contains("Read Note"))
+  assert_true(discover.wxml.contains("data-discovery-action=\"read\""))
+  assert_true(
+    discover.wxml.contains("data-bunnia-message=\"read-discovery-item\""),
+  )
   assert_true(discover.wxml.contains("discover-search"))
   assert_true(discover.wxml.contains("moontown-discovery-filter active"))
   assert_true(discover.wxml.contains("data-filter-id=\"user\""))
@@ -652,6 +672,26 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
       "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"open-discovery-item\":[]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"request-discovery-item\":[]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"join-discovery-item\":[]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"read-discovery-item\":[]",
     ),
   )
   assert_true(

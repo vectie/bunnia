@@ -518,6 +518,11 @@ public/visible, persists viewer-scoped watch state, and returns those watches
 through My ownership stats and rows. Discover now exposes this as a compact
 Watch stamp on public result rows, reusing the same backend route and carrying
 each row's target reference instead of creating a separate social-follow page.
+Non-building public results now also expose typed tile actions: products and
+agents open, demands can be answered, events/circles can be joined, and
+posts/books can be read. These actions keep target references in row datasets
+and use stable event messages, so the next backend slice can attach real
+marketplace mutations without reshaping the Discover UI.
 
 ### R5: Building Lifecycle And Books
 
