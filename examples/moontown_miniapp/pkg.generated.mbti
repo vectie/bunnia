@@ -66,6 +66,8 @@ pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, stat
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
 
+pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
+
 pub fn mini_town_district(id~ : String, title~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, status~ : String) -> MiniTownDistrict
 
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
@@ -100,6 +102,8 @@ pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_tab(MiniTownProjection, String) -> MiniTownProjection
 
+pub fn unified_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
+
 pub fn unread_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
@@ -126,6 +130,16 @@ pub struct MiniTownBuilding {
   y : Int
   status : String
   asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownDiscoveryItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  target_ref : String
+  visibility : String
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownDistrict {
@@ -190,6 +204,7 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
+  discovery_items : Array[MiniTownDiscoveryItem]
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownRole {

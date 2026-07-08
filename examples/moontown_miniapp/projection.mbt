@@ -91,6 +91,17 @@ pub struct MiniTownNotification {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownDiscoveryItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  target_ref : String
+  visibility : String
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -110,6 +121,7 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
+  discovery_items : Array[MiniTownDiscoveryItem]
 } derive(Debug, Eq)
 
 ///|
@@ -241,6 +253,19 @@ pub fn mini_town_notification(
 }
 
 ///|
+pub fn mini_town_discovery_item(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+  target_ref~ : String,
+  visibility~ : String,
+  status~ : String,
+) -> MiniTownDiscoveryItem {
+  { id, kind, title, summary, target_ref, visibility, status }
+}
+
+///|
 pub fn demo_projection() -> MiniTownProjection {
   {
     id: "moontown-miniapp",
@@ -311,7 +336,68 @@ pub fn demo_projection() -> MiniTownProjection {
       ),
     ],
     notifications: demo_notifications(),
+    discovery_items: demo_discovery_items(),
   }
+}
+
+///|
+fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
+  [
+    mini_town_discovery_item(
+      id="discover-user-ada",
+      kind="user",
+      title="Ada Builder",
+      summary="Creates private agent labs and publishes stable buildings.",
+      target_ref="user:user-a",
+      visibility="personal",
+      status="stable",
+    ),
+    mini_town_discovery_item(
+      id="discover-agent-policy",
+      kind="agent",
+      title="Policy Guide",
+      summary="Agent for public review, policy answers, and book memory.",
+      target_ref="agent:agent-policy-guide",
+      visibility="published",
+      status="review",
+    ),
+    mini_town_discovery_item(
+      id="discover-book-knowledge",
+      kind="book",
+      title="Knowledge House Book",
+      summary="Accepted memory behind public building answers.",
+      target_ref="book:knowledge-house",
+      visibility="published",
+      status="stable",
+    ),
+    mini_town_discovery_item(
+      id="discover-demand-review",
+      kind="demand",
+      title="Review Demand",
+      summary="Human approval needed before agent output becomes memory.",
+      target_ref="demand:review-council",
+      visibility="published",
+      status="review",
+    ),
+    mini_town_discovery_item(
+      id="discover-event-studio",
+      kind="event",
+      title="Team Studio Session",
+      summary="Shared organization session for map and book planning.",
+      target_ref="event:team-studio",
+      visibility="shared_private",
+      status="shared",
+    ),
+    mini_town_discovery_item(
+      id="discover-post-agent",
+      kind="post",
+      title="Agent Lab Field Note",
+      summary="A public note about placing published agent buildings.",
+      target_ref="post:published-agent-lab",
+      visibility="published",
+      status="stable",
+    ),
+  ]
 }
 
 ///|
@@ -644,6 +730,55 @@ pub fn search_results(
     }
   }
   output
+}
+
+///|
+pub fn unified_discovery_results(
+  projection : MiniTownProjection,
+) -> Array[MiniTownDiscoveryItem] {
+  let output : Array[MiniTownDiscoveryItem] = []
+  for building in search_results(projection) {
+    output.push(
+      mini_town_discovery_item(
+        id="building-\{building.id}",
+        kind="building",
+        title=building.title,
+        summary=building.summary,
+        target_ref="building:\{building.id}",
+        visibility=building.visibility,
+        status=building.status,
+      ),
+    )
+  }
+  for item in projection.discovery_items {
+    if mini_town_discovery_visible_for(projection, item) &&
+      mini_town_discovery_match(projection.search_query, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn mini_town_discovery_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> Bool {
+  item.visibility == "published" ||
+  item.visibility == "system_public" ||
+  item.visibility == "personal" ||
+  (item.visibility == "shared_private" && projection.organization_id != "")
+}
+
+///|
+fn mini_town_discovery_match(
+  query : String,
+  item : MiniTownDiscoveryItem,
+) -> Bool {
+  query == "" ||
+  item.kind.contains(query) ||
+  item.title.contains(query) ||
+  item.summary.contains(query)
 }
 
 ///|

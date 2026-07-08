@@ -113,10 +113,16 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
   assert_true(
     discover.wxml.contains(
-      "Search buildings, agents, books, events, and demands.",
+      "Search buildings, users, agents, books, events, demands, and posts.",
     ),
   )
   assert_true(discover.wxml.contains("moontown-discover-entry"))
+  assert_true(discover.wxml.contains("discover-search"))
+  assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
+  assert_true(
+    discover.wxml.contains("data-target-ref=\"agent:agent-policy-guide\""),
+  )
+  assert_true(discover.wxml.contains("Agent Lab Field Note"))
   assert_true(!discover.wxml.contains("moontown-right-hud"))
 
   let messages = tab_page(projection, "messages")
@@ -168,6 +174,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/discover/search",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )
@@ -202,6 +213,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"discoverSearch\":{\"query\":\"agent\"}",
     ),
   )
   assert_true(
@@ -248,10 +264,12 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.onboarding_steps.length(), 4)
   assert_eq(projection.districts.length(), 4)
   assert_eq(projection.notifications.length(), 3)
+  assert_eq(projection.discovery_items.length(), 6)
   assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(search_results(projection).length(), 1)
+  assert_true(unified_discovery_results(projection).length() >= 5)
   assert_eq(owned_buildings(projection).length(), 1)
   let tabbed = switch_tab(projection, "discover")
   assert_eq(tabbed.active_tab_id, "discover")

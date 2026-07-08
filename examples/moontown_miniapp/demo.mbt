@@ -87,6 +87,8 @@ fn moontown_wxss() -> String {
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
   ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
+  ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
   ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -154,8 +156,8 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     patches.push(open_building_thread_patch(building))
   }
   patches.push(
-    @bunnia.wechat_event_patch("search-buildings", [
-      @bunnia.set_string("town.searchQuery", "policy"),
+    @bunnia.wechat_event_patch("discover-search", [
+      @bunnia.set_string("discover.query", "agent"),
     ]),
   )
   patches.push(
@@ -389,11 +391,11 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "save-profile", "/miniapp/me/profile", "profileDraft", "profileResult",
       ),
       @bunnia.generic_endpoint(
-        "search-buildings",
-        "/miniapp/buildings/search",
+        "discover-search",
+        "/miniapp/discover/search",
         @bunnia.http_get(),
-        payload_key="buildingSearch",
-        response_key="buildingSearchResult",
+        payload_key="discoverSearch",
+        response_key="discoverSearchResult",
       ),
       @bunnia.operator_submit_endpoint(
         "create-private-building", "/miniapp/buildings", "buildingDraft", "buildingResult",
@@ -932,15 +934,22 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
 
 ///|
 fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let results = search_results(projection)
+  let results = unified_discovery_results(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
       [@bunnia.text("Discover")],
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
-      @bunnia.text("Search buildings, agents, books, events, and demands."),
+      @bunnia.text(
+        "Search buildings, users, agents, books, events, demands, and posts.",
+      ),
     ]),
+    @bunnia.input(
+      name="discoverSearch",
+      value=projection.search_query,
+      input_message="discover-search",
+    ),
     @bunnia.windowed_list(
       results,
       total_count=results.length(),
@@ -950,21 +959,26 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
 }
 
 ///|
-fn discover_entry(building : MiniTownBuilding) -> @bunnia.Node {
+fn discover_entry(item : MiniTownDiscoveryItem) -> @bunnia.Node {
   @bunnia.keyed(
-    "discover-\{building.id}",
+    "discover-\{item.id}",
     @bunnia.view_with_attrs(
       [
-        @bunnia.class_name("moontown-discover-entry"),
-        @bunnia.data("building-id", building.id),
+        @bunnia.class_name(
+          "moontown-discover-entry bunnia-status-\{item.status}",
+        ),
+        @bunnia.data("discovery-id", item.id),
+        @bunnia.data("discovery-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("visibility", item.visibility),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
-          @bunnia.text(building.title),
+          @bunnia.text(item.title),
         ]),
-        @bunnia.text(building.summary),
+        @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-          @bunnia.text(building.visibility),
+          @bunnia.text("\{item.kind} / \{item.visibility}"),
         ]),
       ],
     ),
@@ -1165,9 +1179,9 @@ fn search_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let results = search_results(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-search-drawer")], [
     @bunnia.input(
-      name="buildingSearch",
+      name="discoverSearch",
       value=projection.search_query,
-      input_message="search-buildings",
+      input_message="discover-search",
     ),
     @bunnia.windowed_list(
       results,
@@ -1338,5 +1352,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }
