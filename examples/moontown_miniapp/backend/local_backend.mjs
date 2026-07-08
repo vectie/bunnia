@@ -17,6 +17,7 @@ const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const AUDIT_RETENTION_DAYS = 180;
 const BACKUP_RETENTION_DAYS = 30;
+const DEFAULT_RETENTION_SWEEP_MS = 15 * 60 * 1000;
 const RATE_LIMITS = {
   "/miniapp/auth/dev-login": 12,
   "/miniapp/moderation/report": 2,
@@ -43,6 +44,7 @@ function seedState() {
     sessions: {},
     rateLimits: {},
     abuseHolds: [],
+    retentionJob: retentionJob(false, DEFAULT_RETENTION_SWEEP_MS, "", "seed", { expiredSessions: 0, expiredRateLimitBuckets: 0, expiredAuditEvents: 0 }, 0),
     listings: defaultListings(),
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -129,6 +131,10 @@ function subscription(id, userId, targetRef, noticeId, status) {
   return { id, userId, targetRef, noticeId, status, updatedAt: new Date().toISOString() };
 }
 
+function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns) {
+  return { enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns };
+}
+
 function placement(id, buildingId, ownerId, layer, x, y, status, source) {
   return { id, buildingId, ownerId, layer, x, y, status, source };
 }
@@ -165,6 +171,8 @@ function parseArgs(argv) {
     statePath: resolve(DEFAULT_STATE),
     resetState: false,
     smoke: false,
+    retentionScheduler: true,
+    retentionSweepMs: DEFAULT_RETENTION_SWEEP_MS,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -173,6 +181,11 @@ function parseArgs(argv) {
     else if (arg === "--state") out.statePath = resolve(argv[++i] || out.statePath);
     else if (arg === "--reset-state") out.resetState = true;
     else if (arg === "--smoke") out.smoke = true;
+    else if (arg === "--disable-retention-scheduler") out.retentionScheduler = false;
+    else if (arg === "--retention-sweep-ms") {
+      const raw = Number(argv[++i] || out.retentionSweepMs);
+      out.retentionSweepMs = Number.isFinite(raw) ? Math.max(1000, raw) : out.retentionSweepMs;
+    }
     else if (arg === "--help" || arg === "-h") {
       printHelp();
       process.exit(0);
@@ -191,6 +204,10 @@ Usage:
 Options:
   --state PATH       JSON state file. Default: ${DEFAULT_STATE}
   --reset-state      Reset the state file before serving.
+  --retention-sweep-ms MS
+                     Local retention scheduler interval. Default: ${DEFAULT_RETENTION_SWEEP_MS}
+  --disable-retention-scheduler
+                     Disable local scheduled retention sweeps.
   --smoke            Run a deterministic route smoke test and exit.
 `);
 }
@@ -219,6 +236,7 @@ function normalizeState(state) {
   state.sessions = normalizeSessions(state.sessions || {});
   state.rateLimits = normalizeRateLimits(state.rateLimits || {});
   state.abuseHolds = state.abuseHolds || [];
+  state.retentionJob = normalizeRetentionJob(state.retentionJob);
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
@@ -264,6 +282,22 @@ function normalizeRateLimits(rateLimits) {
     };
   }
   return output;
+}
+
+function normalizeRetentionJob(raw) {
+  const removed = raw && raw.lastRemoved ? raw.lastRemoved : {};
+  return retentionJob(
+    Boolean(raw && raw.enabled),
+    Number(raw && raw.intervalMs ? raw.intervalMs : DEFAULT_RETENTION_SWEEP_MS),
+    raw && raw.lastRunAt ? raw.lastRunAt : "",
+    raw && raw.lastMode ? raw.lastMode : "none",
+    {
+      expiredSessions: Number(removed.expiredSessions || 0),
+      expiredRateLimitBuckets: Number(removed.expiredRateLimitBuckets || 0),
+      expiredAuditEvents: Number(removed.expiredAuditEvents || 0),
+    },
+    Number(raw && raw.totalRuns ? raw.totalRuns : 0),
+  );
 }
 
 function saveState(statePath, state) {
@@ -342,6 +376,8 @@ function healthFor(state) {
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
     activeAbuseHoldCount: activeAbuseHolds,
+    retentionSchedulerEnabled: state.retentionJob.enabled,
+    retentionLastRunAt: state.retentionJob.lastRunAt,
     auditEventCount: state.auditEvents.length,
     rateLimitBucketCount: Object.keys(state.rateLimits).length,
   };
@@ -570,7 +606,7 @@ function opsForAdmin(state, viewer) {
     { id: "moderation", status: activeModerationCases.length > 0 ? "attention" : "ok", summary: `${activeModerationCases.length} active moderation case(s).` },
     { id: "reviews", status: pendingReviews.length > 0 ? "attention" : "ok", summary: `${pendingReviews.length} pending review item(s).` },
     { id: "backup", status: "ok", summary: "Backup endpoint excludes live sessions and rate-limit buckets." },
-    { id: "retention", status: "watch", summary: `${AUDIT_RETENTION_DAYS}d audit retention; ${BACKUP_RETENTION_DAYS}d backup retention target.` },
+    { id: "retention", status: state.retentionJob.enabled && state.retentionJob.lastRunAt ? "ok" : "watch", summary: `${AUDIT_RETENTION_DAYS}d audit retention; last ${state.retentionJob.lastMode} run ${state.retentionJob.lastRunAt || "not yet"}.` },
   ];
   return ok({
     generatedAt: new Date().toISOString(),
@@ -582,6 +618,12 @@ function opsForAdmin(state, viewer) {
       rateLimitWindowSeconds: Math.round(RATE_LIMIT_WINDOW_MS / 1000),
       auditOldestAt: oldestAuditAt,
       auditNewestAt: newestAuditAt,
+      schedulerEnabled: state.retentionJob.enabled,
+      schedulerIntervalMs: state.retentionJob.intervalMs,
+      schedulerLastRunAt: state.retentionJob.lastRunAt,
+      schedulerLastMode: state.retentionJob.lastMode,
+      schedulerLastRemoved: state.retentionJob.lastRemoved,
+      schedulerTotalRuns: state.retentionJob.totalRuns,
     },
     monitoring: {
       checks,
@@ -615,16 +657,12 @@ function opsForAdmin(state, viewer) {
   });
 }
 
-function retentionCutoffMs() {
-  return Date.now() - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+function retentionCutoffMs(now = Date.now()) {
+  return now - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
 }
 
-function retentionPruneForAdmin(state, viewer, body) {
-  const denied = requireModerator(state, viewer);
-  if (denied) return denied;
-  const dryRun = Boolean(body.dryRun);
-  const now = Date.now();
-  const auditCutoff = retentionCutoffMs();
+function retentionPlan(state, now = Date.now()) {
+  const auditCutoff = retentionCutoffMs(now);
   const expiredSessionIds = Object.values(state.sessions)
     .filter((session) => Date.parse(session.expiresAt) <= now)
     .map((session) => session.id);
@@ -640,23 +678,84 @@ function retentionPruneForAdmin(state, viewer, body) {
     expiredRateLimitBuckets: expiredRateLimitKeys.length,
     expiredAuditEvents: state.auditEvents.length - retainedAuditEvents.length,
   };
+  return { auditCutoff, expiredSessionIds, expiredRateLimitKeys, retainedAuditEvents, removed };
+}
+
+function applyRetentionPlan(state, plan) {
+  for (const id of plan.expiredSessionIds) delete state.sessions[id];
+  for (const key of plan.expiredRateLimitKeys) delete state.rateLimits[key];
+  state.auditEvents = plan.retainedAuditEvents;
+}
+
+function retentionChanged(removed) {
+  return removed.expiredSessions > 0 || removed.expiredRateLimitBuckets > 0 || removed.expiredAuditEvents > 0;
+}
+
+function recordRetentionJob(state, enabled, intervalMs, mode, removed) {
+  const previous = normalizeRetentionJob(state.retentionJob);
+  state.retentionJob = retentionJob(enabled, intervalMs, new Date().toISOString(), mode, removed, previous.totalRuns + 1);
+}
+
+function retentionBody(plan, dryRun, mode) {
+  return {
+    dryRun,
+    mode,
+    retention: {
+      auditRetentionDays: AUDIT_RETENTION_DAYS,
+      auditCutoffAt: new Date(plan.auditCutoff).toISOString(),
+    },
+    removed: plan.removed,
+  };
+}
+
+function runRetentionSweep(state, mode, intervalMs, enabled) {
+  const plan = retentionPlan(state);
+  if (retentionChanged(plan.removed)) applyRetentionPlan(state, plan);
+  recordRetentionJob(state, enabled, intervalMs, mode, plan.removed);
+  return { changed: true, body: retentionBody(plan, false, mode) };
+}
+
+function retentionPruneForAdmin(state, viewer, body) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const dryRun = Boolean(body.dryRun);
+  const plan = retentionPlan(state);
   if (!dryRun) {
-    for (const id of expiredSessionIds) delete state.sessions[id];
-    for (const key of expiredRateLimitKeys) delete state.rateLimits[key];
-    state.auditEvents = retainedAuditEvents;
+    if (retentionChanged(plan.removed)) applyRetentionPlan(state, plan);
+    recordRetentionJob(state, state.retentionJob.enabled, state.retentionJob.intervalMs, "manual", plan.removed);
   }
   return {
     status: 200,
-    changed: !dryRun && (removed.expiredSessions > 0 || removed.expiredRateLimitBuckets > 0 || removed.expiredAuditEvents > 0),
-    body: {
-      dryRun,
-      retention: {
-        auditRetentionDays: AUDIT_RETENTION_DAYS,
-        auditCutoffAt: new Date(auditCutoff).toISOString(),
-      },
-      removed,
-    },
+    changed: !dryRun,
+    body: retentionBody(plan, dryRun, dryRun ? "manual-dry-run" : "manual"),
   };
+}
+
+function configureRetentionScheduler(state, options) {
+  const current = normalizeRetentionJob(state.retentionJob);
+  state.retentionJob = retentionJob(
+    Boolean(options.retentionScheduler),
+    options.retentionSweepMs,
+    current.lastRunAt,
+    current.lastMode,
+    current.lastRemoved,
+    current.totalRuns,
+  );
+}
+
+function runAndSaveRetentionSweep(state, statePath, mode, options) {
+  const result = runRetentionSweep(state, mode, options.retentionSweepMs, Boolean(options.retentionScheduler));
+  saveState(statePath, state);
+  return result;
+}
+
+function startRetentionScheduler(state, options) {
+  if (!options.retentionScheduler) return null;
+  const timer = setInterval(() => {
+    runAndSaveRetentionSweep(state, options.statePath, "scheduled", options);
+  }, options.retentionSweepMs);
+  if (typeof timer.unref === "function") timer.unref();
+  return timer;
 }
 
 function backupForAdmin(state, viewer) {
@@ -680,6 +779,7 @@ function backupForAdmin(state, viewer) {
     "reviews",
     "moderationCases",
     "abuseHolds",
+    "retentionJob",
     "notifications",
     "notificationStates",
     "subscriptions",
@@ -689,7 +789,7 @@ function backupForAdmin(state, viewer) {
   const counts = {};
   for (const key of tables) {
     snapshot[key] = state[key] || [];
-    counts[key] = snapshot[key].length;
+    counts[key] = Array.isArray(snapshot[key]) ? snapshot[key].length : (snapshot[key] ? 1 : 0);
   }
   return ok({
     schemaVersion: 1,
@@ -1871,6 +1971,10 @@ function rejectPublication(state, viewer, building, review) {
 
 async function serve(options) {
   const state = loadState(options.statePath, options.resetState);
+  configureRetentionScheduler(state, options);
+  if (options.retentionScheduler) runAndSaveRetentionSweep(state, options.statePath, "startup", options);
+  else saveState(options.statePath, state);
+  startRetentionScheduler(state, options);
   const server = createServer(async (req, res) => {
     try {
       if (req.method === "OPTIONS") return send(res, 204, {});
@@ -1886,6 +1990,7 @@ async function serve(options) {
   server.listen(options.port, options.host, () => {
     console.log(`moontown-miniapp-backend listening http://${options.host}:${options.port}`);
     console.log(`state=${options.statePath}`);
+    console.log(`retention_scheduler=${options.retentionScheduler ? `${options.retentionSweepMs}ms` : "disabled"}`);
   });
 }
 
@@ -2002,12 +2107,15 @@ function smoke(options) {
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
   assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
+  assert(adminBackup.body.counts.retentionJob === 1, "admin backup retention job count");
   assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
   assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
   const adminOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers, body: {} });
   assert(adminOps.body.retention.auditRetentionDays === AUDIT_RETENTION_DAYS, "admin ops audit retention");
   assert(adminOps.body.retention.backupRetentionDays === BACKUP_RETENTION_DAYS, "admin ops backup retention");
   assert(adminOps.body.retention.sessionTtlHours === 12, "admin ops session ttl");
+  assert(adminOps.body.retention.schedulerEnabled === false, "admin ops scheduler starts disabled in smoke");
+  assert(adminOps.body.retention.schedulerTotalRuns === 0, "admin ops scheduler starts unused");
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "abuse-holds"), "admin ops abuse check");
@@ -2031,6 +2139,25 @@ function smoke(options) {
   assert(!Object.prototype.hasOwnProperty.call(state.sessions, "session-expired-prune"), "admin prune removes session");
   assert(!Object.prototype.hasOwnProperty.call(state.rateLimits, "user-a:/miniapp/old"), "admin prune removes rate limit");
   assert(!state.auditEvents.some((item) => item.id === "audit-old-retention"), "admin prune removes old audit");
+  assert(state.retentionJob.lastMode === "manual", "admin prune records manual job");
+  state.sessions["session-expired-scheduled"] = { id: "session-expired-scheduled", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
+  state.rateLimits["user-a:/miniapp/scheduled-old"] = { key: "user-a:/miniapp/scheduled-old", count: 3, resetAt: "2000-01-01T00:00:00.000Z" };
+  state.auditEvents.push({ ...audit("audit-old-scheduled", "ops", "Old scheduled audit", "Old audit should be removed by scheduled retention.", "user-a", "ops:retention", "", "old", "private"), timestamp: "2000-01-01T00:00:00.000Z" });
+  configureRetentionScheduler(state, { retentionScheduler: true, retentionSweepMs: 1000 });
+  const scheduledPrune = runRetentionSweep(state, "scheduled", 1000, true);
+  assert(scheduledPrune.body.mode === "scheduled", "scheduled prune mode");
+  assert(scheduledPrune.body.removed.expiredSessions >= 1, "scheduled prune expired session");
+  assert(!Object.prototype.hasOwnProperty.call(state.sessions, "session-expired-scheduled"), "scheduled prune removes session");
+  assert(!Object.prototype.hasOwnProperty.call(state.rateLimits, "user-a:/miniapp/scheduled-old"), "scheduled prune removes rate limit");
+  assert(!state.auditEvents.some((item) => item.id === "audit-old-scheduled"), "scheduled prune removes old audit");
+  const scheduledOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers, body: {} });
+  assert(scheduledOps.body.retention.schedulerEnabled === true, "scheduled ops enabled");
+  assert(scheduledOps.body.retention.schedulerIntervalMs === 1000, "scheduled ops interval");
+  assert(scheduledOps.body.retention.schedulerLastMode === "scheduled", "scheduled ops mode");
+  assert(scheduledOps.body.retention.schedulerTotalRuns >= 2, "scheduled ops total runs");
+  const scheduledHealth = dispatch(state, { method: "GET", path: "/miniapp/health", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(scheduledHealth.body.retentionSchedulerEnabled === true, "scheduled health enabled");
+  assert(Boolean(scheduledHealth.body.retentionLastRunAt), "scheduled health last run");
   const sharedDraft = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "shared-lab", title: "Shared Lab" } });
   assert(sharedDraft.body.building.visibility === "private_draft", "create shared draft");
   const shared = dispatch(state, { method: "POST", path: "/miniapp/buildings/share", query: new URLSearchParams(), headers, body: { buildingId: "shared-lab", targetUserId: "user-b" } });
