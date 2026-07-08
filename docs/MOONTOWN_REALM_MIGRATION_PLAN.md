@@ -782,16 +782,21 @@ verification checks backup schema, table counts, forbidden ephemeral state, and
 key relationships before any future restore mutation exists. Ops reports
 identity binding counts, reviewer config source, recovery-drill status,
 retention targets, scheduled-retention metadata, monitoring incidents,
-monitoring checks, state counts, and status distributions. Moderator management
-keeps reviewer trust backend-owned, abuse holds can stop actor or target
-mutations without frontend bundle growth, and manual or scheduled pruning
-removes expired sessions, expired rate-limit buckets, and out-of-retention audit
-events. That makes abuse-control, recovery, login identity binding, reviewer
-identity, retention, monitoring, and deployment-readiness behavior testable
-before production infrastructure exists. Production still needs the real WeChat
-code-to-openid exchange, platform-managed retention scheduling, a real external
-monitoring provider, real managed storage, production-grade abuse signals, and
-a controlled restore path after local flows are coherent.
+monitoring checks, state counts, and status distributions. The mini-app example
+now exposes those reviewer-only checks through a compact tile-style Operations
+Desk in `My`, with a generated ops call that carries readiness and recovery
+status instead of adding a separate admin app, another Realm page, or extra
+frontend recovery mutation weight. Moderator
+management keeps reviewer trust backend-owned, abuse holds can stop actor or
+target mutations without frontend bundle growth, and manual or scheduled
+pruning removes expired sessions, expired rate-limit buckets, and
+out-of-retention audit events. That makes abuse-control, recovery, login
+identity binding, reviewer identity, retention, monitoring, and
+deployment-readiness behavior testable before production infrastructure exists.
+Production still needs the real WeChat code-to-openid exchange,
+platform-managed retention scheduling, a real external monitoring provider,
+real managed storage, production-grade abuse signals, and a controlled restore
+path after local flows are coherent.
 
 ## Migration Order
 

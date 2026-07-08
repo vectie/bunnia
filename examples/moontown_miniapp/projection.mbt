@@ -1847,6 +1847,15 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       summary="Move work from one town agent to another while preserving building context.",
       status="guarded",
     ),
+    mini_town_backend_step(
+      id="admin-ops",
+      label="Ops",
+      endpoint_id="o",
+      http_method="GET",
+      path="/miniapp/admin/ops",
+      summary="Reviewer-only town counts, checks, incidents, holds, retention, and recovery status.",
+      status="review",
+    ),
   ]
 }
 
