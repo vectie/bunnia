@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createServer } from "node:http";
+import { randomUUID } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -12,6 +13,7 @@ import { dirname, resolve } from "node:path";
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 18191;
 const DEFAULT_STATE = "_build/moontown_miniapp/local_backend_state.json";
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 
 function seedState() {
   return {
@@ -202,7 +204,7 @@ function normalizeState(state) {
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? state.moderatorIds : ["user-a"];
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
-  state.sessions = state.sessions || {};
+  state.sessions = normalizeSessions(state.sessions || {});
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
@@ -220,6 +222,22 @@ function normalizeState(state) {
   return state;
 }
 
+function normalizeSessions(sessions) {
+  const output = {};
+  for (const [id, raw] of Object.entries(sessions)) {
+    const userId = raw && raw.userId ? raw.userId : raw;
+    if (!userId) continue;
+    output[id] = {
+      id: raw.id || id,
+      userId,
+      issuedAt: raw.issuedAt || new Date().toISOString(),
+      expiresAt: raw.expiresAt || new Date(Date.now() + SESSION_TTL_MS).toISOString(),
+      revokedAt: raw.revokedAt || "",
+    };
+  }
+  return output;
+}
+
 function saveState(statePath, state) {
   mkdirSync(dirname(statePath), { recursive: true });
   writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
@@ -233,17 +251,39 @@ async function readJsonBody(req) {
   return JSON.parse(text);
 }
 
-function viewerFromRequest(state, headers, body = {}) {
+function authFromRequest(state, headers) {
   const token = headers["x-miniapp-session"] || headers["X-Miniapp-Session"];
-  if (token && state.sessions[token]) return state.sessions[token].userId;
-  return body.userId || "user-a";
+  if (!token) return { token: "", session: null, userId: "" };
+  const session = state.sessions[token];
+  if (!session) return { token, session: null, userId: "", error: "invalid_session" };
+  if (session.revokedAt) return { token, session, userId: "", error: "session_revoked" };
+  if (Date.parse(session.expiresAt) <= Date.now()) return { token, session, userId: "", error: "session_expired" };
+  return { token, session, userId: session.userId };
+}
+
+function createSession(state, userId) {
+  const now = Date.now();
+  const id = `session-${randomUUID()}`;
+  const session = {
+    id,
+    userId,
+    issuedAt: new Date(now).toISOString(),
+    expiresAt: new Date(now + SESSION_TTL_MS).toISOString(),
+    revokedAt: "",
+  };
+  state.sessions[id] = session;
+  return session;
 }
 
 function dispatch(state, request) {
   const method = request.method.toUpperCase();
   const path = request.path;
   const body = request.body || {};
-  const viewer = viewerFromRequest(state, request.headers || {}, body);
+  const auth = authFromRequest(state, request.headers || {});
+  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes") {
+    return { status: 401, changed: false, body: { error: auth.error } };
+  }
+  const viewer = auth.userId || body.userId || "user-a";
 
   if (method === "GET" && path === "/miniapp/routes") {
     return ok({ routes: routeCatalog() });
@@ -255,9 +295,13 @@ function dispatch(state, request) {
       roleId: body.roleId,
       avatarRef: body.avatarRef,
     });
-    const sessionId = `session-${userId}`;
-    state.sessions[sessionId] = { id: sessionId, userId };
-    return changed({ session: { id: sessionId, userId }, profile: profileItem });
+    const session = createSession(state, userId);
+    return changed({ session, profile: profileItem });
+  }
+  if (method === "POST" && path === "/miniapp/auth/logout") {
+    if (!auth.session) return { status: 401, changed: false, body: { error: "missing_session" } };
+    auth.session.revokedAt = new Date().toISOString();
+    return changed({ session: auth.session, state: "revoked" });
   }
   if (method === "GET" && path === "/miniapp/town/snapshot") {
     return ok(snapshotFor(state, viewer));
@@ -351,6 +395,7 @@ function changed(body) {
 function routeCatalog() {
   return [
     "POST /miniapp/auth/dev-login",
+    "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
     "GET /miniapp/me/ownership",
     "GET /miniapp/discover/search",
@@ -1355,8 +1400,22 @@ function smoke(options) {
   if (existsSync(statePath)) rmSync(statePath);
   const state = loadState(statePath, true);
   const login = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-a" } });
-  assert(login.body.session.id === "session-user-a", "login session");
+  assert(login.body.session.id.startsWith("session-"), "login session");
+  assert(login.body.session.id !== "session-user-a", "opaque login session");
+  assert(login.body.session.expiresAt > login.body.session.issuedAt, "login session expiry");
   const headers = { "x-miniapp-session": login.body.session.id };
+  const logoutProbe = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-logout", displayName: "Logout Probe" } });
+  const logoutHeaders = { "x-miniapp-session": logoutProbe.body.session.id };
+  const loggedOut = dispatch(state, { method: "POST", path: "/miniapp/auth/logout", query: new URLSearchParams(), headers: logoutHeaders, body: {} });
+  assert(loggedOut.body.state === "revoked", "logout revokes session");
+  const revokedSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: logoutHeaders, body: {} });
+  assert(revokedSnapshot.status === 401, "revoked session blocked");
+  assert(revokedSnapshot.body.error === "session_revoked", "revoked session reason");
+  const expiredProbe = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-expired", displayName: "Expired Probe" } });
+  state.sessions[expiredProbe.body.session.id].expiresAt = "2000-01-01T00:00:00.000Z";
+  const expiredSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: { "x-miniapp-session": expiredProbe.body.session.id }, body: {} });
+  assert(expiredSnapshot.status === 401, "expired session blocked");
+  assert(expiredSnapshot.body.error === "session_expired", "expired session reason");
   const registered = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-c", displayName: "Chen Mapper" } });
   assert(registered.body.profile.displayName === "Chen Mapper", "register profile");
   assert(registered.body.profile.setupCompleted === false, "register starts incomplete");

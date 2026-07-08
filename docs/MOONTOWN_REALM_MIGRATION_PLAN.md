@@ -372,12 +372,15 @@ Done when:
 Current status: profile readiness, setup gates, consent, role, and blocked
 lifecycle actions are represented in tile UI. The local backend now persists
 dev login profiles, creates missing local users on login, saves profile edits,
-and returns the saved profile through snapshot and ownership APIs. Snapshot and
-ownership responses now also carry explicit viewer permissions for profile
-readiness, creation, submission, publishing, placement, report, moderation, and
-review state, so mini-app surfaces do not need to infer capability from raw role
-strings. The local backend enforces profile readiness for building creation,
-sharing, submission, publication, and placement.
+and returns the saved profile through snapshot and ownership APIs. Local
+sessions are now opaque records with issue/expiry/revocation state instead of
+predictable user-id tokens, and revoked or expired sessions are rejected before
+scoped data is returned. Snapshot and ownership responses now also carry
+explicit viewer permissions for profile readiness, creation, submission,
+publishing, placement, report, moderation, and review state, so mini-app
+surfaces do not need to infer capability from raw role strings. The local
+backend enforces profile readiness for building creation, sharing, submission,
+publication, and placement.
 
 ### R3: Home Town Pulse
 
@@ -589,13 +592,16 @@ snapshot load, publish, building query, and cache state visibility. My also
 exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
 buildings, books, agents, placements, and workbench alerts can be exercised
 locally. Dev login and profile save now update durable local user/profile state
-instead of returning a throwaway profile object. Snapshot and ownership payloads
-now include explicit viewer permissions, keeping account readiness, review
-eligibility, and moderator trust backend-owned. Profile readiness is enforced
-for create, share, submit, publish, and place actions. Snapshot and ownership
-payloads also include derived object relationships for buildings, placements,
-books, and agents, so surfaces can distinguish owner, shared, team, system,
-public, and visible objects without copying backend visibility rules.
+instead of returning a throwaway profile object. Dev sessions are now opaque,
+expiring, and revocable through `/miniapp/auth/logout`, so local two-user
+testing exercises session failure instead of relying on predictable tokens.
+Snapshot and ownership payloads now include explicit viewer permissions, keeping
+account readiness, review eligibility, and moderator trust backend-owned.
+Profile readiness is enforced for create, share, submit, publish, and place
+actions. Snapshot and ownership payloads also include derived object
+relationships for buildings, placements, books, and agents, so surfaces can
+distinguish owner, shared, team, system, public, and visible objects without
+copying backend visibility rules.
 Draft building updates now persist through `/miniapp/buildings/update`, keeping
 building profile text and primary book safe summary together under owner-only,
 pre-publication rules.
@@ -686,7 +692,9 @@ Done when:
 Current status: first local report, hide, and takedown paths are implemented
 through the selected building Safety Desk, Messages Moderation Desk, and
 `/miniapp/moderation/*` routes. Local hide/takedown decisions now require
-backend-owned moderator trust before mutating building or book visibility.
+backend-owned moderator trust before mutating building or book visibility. The
+local backend now uses opaque sessions with expiry and logout revocation, giving
+the production login path a safer contract to replace with real WeChat identity.
 Production still needs real reviewer/admin identity, appeals, retention, rate
 limits, and abuse controls after local flows are coherent.
 
