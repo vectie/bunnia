@@ -299,10 +299,10 @@ function dispatch(state, request) {
     return sendMessage(state, viewer, body);
   }
   if (method === "POST" && path === "/miniapp/runs/cancel") {
-    return changeRunStatus(state, body.runId, "cancelled");
+    return changeRunStatus(state, viewer, body.runId, "cancelled");
   }
   if (method === "POST" && path === "/miniapp/runs/retry") {
-    return changeRunStatus(state, body.runId, "running");
+    return changeRunStatus(state, viewer, body.runId, "running");
   }
   if (method === "POST" && path === "/miniapp/reviews/accept") {
     return decideReview(state, viewer, body.reviewId, "accepted");
@@ -1176,13 +1176,23 @@ function handoffAgent(state, viewer, body) {
   return changed({ message, run, thread: threadItem, notification, fromAgent, toAgent, building });
 }
 
-function changeRunStatus(state, runId, status) {
-  const run = state.runs.find((item) => item.id === runId) || state.runs[state.runs.length - 1];
+function changeRunStatus(state, viewer, runId, status) {
+  const run = state.runs.find((item) => item.id === runId);
   if (!run) return { status: 404, changed: false, body: { error: "missing_run", runId } };
+  const building = visibleBuildings(state, viewer).find((item) => item.id === run.buildingId);
+  if (!building) {
+    return { status: 403, changed: false, body: { error: "run_not_visible", runId, buildingId: run.buildingId } };
+  }
+  if (status === "running" && !["failed", "rejected", "cancelled"].includes(run.status)) {
+    return { status: 409, changed: false, body: { error: "run_not_retryable", runId, status: run.status } };
+  }
+  if (status === "cancelled" && ["accepted", "done"].includes(run.status)) {
+    return { status: 409, changed: false, body: { error: "run_closed", runId, status: run.status } };
+  }
   run.status = status;
   if (status === "running") run.reviewRequired = false;
-  touchThread(state, run.threadId, status);
-  return changed({ run });
+  const threadItem = touchThread(state, run.threadId, status);
+  return changed({ run, thread: threadItem, building });
 }
 
 function decideReview(state, viewer, reviewId, decision) {
@@ -1373,6 +1383,16 @@ function smoke(options) {
   assert(handoff.body.message.threadId === "thread-smoke-lab", "handoff thread");
   assert(handoff.body.thread.status === "running", "handoff thread status");
   assert(handoff.body.notification.kind === "handoff", "handoff notification");
+  const missingRunCancel = dispatch(state, { method: "POST", path: "/miniapp/runs/cancel", query: new URLSearchParams(), headers, body: { runId: "missing-run" } });
+  assert(missingRunCancel.status === 404, "missing run cancel blocked");
+  const invisibleRunCancel = dispatch(state, { method: "POST", path: "/miniapp/runs/cancel", query: new URLSearchParams(), headers: bobHeaders, body: { runId: handoff.body.run.id } });
+  assert(invisibleRunCancel.status === 403, "invisible run cancel blocked");
+  const cancelledRun = dispatch(state, { method: "POST", path: "/miniapp/runs/cancel", query: new URLSearchParams(), headers, body: { runId: handoff.body.run.id } });
+  assert(cancelledRun.body.run.status === "cancelled", "cancel visible run");
+  assert(cancelledRun.body.thread.status === "cancelled", "cancel thread status");
+  const retriedRun = dispatch(state, { method: "POST", path: "/miniapp/runs/retry", query: new URLSearchParams(), headers, body: { runId: handoff.body.run.id } });
+  assert(retriedRun.body.run.status === "running", "retry cancelled run");
+  assert(retriedRun.body.thread.status === "running", "retry thread status");
   const duplicateAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(duplicateAgent.status === 409, "duplicate agent blocked");
   const publicAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-public-denied", displayName: "Denied Agent", buildingId: "published-agent-lab" } });

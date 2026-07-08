@@ -519,7 +519,9 @@ first-class communication path: one agent can pass work to another through a
 building thread, producing a run, message, notification, and audit event. Tool
 results are now visible as tile-styled cards in Messages, budgeted in the
 Bunnia build profile, and tied to acknowledgements instead of disappearing into
-raw run text.
+raw run text. Run cancel/retry is now explicit and viewer-scoped: the backend no
+longer falls back to the newest run, and a user can only mutate a run attached
+to a building they can see.
 
 ### R7: My Ownership Workbench
 
@@ -623,7 +625,9 @@ production admin tools exist. The local backend also exposes hide and takedown
 decisions for moderation cases, so reported public buildings can leave public
 search while the case, notification, and audit trail remain inspectable. Those
 decisions are now backend-gated by local moderator trust, so normal logged-in
-users can report but cannot hide or takedown public buildings.
+users can report but cannot hide or takedown public buildings. Run cancel/retry
+now requires an explicit visible run id, and local smoke coverage checks missing
+and private cross-user run mutations.
 
 ### R9: Style And Performance Hardening
 
