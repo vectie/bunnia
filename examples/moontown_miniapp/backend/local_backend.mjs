@@ -15,6 +15,8 @@ const DEFAULT_PORT = 18191;
 const DEFAULT_STATE = "_build/moontown_miniapp/local_backend_state.json";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const AUDIT_RETENTION_DAYS = 180;
+const BACKUP_RETENTION_DAYS = 30;
 const RATE_LIMITS = {
   "/miniapp/auth/dev-login": 12,
   "/miniapp/moderation/report": 2,
@@ -361,6 +363,76 @@ function auditForAdmin(state, viewer, query) {
   });
 }
 
+function countBy(items, field) {
+  const output = {};
+  for (const item of items || []) {
+    const key = String(item[field] || "unknown");
+    output[key] = (output[key] || 0) + 1;
+  }
+  return output;
+}
+
+function opsForAdmin(state, viewer) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const now = Date.now();
+  const sessions = Object.values(state.sessions);
+  const activeSessions = sessions.filter((session) => !session.revokedAt && Date.parse(session.expiresAt) > now);
+  const expiredSessions = sessions.filter((session) => Date.parse(session.expiresAt) <= now);
+  const pendingReviews = state.reviews.filter((item) => item.status === "pending");
+  const activeModerationCases = state.moderationCases.filter((item) => ["pending", "watch", "appeal_requested"].includes(item.status));
+  const activeRateLimits = Object.values(state.rateLimits).filter((item) => Date.parse(item.resetAt) > now);
+  const auditTimes = state.auditEvents.map((item) => Date.parse(item.timestamp)).filter((item) => Number.isFinite(item));
+  const oldestAuditAt = auditTimes.length > 0 ? new Date(Math.min(...auditTimes)).toISOString() : "";
+  const newestAuditAt = auditTimes.length > 0 ? new Date(Math.max(...auditTimes)).toISOString() : "";
+  const checks = [
+    { id: "health", status: "ok", summary: "Local backend process responds." },
+    { id: "sessions", status: expiredSessions.length > 0 ? "attention" : "ok", summary: `${activeSessions.length} active; ${expiredSessions.length} expired.` },
+    { id: "rate-limits", status: activeRateLimits.length > 0 ? "watch" : "ok", summary: `${activeRateLimits.length} active bucket(s).` },
+    { id: "moderation", status: activeModerationCases.length > 0 ? "attention" : "ok", summary: `${activeModerationCases.length} active moderation case(s).` },
+    { id: "reviews", status: pendingReviews.length > 0 ? "attention" : "ok", summary: `${pendingReviews.length} pending review item(s).` },
+    { id: "backup", status: "ok", summary: "Backup endpoint excludes live sessions and rate-limit buckets." },
+    { id: "retention", status: "watch", summary: `${AUDIT_RETENTION_DAYS}d audit retention; ${BACKUP_RETENTION_DAYS}d backup retention target.` },
+  ];
+  return ok({
+    generatedAt: new Date().toISOString(),
+    status: checks.some((item) => item.status === "attention") ? "attention" : "ok",
+    retention: {
+      auditRetentionDays: AUDIT_RETENTION_DAYS,
+      backupRetentionDays: BACKUP_RETENTION_DAYS,
+      sessionTtlHours: Math.round(SESSION_TTL_MS / (60 * 60 * 1000)),
+      rateLimitWindowSeconds: Math.round(RATE_LIMIT_WINDOW_MS / 1000),
+      auditOldestAt: oldestAuditAt,
+      auditNewestAt: newestAuditAt,
+    },
+    monitoring: {
+      checks,
+      activeSessionCount: activeSessions.length,
+      expiredSessionCount: expiredSessions.length,
+      activeRateLimitBucketCount: activeRateLimits.length,
+      pendingReviewCount: pendingReviews.length,
+      activeModerationCaseCount: activeModerationCases.length,
+    },
+    counts: {
+      users: state.users.length,
+      buildings: state.buildings.length,
+      books: state.books.length,
+      agents: state.agents.length,
+      runs: state.runs.length,
+      reviews: state.reviews.length,
+      moderationCases: state.moderationCases.length,
+      auditEvents: state.auditEvents.length,
+      notifications: state.notifications.length,
+    },
+    distributions: {
+      buildingVisibility: countBy(state.buildings, "visibility"),
+      runStatus: countBy(state.runs, "status"),
+      reviewStatus: countBy(state.reviews, "status"),
+      moderationStatus: countBy(state.moderationCases, "status"),
+    },
+  });
+}
+
 function backupForAdmin(state, viewer) {
   const denied = requireModerator(state, viewer);
   if (denied) return denied;
@@ -424,6 +496,9 @@ function dispatch(state, request) {
   }
   if (method === "GET" && path === "/miniapp/admin/backup") {
     return backupForAdmin(state, viewer);
+  }
+  if (method === "GET" && path === "/miniapp/admin/ops") {
+    return opsForAdmin(state, viewer);
   }
   if (method === "POST" && path === "/miniapp/auth/dev-login") {
     const userId = body.userId || "user-a";
@@ -537,6 +612,7 @@ function routeCatalog() {
     "GET /miniapp/health",
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
+    "GET /miniapp/admin/ops",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
@@ -1614,6 +1690,8 @@ function smoke(options) {
   const bobHeaders = { "x-miniapp-session": bobLogin.body.session.id };
   const deniedAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedAudit.status === 403, "admin audit moderator only");
+  const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedOps.status === 403, "admin ops moderator only");
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
@@ -1622,6 +1700,14 @@ function smoke(options) {
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
   assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
   assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
+  const adminOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers, body: {} });
+  assert(adminOps.body.retention.auditRetentionDays === AUDIT_RETENTION_DAYS, "admin ops audit retention");
+  assert(adminOps.body.retention.backupRetentionDays === BACKUP_RETENTION_DAYS, "admin ops backup retention");
+  assert(adminOps.body.retention.sessionTtlHours === 12, "admin ops session ttl");
+  assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
+  assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
+  assert(adminOps.body.counts.users >= 2, "admin ops user count");
+  assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
   const sharedDraft = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "shared-lab", title: "Shared Lab" } });
   assert(sharedDraft.body.building.visibility === "private_draft", "create shared draft");
   const shared = dispatch(state, { method: "POST", path: "/miniapp/buildings/share", query: new URLSearchParams(), headers, body: { buildingId: "shared-lab", targetUserId: "user-b" } });
