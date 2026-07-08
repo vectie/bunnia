@@ -16,6 +16,8 @@ pub fn accept_profile_consent(MiniTownProjection) -> MiniTownProjection
 
 pub fn accept_review(MiniTownProjection, String) -> MiniTownProjection
 
+pub fn acknowledge_tool_result(MiniTownProjection, String) -> MiniTownProjection
+
 pub fn active_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn archive_selected_building(MiniTownProjection) -> MiniTownProjection
@@ -67,6 +69,8 @@ pub fn demo_scene_thread_plan() -> @scene.SceneThreadPlan
 pub fn demo_scene_visual_quality_plan() -> @scene.SceneVisualQualityPlan
 
 pub fn demo_snapshot_delta_plan() -> @effects.SnapshotDeltaPlan
+
+pub fn demo_tool_result_plan() -> @agent.ToolResultPlan
 
 pub fn demo_view() -> @core.Node
 
@@ -152,6 +156,8 @@ pub fn mini_town_setup_gate(id~ : String, label~ : String, summary~ : String, ac
 
 pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
 
+pub fn mini_town_tool_result(id~ : String, tool_name~ : String, building_id~ : String, thread_id~ : String, title~ : String, summary~ : String, artifact_ref~ : String, status? : @agent.RunStatus, open_message? : String, acknowledge_message? : String) -> MiniTownToolResult
+
 pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
@@ -236,6 +242,8 @@ pub fn switch_ownership_filter(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_tab(MiniTownProjection, String) -> MiniTownProjection
 
+pub fn tool_result_cards(MiniTownProjection) -> Array[@agent.ToolResultCard]
+
 pub fn town_activity_items(MiniTownProjection) -> Array[MiniTownActivityItem]
 
 pub fn unified_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
@@ -257,6 +265,8 @@ pub fn visible_placements(MiniTownProjection) -> Array[MiniTownPlacement]
 pub fn visible_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 
 pub fn visible_runs(MiniTownProjection) -> Array[MiniTownRun]
+
+pub fn visible_tool_results(MiniTownProjection) -> Array[MiniTownToolResult]
 
 pub fn workbench_alerts(MiniTownProjection) -> Array[MiniTownWorkbenchAlert]
 
@@ -518,6 +528,7 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   runs : Array[MiniTownRun]
+  tool_results : Array[MiniTownToolResult]
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   notification_channels : Array[MiniTownNotificationChannel]
@@ -599,6 +610,19 @@ pub struct MiniTownTab {
   id : String
   label : String
   map_surface : Bool
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownToolResult {
+  id : String
+  tool_name : String
+  building_id : String
+  thread_id : String
+  title : String
+  summary : String
+  artifact_ref : String
+  status : @agent.RunStatus
+  open_message : String
+  acknowledge_message : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownUser {

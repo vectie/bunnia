@@ -378,7 +378,10 @@ agent output and building publication share one decision surface. Creating an
 agent now attaches it to a building thread with an audit event, so agents are
 durable town workers rather than standalone form output. Agent handoff is now a
 first-class communication path: one agent can pass work to another through a
-building thread, producing a run, message, notification, and audit event.
+building thread, producing a run, message, notification, and audit event. Tool
+results are now visible as tile-styled cards in Messages, budgeted in the
+Bunnia build profile, and tied to acknowledgements instead of disappearing into
+raw run text.
 
 ### R7: My Ownership Workbench
 
@@ -453,7 +456,9 @@ validates building ownership, rejects duplicates, persists the agent, writes a
 thread message, and returns it through snapshot and ownership APIs. Local agent
 handoff now persists a building-thread message, reviewable run, notification,
 audit event, and updated target-agent status, so WeChat DevTools can exercise
-agent-to-agent work transfer on this Mac.
+agent-to-agent work transfer on this Mac. Tool-result acknowledgement is also
+local-backend backed, so tool artifacts can move from pending to acknowledged
+state and survive DevTools reloads.
 
 ### R9: Style And Performance Hardening
 

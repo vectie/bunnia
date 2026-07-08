@@ -300,6 +300,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("data-backend-sync=\"notifications\""))
   assert_true(messages.wxml.contains("Ack Sync"))
   assert_true(messages.wxml.contains("Subscribe Sync"))
+  assert_true(messages.wxml.contains("Tool Ack"))
   assert_true(
     messages.wxml.contains("data-backend-endpoint=\"ack-notification\""),
   )
@@ -308,6 +309,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(
     messages.wxml.contains("data-backend-endpoint=\"request-subscription\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-backend-endpoint=\"ack-tool-result\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-backend-path=\"/miniapp/tool-results/ack\""),
   )
   assert_true(
     messages.wxml.contains(
@@ -356,6 +363,14 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("data-bunnia-message=\"cancel-run\""))
   assert_true(messages.wxml.contains("data-bunnia-message=\"retry-run\""))
   assert_true(messages.wxml.contains("data-blocked-reason=\"wait for status\""))
+  assert_true(messages.wxml.contains("Tool Results"))
+  assert_true(messages.wxml.contains("bunnia-tool-result-card"))
+  assert_true(
+    messages.wxml.contains("data-tool-result-id=\"tool-policy-summary\""),
+  )
+  assert_true(messages.wxml.contains("data-tool-name=\"book-summarizer\""))
+  assert_true(messages.wxml.contains("Policy source summary"))
+  assert_true(messages.wxml.contains("data-bunnia-message=\"ack-tool-result\""))
   assert_true(messages.wxml.contains("Review Queue"))
   assert_true(
     messages.wxml.contains(
@@ -759,6 +774,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"}",
     ),
   )
@@ -886,6 +906,9 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(visible_runs(projection).length(), 4)
   assert_eq(visible_messages(projection).length(), 3)
   assert_eq(selected_building_messages(projection).length(), 2)
+  assert_eq(visible_tool_results(projection).length(), 2)
+  assert_eq(tool_result_cards(projection).length(), 2)
+  assert_eq(tool_result_cards(projection)[0].id, "tool-policy-summary")
   let bob_projection = switch_mock_user(projection, "user-b")
   assert_eq(visible_messages(bob_projection).length(), 2)
   assert_eq(visible_reviews(projection).length(), 1)
@@ -1193,6 +1216,10 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(visible_notifications(handed_off)[7].kind, "handoff")
   assert_eq(selected_building_audit_events(handed_off).length(), 2)
   assert_eq(selected_building_audit_events(handed_off)[1].kind, "handoff")
+  let tool_ack = acknowledge_tool_result(projection, "tool-policy-summary")
+  assert_true(tool_result_cards(tool_ack)[0].status == @bunnia.run_done())
+  assert_eq(selected_building_audit_events(tool_ack).length(), 2)
+  assert_eq(selected_building_audit_events(tool_ack)[1].kind, "tool-result-ack")
 }
 
 ///|
@@ -1201,6 +1228,7 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   let snapshot = demo_snapshot_delta_plan()
   let agent = demo_agent_delta_plan()
   let communication = demo_communication_plan()
+  let tool_result = demo_tool_result_plan()
   let backend = demo_backend_plan()
   let effects = demo_effect_plan()
   let scene = demo_scene_render_plan()
@@ -1214,12 +1242,18 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 22)
-  assert_eq(backend.review_required_count, 14)
+  assert_eq(tool_result.total_count, 2)
+  assert_eq(tool_result.visible_count, 2)
+  assert_eq(tool_result.pending_ack_count, 2)
+  assert_eq(tool_result.missing_ack_count, 0)
+  assert_eq(tool_result.artifact_ref_count, 2)
+  assert_eq(tool_result.diagnostics.length(), 0)
+  assert_eq(backend.endpoint_count, 23)
+  assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 22)
+  assert_eq(effects.effect_count, 23)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

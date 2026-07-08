@@ -472,6 +472,7 @@ fn profile_for_example(
       patches,
       effect_plans=[@moontown.demo_effect_plan()],
       communication_plans=[@moontown.demo_communication_plan()],
+      tool_result_plans=[@moontown.demo_tool_result_plan()],
       agent_delta_plans=[@moontown.demo_agent_delta_plan()],
       backend_plans=[@moontown.demo_backend_plan()],
       snapshot_plans=[@moontown.demo_snapshot_delta_plan()],

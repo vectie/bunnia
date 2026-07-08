@@ -82,6 +82,20 @@ pub struct MiniTownRun {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownToolResult {
+  id : String
+  tool_name : String
+  building_id : String
+  thread_id : String
+  title : String
+  summary : String
+  artifact_ref : String
+  status : @bunnia.RunStatus
+  open_message : String
+  acknowledge_message : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownReviewItem {
   id : String
   run_id : String
@@ -321,6 +335,7 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   runs : Array[MiniTownRun]
+  tool_results : Array[MiniTownToolResult]
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   notification_channels : Array[MiniTownNotificationChannel]
@@ -466,6 +481,33 @@ pub fn mini_town_run(
     status,
     review_required,
     artifact_ref,
+  }
+}
+
+///|
+pub fn mini_town_tool_result(
+  id~ : String,
+  tool_name~ : String,
+  building_id~ : String,
+  thread_id~ : String,
+  title~ : String,
+  summary~ : String,
+  artifact_ref~ : String,
+  status? : @bunnia.RunStatus = @bunnia.run_done(),
+  open_message? : String = "",
+  acknowledge_message? : String = "",
+) -> MiniTownToolResult {
+  {
+    id,
+    tool_name,
+    building_id,
+    thread_id,
+    title,
+    summary,
+    artifact_ref,
+    status,
+    open_message,
+    acknowledge_message,
   }
 }
 
@@ -871,6 +913,7 @@ pub fn demo_projection() -> MiniTownProjection {
       ),
     ],
     runs: demo_runs(),
+    tool_results: demo_tool_results(),
     reviews: demo_reviews(),
     notifications: demo_notifications(),
     notification_channels: demo_notification_channels(),
@@ -1005,6 +1048,36 @@ fn demo_runs() -> Array[MiniTownRun] {
       summary="Accepted memories were synchronized into Knowledge House.",
       status="done",
       artifact_ref="artifact://book-knowledge-house",
+    ),
+  ]
+}
+
+///|
+fn demo_tool_results() -> Array[MiniTownToolResult] {
+  [
+    mini_town_tool_result(
+      id="tool-policy-summary",
+      tool_name="book-summarizer",
+      building_id="policy-hall",
+      thread_id="thread-policy-hall",
+      title="Policy source summary",
+      summary="Summarized 9 public source notes for the pending policy answer.",
+      artifact_ref="artifact://book-policy-hall-sources",
+      status=@bunnia.run_waiting_review(),
+      open_message="open-tool-policy-summary",
+      acknowledge_message="ack-tool-result",
+    ),
+    mini_town_tool_result(
+      id="tool-market-scan",
+      tool_name="placement-scanner",
+      building_id="market-square",
+      thread_id="thread-market-square",
+      title="Placement scan artifact",
+      summary="Found reusable public buildings that can be pinned into the town map.",
+      artifact_ref="artifact://market-square",
+      status=@bunnia.run_running(),
+      open_message="open-tool-market-scan",
+      acknowledge_message="ack-tool-result",
     ),
   ]
 }
@@ -1907,6 +1980,41 @@ pub fn visible_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
 }
 
 ///|
+pub fn visible_tool_results(
+  projection : MiniTownProjection,
+) -> Array[MiniTownToolResult] {
+  let output : Array[MiniTownToolResult] = []
+  for item in projection.tool_results {
+    if mini_town_tool_result_visible_for(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn tool_result_cards(
+  projection : MiniTownProjection,
+) -> Array[@bunnia.ToolResultCard] {
+  let output : Array[@bunnia.ToolResultCard] = []
+  for item in visible_tool_results(projection) {
+    output.push(
+      @bunnia.tool_result_card(
+        id=item.id,
+        tool_name=item.tool_name,
+        title=item.title,
+        summary=item.summary,
+        artifact_ref=item.artifact_ref,
+        status=item.status,
+        open_message=item.open_message,
+        acknowledge_message=item.acknowledge_message,
+      ),
+    )
+  }
+  output
+}
+
+///|
 pub fn visible_reviews(
   projection : MiniTownProjection,
 ) -> Array[MiniTownReviewItem] {
@@ -2001,6 +2109,19 @@ fn mini_town_run_visible_for(
 ) -> Bool {
   mini_town_run_building_visible_for(projection, run) &&
   mini_town_run_book_visible_for(projection, run)
+}
+
+///|
+fn mini_town_tool_result_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownToolResult,
+) -> Bool {
+  for building in projection.buildings {
+    if building.id == item.building_id {
+      return mini_town_building_visible_for(projection, building)
+    }
+  }
+  false
 }
 
 ///|
@@ -3503,6 +3624,74 @@ fn agent_name(projection : MiniTownProjection, agent_id : String) -> String {
     }
   }
   agent_id
+}
+
+///|
+pub fn acknowledge_tool_result(
+  projection : MiniTownProjection,
+  tool_result_id : String,
+) -> MiniTownProjection {
+  let mut building_id = projection.selected_building_id
+  let mut title = tool_result_id
+  for item in projection.tool_results {
+    if item.id == tool_result_id {
+      building_id = item.building_id
+      title = item.title
+    }
+  }
+  {
+    ..projection,
+    tool_results: update_tool_result_status(
+      projection.tool_results,
+      tool_result_id,
+      @bunnia.run_done(),
+    ),
+    audit_events: projection.audit_events +
+    [
+      mini_town_audit_event(
+        id="audit-tool-ack-\{tool_result_id}",
+        kind="tool-result-ack",
+        title="\{title} acknowledged",
+        summary="Tool result was reviewed and cleared from the pending agent queue.",
+        actor_id=projection.active_user_id,
+        target_ref="tool-result:\{tool_result_id}",
+        building_id~,
+        status="done",
+        visibility=selected_tool_result_visibility(projection, building_id),
+        timestamp="local-dev",
+      ),
+    ],
+  }
+}
+
+///|
+fn update_tool_result_status(
+  items : Array[MiniTownToolResult],
+  tool_result_id : String,
+  status : @bunnia.RunStatus,
+) -> Array[MiniTownToolResult] {
+  let output : Array[MiniTownToolResult] = []
+  for item in items {
+    if item.id == tool_result_id {
+      output.push({ ..item, status, })
+    } else {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn selected_tool_result_visibility(
+  projection : MiniTownProjection,
+  building_id : String,
+) -> String {
+  for building in projection.buildings {
+    if building.id == building_id {
+      return building.visibility
+    }
+  }
+  "private_draft"
 }
 
 ///|

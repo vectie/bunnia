@@ -201,12 +201,12 @@ fn moontown_wxss_source() -> String {
   ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry, .bunnia-tool-result-card { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
   ".moontown-workbench-alert.bunnia-status-blocked, .moontown-workbench-alert.bunnia-status-failed { border-color: rgba(198,68,56,0.58); background: rgba(255,232,224,0.78); }\n" +
   ".moontown-workbench-alert.bunnia-status-review, .moontown-workbench-alert.bunnia-status-stale { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
-  ".moontown-guide-step text, .moontown-onboarding-step text, .moontown-setup-gate text, .moontown-publication-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-workbench-alert text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-guide-step text, .moontown-onboarding-step text, .moontown-setup-gate text, .moontown-publication-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-workbench-alert text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text, .bunnia-tool-result-card text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-profile-card, .moontown-credential-plaque { margin-top: 8rpx; padding: 12rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.66); box-sizing: border-box; }\n" +
   ".moontown-profile-actions, .moontown-profile-metrics { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
@@ -222,7 +222,8 @@ fn moontown_wxss_source() -> String {
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-run-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; padding: 8rpx 10rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.58); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
-  ".moontown-run-action { flex: 0 0 auto; }\n" +
+  ".moontown-run-action, .bunnia-tool-result-action { flex: 0 0 auto; }\n" +
+  ".moontown-tool-results .bunnia-tool-result-list-windowed { margin-top: 8rpx; max-height: 296rpx; overflow: hidden; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
@@ -683,6 +684,9 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "ack-notification", "/miniapp/messages/ack", "notificationAck", "notificationAckResult",
       ),
       @bunnia.operator_submit_endpoint(
+        "ack-tool-result", "/miniapp/tool-results/ack", "toolResultAck", "toolResultAckResult",
+      ),
+      @bunnia.operator_submit_endpoint(
         "request-subscription", "/miniapp/messages/subscribe", "subscriptionRequest",
         "subscriptionResult",
       ),
@@ -698,7 +702,7 @@ pub fn demo_backend_budget() -> @bunnia.BackendBudget {
   @bunnia.backend_budget(
     max_endpoints=32,
     max_streaming=4,
-    max_review_required=14,
+    max_review_required=15,
   )
 }
 
@@ -715,6 +719,14 @@ pub fn demo_effect_plan() -> @bunnia.EffectPlan {
   @bunnia.plan_backend_effects_for_platform(
     demo_backend_contract(),
     @bunnia.wechat(),
+  )
+}
+
+///|
+pub fn demo_tool_result_plan() -> @bunnia.ToolResultPlan {
+  @bunnia.plan_tool_result_cards_with_budget(
+    tool_result_cards(demo_projection()),
+    @bunnia.tool_result_budget(max_visible_count=8),
   )
 }
 
@@ -1052,6 +1064,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
     town_page_surface(projection, [
       messages_panel(projection),
       run_queue_panel(projection),
+      tool_result_panel(projection),
       review_queue_panel(projection),
       chat_drawer(projection),
     ])
@@ -1840,6 +1853,12 @@ fn message_backend_state_row() -> @bunnia.Node {
         path="/miniapp/agents/handoff",
         target_ref="handoffResult",
       ),
+      message_backend_state_chip(
+        label="Tool Ack",
+        endpoint_id="ack-tool-result",
+        path="/miniapp/tool-results/ack",
+        target_ref="toolResultAckResult",
+      ),
     ],
   )
 }
@@ -2082,6 +2101,32 @@ fn run_entry(run : MiniTownRun) -> @bunnia.Node {
         ]),
       ],
     ),
+  )
+}
+
+///|
+fn tool_result_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let cards = tool_result_cards(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-shell-panel moontown-tool-results"),
+      @bunnia.data("tool-result-count", cards.length().to_string()),
+    ],
+    [
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-shell-panel-title")],
+        [@bunnia.text("Tool Results")],
+      ),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-shell-panel-note")],
+        [
+          @bunnia.text(
+            "Tool artifacts stay attached to buildings, threads, and acknowledgements.",
+          ),
+        ],
+      ),
+      @bunnia.windowed_tool_result_card_list(cards, total_count=cards.length()),
+    ],
   )
 }
 
@@ -3106,5 +3151,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json_for_tab(tab_id : String) -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move follow-up planning into the builder queue.\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move follow-up planning into the builder queue.\"},\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
 }
