@@ -271,6 +271,15 @@ Acceptance:
 - Failed backend or agent actions can be retried or inspected.
 - Chat does not force whole-page rerenders.
 
+Current slice:
+
+- Messages keeps agent communication outside the Realm map while still using
+  the same tile-town language: run plaques, review controls, building links,
+  and small state badges.
+- Run actions are derived from run state. Open-building is always available,
+  review accept/reject only enable for reviewable runs, and retry only enables
+  for failed, rejected, or cancelled runs.
+
 ## R7: My Ownership Workbench
 
 Type: feature.

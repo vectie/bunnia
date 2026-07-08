@@ -98,6 +98,17 @@ pub struct MiniTownReviewItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownRunAction {
+  id : String
+  label : String
+  message : String
+  target_ref : String
+  allowed : Bool
+  reason : String
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownLifecycleAction {
   id : String
   label : String
@@ -486,6 +497,19 @@ pub fn mini_town_review_item(
     accept_message,
     reject_message,
   }
+}
+
+///|
+pub fn mini_town_run_action(
+  id~ : String,
+  label~ : String,
+  message~ : String,
+  target_ref~ : String,
+  allowed~ : Bool,
+  reason~ : String,
+  status~ : String,
+) -> MiniTownRunAction {
+  { id, label, message, target_ref, allowed, reason, status }
 }
 
 ///|
@@ -2280,7 +2304,11 @@ pub fn owned_audit_events(
 pub fn active_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
   let output : Array[MiniTownRun] = []
   for run in visible_runs(projection) {
-    if run.status == "running" || run.status == "review" {
+    if run.status == "running" ||
+      run.status == "review" ||
+      run.status == "failed" ||
+      run.status == "rejected" ||
+      run.status == "cancelled" {
       output.push(run)
     }
   }
@@ -2296,6 +2324,53 @@ pub fn review_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
     }
   }
   output
+}
+
+///|
+pub fn run_actions(run : MiniTownRun) -> Array[MiniTownRunAction] {
+  let reviewable = run.review_required &&
+    (run.status == "review" || run.status == "waiting-review")
+  let retryable = run.status == "failed" ||
+    run.status == "rejected" ||
+    run.status == "cancelled"
+  [
+    mini_town_run_action(
+      id="open-building",
+      label="Open",
+      message="select-\{run.building_id}",
+      target_ref="building:\{run.building_id}",
+      allowed=true,
+      reason="building context",
+      status="ready",
+    ),
+    mini_town_run_action(
+      id="review-accept",
+      label="Accept",
+      message="accept-memory-review",
+      target_ref=run.artifact_ref,
+      allowed=reviewable,
+      reason=if reviewable { "review required" } else { "not waiting review" },
+      status=if reviewable { "ready" } else { "blocked" },
+    ),
+    mini_town_run_action(
+      id="review-reject",
+      label="Reject",
+      message="reject-memory-review",
+      target_ref=run.artifact_ref,
+      allowed=reviewable,
+      reason=if reviewable { "review required" } else { "not waiting review" },
+      status=if reviewable { "ready" } else { "blocked" },
+    ),
+    mini_town_run_action(
+      id="retry",
+      label="Retry",
+      message="retry-run-\{run.id}",
+      target_ref="run:\{run.id}",
+      allowed=retryable,
+      reason=if retryable { "run can be retried" } else { "wait for status" },
+      status=if retryable { "ready" } else { "blocked" },
+    ),
+  ]
 }
 
 ///|

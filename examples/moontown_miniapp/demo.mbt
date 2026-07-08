@@ -101,9 +101,10 @@ fn moontown_wxss_source() -> String {
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
   ".moontown-presence-row .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
-  ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
+  ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-run-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; padding: 8rpx 10rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.58); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
+  ".moontown-run-action { flex: 0 0 auto; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
@@ -1440,8 +1441,79 @@ fn run_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "Runs stay linked to buildings, books, threads, and review artifacts.",
       ),
     ]),
-    @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
+    @bunnia.windowed_list(
+      runs,
+      total_count=runs.length(),
+      render=run_queue_entry,
+    ),
   ])
+}
+
+///|
+fn run_queue_entry(run : MiniTownRun) -> @bunnia.Node {
+  @bunnia.keyed(
+    "run-queue-\{run.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-run-entry bunnia-status-\{run.status}"),
+        @bunnia.data("run-id", run.id),
+        @bunnia.data("agent-id", run.agent_id),
+        @bunnia.data("building-id", run.building_id),
+        @bunnia.data("book-id", run.book_id),
+        @bunnia.data("thread-id", run.thread_id),
+        @bunnia.data("artifact-ref", run.artifact_ref),
+        @bunnia.data(
+          "review-required",
+          if run.review_required {
+            "true"
+          } else {
+            "false"
+          },
+        ),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(run.title),
+        ]),
+        @bunnia.text(run.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{run.status} / \{run.thread_id}"),
+        ]),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
+          @bunnia.list(run_actions(run), fn(action) {
+            run_action_button(run.id, action)
+          }),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn run_action_button(
+  run_id : String,
+  action : MiniTownRunAction,
+) -> @bunnia.Node {
+  let attrs = [
+    @bunnia.class_name("moontown-run-action \{action.status}"),
+    @bunnia.data("run-action", action.id),
+    @bunnia.data("run-id", run_id),
+    @bunnia.data("target-ref", action.target_ref),
+    @bunnia.data("allowed", if action.allowed { "true" } else { "false" }),
+    @bunnia.data("blocked-reason", action.reason),
+  ]
+  if !action.allowed {
+    attrs.push(@bunnia.attr("disabled", "true"))
+  }
+  @bunnia.keyed(
+    "run-action-\{run_id}-\{action.id}",
+    @bunnia.node(
+      kind="button",
+      attrs~,
+      events=[@bunnia.event("tap", action.message)],
+      children=[@bunnia.text(action.label)],
+    ),
+  )
 }
 
 ///|

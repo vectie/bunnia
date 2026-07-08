@@ -128,6 +128,8 @@ pub fn mini_town_role(id~ : String, title~ : String, summary~ : String, building
 
 pub fn mini_town_run(id~ : String, agent_id~ : String, building_id~ : String, book_id~ : String, thread_id~ : String, title~ : String, summary~ : String, status~ : String, review_required? : Bool, artifact_ref? : String) -> MiniTownRun
 
+pub fn mini_town_run_action(id~ : String, label~ : String, message~ : String, target_ref~ : String, allowed~ : Bool, reason~ : String, status~ : String) -> MiniTownRunAction
+
 pub fn mini_town_setup_gate(id~ : String, label~ : String, summary~ : String, action_label~ : String, action_message~ : String, complete~ : Bool) -> MiniTownSetupGate
 
 pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
@@ -159,6 +161,8 @@ pub fn publish_selected_building(MiniTownProjection) -> MiniTownProjection
 pub fn reject_review(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn review_runs(MiniTownProjection) -> Array[MiniTownRun]
+
+pub fn run_actions(MiniTownRun) -> Array[MiniTownRunAction]
 
 pub fn search_results(MiniTownProjection) -> Array[MiniTownBuilding]
 
@@ -491,6 +495,16 @@ pub struct MiniTownRun {
   status : String
   review_required : Bool
   artifact_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownRunAction {
+  id : String
+  label : String
+  message : String
+  target_ref : String
+  allowed : Bool
+  reason : String
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownSetupGate {

@@ -238,6 +238,24 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Market placement scan"))
   assert_true(messages.wxml.contains("data-run-id=\"run-market-scan\""))
   assert_true(messages.wxml.contains("data-review-required=\"true\""))
+  assert_true(messages.wxml.contains("moontown-run-actions"))
+  assert_true(messages.wxml.contains("data-run-action=\"open-building\""))
+  assert_true(messages.wxml.contains("data-run-action=\"review-accept\""))
+  assert_true(messages.wxml.contains("data-run-action=\"review-reject\""))
+  assert_true(messages.wxml.contains("data-run-action=\"retry\""))
+  assert_true(
+    messages.wxml.contains("data-target-ref=\"building:policy-hall\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"select-policy-hall\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"accept-memory-review\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"reject-memory-review\""),
+  )
+  assert_true(messages.wxml.contains("data-blocked-reason=\"wait for status\""))
   assert_true(messages.wxml.contains("Review Queue"))
   assert_true(
     messages.wxml.contains(
@@ -518,6 +536,17 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(review_runs(projection).length(), 1)
   assert_eq(pending_reviews(projection).length(), 1)
   assert_eq(selected_building_runs(projection).length(), 1)
+  let policy_run_actions = run_actions(selected_building_runs(projection)[0])
+  assert_eq(policy_run_actions.length(), 4)
+  assert_eq(policy_run_actions[0].id, "open-building")
+  assert_true(policy_run_actions[0].allowed)
+  assert_eq(policy_run_actions[1].id, "review-accept")
+  assert_true(policy_run_actions[1].allowed)
+  assert_eq(policy_run_actions[2].id, "review-reject")
+  assert_true(policy_run_actions[2].allowed)
+  assert_eq(policy_run_actions[3].id, "retry")
+  assert_eq(policy_run_actions[3].message, "retry-run-run-policy-review")
+  assert_true(!policy_run_actions[3].allowed)
   assert_eq(visible_audit_events(projection).length(), 4)
   assert_eq(selected_building_audit_events(projection).length(), 1)
   assert_eq(owned_audit_events(projection).length(), 2)
@@ -569,7 +598,12 @@ test "moontown miniapp projection supports mock user create search and agent flo
   let rejected = reject_review(projection, "review-policy-memory")
   assert_eq(pending_reviews(rejected).length(), 0)
   assert_eq(review_runs(rejected).length(), 0)
+  assert_eq(active_runs(rejected).length(), 3)
   assert_eq(selected_building_runs(rejected)[0].status, "rejected")
+  let rejected_run_actions = run_actions(selected_building_runs(rejected)[0])
+  assert_true(!rejected_run_actions[1].allowed)
+  assert_true(!rejected_run_actions[2].allowed)
+  assert_true(rejected_run_actions[3].allowed)
   let tabbed = switch_tab(projection, "discover")
   assert_eq(tabbed.active_tab_id, "discover")
   let onboarded = complete_onboarding(projection)

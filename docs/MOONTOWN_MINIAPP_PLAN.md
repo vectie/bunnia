@@ -164,21 +164,22 @@ building lifecycle, books, and backend wiring.
 | M2 | Onboarding And Identity | feature | started | Let first-time users enter the town, choose profile/role, and satisfy consent gates. | First-run guide, login/profile setup, profile readiness checks. |
 | M3 | Home Town Pulse | feature | started | Turn reference home/community pages into tile-town activity around the map. | Activity stream, recent runs, building shortcuts, town stats, district entries. |
 | M4 | Discover And Placement | feature | started | Make published town content searchable and reusable. | Unified search, filters, public building results, "place on my map" flow. |
-| M5 | Messages And Agent Communication | feature | started | Treat agent events and human interactions as first-class communication. | Notification channels, agent run updates, review requests, share/publish events, deep links. |
-| M6 | My Ownership Center | feature | next | Give users control over private work and published work. | Owned buildings/books/agents, drafts, submitted items, published items, archive state. |
-| M7 | Building Lifecycle And Books | feature | next | Connect visible buildings to durable Moontown memory and workflow state. | Create/share/publish/archive, book binding, permissions, audit trail. |
-| M8 | Local Backend Loop | feature | next | Make the same flows usable from WeChat DevTools against this Mac. | Dev login, snapshot/search/create/share/publish/archive/chat/review endpoints. |
+| M5 | Messages And Agent Communication | feature | current | Treat agent events and human interactions as first-class communication. | Notification channels, agent run updates, review requests, share/publish events, deep links. |
+| M6 | My Ownership Center | feature | started | Give users control over private work and published work. | Owned buildings/books/agents, drafts, submitted items, published items, archive state. |
+| M7 | Building Lifecycle And Books | feature | started | Connect visible buildings to durable Moontown memory and workflow state. | Create/share/publish/archive, book binding, permissions, audit trail. |
+| M8 | Local Backend Loop | feature | started | Make the same flows usable from WeChat DevTools against this Mac. | Dev login, snapshot/search/create/share/publish/archive/chat/review endpoints. |
 | M9 | Tile Style And Performance Pass | hardening | continuous | Keep the mature app fast and visually coherent. | Visual audit, list windowing, asset budgets, setData/delta checks, DevTools validation. |
 | M10 | Production Backend Readiness | hardening | later | Move from local proof to real users. | WeChat login, HTTPS/cloud backend, storage, rate limits, monitoring, backups. |
 
 Near-term build order:
 
 1. Keep M0 stable while changing other screens.
-2. Finish M6 next because ownership/profile is the largest remaining
-   maturity gap in the visible mini-app shell.
-3. Expand M7 so every visible building has clear book, memory, review,
-   publish, archive, and permission state.
-4. Wire M8 into WeChat DevTools once the local product shape is coherent.
+2. Finish M5's actionable run/review loop because agentic communication is a
+   core product behavior, but keep it in tile-styled Messages and run plaques
+   rather than turning Realm into a chat page.
+3. Continue M6 and M7 together so owned inventory, building lifecycle, books,
+   memory, review, publish, archive, and permission state stay consistent.
+4. Keep M8 green in WeChat DevTools as each product flow becomes coherent.
 5. Run M9 after each feature slice, not only at the end, because the app is
    map-heavy and can become slow quickly.
 
@@ -1225,6 +1226,9 @@ Current evidence:
 - Messages now has tile-style channels for all, unread, agent-run, review, and
   system notifications. Notification projection uses the same visible-building
   boundary as the map, so private building notices do not leak across users.
+- Messages now derives tile-style run actions from pure run state. Each run
+  plaque can open its building, accept or reject reviewable output, and expose a
+  retry affordance only when the run is failed, rejected, or cancelled.
 - My now has tile-style ownership filters for all, drafts, published items,
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped
