@@ -292,6 +292,12 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/moderation/report") {
     return reportBuilding(state, viewer, body);
   }
+  if (method === "POST" && path === "/miniapp/moderation/hide") {
+    return decideModerationCase(state, viewer, body, "hidden");
+  }
+  if (method === "POST" && path === "/miniapp/moderation/takedown") {
+    return decideModerationCase(state, viewer, body, "takedown");
+  }
   if (method === "POST" && path === "/miniapp/agents") {
     return createAgent(state, viewer, body);
   }
@@ -333,6 +339,8 @@ function routeCatalog() {
     "POST /miniapp/tool-results/ack",
     "POST /miniapp/messages/subscribe",
     "POST /miniapp/moderation/report",
+    "POST /miniapp/moderation/hide",
+    "POST /miniapp/moderation/takedown",
     "POST /miniapp/agents",
     "POST /miniapp/agents/handoff",
   ];
@@ -427,7 +435,7 @@ function snapshotFor(state, viewer) {
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
     messages: visibleMessages(state, viewer),
     notifications: state.notifications,
-    moderationCases: state.moderationCases.filter((item) => buildings.some((building) => building.id === item.buildingId)),
+    moderationCases: state.moderationCases.filter((item) => item.reporterId === viewer || buildings.some((building) => building.id === item.buildingId)),
     shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
   };
@@ -785,6 +793,32 @@ function reportBuilding(state, viewer, body) {
   return changed({ case: moderationCase, building: item });
 }
 
+function decideModerationCase(state, viewer, body, decision) {
+  const caseId = body.caseId || body.moderationCaseId || "";
+  const buildingId = body.buildingId || "";
+  const moderationCase = state.moderationCases.find((candidate) => candidate.id === caseId) ||
+    state.moderationCases.find((candidate) => candidate.buildingId === buildingId);
+  if (!moderationCase) return { status: 404, changed: false, body: { error: "missing_moderation_case", caseId, buildingId } };
+  const item = state.buildings.find((building) => building.id === moderationCase.buildingId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId: moderationCase.buildingId } };
+  const visibility = decision === "takedown" ? "takedown" : "hidden";
+  const status = decision === "takedown" ? "removed" : "hidden";
+  item.visibility = visibility;
+  item.status = status;
+  moderationCase.status = status;
+  moderationCase.actionLabel = decision === "takedown" ? "Closed" : "Takedown";
+  moderationCase.actionMessage = decision === "takedown" ? "tab-messages" : "takedown-public-building";
+  for (const memory of state.books) {
+    if (memory.buildingId === item.id) {
+      memory.visibility = visibility;
+      memory.status = status;
+    }
+  }
+  state.notifications.push({ id: `notice-${decision}-${moderationCase.id}`, kind: "moderation", title: `Moderation ${decision}`, body: `${item.title} is ${status}.`, targetRef: moderationCase.targetRef, buildingId: item.id, unread: true });
+  state.auditEvents.push(audit(`audit-${decision}-${moderationCase.id}`, decision, `${item.title} ${decision}`, "Reviewer action changed public visibility from a report case.", viewer, moderationCase.targetRef, item.id, status, visibility));
+  return changed({ case: moderationCase, building: item, state: status });
+}
+
 function acknowledgeToolResult(state, viewer, body) {
   const toolResultId = body.toolResultId || body.id || "tool-policy-summary";
   const item = state.toolResults.find((result) => result.id === toolResultId);
@@ -1066,9 +1100,15 @@ function smoke(options) {
   const sent = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "hello policy hall" } });
   assert(sent.body.message.threadId === "thread-policy-hall", "send message thread");
   assert(sent.body.message.text === "hello policy hall", "send message text");
-  const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", reason: "smoke safety report" } });
+  const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
-  assert(report.body.case.targetRef === "building:policy-hall", "report target");
+  assert(report.body.case.targetRef === "building:published-agent-lab", "report target");
+  const hidden = dispatch(state, { method: "POST", path: "/miniapp/moderation/hide", query: new URLSearchParams(), headers, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
+  assert(hidden.body.building.visibility === "hidden", "hide building");
+  const hiddenSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=published"), headers, body: {} });
+  assert(!hiddenSearch.body.items.some((item) => item.targetRef === "building:published-agent-lab"), "hidden building removed from search");
+  const takedown = dispatch(state, { method: "POST", path: "/miniapp/moderation/takedown", query: new URLSearchParams(), headers, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
+  assert(takedown.body.building.visibility === "takedown", "takedown building");
   const toolAck = dispatch(state, { method: "POST", path: "/miniapp/tool-results/ack", query: new URLSearchParams(), headers, body: { toolResultId: "tool-policy-summary" } });
   assert(toolAck.body.toolResult.status === "done", "tool result acknowledged");
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
@@ -1078,6 +1118,7 @@ function smoke(options) {
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   assert(snapshot.body.toolResults.some((item) => item.id === "tool-policy-summary" && item.status === "done"), "snapshot tool result ack");
   assert(snapshot.body.moderationCases.some((item) => item.id === report.body.case.id), "snapshot moderation case");
+  assert(snapshot.body.moderationCases.some((item) => item.status === "removed"), "snapshot takedown case");
   assert(snapshot.body.runs.some((item) => item.id === handoff.body.run.id), "snapshot handoff run");
   assert(snapshot.body.notifications.some((item) => item.id === handoff.body.notification.id), "snapshot handoff notice");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });

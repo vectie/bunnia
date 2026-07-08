@@ -551,7 +551,9 @@ My, or Messages instead of sitting as passive stale badges. Public building
 reports now have a compact Safety Desk action in the map drawer plus a local
 `/miniapp/moderation/report` route, persisted moderation cases, notifications,
 and audit events so DevTools can exercise the first report path before
-production admin tools exist.
+production admin tools exist. The local backend also exposes hide and takedown
+decisions for moderation cases, so reported public buildings can leave public
+search while the case, notification, and audit trail remain inspectable.
 
 ### R9: Style And Performance Hardening
 
@@ -600,10 +602,11 @@ Done when:
 - no frontend bundle leaks secrets or private raw books
 - published town content has review, report, hide, and takedown paths
 
-Current status: first local report path is implemented through the selected
-building Safety Desk and `/miniapp/moderation/report`. Production still needs
-real reviewer/admin tools for hide, takedown, appeals, retention, and abuse
-controls after local flows are coherent.
+Current status: first local report, hide, and takedown paths are implemented
+through the selected building Safety Desk, Messages Moderation Desk, and
+`/miniapp/moderation/*` routes. Production still needs real reviewer/admin
+identity, appeals, retention, rate limits, and abuse controls after local flows
+are coherent.
 
 ## Migration Order
 

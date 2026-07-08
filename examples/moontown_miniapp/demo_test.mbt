@@ -400,6 +400,18 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("data-review-id=\"review-policy-memory\""))
   assert_true(messages.wxml.contains("data-decision=\"accept\""))
   assert_true(messages.wxml.contains("data-decision=\"reject\""))
+  assert_true(messages.wxml.contains("Moderation Desk"))
+  assert_true(
+    messages.wxml.contains("data-moderation-case=\"mod-policy-hall\""),
+  )
+  assert_true(messages.wxml.contains("data-moderation-action=\"hide\""))
+  assert_true(messages.wxml.contains("data-moderation-action=\"takedown\""))
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"hide-public-building\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"takedown-public-building\""),
+  )
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
   assert_true(messages.wxml.contains("data-notice-action=\"ack\""))
@@ -639,6 +651,16 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/moderation/hide",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/moderation/takedown",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )
@@ -749,6 +771,16 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"moderationHide\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"moderationTakedown\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"}",
     ),
   )
   assert_true(
@@ -1337,12 +1369,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(tool_result.missing_ack_count, 0)
   assert_eq(tool_result.artifact_ref_count, 2)
   assert_eq(tool_result.diagnostics.length(), 0)
-  assert_eq(backend.endpoint_count, 24)
+  assert_eq(backend.endpoint_count, 26)
   assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 24)
+  assert_eq(effects.effect_count, 26)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)
