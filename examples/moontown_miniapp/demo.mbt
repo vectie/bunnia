@@ -1585,9 +1585,6 @@ fn backend_step_entry(item : MiniTownBackendStep) -> @bunnia.Node {
       [
         @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.status}"),
         @bunnia.data("backend-step", item.id),
-        @bunnia.data("backend-endpoint", item.endpoint_id),
-        @bunnia.data("backend-method", item.http_method),
-        @bunnia.data("backend-path", item.path),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [

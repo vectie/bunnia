@@ -857,7 +857,11 @@ The Moontown example also now uses short internal layout classes for repeated
 panel, title, and metadata wrappers while keeping product-facing `data-*`
 contracts and event messages stable. This is a markup-budget hardening step:
 future reference-backed surfaces can be added without immediately crossing the
-WeChat WXML ceiling.
+WeChat WXML ceiling. Repeated backend-step rows now also drop redundant
+endpoint, method, and path data attributes because the method/path are already
+visible text and the Run button already carries the endpoint message. This keeps
+the local backend panel inspectable while reclaiming WXML headroom for the next
+feature slice.
 
 ### R10: Production Backend Readiness
 

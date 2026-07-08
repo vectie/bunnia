@@ -181,25 +181,18 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("Town Pulse"))
   assert_true(home.wxml.contains("Backend Loop"))
   assert_true(home.wxml.contains("DevTools target: http://127.0.0.1:18191"))
-  assert_true(home.wxml.contains("data-backend-endpoint=\"dev-login\""))
-  assert_true(
-    home.wxml.contains("data-backend-endpoint=\"load-town-snapshot\""),
-  )
-  assert_true(home.wxml.contains("data-backend-endpoint=\"cancel-run\""))
-  assert_true(home.wxml.contains("data-backend-endpoint=\"retry-run\""))
-  assert_true(home.wxml.contains("data-backend-endpoint=\"ack-notification\""))
-  assert_true(
-    home.wxml.contains("data-backend-endpoint=\"request-subscription\""),
-  )
-  assert_true(home.wxml.contains("data-backend-path=\"/miniapp/runs/cancel\""))
-  assert_true(home.wxml.contains("data-backend-path=\"/miniapp/runs/retry\""))
-  assert_true(home.wxml.contains("data-backend-path=\"/miniapp/messages/ack\""))
-  assert_true(
-    home.wxml.contains("data-backend-path=\"/miniapp/messages/subscribe\""),
-  )
-  assert_true(
-    home.wxml.contains("data-backend-path=\"/miniapp/town/snapshot\""),
-  )
+  assert_true(home.wxml.contains("data-backend-step=\"login\""))
+  assert_true(home.wxml.contains("data-bunnia-message=\"dev-login\""))
+  assert_true(home.wxml.contains("data-backend-step=\"snapshot\""))
+  assert_true(home.wxml.contains("GET /miniapp/town/snapshot / ready"))
+  assert_true(home.wxml.contains("data-backend-step=\"cancel-run\""))
+  assert_true(home.wxml.contains("POST /miniapp/runs/cancel / guarded"))
+  assert_true(home.wxml.contains("data-backend-step=\"retry-run\""))
+  assert_true(home.wxml.contains("POST /miniapp/runs/retry / guarded"))
+  assert_true(home.wxml.contains("data-backend-step=\"ack-notification\""))
+  assert_true(home.wxml.contains("POST /miniapp/messages/ack / ready"))
+  assert_true(home.wxml.contains("data-backend-step=\"request-subscription\""))
+  assert_true(home.wxml.contains("POST /miniapp/messages/subscribe / platform"))
   assert_true(home.wxml.contains("data-backend-cache=\"snapshot\""))
   assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
   assert_true(home.wxml.contains("data-action-message=\"load-town-snapshot\""))
