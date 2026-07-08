@@ -1292,6 +1292,9 @@ Current evidence:
 - Non-Realm routes render lightweight tile-map backdrops instead of the full
   interactive scene, and route runtimes are scoped to visible events. This keeps
   release readiness green while letting the app grow as a multi-page mini-app.
+- Setup actions, discovery filters, message channels, and ownership filters now
+  emit scoped runtime patches and visible state labels on their routes, so those
+  tile controls are testable interaction contracts rather than no-op UI.
 - The Backend Loop panel now also shows tile-style session, snapshot cache,
   mutation queue, and review-result states. The snapshot row explicitly marks
   stale-safe rendering, so backend failures do not silently disconnect the map

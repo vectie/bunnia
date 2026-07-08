@@ -266,7 +266,6 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
-  patches.push(@bunnia.wechat_event_patch("dev-login", []))
   patches.push(@bunnia.wechat_event_patch("load-town-snapshot", []))
   patches.push(
     @bunnia.wechat_event_patch("complete-onboarding", [
@@ -280,6 +279,10 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
       ]),
     )
   }
+  add_setup_event_patches(patches, projection)
+  add_discovery_filter_event_patches(patches, projection)
+  add_notification_channel_event_patches(patches, projection)
+  add_ownership_filter_event_patches(patches, projection)
   for building in visible_buildings(projection) {
     patches.push(select_building_patch(building))
     patches.push(open_building_thread_patch(building))
@@ -373,6 +376,79 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
     event_patches=patches,
     page_methods_js=moontown_map_page_methods_js(),
   )
+}
+
+///|
+fn add_setup_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+  projection : MiniTownProjection,
+) -> Unit {
+  patches.push(
+    @bunnia.wechat_event_patch("dev-login", [
+      @bunnia.set_string("session.activeUserId", "user-a"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("accept-profile-consent", [
+      @bunnia.set_string("profile.consentAccepted", "true"),
+      @bunnia.set_json("profileDraft.consentAccepted", "true"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("save-profile", [
+      @bunnia.set_string("profile.setupCompleted", "true"),
+    ]),
+  )
+  for role in projection.roles {
+    patches.push(
+      @bunnia.wechat_event_patch("select-role-\{role.id}", [
+        @bunnia.set_string("profile.roleId", role.id),
+        @bunnia.set_string("profileDraft.roleId", role.id),
+      ]),
+    )
+  }
+}
+
+///|
+fn add_discovery_filter_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+  projection : MiniTownProjection,
+) -> Unit {
+  for filter in projection.discovery_filters {
+    patches.push(
+      @bunnia.wechat_event_patch("discover-filter-\{filter.id}", [
+        @bunnia.set_string("discover.filter", filter.id),
+      ]),
+    )
+  }
+}
+
+///|
+fn add_notification_channel_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+  projection : MiniTownProjection,
+) -> Unit {
+  for channel in projection.notification_channels {
+    patches.push(
+      @bunnia.wechat_event_patch("notification-channel-\{channel.id}", [
+        @bunnia.set_string("messages.channel", channel.id),
+      ]),
+    )
+  }
+}
+
+///|
+fn add_ownership_filter_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+  projection : MiniTownProjection,
+) -> Unit {
+  for filter in projection.ownership_filters {
+    patches.push(
+      @bunnia.wechat_event_patch("ownership-filter-\{filter.id}", [
+        @bunnia.set_string("ownership.filter", filter.id),
+      ]),
+    )
+  }
 }
 
 ///|
@@ -1082,6 +1158,11 @@ fn identity_setup_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "\{projection.profile.display_name} / \{projection.profile.role_id} / ready: \{if profile_ready_to_publish(projection) { "yes" } else { "no" }}",
       ),
     ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.text(
+        "runtime role: {{profile.roleId || 'builder'}} / consent: {{profile.consentAccepted || 'false'}} / saved: {{profile.setupCompleted || 'false'}}",
+      ),
+    ]),
     @bunnia.windowed_list(
       gates,
       total_count=gates.length(),
@@ -1439,6 +1520,9 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "Search buildings, users, agents, books, events, demands, and posts.",
       ),
     ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.text("runtime filter: {{discover.filter || 'all'}}"),
+    ]),
     @bunnia.input(
       name="discoverSearch",
       value=projection.search_query,
@@ -1583,6 +1667,9 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(
         "\{unread.length()} unread agent and town events; \{reviews.length()} review run; \{subscription.length()} subscription prompt.",
       ),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.text("runtime channel: {{messages.channel || 'all'}}"),
     ]),
     message_backend_state_row(),
     message_bucket_row(projection),
@@ -2156,6 +2243,9 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(
         "role: \{projection.profile.role_id}; consent: \{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; showing: \{selected_ownership_filter(projection).label}; owned items: \{items.length()}",
       ),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.text("runtime ownership: {{ownership.filter || 'all'}}"),
     ]),
     profile_identity_card(projection),
     profile_credential_plaque(projection),

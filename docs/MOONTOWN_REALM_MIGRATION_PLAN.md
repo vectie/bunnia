@@ -203,6 +203,9 @@ Current implementation:
 - Non-Realm routes use lightweight tile-map backdrops instead of duplicating the
   full draggable scene, keeping Realm as the only map route while preserving the
   same visual language and route budgets.
+- Route runtimes now carry scoped patches for visible controls, so tab buttons,
+  setup actions, discovery filters, message channels, and ownership filters
+  mutate route-local state instead of falling back to no-op placeholders.
 
 ## R2: Entry, Login, And Profile
 
@@ -228,6 +231,9 @@ Current implementation:
   onboarding, role, consent, profile save, and publish readiness.
 - My/Identity Setup renders those gates as compact checklist rows with local
   action messages for login, onboarding, role choice, consent, and profile save.
+- Role selection, consent acceptance, and profile save now have explicit
+  route-scoped runtime patches plus visible runtime-state labels, so WeChat
+  DevTools can exercise the setup flow before a real account backend is wired.
 - Building lifecycle controls carry allowed/blocked metadata, show the block
   reason, and render blocked actions as disabled buttons.
 

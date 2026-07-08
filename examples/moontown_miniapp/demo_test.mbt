@@ -222,6 +222,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
       "Search buildings, users, agents, books, events, demands, and posts.",
     ),
   )
+  assert_true(
+    discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
+  )
   assert_true(discover.wxml.contains("moontown-discover-entry"))
   assert_true(discover.wxml.contains("Town People"))
   assert_true(discover.wxml.contains("Town Circles"))
@@ -250,6 +253,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
+  assert_true(
+    messages.wxml.contains("runtime channel: {{messages.channel || 'all'}}"),
+  )
   assert_true(messages.wxml.contains("moontown-message-bucket"))
   assert_true(messages.wxml.contains("moontown-message-sync"))
   assert_true(messages.wxml.contains("data-backend-sync=\"notifications\""))
@@ -346,6 +352,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let mine = tab_page(projection, "my")
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
   assert_true(mine.wxml.contains("Identity Setup"))
+  assert_true(
+    mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
+  )
+  assert_true(
+    mine.wxml.contains("runtime ownership: {{ownership.filter || 'all'}}"),
+  )
   assert_true(mine.wxml.contains("data-setup-gate=\"session\""))
   assert_true(mine.wxml.contains("data-setup-gate=\"publish-ready\""))
   assert_true(
@@ -427,6 +439,36 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/home.data.js").contains(
       "\"shell\":{\"activeTab\":\"home\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/home.data.js").contains(
+      "\"dev-login\":[{k:\"set\",p:\"session.activeUserId\",v:\"user-a\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-filter-building\":[{k:\"set\",p:\"discover.filter\",v:\"building\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.data.js").contains(
+      "\"notification-channel-agent\":[{k:\"set\",p:\"messages.channel\",v:\"agent\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"select-role-explorer\":[{k:\"set\",p:\"profile.roleId\",v:\"explorer\"},{k:\"set\",p:\"profileDraft.roleId\",v:\"explorer\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"accept-profile-consent\":[{k:\"set\",p:\"profile.consentAccepted\",v:\"true\"},{k:\"set\",p:\"profileDraft.consentAccepted\",v:true}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"ownership-filter-books\":[{k:\"set\",p:\"ownership.filter\",v:\"books\"}]",
     ),
   )
   assert_true(
