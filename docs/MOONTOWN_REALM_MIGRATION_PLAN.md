@@ -468,14 +468,17 @@ Done when:
 - public surfaces expose summaries, not private ledgers
 
 Current status: lifecycle pipeline and data-derived book shelf are implemented
-in the Moontown mini-app slice. Archive and restore are both wired as explicit
-lifecycle operations, so owned archived work can return to the private draft
-workbench. Submit is now a separate publication-review state before publish,
-leaving room for moderation and reviewer decisions before public discovery.
-Submitted buildings now create publication review items, so accept moves the
-building and book into public discovery while reject returns them to private
-drafts. Accepted book-memory reviews now create durable safe memory records in
-the local backend instead of only incrementing book counters.
+in the Moontown mini-app slice. Draft building edit is now a first-class
+building/book operation: owners can update the building profile and primary
+book safe summary before submission, while submitted and published buildings
+stay locked behind review/publication state. Archive and restore are both wired
+as explicit lifecycle operations, so owned archived work can return to the
+private draft workbench. Submit is now a separate publication-review state
+before publish, leaving room for moderation and reviewer decisions before public
+discovery. Submitted buildings now create publication review items, so accept
+moves the building and book into public discovery while reject returns them to
+private drafts. Accepted book-memory reviews now create durable safe memory
+records in the local backend instead of only incrementing book counters.
 
 ### R6: Messages And Agent Communication
 
@@ -592,6 +595,9 @@ for create, share, submit, publish, and place actions. Snapshot and ownership
 payloads also include derived object relationships for buildings, placements,
 books, and agents, so surfaces can distinguish owner, shared, team, system,
 public, and visible objects without copying backend visibility rules.
+Draft building updates now persist through `/miniapp/buildings/update`, keeping
+building profile text and primary book safe summary together under owner-only,
+pre-publication rules.
 Shared-private local buildings now use explicit share grants, so invited users
 can see them while uninvited users and public search cannot. Message send is
 also persisted locally through `/miniapp/messages/send`, and snapshots now

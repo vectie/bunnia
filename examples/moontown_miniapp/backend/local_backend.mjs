@@ -274,6 +274,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/buildings") {
     return createBuilding(state, viewer, body);
   }
+  if (method === "POST" && path === "/miniapp/buildings/update") {
+    return updateBuilding(state, viewer, body);
+  }
   if (method === "POST" && path === "/miniapp/buildings/place") {
     return placeBuilding(state, viewer, body);
   }
@@ -353,6 +356,7 @@ function routeCatalog() {
     "GET /miniapp/discover/search",
     "POST /miniapp/me/profile",
     "POST /miniapp/buildings",
+    "POST /miniapp/buildings/update",
     "POST /miniapp/buildings/place",
     "POST /miniapp/buildings/share",
     "POST /miniapp/buildings/submit",
@@ -829,6 +833,31 @@ function createBuilding(state, viewer, body) {
   state.buildings.push(item);
   state.books.push(memory);
   state.auditEvents.push(audit(`audit-create-${id}`, "create", `${title} created`, "Private building and book were created locally.", viewer, `building:${id}`, id, "draft", "private_draft"));
+  return changed({ building: item, book: memory });
+}
+
+function updateBuilding(state, viewer, body) {
+  const buildingId = body.buildingId || body.id;
+  const item = state.buildings.find((building) => building.id === buildingId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
+  if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
+  if (!["private_draft", "shared_private"].includes(item.visibility)) {
+    return { status: 409, changed: false, body: { error: "not_editable", buildingId, visibility: item.visibility } };
+  }
+  const title = String(body.title || "").trim();
+  const summary = String(body.summary || "").trim();
+  if (title) item.title = title;
+  if (summary) item.summary = summary;
+  if (Array.isArray(body.tags)) item.tags = body.tags.filter((tag) => String(tag || "").trim()).map((tag) => String(tag).trim());
+  const memory = firstBookForBuilding(state, buildingId);
+  if (memory) {
+    const bookTitle = String(body.bookTitle || "").trim();
+    const bookSummary = String(body.bookSummary || "").trim();
+    if (bookTitle) memory.title = bookTitle;
+    if (bookSummary) memory.summary = bookSummary;
+  }
+  syncThreadsForBuilding(state, item);
+  state.auditEvents.push(audit(`audit-update-${buildingId}-${state.auditEvents.length + 1}`, "update", `${item.title} updated`, "Draft building profile and safe book summary were updated locally.", viewer, `building:${buildingId}`, buildingId, item.status, item.visibility));
   return changed({ building: item, book: memory });
 }
 
@@ -1372,6 +1401,14 @@ function smoke(options) {
   assert(postSearch.body.items.some((item) => item.kind === "post" && item.targetRef === "post:published-agent-lab"), "public post search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
+  const updated = dispatch(state, { method: "POST", path: "/miniapp/buildings/update", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", title: "Smoke Workshop", summary: "Edited smoke building summary.", bookTitle: "Smoke Workshop Book", bookSummary: "Edited smoke memory shelf.", tags: ["agent", "edited"] } });
+  assert(updated.body.building.title === "Smoke Workshop", "update draft title");
+  assert(updated.body.building.summary === "Edited smoke building summary.", "update draft summary");
+  assert(updated.body.building.tags.some((tag) => tag === "edited"), "update draft tags");
+  assert(updated.body.book.title === "Smoke Workshop Book", "update draft book title");
+  assert(updated.body.book.summary === "Edited smoke memory shelf.", "update draft book summary");
+  const deniedUpdate = dispatch(state, { method: "POST", path: "/miniapp/buildings/update", query: new URLSearchParams(), headers: bobHeaders, body: { buildingId: "smoke-lab", title: "Bob Edit" } });
+  assert(deniedUpdate.status === 403, "update owner only");
   const createdAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(createdAgent.body.agent.buildingId === "smoke-lab", "create agent building");
   assert(createdAgent.body.message.threadId === "thread-smoke-lab", "create agent message");
@@ -1409,6 +1446,8 @@ function smoke(options) {
   const acceptedPublication = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: resubmitted.body.review.id } });
   assert(acceptedPublication.body.review.status === "accepted", "accept publication review");
   assert(acceptedPublication.body.building.visibility === "published", "accepted publication is public");
+  const publishedUpdate = dispatch(state, { method: "POST", path: "/miniapp/buildings/update", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", title: "Published Edit" } });
+  assert(publishedUpdate.status === 409, "published update blocked");
   const archived = dispatch(state, { method: "POST", path: "/miniapp/buildings/archive", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(archived.body.building.visibility === "archived", "archive building");
   const restored = dispatch(state, { method: "POST", path: "/miniapp/buildings/restore", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });

@@ -535,6 +535,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 ///|
 test "moontown miniapp generates wechat project with backend hooks" {
   let project = demo_wechat_project()
+  assert_true(
+    backend_contract_contains(
+      demo_backend_contract(),
+      "update-private-building",
+      "/miniapp/buildings/update",
+    ),
+  )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(project.page_count, 5)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
@@ -806,6 +813,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"buildingEditDraft\":{\"buildingId\":\"created-agent-lab\",\"title\":\"Edited Lab\"",
     ),
   )
   assert_true(
@@ -1202,6 +1214,36 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(created.selected_building_id, "created-agent-lab")
   assert_eq(selected_building_book(created).id, "book-created-agent-lab")
   assert_eq(selected_building_audit_events(created).length(), 1)
+  let edited = edit_selected_building(
+    created,
+    "Edited Agent Lab",
+    "Edited private building profile.",
+    "Edited Agent Lab Book",
+    "Edited safe memory summary.",
+    ["agent", "edited"],
+  )
+  assert_eq(selected_building(edited).title, "Edited Agent Lab")
+  assert_eq(
+    selected_building(edited).summary,
+    "Edited private building profile.",
+  )
+  assert_eq(selected_building(edited).tags[1], "edited")
+  assert_eq(selected_building_book(edited).title, "Edited Agent Lab Book")
+  assert_eq(
+    selected_building_book(edited).summary,
+    "Edited safe memory summary.",
+  )
+  assert_eq(selected_building_audit_events(edited).length(), 2)
+  let blocked_edit = edit_selected_building(
+    projection,
+    "Published Edit",
+    "Should not change published building.",
+    "Published Edit Book",
+    "Blocked book summary.",
+    ["blocked"],
+  )
+  assert_eq(selected_building(blocked_edit).title, "Policy Hall")
+  assert_eq(selected_building_audit_events(blocked_edit).length(), 1)
   let shared = share_selected_building(created)
   assert_eq(selected_building(shared).visibility, "shared_private")
   assert_eq(selected_building_book(shared).visibility, "shared_private")
@@ -1369,12 +1411,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(tool_result.missing_ack_count, 0)
   assert_eq(tool_result.artifact_ref_count, 2)
   assert_eq(tool_result.diagnostics.length(), 0)
-  assert_eq(backend.endpoint_count, 26)
+  assert_eq(backend.endpoint_count, 27)
   assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 26)
+  assert_eq(effects.effect_count, 27)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)
@@ -1401,6 +1443,20 @@ fn tab_page(
 fn has_file(files : Array[@bunnia.WechatFile], path : String) -> Bool {
   for item in files {
     if item.path == path {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn backend_contract_contains(
+  contract : @bunnia.BackendContract,
+  id : String,
+  path : String,
+) -> Bool {
+  for endpoint in contract.endpoints {
+    if endpoint.id == id && endpoint.path == path {
       return true
     }
   }

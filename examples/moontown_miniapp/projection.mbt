@@ -3316,6 +3316,54 @@ pub fn create_private_building(
 }
 
 ///|
+pub fn edit_selected_building(
+  projection : MiniTownProjection,
+  title : String,
+  summary : String,
+  book_title : String,
+  book_summary : String,
+  tags : Array[String],
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  if building.owner_id != projection.active_user_id ||
+    (
+      building.visibility != "private_draft" &&
+      building.visibility != "shared_private"
+    ) {
+    return projection
+  }
+  {
+    ..projection,
+    buildings: update_building_profile(
+      projection.buildings,
+      building.id,
+      title,
+      summary,
+      tags,
+    ),
+    books: update_book_profile(
+      projection.books,
+      building.id,
+      book_title,
+      book_summary,
+    ),
+    audit_events: projection.audit_events +
+    [
+      lifecycle_event(
+        id="audit-update-\{building.id}",
+        kind="update",
+        title="\{title} updated",
+        summary="Draft building profile and safe book summary were updated.",
+        actor_id=projection.active_user_id,
+        building_id=building.id,
+        status=building.status,
+        visibility=building.visibility,
+      ),
+    ],
+  }
+}
+
+///|
 pub fn share_selected_building(
   projection : MiniTownProjection,
 ) -> MiniTownProjection {
@@ -3580,6 +3628,43 @@ fn update_book_lifecycle(
   for book in books {
     if book.building_id == building_id {
       output.push({ ..book, visibility, status })
+    } else {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
+fn update_building_profile(
+  buildings : Array[MiniTownBuilding],
+  building_id : String,
+  title : String,
+  summary : String,
+  tags : Array[String],
+) -> Array[MiniTownBuilding] {
+  let output : Array[MiniTownBuilding] = []
+  for building in buildings {
+    if building.id == building_id {
+      output.push({ ..building, title, summary, tags })
+    } else {
+      output.push(building)
+    }
+  }
+  output
+}
+
+///|
+fn update_book_profile(
+  books : Array[MiniTownBook],
+  building_id : String,
+  title : String,
+  summary : String,
+) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in books {
+    if book.building_id == building_id {
+      output.push({ ..book, title, summary })
     } else {
       output.push(book)
     }
