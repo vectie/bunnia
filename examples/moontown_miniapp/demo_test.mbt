@@ -53,6 +53,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-review-entry"))
   assert_true(page.wxml.contains("Review policy answer"))
   assert_true(page.wxml.contains("data-review-id=\"review-policy-memory\""))
+  assert_true(page.wxml.contains("data-decision=\"accept\""))
+  assert_true(page.wxml.contains("data-decision=\"reject\""))
   assert_true(
     page.wxml.contains("data-bunnia-message=\"accept-memory-review\""),
   )
@@ -270,6 +272,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     ),
   )
   assert_true(messages.wxml.contains("data-review-id=\"review-policy-memory\""))
+  assert_true(messages.wxml.contains("data-decision=\"accept\""))
+  assert_true(messages.wxml.contains("data-decision=\"reject\""))
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(
     messages.wxml.contains("data-action-message=\"open-notice-review\""),
@@ -417,9 +421,8 @@ test "moontown miniapp generates wechat project with backend hooks" {
       "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
     ),
   )
-  assert_true(
-    project.page.js.contains("b.runId=d.runId;return b"),
-  )
+  assert_true(project.page.js.contains("['runId','reviewId','decision']"))
+  assert_true(project.page.js.contains("h=b[k]=d[k]"))
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",

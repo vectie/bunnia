@@ -1602,16 +1602,46 @@ fn review_entry(item : MiniTownReviewItem) -> @bunnia.Node {
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
           @bunnia.text("\{item.status} / +\{item.accepted_memory_delta} memory"),
         ]),
-        @bunnia.review_controls(
-          @bunnia.review_action(
-            id=item.id,
-            label="Memory review",
-            approve_message=item.accept_message,
-            reject_message=item.reject_message,
-          ),
-        ),
+        review_controls_entry(item),
       ],
     ),
+  )
+}
+
+///|
+fn review_controls_entry(item : MiniTownReviewItem) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("bunnia-review bunnia-review-pending"),
+      @bunnia.data("review-id", item.id),
+      @bunnia.data("run-id", item.run_id),
+      @bunnia.data("review-enabled", "true"),
+    ],
+    [
+      @bunnia.text("Memory review"),
+      review_decision_button(item, "Approve", "accept", item.accept_message),
+      review_decision_button(item, "Reject", "reject", item.reject_message),
+    ],
+  )
+}
+
+///|
+fn review_decision_button(
+  item : MiniTownReviewItem,
+  label : String,
+  decision : String,
+  message : String,
+) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.class_name("bunnia-review-button bunnia-review-button-enabled"),
+      @bunnia.data("review-id", item.id),
+      @bunnia.data("run-id", item.run_id),
+      @bunnia.data("decision", decision),
+    ],
+    events=[@bunnia.tap(message)],
+    children=[@bunnia.text(label)],
   )
 }
 

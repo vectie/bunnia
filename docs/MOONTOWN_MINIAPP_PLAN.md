@@ -1236,6 +1236,9 @@ Current evidence:
 - The WeChat adapter forwards the tapped row dataset into agent run operations,
   merging `runId` into cancel/retry payloads while leaving ordinary backend
   buttons on their declared payload keys.
+- Review controls now attach `reviewId`, `runId`, and `decision` to the tapped
+  button, and the WeChat adapter merges those fields into review decision
+  payloads before calling the backend.
 - My now has tile-style ownership filters for all, drafts, published items,
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped

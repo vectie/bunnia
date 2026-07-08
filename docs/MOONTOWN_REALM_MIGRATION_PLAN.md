@@ -286,6 +286,8 @@ Current slice:
 - The WeChat event bridge forwards tapped row data into agent run operations,
   so a visible run plaque can cancel or retry the intended run rather than only
   triggering a global endpoint.
+- Review buttons carry `reviewId`, `runId`, and `decision` on the tap target,
+  so accepting or rejecting memory is tied to the intended review item.
 
 ## R7: My Ownership Workbench
 
