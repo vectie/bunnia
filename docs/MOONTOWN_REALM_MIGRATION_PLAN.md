@@ -722,18 +722,20 @@ revocation, giving the production login path a safer contract to replace with
 real WeChat identity. It also exposes `/miniapp/health`, rate-limits sensitive
 local routes such as dev login, public reports, and appeals, and provides
 moderator-only audit/backup/ops endpoints, moderator list/grant/revoke routes,
-retention prune route, a local startup/interval retention scheduler, and
-moderator-only abuse hold/release routes for users and buildings. Backups
+retention prune route, a local startup/interval retention scheduler, an external
+monitoring incident report route, moderator-only incident review/resolve routes,
+and moderator-only abuse hold/release routes for users and buildings. Backups
 exclude live session and rate-limit buckets, ops reports retention targets,
-scheduled-retention metadata, monitoring checks, state counts, and status
-distributions, moderator management keeps reviewer trust backend-owned, abuse
-holds can stop actor or target mutations without frontend bundle growth, and
-manual or scheduled pruning removes expired sessions, expired rate-limit
-buckets, and out-of-retention audit events. That makes abuse-control, recovery,
-reviewer identity, retention, and monitoring behavior testable before production
-infrastructure exists. Production still needs real WeChat-bound reviewer/admin
-identity, platform-managed retention scheduling, external monitoring, and
-production-grade abuse signals after local flows are coherent.
+scheduled-retention metadata, monitoring incidents, monitoring checks, state
+counts, and status distributions, moderator management keeps reviewer trust
+backend-owned, abuse holds can stop actor or target mutations without frontend
+bundle growth, and manual or scheduled pruning removes expired sessions, expired
+rate-limit buckets, and out-of-retention audit events. That makes
+abuse-control, recovery, reviewer identity, retention, and monitoring behavior
+testable before production infrastructure exists. Production still needs real
+WeChat-bound reviewer/admin identity, platform-managed retention scheduling, a
+real external monitoring provider, and production-grade abuse signals after
+local flows are coherent.
 
 ## Migration Order
 

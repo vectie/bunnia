@@ -20,6 +20,7 @@ const BACKUP_RETENTION_DAYS = 30;
 const DEFAULT_RETENTION_SWEEP_MS = 15 * 60 * 1000;
 const RATE_LIMITS = {
   "/miniapp/auth/dev-login": 12,
+  "/miniapp/monitoring/incident": 6,
   "/miniapp/moderation/report": 2,
   "/miniapp/moderation/appeal": 2,
 };
@@ -31,6 +32,7 @@ function seedState() {
     nextReview: 2,
     nextModeration: 2,
     nextAbuse: 1,
+    nextIncident: 1,
     users: [
       { id: "user-a", name: "Ada Builder", roleId: "builder" },
       { id: "user-b", name: "Bo Curator", roleId: "explorer" },
@@ -44,6 +46,7 @@ function seedState() {
     sessions: {},
     rateLimits: {},
     abuseHolds: [],
+    incidents: [],
     retentionJob: retentionJob(false, DEFAULT_RETENTION_SWEEP_MS, "", "seed", { expiredSessions: 0, expiredRateLimitBuckets: 0, expiredAuditEvents: 0 }, 0),
     listings: defaultListings(),
     buildings: [
@@ -133,6 +136,10 @@ function subscription(id, userId, targetRef, noticeId, status) {
 
 function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns) {
   return { enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns };
+}
+
+function incident(id, severity, status, source, title, summary, route, actorId, targetRef) {
+  return { id, severity, status, source, title, summary, route, actorId, targetRef, createdAt: new Date().toISOString(), resolvedAt: "", resolvedBy: "" };
 }
 
 function placement(id, buildingId, ownerId, layer, x, y, status, source) {
@@ -228,6 +235,7 @@ function normalizeState(state) {
   state.nextReview = state.nextReview || 2;
   state.nextModeration = state.nextModeration || 2;
   state.nextAbuse = state.nextAbuse || 1;
+  state.nextIncident = state.nextIncident || 1;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
@@ -236,6 +244,7 @@ function normalizeState(state) {
   state.sessions = normalizeSessions(state.sessions || {});
   state.rateLimits = normalizeRateLimits(state.rateLimits || {});
   state.abuseHolds = state.abuseHolds || [];
+  state.incidents = state.incidents || [];
   state.retentionJob = normalizeRetentionJob(state.retentionJob);
   state.messages = state.messages || [];
   state.runs = state.runs || [];
@@ -368,14 +377,18 @@ function healthFor(state) {
   const activeSessions = sessions.filter((session) => !session.revokedAt && Date.parse(session.expiresAt) > now).length;
   const pendingModeration = state.moderationCases.filter((item) => item.status === "pending" || item.status === "watch").length;
   const activeAbuseHolds = state.abuseHolds.filter((item) => item.status === "active").length;
+  const openIncidents = state.incidents.filter((item) => item.status === "open").length;
+  const criticalIncidents = state.incidents.filter((item) => item.status === "open" && item.severity === "critical").length;
   return {
-    status: "ok",
+    status: criticalIncidents > 0 ? "attention" : "ok",
     routeCount: routeCatalog().length,
     userCount: state.users.length,
     moderatorCount: state.moderatorIds.length,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
     activeAbuseHoldCount: activeAbuseHolds,
+    openIncidentCount: openIncidents,
+    criticalIncidentCount: criticalIncidents,
     retentionSchedulerEnabled: state.retentionJob.enabled,
     retentionLastRunAt: state.retentionJob.lastRunAt,
     auditEventCount: state.auditEvents.length,
@@ -584,6 +597,64 @@ function countBy(items, field) {
   return output;
 }
 
+function normalizeIncidentSeverity(value) {
+  const severity = String(value || "warning").toLowerCase();
+  if (["info", "warning", "critical"].includes(severity)) return severity;
+  return "warning";
+}
+
+function reportIncident(state, viewer, body) {
+  const severity = normalizeIncidentSeverity(body.severity);
+  const title = String(body.title || body.error || "Local monitoring incident").trim();
+  const item = incident(
+    `incident-${state.nextIncident}`,
+    severity,
+    "open",
+    String(body.source || "external-monitor").trim(),
+    title,
+    String(body.summary || body.message || "External monitor reported a local backend incident.").trim(),
+    String(body.route || body.path || "").trim(),
+    viewer,
+    String(body.targetRef || "").trim(),
+  );
+  state.nextIncident += 1;
+  state.incidents.push(item);
+  state.auditEvents.push(audit(`audit-incident-${item.id}`, "incident", item.title, item.summary, viewer, item.targetRef || `incident:${item.id}`, "", item.status, "private"));
+  return changed({ incident: item });
+}
+
+function incidentsForAdmin(state, viewer, query) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const status = query.get("status") || "";
+  const severity = query.get("severity") || "";
+  const source = query.get("source") || "";
+  let items = state.incidents;
+  if (status) items = items.filter((item) => item.status === status);
+  if (severity) items = items.filter((item) => item.severity === severity);
+  if (source) items = items.filter((item) => item.source === source);
+  return ok({
+    items: items.slice().reverse(),
+    total: state.incidents.length,
+    openCount: state.incidents.filter((item) => item.status === "open").length,
+    filters: { status, severity, source },
+  });
+}
+
+function resolveIncidentForAdmin(state, viewer, body) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const incidentId = String(body.incidentId || body.id || "").trim();
+  const item = state.incidents.find((candidate) => candidate.id === incidentId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_incident", incidentId } };
+  if (item.status === "resolved") return { status: 200, changed: false, body: { incident: item } };
+  item.status = "resolved";
+  item.resolvedAt = new Date().toISOString();
+  item.resolvedBy = viewer;
+  state.auditEvents.push(audit(`audit-incident-resolve-${item.id}`, "incident-resolve", `${item.title} resolved`, String(body.summary || "Monitoring incident resolved.").trim(), viewer, `incident:${item.id}`, "", "resolved", "private"));
+  return changed({ incident: item });
+}
+
 function opsForAdmin(state, viewer) {
   const denied = requireModerator(state, viewer);
   if (denied) return denied;
@@ -595,6 +666,8 @@ function opsForAdmin(state, viewer) {
   const activeModerationCases = state.moderationCases.filter((item) => ["pending", "watch", "appeal_requested"].includes(item.status));
   const activeRateLimits = Object.values(state.rateLimits).filter((item) => Date.parse(item.resetAt) > now);
   const activeAbuseHolds = state.abuseHolds.filter((item) => item.status === "active");
+  const openIncidents = state.incidents.filter((item) => item.status === "open");
+  const criticalIncidents = openIncidents.filter((item) => item.severity === "critical");
   const auditTimes = state.auditEvents.map((item) => Date.parse(item.timestamp)).filter((item) => Number.isFinite(item));
   const oldestAuditAt = auditTimes.length > 0 ? new Date(Math.min(...auditTimes)).toISOString() : "";
   const newestAuditAt = auditTimes.length > 0 ? new Date(Math.max(...auditTimes)).toISOString() : "";
@@ -603,6 +676,7 @@ function opsForAdmin(state, viewer) {
     { id: "sessions", status: expiredSessions.length > 0 ? "attention" : "ok", summary: `${activeSessions.length} active; ${expiredSessions.length} expired.` },
     { id: "rate-limits", status: activeRateLimits.length > 0 ? "watch" : "ok", summary: `${activeRateLimits.length} active bucket(s).` },
     { id: "abuse-holds", status: activeAbuseHolds.length > 0 ? "attention" : "ok", summary: `${activeAbuseHolds.length} active abuse hold(s).` },
+    { id: "incidents", status: criticalIncidents.length > 0 ? "attention" : (openIncidents.length > 0 ? "watch" : "ok"), summary: `${openIncidents.length} open incident(s); ${criticalIncidents.length} critical.` },
     { id: "moderation", status: activeModerationCases.length > 0 ? "attention" : "ok", summary: `${activeModerationCases.length} active moderation case(s).` },
     { id: "reviews", status: pendingReviews.length > 0 ? "attention" : "ok", summary: `${pendingReviews.length} pending review item(s).` },
     { id: "backup", status: "ok", summary: "Backup endpoint excludes live sessions and rate-limit buckets." },
@@ -631,6 +705,8 @@ function opsForAdmin(state, viewer) {
       expiredSessionCount: expiredSessions.length,
       activeRateLimitBucketCount: activeRateLimits.length,
       activeAbuseHoldCount: activeAbuseHolds.length,
+      openIncidentCount: openIncidents.length,
+      criticalIncidentCount: criticalIncidents.length,
       pendingReviewCount: pendingReviews.length,
       activeModerationCaseCount: activeModerationCases.length,
     },
@@ -644,6 +720,7 @@ function opsForAdmin(state, viewer) {
       reviews: state.reviews.length,
       moderationCases: state.moderationCases.length,
       abuseHolds: state.abuseHolds.length,
+      incidents: state.incidents.length,
       auditEvents: state.auditEvents.length,
       notifications: state.notifications.length,
     },
@@ -653,6 +730,8 @@ function opsForAdmin(state, viewer) {
       reviewStatus: countBy(state.reviews, "status"),
       moderationStatus: countBy(state.moderationCases, "status"),
       abuseHoldStatus: countBy(state.abuseHolds, "status"),
+      incidentStatus: countBy(state.incidents, "status"),
+      incidentSeverity: countBy(state.incidents, "severity"),
     },
   });
 }
@@ -779,6 +858,7 @@ function backupForAdmin(state, viewer) {
     "reviews",
     "moderationCases",
     "abuseHolds",
+    "incidents",
     "retentionJob",
     "notifications",
     "notificationStates",
@@ -805,10 +885,10 @@ function dispatch(state, request) {
   const path = request.path;
   const body = request.body || {};
   const auth = authFromRequest(state, request.headers || {});
-  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes" && path !== "/miniapp/health") {
+  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes" && path !== "/miniapp/health" && path !== "/miniapp/monitoring/incident") {
     return { status: 401, changed: false, body: { error: auth.error } };
   }
-  const viewer = auth.userId || body.userId || "user-a";
+  const viewer = auth.userId || (path === "/miniapp/monitoring/incident" ? "monitoring-probe" : (body.userId || "user-a"));
   const limit = rateLimitFor(state, viewer, path);
   if (limit) return limit;
 
@@ -826,6 +906,12 @@ function dispatch(state, request) {
   }
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
+  }
+  if (method === "GET" && path === "/miniapp/admin/incidents") {
+    return incidentsForAdmin(state, viewer, request.query);
+  }
+  if (method === "POST" && path === "/miniapp/admin/incidents/resolve") {
+    return resolveIncidentForAdmin(state, viewer, body);
   }
   if (method === "GET" && path === "/miniapp/admin/abuse") {
     return abuseForAdmin(state, viewer, request.query);
@@ -862,6 +948,9 @@ function dispatch(state, request) {
     if (!auth.session) return { status: 401, changed: false, body: { error: "missing_session" } };
     auth.session.revokedAt = new Date().toISOString();
     return changed({ session: auth.session, state: "revoked" });
+  }
+  if (method === "POST" && path === "/miniapp/monitoring/incident") {
+    return reportIncident(state, viewer, body);
   }
   const abuseHold = abuseHoldForMutation(state, viewer, method, path, body);
   if (abuseHold) return abuseHold;
@@ -963,6 +1052,8 @@ function routeCatalog() {
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
     "GET /miniapp/admin/ops",
+    "GET /miniapp/admin/incidents",
+    "POST /miniapp/admin/incidents/resolve",
     "GET /miniapp/admin/abuse",
     "POST /miniapp/admin/abuse/hold",
     "POST /miniapp/admin/abuse/release",
@@ -970,6 +1061,7 @@ function routeCatalog() {
     "POST /miniapp/admin/moderators/grant",
     "POST /miniapp/admin/moderators/revoke",
     "POST /miniapp/admin/retention/prune",
+    "POST /miniapp/monitoring/incident",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
@@ -2054,6 +2146,8 @@ function smoke(options) {
   assert(deniedAudit.status === 403, "admin audit moderator only");
   const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedOps.status === 403, "admin ops moderator only");
+  const deniedIncidents = dispatch(state, { method: "GET", path: "/miniapp/admin/incidents", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedIncidents.status === 403, "admin incidents moderator only");
   const deniedAbuse = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedAbuse.status === 403, "admin abuse moderator only");
   const deniedModerators = dispatch(state, { method: "GET", path: "/miniapp/admin/moderators", query: new URLSearchParams(), headers: bobHeaders, body: {} });
@@ -2063,6 +2157,23 @@ function smoke(options) {
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
+  const reportedIncident = dispatch(state, { method: "POST", path: "/miniapp/monitoring/incident", query: new URLSearchParams(), headers: {}, body: { severity: "critical", source: "smoke-probe", title: "Smoke probe failed", summary: "Synthetic monitor reported a failed backend check.", route: "/miniapp/health" } });
+  assert(reportedIncident.changed === true, "monitoring incident changed");
+  assert(reportedIncident.body.incident.actorId === "monitoring-probe", "monitoring incident actor");
+  assert(reportedIncident.body.incident.severity === "critical", "monitoring incident severity");
+  const incidentHealth = dispatch(state, { method: "GET", path: "/miniapp/health", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(incidentHealth.body.status === "attention", "incident health attention");
+  assert(incidentHealth.body.criticalIncidentCount === 1, "incident health critical count");
+  const adminIncidents = dispatch(state, { method: "GET", path: "/miniapp/admin/incidents", query: new URLSearchParams("status=open"), headers, body: {} });
+  assert(adminIncidents.body.openCount === 1, "admin incidents open count");
+  assert(adminIncidents.body.items.some((item) => item.id === reportedIncident.body.incident.id), "admin incidents list report");
+  const resolvedIncident = dispatch(state, { method: "POST", path: "/miniapp/admin/incidents/resolve", query: new URLSearchParams(), headers, body: { incidentId: reportedIncident.body.incident.id, summary: "Smoke probe recovered." } });
+  assert(resolvedIncident.changed === true, "admin incident resolve changed");
+  assert(resolvedIncident.body.incident.status === "resolved", "admin incident resolved");
+  const duplicateResolve = dispatch(state, { method: "POST", path: "/miniapp/admin/incidents/resolve", query: new URLSearchParams(), headers, body: { incidentId: reportedIncident.body.incident.id } });
+  assert(duplicateResolve.changed === false, "admin duplicate incident resolve stable");
+  const resolvedHealth = dispatch(state, { method: "GET", path: "/miniapp/health", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(resolvedHealth.body.status === "ok", "resolved incident health ok");
   const adminAbuseStart = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams(), headers, body: {} });
   assert(adminAbuseStart.body.activeCount === 0, "admin abuse starts empty");
   const heldActor = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/hold", query: new URLSearchParams(), headers, body: { targetUserId: "user-b", reason: "smoke actor hold" } });
@@ -2107,6 +2218,7 @@ function smoke(options) {
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
   assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
+  assert(adminBackup.body.counts.incidents === 1, "admin backup incident count");
   assert(adminBackup.body.counts.retentionJob === 1, "admin backup retention job count");
   assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
   assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
@@ -2119,12 +2231,16 @@ function smoke(options) {
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "abuse-holds"), "admin ops abuse check");
+  assert(adminOps.body.monitoring.checks.some((item) => item.id === "incidents"), "admin ops incident check");
   assert(adminOps.body.monitoring.activeAbuseHoldCount === 0, "admin ops no active abuse holds");
+  assert(adminOps.body.monitoring.openIncidentCount === 0, "admin ops no open incidents");
   assert(adminOps.body.counts.users >= 2, "admin ops user count");
   assert(adminOps.body.counts.moderators === 1, "admin ops moderator count");
   assert(adminOps.body.counts.abuseHolds === 2, "admin ops abuse count");
+  assert(adminOps.body.counts.incidents === 1, "admin ops incident count");
   assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
   assert(adminOps.body.distributions.abuseHoldStatus.released === 2, "admin ops abuse distribution");
+  assert(adminOps.body.distributions.incidentStatus.resolved === 1, "admin ops incident distribution");
   state.sessions["session-expired-prune"] = { id: "session-expired-prune", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
   state.rateLimits["user-a:/miniapp/old"] = { key: "user-a:/miniapp/old", count: 9, resetAt: "2000-01-01T00:00:00.000Z" };
   state.auditEvents.push({ ...audit("audit-old-retention", "ops", "Old audit", "Old audit should be pruned.", "user-a", "ops:retention", "", "old", "private"), timestamp: "2000-01-01T00:00:00.000Z" });
