@@ -1441,6 +1441,7 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "\{unread.length()} unread agent and town events; \{reviews.length()} review run; \{subscription.length()} subscription prompt.",
       ),
     ]),
+    message_backend_state_row(),
     message_bucket_row(projection),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-message-channels")], [
       @bunnia.windowed_list(
@@ -1460,6 +1461,58 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=notification_entry,
     ),
   ])
+}
+
+///|
+fn message_backend_state_row() -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-message-buckets moontown-message-sync"),
+      @bunnia.data("backend-sync", "notifications"),
+    ],
+    [
+      message_backend_state_chip(
+        label="Ack Sync",
+        endpoint_id="ack-notification",
+        path="/miniapp/messages/ack",
+        target_ref="notificationAckResult",
+      ),
+      message_backend_state_chip(
+        label="Subscribe Sync",
+        endpoint_id="request-subscription",
+        path="/miniapp/messages/subscribe",
+        target_ref="subscriptionResult",
+      ),
+    ],
+  )
+}
+
+///|
+fn message_backend_state_chip(
+  label~ : String,
+  endpoint_id~ : String,
+  path~ : String,
+  target_ref~ : String,
+) -> @bunnia.Node {
+  @bunnia.keyed(
+    "message-backend-\{endpoint_id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-message-bucket"),
+        @bunnia.data("backend-endpoint", endpoint_id),
+        @bunnia.data("backend-path", path),
+        @bunnia.data("backend-target", target_ref),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(label),
+        ]),
+        @bunnia.text(
+          "{{backendStatus.\{backend_status_key(endpoint_id)}.state || 'idle'}}",
+        ),
+      ],
+    ),
+  )
 }
 
 ///|

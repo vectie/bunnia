@@ -372,6 +372,9 @@ Current slice:
   into stable ack/subscription backend actions, so follows, interactions, and
   subscription prompts can be exercised from WeChat DevTools without per-notice
   endpoints.
+- Messages now shows tile-style notification sync plaques for ack and WeChat
+  subscription backend state, so communication actions expose local loading,
+  failed, retrying, and synced feedback without sending the user back to Home.
 - Route generation keeps backend metadata filtered to endpoints reachable from
   the rendered tab/surface, preserving JS budget as Messages, My, and backend
   loop endpoints mature.

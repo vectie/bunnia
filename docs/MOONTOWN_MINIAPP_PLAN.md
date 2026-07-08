@@ -1236,6 +1236,9 @@ Current evidence:
   notice ids, notice kinds, target refs, and building ids merged into payloads,
   so follow, interaction, review, run, and subscription prompts can be exercised
   from DevTools without creating one endpoint per notice.
+- Messages now binds those notification actions back to tile-style sync plaques
+  for ack and subscription state, so users can see local backend feedback near
+  the communication flow instead of only in the Home Backend Loop panel.
 - The WeChat adapter now emits backend endpoint metadata only for messages
   reachable from the rendered route. The full contract remains available for
   planning, but hidden tab endpoints no longer consume route JS budget.

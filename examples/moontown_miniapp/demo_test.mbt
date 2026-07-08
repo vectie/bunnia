@@ -247,6 +247,24 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
   assert_true(messages.wxml.contains("moontown-message-bucket"))
+  assert_true(messages.wxml.contains("moontown-message-sync"))
+  assert_true(messages.wxml.contains("data-backend-sync=\"notifications\""))
+  assert_true(messages.wxml.contains("Ack Sync"))
+  assert_true(messages.wxml.contains("Subscribe Sync"))
+  assert_true(
+    messages.wxml.contains("data-backend-endpoint=\"ack-notification\""),
+  )
+  assert_true(
+    messages.wxml.contains("{{backendStatus.ack_notification.state || 'idle'}}"),
+  )
+  assert_true(
+    messages.wxml.contains("data-backend-endpoint=\"request-subscription\""),
+  )
+  assert_true(
+    messages.wxml.contains(
+      "{{backendStatus.request_subscription.state || 'idle'}}",
+    ),
+  )
   assert_true(messages.wxml.contains("New Follows"))
   assert_true(messages.wxml.contains("Interactions"))
   assert_true(messages.wxml.contains("data-channel-id=\"follow\""))
