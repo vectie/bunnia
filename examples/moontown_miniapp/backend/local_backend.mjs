@@ -1490,6 +1490,7 @@ function snapshotFor(state, viewer) {
   const bookMemories = visibleBookMemories(state, books);
   const threads = visibleThreads(state, viewer);
   const notifications = visibleNotifications(state, viewer, buildings);
+  const discoveryActions = discoveryActionsFor(state, viewer);
   const agents = state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId));
   const profile = profileFor(state, viewer);
   return {
@@ -1511,10 +1512,18 @@ function snapshotFor(state, viewer) {
     notifications,
     notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
     subscriptions: state.subscriptions.filter((item) => item.userId === viewer),
+    discoveryActions,
     moderationCases: state.moderationCases.filter((item) => item.reporterId === viewer || buildings.some((building) => building.id === item.buildingId)),
     shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
   };
+}
+
+function discoveryActionsFor(state, viewer) {
+  return state.discoveryActions
+    .filter((item) => item.userId === viewer)
+    .slice(-20)
+    .reverse();
 }
 
 function visibleMessages(state, viewer) {
@@ -1591,6 +1600,7 @@ function ownershipFor(state, viewer) {
   const notifications = visibleNotifications(state, viewer, buildings);
   const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
   const subscriptions = state.subscriptions.filter((item) => item.userId === viewer);
+  const discoveryActions = discoveryActionsFor(state, viewer);
   const stats = [
     { id: "buildings", label: "Buildings", value: buildings.length },
     { id: "placements", label: "Placed", value: placements.length },
@@ -1600,6 +1610,7 @@ function ownershipFor(state, viewer) {
     { id: "agents", label: "Agents", value: agents.length },
     { id: "threads", label: "Threads", value: threads.length },
     { id: "watches", label: "Watches", value: subscriptions.filter((item) => item.targetRef !== "subscription:wechat").length },
+    { id: "discovery-actions", label: "Actions", value: discoveryActions.length },
   ];
   const items = [
     ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility), actionMessageForBuilding(item))),
@@ -1614,6 +1625,7 @@ function ownershipFor(state, viewer) {
     ...subscriptions
       .filter((item) => item.targetRef !== "subscription:wechat")
       .map((item) => ownedItem("watch", item.id, targetTitleForRef(state, item.targetRef), "Public town updates are watched.", item.targetRef, "watching", item.status, "Open", actionMessageForTargetRef(item.targetRef))),
+    ...discoveryActions.map((item) => ownedItem("discovery-action", item.id, item.title, `${item.kind} discovery ${item.action}.`, item.targetRef, item.kind, item.status, actionLabelForDiscoveryAction(item.action), actionMessageForTargetRef(item.targetRef))),
   ];
   const alerts = [];
   if (!profile.setupCompleted || !profile.consentAccepted) {
@@ -1642,11 +1654,19 @@ function ownershipFor(state, viewer) {
     notifications,
     notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
     subscriptions,
+    discoveryActions,
   };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
   return { id, kind, title, summary, targetRef, visibility, status, actionLabel, actionMessage };
+}
+
+function actionLabelForDiscoveryAction(action) {
+  if (action === "request") return "Answer";
+  if (action === "join") return "Join";
+  if (action === "read") return "Read";
+  return "Open";
 }
 
 function actionMessageForTargetRef(targetRef) {
@@ -2915,6 +2935,8 @@ function smoke(options) {
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "subscription:wechat" && item.status === "requested"), "snapshot subscription");
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "snapshot public watch");
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "circle:ai-exploration-camp" && item.status === "watching"), "snapshot public circle watch");
+  assert(snapshot.body.discoveryActions.some((item) => item.targetRef === "product:agent-publishing-kit" && item.action === "open"), "snapshot discovery action");
+  assert(snapshot.body.discoveryActions.some((item) => item.targetRef === "review:review-policy-memory" && item.action === "request"), "snapshot demand action");
   assert(snapshot.body.threads.some((item) => item.id === "thread-policy-hall"), "snapshot policy thread");
   assert(snapshot.body.threads.some((item) => item.id === "thread-smoke-lab" && item.visibility === "published"), "snapshot published thread");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
@@ -2935,6 +2957,7 @@ function smoke(options) {
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "subscription:wechat"), "ownership subscription");
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "ownership public watch");
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "circle:ai-exploration-camp" && item.status === "watching"), "ownership public circle watch");
+  assert(ownership.body.discoveryActions.some((item) => item.targetRef === "run:run-policy-review" && item.action === "join"), "ownership discovery action");
   assert(ownership.body.threads.some((item) => item.id === "thread-smoke-lab"), "ownership thread");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
@@ -2947,8 +2970,10 @@ function smoke(options) {
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   assert(ownership.body.stats.some((item) => item.id === "threads" && item.value >= 1), "ownership threads");
   assert(ownership.body.stats.some((item) => item.id === "watches" && item.value === 2), "ownership watches");
+  assert(ownership.body.stats.some((item) => item.id === "discovery-actions" && item.value >= 3), "ownership discovery action stat");
   assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "building:policy-hall"), "ownership watch item");
   assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "circle:ai-exploration-camp"), "ownership circle watch item");
+  assert(ownership.body.items.some((item) => item.kind === "discovery-action" && item.targetRef === "product:agent-publishing-kit" && item.actionLabel === "Open"), "ownership discovery item");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");
