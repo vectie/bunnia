@@ -452,14 +452,94 @@ function actionForVisibility(visibility) {
 
 function discoverItems(state, viewer, query) {
   const needle = String(query || "").toLowerCase();
-  return visibleBuildings(state, viewer)
-    .filter((item) => item.visibility === "published")
-    .filter((item) => matches(item, needle))
-    .map((item) => ({ id: `building-${item.id}`, kind: "building", title: item.title, summary: item.summary, targetRef: `building:${item.id}`, visibility: item.visibility, status: item.status }));
+  const buildings = publicDiscoverBuildings(state, viewer);
+  const buildingIds = new Set(buildings.map((item) => item.id));
+  const items = [
+    ...buildings.map((item) => ({
+      id: `building-${item.id}`,
+      kind: "building",
+      title: item.title,
+      summary: item.summary,
+      targetRef: `building:${item.id}`,
+      visibility: item.visibility,
+      status: item.status,
+    })),
+    ...publicDiscoverUsers(state, viewer).map((item) => ({
+      id: `user-${item.id}`,
+      kind: "user",
+      title: item.name,
+      summary: `Town ${item.roleId || "member"} with public profile readiness.`,
+      targetRef: `user:${item.id}`,
+      visibility: item.id === viewer ? "personal" : "published",
+      status: "stable",
+    })),
+    ...state.agents
+      .filter((item) => buildingIds.has(item.buildingId))
+      .map((item) => ({
+        id: `agent-${item.id}`,
+        kind: "agent",
+        title: item.name,
+        summary: `Agent attached to ${item.buildingId}.`,
+        targetRef: `agent:${item.id}`,
+        visibility: "published",
+        status: item.status,
+      })),
+    ...state.books
+      .filter((item) => item.visibility === "published" && buildingIds.has(item.buildingId))
+      .map((item) => ({
+        id: `book-${item.id}`,
+        kind: "book",
+        title: item.title,
+        summary: item.summary,
+        targetRef: `book:${item.id}`,
+        visibility: item.visibility,
+        status: item.status,
+      })),
+    ...state.reviews
+      .filter((item) => item.status === "pending" && buildingIds.has(item.buildingId))
+      .map((item) => ({
+        id: `demand-${item.id}`,
+        kind: "demand",
+        title: item.title,
+        summary: item.summary,
+        targetRef: `review:${item.id}`,
+        visibility: "published",
+        status: item.status,
+      })),
+    ...state.runs
+      .filter((item) => buildingIds.has(item.buildingId))
+      .map((item) => ({
+        id: `event-${item.id}`,
+        kind: "event",
+        title: item.title,
+        summary: item.summary,
+        targetRef: `run:${item.id}`,
+        visibility: "published",
+        status: item.status,
+      })),
+  ];
+  return items.filter((item) => discoverMatch(item, needle));
 }
 
-function matches(item, needle) {
-  return !needle || item.title.toLowerCase().includes(needle) || item.summary.toLowerCase().includes(needle) || item.tags.some((tag) => tag.toLowerCase().includes(needle));
+function publicDiscoverBuildings(state, viewer) {
+  return visibleBuildings(state, viewer).filter((item) => item.visibility === "published");
+}
+
+function publicDiscoverUsers(state, viewer) {
+  return state.users.filter((item) => {
+    if (item.id === viewer) return true;
+    const profileItem = state.profiles.find((profile) => profile.userId === item.id);
+    return profileItem && profileItem.setupCompleted && profileItem.consentAccepted;
+  });
+}
+
+function discoverMatch(item, needle) {
+  return !needle ||
+    item.kind.toLowerCase().includes(needle) ||
+    item.title.toLowerCase().includes(needle) ||
+    item.summary.toLowerCase().includes(needle) ||
+    item.targetRef.toLowerCase().includes(needle) ||
+    item.status.toLowerCase().includes(needle);
 }
 
 function createBuilding(state, viewer, body) {
@@ -645,6 +725,9 @@ function smoke(options) {
   assert(!chenSnapshot.body.messages.some((item) => item.threadId === "thread-private-agent-lab"), "private messages hidden from uninvited user");
   const privateSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=shared"), headers: bobHeaders, body: {} });
   assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
+  assert(!privateSearch.body.items.some((item) => item.targetRef === "book:book-shared-lab"), "shared private book hidden from public search");
+  const userSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=chen"), headers: registeredHeaders, body: {} });
+  assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
@@ -655,6 +738,11 @@ function smoke(options) {
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   const search = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=smoke"), headers, body: {} });
   assert(search.body.items.some((item) => item.targetRef === "building:smoke-lab"), "published search");
+  const agentSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=agent"), headers, body: {} });
+  assert(agentSearch.body.items.some((item) => item.kind === "agent"), "agent search");
+  assert(agentSearch.body.items.some((item) => item.kind === "book"), "book search");
+  const reviewSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=review"), headers, body: {} });
+  assert(reviewSearch.body.items.some((item) => item.kind === "demand"), "review demand search");
   const placed = dispatch(state, { method: "POST", path: "/miniapp/buildings/place", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab" } });
   assert(placed.body.placement.buildingId === "published-agent-lab", "place building");
   const asked = dispatch(state, { method: "POST", path: "/miniapp/buildings/query", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "smoke?" } });

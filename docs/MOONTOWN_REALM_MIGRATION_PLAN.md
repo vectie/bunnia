@@ -229,7 +229,9 @@ Done when:
 - search stays responsive with large fixtures
 
 Current status: Discover has tile-style filters and non-generic people/circle
-spotlights.
+spotlights. The local backend search now returns public buildings, users,
+agents, books, review demands, and run events while keeping private and
+shared-private work out of public results.
 
 ### R5: Building Lifecycle And Books
 
@@ -345,7 +347,8 @@ instead of returning a throwaway profile object. Shared-private local buildings
 now use explicit share grants, so invited users can see them while uninvited
 users and public search cannot. Message send is also persisted locally through
 `/miniapp/messages/send`, and snapshots only return messages attached to
-buildings the viewer can see.
+buildings the viewer can see. Discover search now exercises multi-kind public
+results instead of a building-only route.
 
 ### R9: Style And Performance Hardening
 
