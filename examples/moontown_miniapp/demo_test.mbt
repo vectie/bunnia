@@ -287,6 +287,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     discover.wxml.contains("data-target-ref=\"building:published-agent-lab\""),
   )
   assert_true(discover.wxml.contains("data-placement-state=\"not-placed\""))
+  assert_true(discover.wxml.contains("data-placement-layer=\"personal\""))
+  assert_true(discover.wxml.contains("data-placement-source=\"discover\""))
+  assert_true(discover.wxml.contains("data-placement-x=\"538\""))
+  assert_true(discover.wxml.contains("data-placement-y=\"528\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(
@@ -792,6 +796,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"}",
     ),
   )
@@ -1154,6 +1163,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   let published_steps = publication_steps(published)
   assert_true(published_steps[4].current)
   assert_true(published_steps[4].complete)
+  let placeable_before_pin = switch_discovery_filter(published, "placeable")
   let placed = place_published_building(published, "published-agent-lab")
   assert_eq(placed.selected_building_id, "published-agent-lab")
   assert_eq(placed.buildings.length(), published.buildings.length())
@@ -1162,6 +1172,17 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(placed_buildings(placed).length(), 2)
   assert_true(placement_for_building(placed, "published-agent-lab") is Some(_))
   assert_eq(selected_building_audit_events(placed).length(), 2)
+  let placed_placeable = switch_discovery_filter(placed, "placeable")
+  assert_eq(
+    filtered_discovery_results(placed_placeable).length(),
+    filtered_discovery_results(placeable_before_pin).length() - 1,
+  )
+  for item in filtered_discovery_results(placed_placeable) {
+    assert_true(item.target_ref != "building:published-agent-lab")
+  }
+  let placed_discover = tab_page(placed, "discover")
+  assert_true(placed_discover.wxml.contains("Pinned On Map"))
+  assert_true(placed_discover.wxml.contains("data-placement-state=\"pinned\""))
   let duplicate_placed = place_published_building(placed, "published-agent-lab")
   assert_eq(duplicate_placed.placements.length(), placed.placements.length())
   let archived = archive_selected_building(published)

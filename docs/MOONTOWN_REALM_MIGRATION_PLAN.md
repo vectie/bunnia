@@ -311,7 +311,10 @@ circle, and market spotlights. The local backend search now returns public
 buildings, users, agents, books, products, review demands, run events, and
 public posts while keeping private and shared-private work out of public
 results. This keeps the realm as the map and moves the remaining maturity work
-into the market-board/search surface.
+into the market-board/search surface. Placeable discovery rows now carry the
+target layer, source, and map coordinates, and already pinned buildings drop out
+of the placeable filter so placement remains a real map-layer action rather
+than a generic button.
 
 ### R5: Building Lifecycle And Books
 
