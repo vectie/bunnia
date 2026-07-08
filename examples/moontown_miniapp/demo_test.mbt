@@ -18,8 +18,18 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-map-marker"))
   assert_true(page.wxml.contains("moontown-thread-pin"))
   assert_true(page.wxml.contains("moontown-topbar"))
+  assert_true(page.wxml.contains("moontown-left-hud"))
   assert_true(page.wxml.contains("moontown-right-hud"))
   assert_true(page.wxml.contains("moontown-bottom-hud"))
+  assert_true(page.wxml.contains("moontown-tabbar"))
+  assert_true(page.wxml.contains("data-map-surface=\"true\""))
+  assert_true(page.wxml.contains("First Visit"))
+  assert_true(page.wxml.contains("Realm is the map"))
+  assert_true(page.wxml.contains("Map Districts"))
+  assert_true(page.wxml.contains("Product Market"))
+  assert_true(page.wxml.contains("Discover"))
+  assert_true(page.wxml.contains("Messages"))
+  assert_true(page.wxml.contains("My Town"))
   assert_true(page.wxml.contains("moontown-building-drawer"))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
@@ -41,9 +51,14 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxss.contains(".moontown-map-backfill"))
   assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
   assert_true(page.wxss.contains("width: 2800rpx; height: 1760rpx;"))
+  assert_true(page.wxss.contains(".moontown-left-hud"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
   assert_true(page.wxss.contains(".moontown-bottom-hud"))
+  assert_true(page.wxss.contains(".moontown-tabbar"))
+  assert_true(page.wxss.contains(".moontown-tab-button.active"))
   assert_true(page.js.contains("__bunniaEventPatches"))
+  assert_true(page.js.contains("\"tab-realm\""))
+  assert_true(page.js.contains("\"complete-onboarding\""))
   assert_true(page.js.contains("\"switch-user-a\""))
   assert_true(page.js.contains("\"switch-user-b\""))
   assert_true(page.js.contains("\"dev-login\""))
@@ -73,7 +88,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
   assert_true(page.plan.scene_asset_count == 2)
-  assert_true(page.plan.windowed_list_count >= 2)
+  assert_true(page.plan.windowed_list_count >= 7)
 }
 
 ///|
@@ -138,6 +153,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"publishDraft\":{\"buildingId\":\"created-agent-lab\"}",
     ),
   )
@@ -166,9 +186,21 @@ test "moontown miniapp generates wechat project with backend hooks" {
 test "moontown miniapp projection supports mock user create search and agent flows" {
   let projection = demo_projection()
   assert_eq(projection.users.length(), 2)
+  assert_eq(projection.tabs.length(), 5)
+  assert_eq(projection.active_tab_id, "realm")
+  assert_true(projection.tabs[2].map_surface)
+  assert_eq(projection.onboarding_steps.length(), 4)
+  assert_eq(projection.districts.length(), 4)
+  assert_eq(projection.notifications.length(), 3)
+  assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(search_results(projection).length(), 1)
+  assert_eq(owned_buildings(projection).length(), 1)
+  let tabbed = switch_tab(projection, "discover")
+  assert_eq(tabbed.active_tab_id, "discover")
+  let onboarded = complete_onboarding(projection)
+  assert_true(onboarded.onboarding_completed)
   let switched = switch_mock_user(projection, "user-b")
   assert_eq(switched.active_user_id, "user-b")
   assert_true(visible_buildings(switched).length() >= 8)

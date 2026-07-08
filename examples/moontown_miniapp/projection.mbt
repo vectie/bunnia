@@ -37,16 +37,59 @@ pub struct MiniTownMessage {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownTab {
+  id : String
+  label : String
+  map_surface : Bool
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownOnboardingStep {
+  id : String
+  title : String
+  body : String
+  building_id : String
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownDistrict {
+  id : String
+  title : String
+  building_id : String
+  summary : String
+  stat_label : String
+  stat_value : String
+  status : String
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownNotification {
+  id : String
+  kind : String
+  title : String
+  body : String
+  target_ref : String
+  unread : Bool
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
   organization_id : String
+  active_tab_id : String
+  onboarding_completed : Bool
+  role_id : String
   selected_building_id : String
   search_query : String
   users : Array[MiniTownUser]
+  tabs : Array[MiniTownTab]
+  onboarding_steps : Array[MiniTownOnboardingStep]
+  districts : Array[MiniTownDistrict]
   buildings : Array[MiniTownBuilding]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
+  notifications : Array[MiniTownNotification]
 } derive(Debug, Eq)
 
 ///|
@@ -105,17 +148,67 @@ pub fn mini_town_message(
 }
 
 ///|
+pub fn mini_town_tab(
+  id~ : String,
+  label~ : String,
+  map_surface? : Bool = false,
+) -> MiniTownTab {
+  { id, label, map_surface }
+}
+
+///|
+pub fn mini_town_onboarding_step(
+  id~ : String,
+  title~ : String,
+  body~ : String,
+  building_id~ : String,
+) -> MiniTownOnboardingStep {
+  { id, title, body, building_id }
+}
+
+///|
+pub fn mini_town_district(
+  id~ : String,
+  title~ : String,
+  building_id~ : String,
+  summary~ : String,
+  stat_label~ : String,
+  stat_value~ : String,
+  status~ : String,
+) -> MiniTownDistrict {
+  { id, title, building_id, summary, stat_label, stat_value, status }
+}
+
+///|
+pub fn mini_town_notification(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  body~ : String,
+  target_ref~ : String,
+  unread? : Bool = true,
+) -> MiniTownNotification {
+  { id, kind, title, body, target_ref, unread }
+}
+
+///|
 pub fn demo_projection() -> MiniTownProjection {
   {
     id: "moontown-miniapp",
     active_user_id: "user-a",
     organization_id: "org-a",
+    active_tab_id: "realm",
+    onboarding_completed: false,
+    role_id: "builder",
     selected_building_id: "policy-hall",
     search_query: "agent",
     users: [
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
     ],
+    tabs: demo_tabs(),
+    onboarding_steps: demo_onboarding_steps(),
+    districts: demo_districts(),
     buildings: demo_buildings(),
     agents: [
       mini_town_agent(
@@ -159,7 +252,119 @@ pub fn demo_projection() -> MiniTownProjection {
         status=@bunnia.run_running(),
       ),
     ],
+    notifications: demo_notifications(),
   }
+}
+
+///|
+fn demo_tabs() -> Array[MiniTownTab] {
+  [
+    mini_town_tab(id="home", label="Home"),
+    mini_town_tab(id="discover", label="Discover"),
+    mini_town_tab(id="realm", label="Realm", map_surface=true),
+    mini_town_tab(id="messages", label="Messages"),
+    mini_town_tab(id="my", label="My"),
+  ]
+}
+
+///|
+fn demo_onboarding_steps() -> Array[MiniTownOnboardingStep] {
+  [
+    mini_town_onboarding_step(
+      id="welcome",
+      title="Enter Moontown",
+      body="Start from the tile town map and let agents guide each building.",
+      building_id="gateway",
+    ),
+    mini_town_onboarding_step(
+      id="inspiration",
+      title="Read the town pulse",
+      body="Shared discoveries appear as activity around buildings and books.",
+      building_id="knowledge-house",
+    ),
+    mini_town_onboarding_step(
+      id="districts",
+      title="Use feature districts",
+      body="Markets, demands, events, and guides are real places on the map.",
+      building_id="market-square",
+    ),
+    mini_town_onboarding_step(
+      id="navigation",
+      title="Realm is the map",
+      body="The Realm tab always returns to this same full-screen town.",
+      building_id="policy-hall",
+    ),
+  ]
+}
+
+///|
+fn demo_districts() -> Array[MiniTownDistrict] {
+  [
+    mini_town_district(
+      id="product-market",
+      title="Product Market",
+      building_id="market-square",
+      summary="Published building and product showcase.",
+      stat_label="products",
+      stat_value="20",
+      status="running",
+    ),
+    mini_town_district(
+      id="demand-hall",
+      title="Demand Hall",
+      building_id="review-council",
+      summary="Requests, reviews, and agent jobs.",
+      stat_label="demands",
+      stat_value="34",
+      status="review",
+    ),
+    mini_town_district(
+      id="event-calendar",
+      title="Event Calendar",
+      building_id="team-studio",
+      summary="Team and public town activities.",
+      stat_label="events",
+      stat_value="6",
+      status="shared",
+    ),
+    mini_town_district(
+      id="city-guide",
+      title="City Guide",
+      building_id="gateway",
+      summary="Search, onboarding, and safe routing.",
+      stat_label="guides",
+      stat_value="4",
+      status="stable",
+    ),
+  ]
+}
+
+///|
+fn demo_notifications() -> Array[MiniTownNotification] {
+  [
+    mini_town_notification(
+      id="notice-review",
+      kind="review",
+      title="Memory review needed",
+      body="Policy Hall has an accepted answer waiting for book review.",
+      target_ref="thread-policy-hall",
+    ),
+    mini_town_notification(
+      id="notice-publish",
+      kind="publish",
+      title="Draft ready to publish",
+      body="Private Agent Lab can be submitted after profile consent.",
+      target_ref="building-private-agent-lab",
+    ),
+    mini_town_notification(
+      id="notice-share",
+      kind="share",
+      title="Team building shared",
+      body="Team Studio is visible to organization members.",
+      target_ref="building-team-studio",
+      unread=false,
+    ),
+  ]
 }
 
 ///|
@@ -373,6 +578,21 @@ pub fn switch_mock_user(
 }
 
 ///|
+pub fn switch_tab(
+  projection : MiniTownProjection,
+  tab_id : String,
+) -> MiniTownProjection {
+  { ..projection, active_tab_id: tab_id }
+}
+
+///|
+pub fn complete_onboarding(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  { ..projection, onboarding_completed: true }
+}
+
+///|
 pub fn create_private_building(
   projection : MiniTownProjection,
   id : String,
@@ -410,4 +630,30 @@ pub fn create_agent_for_selected(
     status="idle",
   )
   { ..projection, agents: projection.agents + [agent] }
+}
+
+///|
+pub fn owned_buildings(
+  projection : MiniTownProjection,
+) -> Array[MiniTownBuilding] {
+  let output : Array[MiniTownBuilding] = []
+  for building in projection.buildings {
+    if building.owner_id == projection.active_user_id {
+      output.push(building)
+    }
+  }
+  output
+}
+
+///|
+pub fn unread_notifications(
+  projection : MiniTownProjection,
+) -> Array[MiniTownNotification] {
+  let output : Array[MiniTownNotification] = []
+  for notice in projection.notifications {
+    if notice.unread {
+      output.push(notice)
+    }
+  }
+  output
 }

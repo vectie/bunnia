@@ -14,8 +14,10 @@ pub fn mini_town_view(projection : MiniTownProjection) -> @bunnia.Node {
       [
         town_map_surface(projection),
         town_top_bar(projection),
+        town_left_hud(projection),
         town_right_hud(projection),
         town_bottom_hud(projection),
+        town_tabbar(projection),
       ],
     ),
   ])
@@ -79,6 +81,14 @@ fn moontown_wxss() -> String {
   ".moontown-user-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
   ".moontown-user-switcher text { color: #334538; font-size: 20rpx; }\n" +
   ".moontown-user-switcher button, .moontown-building-drawer button, .moontown-search-drawer button, .moontown-create-drawer button, .moontown-chat-drawer button { min-height: 46rpx; margin: 0; padding: 0 14rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 46rpx; }\n" +
+  ".moontown-left-hud { position: absolute; z-index: 7; left: 22rpx; top: 126rpx; width: 338rpx; max-height: calc(100vh - 252rpx); display: flex; flex-direction: column; gap: 12rpx; overflow: hidden; }\n" +
+  ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
+  ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
+  ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
+  ".moontown-onboarding-step, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-onboarding-step text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
+  ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-building-drawer text:first-child, .moontown-chat-drawer > text:first-child { display: block; margin-bottom: 6rpx; color: #1f3327; font-size: 26rpx; font-weight: 800; }\n" +
@@ -87,7 +97,7 @@ fn moontown_wxss() -> String {
   ".moontown-chat-drawer .bunnia-message-feed-windowed { max-height: 170rpx; overflow: hidden; }\n" +
   ".moontown-chat-drawer .bunnia-message { padding: 10rpx 12rpx; margin-bottom: 8rpx; background: rgba(255,255,255,0.78); font-size: 20rpx; }\n" +
   ".moontown-chat-drawer .bunnia-review { margin-top: 8rpx; padding: 10rpx; gap: 8rpx; background: rgba(255,255,255,0.68); }\n" +
-  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; bottom: 22rpx; display: grid; grid-template-columns: 1fr 220rpx 220rpx; gap: 12rpx; align-items: end; }\n" +
+  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; bottom: 104rpx; display: grid; grid-template-columns: 1fr 220rpx 220rpx; gap: 12rpx; align-items: end; }\n" +
   ".moontown-visibility-strip { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(37, 55, 43, 0.72); box-shadow: 0 10rpx 24rpx rgba(26, 39, 31, 0.18); }\n" +
   ".moontown-visibility-strip .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-visibility-chip { flex: 0 0 auto; max-width: 180rpx; padding: 8rpx 10rpx; border: 1rpx solid rgba(255,255,255,0.32); border-radius: 6rpx; background: rgba(255, 248, 220, 0.92); color: #27372b; font-size: 18rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -95,7 +105,10 @@ fn moontown_wxss() -> String {
   ".moontown-search-result { padding: 8rpx 0; border-top: 1rpx solid rgba(52, 65, 55, 0.16); }\n" +
   ".moontown-create-drawer form { display: block; margin-bottom: 8rpx; }\n" +
   ".moontown-create-drawer form:last-child { margin-bottom: 0; }\n" +
-  "@media (max-width: 520px) { .moontown-right-hud { top: 128rpx; right: 16rpx; width: 276rpx; } .moontown-bottom-hud { grid-template-columns: 1fr; } .moontown-search-drawer, .moontown-create-drawer { display: none; } }"
+  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: 18rpx; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.86); box-shadow: 0 12rpx 30rpx rgba(16, 28, 20, 0.28); }\n" +
+  ".moontown-tab-button { min-height: 56rpx; padding: 0 6rpx; border: 1rpx solid rgba(255,248,220,0.3); border-radius: 6rpx; background: rgba(255,248,220,0.16); color: #fff8dc; font-size: 18rpx; line-height: 56rpx; }\n" +
+  ".moontown-tab-button.active { background: #fff8dc; color: #243629; font-weight: 800; }\n" +
+  "@media (max-width: 520px) { .moontown-left-hud { left: 16rpx; top: 128rpx; width: 260rpx; max-height: 302rpx; } .moontown-right-hud { top: 128rpx; right: 16rpx; width: 276rpx; } .moontown-bottom-hud { grid-template-columns: 1fr; bottom: 102rpx; } .moontown-search-drawer, .moontown-create-drawer { display: none; } }"
 }
 
 ///|
@@ -104,6 +117,18 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
   let patches : Array[@bunnia.WechatEventPatch] = []
   patches.push(@bunnia.wechat_event_patch("dev-login", []))
   patches.push(@bunnia.wechat_event_patch("load-town-snapshot", []))
+  patches.push(
+    @bunnia.wechat_event_patch("complete-onboarding", [
+      @bunnia.set_string("shell.onboardingCompleted", "true"),
+    ]),
+  )
+  for tab in projection.tabs {
+    patches.push(
+      @bunnia.wechat_event_patch("tab-\{tab.id}", [
+        @bunnia.set_string("shell.activeTab", tab.id),
+      ]),
+    )
+  }
   for building in visible_buildings(projection) {
     patches.push(select_building_patch(building))
     patches.push(open_building_thread_patch(building))
@@ -678,6 +703,270 @@ fn town_right_hud(projection : MiniTownProjection) -> @bunnia.Node {
 }
 
 ///|
+fn town_left_hud(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-left-hud"),
+      @bunnia.data("active-tab", projection.active_tab_id),
+      @bunnia.data(
+        "onboarding-completed",
+        if projection.onboarding_completed {
+          "true"
+        } else {
+          "false"
+        },
+      ),
+    ],
+    [
+      onboarding_panel(projection),
+      district_panel(projection),
+      discover_panel(projection),
+      messages_panel(projection),
+      profile_panel(projection),
+    ],
+  )
+}
+
+///|
+fn onboarding_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("First Visit")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text("Tile-town onboarding before entering Realm."),
+    ]),
+    @bunnia.windowed_list(
+      projection.onboarding_steps,
+      total_count=projection.onboarding_steps.length(),
+      render=onboarding_step_entry,
+    ),
+    @bunnia.button("Enter Realm", "complete-onboarding"),
+  ])
+}
+
+///|
+fn onboarding_step_entry(step : MiniTownOnboardingStep) -> @bunnia.Node {
+  @bunnia.keyed(
+    "onboarding-\{step.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-onboarding-step"),
+        @bunnia.data("building-id", step.building_id),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(step.title),
+        ]),
+        @bunnia.text(step.body),
+      ],
+    ),
+  )
+}
+
+///|
+fn district_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Map Districts")],
+    ),
+    @bunnia.windowed_list(
+      projection.districts,
+      total_count=projection.districts.length(),
+      render=district_entry,
+    ),
+  ])
+}
+
+///|
+fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
+  @bunnia.keyed(
+    "district-\{district.id}",
+    @bunnia.node(
+      kind="view",
+      attrs=[
+        @bunnia.class_name(
+          "moontown-district-entry bunnia-status-\{district.status}",
+        ),
+        @bunnia.data("building-id", district.building_id),
+      ],
+      events=[@bunnia.event("tap", "select-\{district.building_id}")],
+      children=[
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(district.title),
+        ]),
+        @bunnia.text(district.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{district.stat_value} \{district.stat_label}"),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let results = search_results(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Discover")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text("Search buildings, agents, books, events, and demands."),
+    ]),
+    @bunnia.windowed_list(
+      results,
+      total_count=results.length(),
+      render=discover_entry,
+    ),
+  ])
+}
+
+///|
+fn discover_entry(building : MiniTownBuilding) -> @bunnia.Node {
+  @bunnia.keyed(
+    "discover-\{building.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-discover-entry"),
+        @bunnia.data("building-id", building.id),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(building.title),
+        ]),
+        @bunnia.text(building.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text(building.visibility),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let unread = unread_notifications(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Messages")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text("\{unread.length()} unread agent and town events."),
+    ]),
+    @bunnia.windowed_list(
+      projection.notifications,
+      total_count=projection.notifications.length(),
+      render=notification_entry,
+    ),
+  ])
+}
+
+///|
+fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
+  @bunnia.keyed(
+    "notice-\{notice.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-notice-entry"),
+        @bunnia.data("notice-kind", notice.kind),
+        @bunnia.data("target-ref", notice.target_ref),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(notice.title),
+        ]),
+        @bunnia.text(notice.body),
+      ],
+    ),
+  )
+}
+
+///|
+fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let owned = owned_buildings(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("My Town")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(
+        "role: \{projection.role_id}; owned buildings: \{owned.length()}",
+      ),
+    ]),
+    @bunnia.windowed_list(
+      owned,
+      total_count=owned.length(),
+      render=owned_building_entry,
+    ),
+  ])
+}
+
+///|
+fn owned_building_entry(building : MiniTownBuilding) -> @bunnia.Node {
+  @bunnia.keyed(
+    "owned-\{building.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-owned-entry"),
+        @bunnia.data("building-id", building.id),
+        @bunnia.data("visibility", building.visibility),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(building.title),
+        ]),
+        @bunnia.text(building.visibility),
+      ],
+    ),
+  )
+}
+
+///|
+fn town_tabbar(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-tabbar")], [
+    @bunnia.list(projection.tabs, fn(tab) {
+      tab_button(tab, projection.active_tab_id)
+    }),
+  ])
+}
+
+///|
+fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
+  @bunnia.keyed(
+    "tab-\{tab.id}",
+    @bunnia.node(
+      kind="button",
+      attrs=[
+        @bunnia.class_name(
+          if tab.id == active_tab_id {
+            "moontown-tab-button active"
+          } else {
+            "moontown-tab-button"
+          },
+        ),
+        @bunnia.data("tab-id", tab.id),
+        @bunnia.data(
+          "map-surface",
+          if tab.map_surface {
+            "true"
+          } else {
+            "false"
+          },
+        ),
+      ],
+      events=[@bunnia.tap("tab-\{tab.id}")],
+      children=[@bunnia.text(tab.label)],
+    ),
+  )
+}
+
+///|
 fn town_bottom_hud(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-bottom-hud")], [
     visibility_strip(projection),
@@ -925,5 +1214,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"buildingSearch\":{\"query\":\"policy\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"}}"
 }

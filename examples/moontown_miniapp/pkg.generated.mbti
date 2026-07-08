@@ -12,6 +12,8 @@ import {
 }
 
 // Values
+pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
+
 pub fn create_agent_for_selected(MiniTownProjection, String, String) -> MiniTownProjection
 
 pub fn create_private_building(MiniTownProjection, String, String) -> MiniTownProjection
@@ -60,11 +62,21 @@ pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, stat
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
 
+pub fn mini_town_district(id~ : String, title~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, status~ : String) -> MiniTownDistrict
+
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
+
+pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, unread? : Bool) -> MiniTownNotification
+
+pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, building_id~ : String) -> MiniTownOnboardingStep
+
+pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
 
 pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
+
+pub fn owned_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
 pub fn search_results(MiniTownProjection) -> Array[MiniTownBuilding]
 
@@ -73,6 +85,10 @@ pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 
 pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
+
+pub fn switch_tab(MiniTownProjection, String) -> MiniTownProjection
+
+pub fn unread_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
@@ -100,6 +116,16 @@ pub struct MiniTownBuilding {
   asset_ref : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownDistrict {
+  id : String
+  title : String
+  building_id : String
+  summary : String
+  stat_label : String
+  stat_value : String
+  status : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownMessage {
   id : String
   actor_id : String
@@ -108,16 +134,45 @@ pub struct MiniTownMessage {
   status : @agent.RunStatus
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownNotification {
+  id : String
+  kind : String
+  title : String
+  body : String
+  target_ref : String
+  unread : Bool
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownOnboardingStep {
+  id : String
+  title : String
+  body : String
+  building_id : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
   organization_id : String
+  active_tab_id : String
+  onboarding_completed : Bool
+  role_id : String
   selected_building_id : String
   search_query : String
   users : Array[MiniTownUser]
+  tabs : Array[MiniTownTab]
+  onboarding_steps : Array[MiniTownOnboardingStep]
+  districts : Array[MiniTownDistrict]
   buildings : Array[MiniTownBuilding]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
+  notifications : Array[MiniTownNotification]
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownTab {
+  id : String
+  label : String
+  map_surface : Bool
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownUser {
