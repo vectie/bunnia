@@ -200,6 +200,8 @@ pub fn selected_building_book_shelf(MiniTownProjection) -> Array[MiniTownBookShe
 
 pub fn selected_building_lifecycle_actions(MiniTownProjection) -> Array[MiniTownLifecycleAction]
 
+pub fn selected_building_messages(MiniTownProjection) -> Array[MiniTownMessage]
+
 pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn selected_discovery_filter(MiniTownProjection) -> MiniTownDiscoveryFilter
@@ -207,6 +209,8 @@ pub fn selected_discovery_filter(MiniTownProjection) -> MiniTownDiscoveryFilter
 pub fn selected_notification_channel(MiniTownProjection) -> MiniTownNotificationChannel
 
 pub fn selected_ownership_filter(MiniTownProjection) -> MiniTownOwnershipFilter
+
+pub fn send_message_to_selected_building(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn setup_gates(MiniTownProjection) -> Array[MiniTownSetupGate]
 
@@ -235,6 +239,8 @@ pub fn visible_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 pub fn visible_books(MiniTownProjection) -> Array[MiniTownBook]
 
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn visible_messages(MiniTownProjection) -> Array[MiniTownMessage]
 
 pub fn visible_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 

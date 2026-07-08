@@ -80,6 +80,21 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Policy answer entered review"))
   assert_true(page.wxml.contains("data-audit-id=\"audit-policy-review\""))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
+  assert_true(page.wxml.contains("data-thread-id=\"thread-policy-hall\""))
+  assert_true(
+    page.wxml.contains("data-backend-endpoint=\"send-building-message\""),
+  )
+  assert_true(
+    page.wxml.contains("data-backend-path=\"/miniapp/messages/send\""),
+  )
+  assert_true(
+    page.wxml.contains(
+      "runtime: {{backendStatus.send_building_message.state || 'idle'}}",
+    ),
+  )
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"send-building-message\""),
+  )
   assert_true(page.wxml.contains("moontown-search-drawer"))
   assert_true(page.wxml.contains("moontown-create-drawer"))
   assert_true(page.wxml.contains("data-visibility=\"private_draft\""))
@@ -569,6 +584,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/messages/send",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )
@@ -718,6 +738,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"}",
     ),
   )
@@ -837,6 +862,10 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(filtered_notifications(follow_notices).length(), 1)
   assert_eq(filtered_notifications(follow_notices)[0].kind, "follow")
   assert_eq(visible_runs(projection).length(), 4)
+  assert_eq(visible_messages(projection).length(), 3)
+  assert_eq(selected_building_messages(projection).length(), 2)
+  let bob_projection = switch_mock_user(projection, "user-b")
+  assert_eq(visible_messages(bob_projection).length(), 2)
   assert_eq(visible_reviews(projection).length(), 1)
   assert_eq(active_runs(projection).length(), 3)
   assert_eq(review_runs(projection).length(), 1)
@@ -1051,6 +1080,15 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_building_book(restored).visibility, "private_draft")
   assert_eq(selected_building(restored).status, "draft")
   assert_eq(selected_building_audit_events(restored).length(), 5)
+  let sent_message = send_message_to_selected_building(
+    projection, "Can this building publish an agent?",
+  )
+  assert_eq(selected_building_messages(sent_message).length(), 3)
+  assert_eq(
+    selected_building_messages(sent_message)[2].text,
+    "Can this building publish an agent?",
+  )
+  assert_eq(selected_building_messages(sent_message)[2].actor_id, "user-a")
   let agent_created = create_agent_for_selected(
     created, "agent-created", "Created Agent",
   )
@@ -1076,10 +1114,10 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 19)
+  assert_eq(backend.endpoint_count, 20)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
-  assert_eq(effects.effect_count, 19)
+  assert_eq(effects.effect_count, 20)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

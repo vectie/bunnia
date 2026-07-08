@@ -283,7 +283,8 @@ Done when:
 - chat updates do not force whole-page rerenders
 
 Current status: Messages has run plaques, review controls, notification sync,
-ack/subscription actions, and scoped backend metadata.
+ack/subscription actions, scoped backend metadata, and a building-thread send
+flow so user messages can be persisted against the selected map building.
 
 ### R7: My Ownership Workbench
 
@@ -342,7 +343,9 @@ buildings, books, agents, placements, and workbench alerts can be exercised
 locally. Dev login and profile save now update durable local user/profile state
 instead of returning a throwaway profile object. Shared-private local buildings
 now use explicit share grants, so invited users can see them while uninvited
-users and public search cannot.
+users and public search cannot. Message send is also persisted locally through
+`/miniapp/messages/send`, and snapshots only return messages attached to
+buildings the viewer can see.
 
 ### R9: Style And Performance Hardening
 

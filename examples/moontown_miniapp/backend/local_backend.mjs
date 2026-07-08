@@ -144,10 +144,14 @@ function loadState(statePath, resetState = false) {
 }
 
 function normalizeState(state) {
+  state.nextRun = state.nextRun || 2;
+  state.nextMessage = state.nextMessage || 2;
+  state.nextReview = state.nextReview || 2;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.shares = state.shares || [];
   state.sessions = state.sessions || {};
+  state.messages = state.messages || [];
   for (const user of state.users) {
     ensureProfile(state, user.id, { displayName: user.name, roleId: user.roleId, setupCompleted: true, consentAccepted: true });
   }
@@ -226,6 +230,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/buildings/query") {
     return askBuilding(state, viewer, body);
   }
+  if (method === "POST" && path === "/miniapp/messages/send") {
+    return sendMessage(state, viewer, body);
+  }
   if (method === "POST" && path === "/miniapp/runs/cancel") {
     return changeRunStatus(state, body.runId, "cancelled");
   }
@@ -276,6 +283,7 @@ function routeCatalog() {
     "POST /miniapp/buildings/archive",
     "POST /miniapp/buildings/restore",
     "POST /miniapp/buildings/query",
+    "POST /miniapp/messages/send",
     "POST /miniapp/runs/cancel",
     "POST /miniapp/runs/retry",
     "POST /miniapp/reviews/accept",
@@ -372,11 +380,20 @@ function snapshotFor(state, viewer) {
     agents: state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     runs: state.runs.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
-    messages: state.messages,
+    messages: visibleMessages(state, viewer),
     notifications: state.notifications,
     shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
   };
+}
+
+function visibleMessages(state, viewer) {
+  const visibleIds = new Set(visibleBuildings(state, viewer).map((item) => item.id));
+  return state.messages.filter((item) => visibleIds.has(buildingIdFromThread(item.threadId)));
+}
+
+function buildingIdFromThread(threadId) {
+  return String(threadId || "").replace(/^thread-/, "");
 }
 
 function ownershipFor(state, viewer) {
@@ -522,6 +539,23 @@ function askBuilding(state, viewer, body) {
   return changed({ run, message, review });
 }
 
+function sendMessage(state, viewer, body) {
+  const buildingId = body.buildingId || "policy-hall";
+  const item = visibleBuildings(state, viewer).find((building) => building.id === buildingId);
+  if (!item) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
+  const text = String(body.body || body.text || "").trim() || `Message to ${item.title}`;
+  const message = {
+    id: `msg-local-${state.nextMessage++}`,
+    actorId: viewer,
+    threadId: body.threadId || `thread-${buildingId}`,
+    text,
+    status: "running",
+  };
+  state.messages.push(message);
+  state.auditEvents.push(audit(`audit-message-${message.id}`, "message", `${item.title} message sent`, "A user message was recorded in the building thread.", viewer, `message:${message.id}`, buildingId, "running", item.visibility));
+  return changed({ message, threadId: message.threadId, building: item });
+}
+
 function changeRunStatus(state, runId, status) {
   const run = state.runs.find((item) => item.id === runId) || state.runs[state.runs.length - 1];
   if (!run) return { status: 404, changed: false, body: { error: "missing_run", runId } };
@@ -608,6 +642,7 @@ function smoke(options) {
   assert(bobSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "invited user sees shared building");
   const chenSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(!chenSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "uninvited user cannot see shared building");
+  assert(!chenSnapshot.body.messages.some((item) => item.threadId === "thread-private-agent-lab"), "private messages hidden from uninvited user");
   const privateSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=shared"), headers: bobHeaders, body: {} });
   assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
@@ -624,10 +659,14 @@ function smoke(options) {
   assert(placed.body.placement.buildingId === "published-agent-lab", "place building");
   const asked = dispatch(state, { method: "POST", path: "/miniapp/buildings/query", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "smoke?" } });
   assert(asked.body.review.status === "pending", "query review");
+  const sent = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "hello policy hall" } });
+  assert(sent.body.message.threadId === "thread-policy-hall", "send message thread");
+  assert(sent.body.message.text === "hello policy hall", "send message text");
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
   assert(accepted.body.review.status === "accepted", "accept review");
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
+  assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");

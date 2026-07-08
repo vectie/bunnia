@@ -2009,6 +2009,25 @@ fn mini_town_run_book_visible_for(
 }
 
 ///|
+fn mini_town_message_visible_for(
+  projection : MiniTownProjection,
+  message : MiniTownMessage,
+) -> Bool {
+  let building_id = mini_town_building_id_from_thread(message.thread_id)
+  for building in visible_buildings(projection) {
+    if building.id == building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn mini_town_building_id_from_thread(thread_id : String) -> String {
+  thread_id.replace_all(old="thread-", new="")
+}
+
+///|
 pub fn selected_building(projection : MiniTownProjection) -> MiniTownBuilding {
   for building in projection.buildings {
     if building.id == projection.selected_building_id {
@@ -2038,6 +2057,34 @@ pub fn selected_building_runs(
   for run in visible_runs(projection) {
     if run.building_id == selected.id {
       output.push(run)
+    }
+  }
+  output
+}
+
+///|
+pub fn visible_messages(
+  projection : MiniTownProjection,
+) -> Array[MiniTownMessage] {
+  let output : Array[MiniTownMessage] = []
+  for message in projection.messages {
+    if mini_town_message_visible_for(projection, message) {
+      output.push(message)
+    }
+  }
+  output
+}
+
+///|
+pub fn selected_building_messages(
+  projection : MiniTownProjection,
+) -> Array[MiniTownMessage] {
+  let selected = selected_building(projection)
+  let thread_id = "thread-\{selected.id}"
+  let output : Array[MiniTownMessage] = []
+  for message in visible_messages(projection) {
+    if message.thread_id == thread_id {
+      output.push(message)
     }
   }
   output
@@ -2988,6 +3035,22 @@ pub fn restore_selected_building(
     title="\{building.title} restored",
     summary="The archived building returned to the private draft workbench.",
   )
+}
+
+///|
+pub fn send_message_to_selected_building(
+  projection : MiniTownProjection,
+  body : String,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  let message = mini_town_message(
+    id="msg-local-preview",
+    actor_id=projection.active_user_id,
+    thread_id="thread-\{building.id}",
+    text=body,
+    status=@bunnia.run_running(),
+  )
+  { ..projection, messages: projection.messages + [message] }
 }
 
 ///|
