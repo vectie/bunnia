@@ -218,6 +218,17 @@ pub struct MiniTownNotificationChannel {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownWatch {
+  id : String
+  user_id : String
+  target_ref : String
+  title : String
+  summary : String
+  status : String
+  action_message : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownDiscoveryItem {
   id : String
   kind : String
@@ -356,6 +367,7 @@ pub struct MiniTownProjection {
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   notification_channels : Array[MiniTownNotificationChannel]
+  watches : Array[MiniTownWatch]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   ownership_filters : Array[MiniTownOwnershipFilter]
@@ -735,6 +747,19 @@ pub fn mini_town_notification_channel(
 }
 
 ///|
+pub fn mini_town_watch(
+  id~ : String,
+  user_id~ : String,
+  target_ref~ : String,
+  title~ : String,
+  summary~ : String,
+  status? : String = "watching",
+  action_message? : String = "tab-discover",
+) -> MiniTownWatch {
+  { id, user_id, target_ref, title, summary, status, action_message }
+}
+
+///|
 pub fn mini_town_discovery_item(
   id~ : String,
   kind~ : String,
@@ -984,6 +1009,7 @@ pub fn demo_projection() -> MiniTownProjection {
     reviews: demo_reviews(),
     notifications: demo_notifications(),
     notification_channels: demo_notification_channels(),
+    watches: demo_watches(),
     discovery_items: demo_discovery_items(),
     discovery_filters: demo_discovery_filters(),
     ownership_filters: demo_ownership_filters(),
@@ -1731,6 +1757,20 @@ fn demo_notification_channels() -> Array[MiniTownNotificationChannel] {
 }
 
 ///|
+fn demo_watches() -> Array[MiniTownWatch] {
+  [
+    mini_town_watch(
+      id="watch-policy-hall",
+      user_id="user-a",
+      target_ref="building:policy-hall",
+      title="Policy Hall",
+      summary="Public review and book-memory updates are watched.",
+      action_message="select-policy-hall",
+    ),
+  ]
+}
+
+///|
 fn demo_ownership_filters() -> Array[MiniTownOwnershipFilter] {
   [
     mini_town_ownership_filter(id="all", label="All"),
@@ -1751,6 +1791,7 @@ fn demo_ownership_filters() -> Array[MiniTownOwnershipFilter] {
     ),
     mini_town_ownership_filter(id="books", label="Books", kind="book"),
     mini_town_ownership_filter(id="agents", label="Agents", kind="agent"),
+    mini_town_ownership_filter(id="watches", label="Watches", kind="watch"),
   ]
 }
 
@@ -4173,6 +4214,17 @@ pub fn owned_books(projection : MiniTownProjection) -> Array[MiniTownBook] {
 }
 
 ///|
+pub fn visible_watches(projection : MiniTownProjection) -> Array[MiniTownWatch] {
+  let output : Array[MiniTownWatch] = []
+  for item in projection.watches {
+    if item.user_id == projection.active_user_id {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
 pub fn ownership_stats(
   projection : MiniTownProjection,
 ) -> Array[MiniTownOwnershipStat] {
@@ -4206,6 +4258,11 @@ pub fn ownership_stats(
       id="books",
       label="Books",
       value=owned_books(projection).length(),
+    ),
+    mini_town_ownership_stat(
+      id="watches",
+      label="Watches",
+      value=visible_watches(projection).length(),
     ),
   ]
 }
@@ -4263,7 +4320,25 @@ pub fn ownership_items(
       ),
     )
   }
+  for item in visible_watches(projection) {
+    output.push(watch_ownership_item(item))
+  }
   output
+}
+
+///|
+fn watch_ownership_item(item : MiniTownWatch) -> MiniTownOwnershipItem {
+  mini_town_ownership_item(
+    id="owned-\{item.id}",
+    kind="watch",
+    title=item.title,
+    summary=item.summary,
+    target_ref=item.target_ref,
+    visibility="watching",
+    status=item.status,
+    action_label="Open",
+    action_message=item.action_message,
+  )
 }
 
 ///|

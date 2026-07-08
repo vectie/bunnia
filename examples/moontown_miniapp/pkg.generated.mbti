@@ -168,6 +168,8 @@ pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
 
+pub fn mini_town_watch(id~ : String, user_id~ : String, target_ref~ : String, title~ : String, summary~ : String, status? : String, action_message? : String) -> MiniTownWatch
+
 pub fn mini_town_workbench_alert(id~ : String, title~ : String, summary~ : String, target_ref~ : String, severity~ : String, action_label~ : String, action_message~ : String, status~ : String) -> MiniTownWorkbenchAlert
 
 pub fn owned_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
@@ -275,6 +277,8 @@ pub fn visible_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 pub fn visible_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn visible_tool_results(MiniTownProjection) -> Array[MiniTownToolResult]
+
+pub fn visible_watches(MiniTownProjection) -> Array[MiniTownWatch]
 
 pub fn workbench_alerts(MiniTownProjection) -> Array[MiniTownWorkbenchAlert]
 
@@ -556,6 +560,7 @@ pub struct MiniTownProjection {
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   notification_channels : Array[MiniTownNotificationChannel]
+  watches : Array[MiniTownWatch]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   ownership_filters : Array[MiniTownOwnershipFilter]
@@ -653,6 +658,16 @@ pub struct MiniTownToolResult {
 pub struct MiniTownUser {
   id : String
   name : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownWatch {
+  id : String
+  user_id : String
+  target_ref : String
+  title : String
+  summary : String
+  status : String
+  action_message : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownWorkbenchAlert {

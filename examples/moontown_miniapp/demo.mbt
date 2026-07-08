@@ -2719,11 +2719,11 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(
-        "role: \{projection.profile.role_id}; consent: \{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; showing: \{selected_ownership_filter(projection).label}; owned items: \{items.length()}",
+        "role:\{projection.profile.role_id}; consent:\{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; showing:\{selected_ownership_filter(projection).label}; items:\{items.length()}",
       ),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-      @bunnia.text("runtime ownership: {{ownership.filter || 'all'}}"),
+      @bunnia.text("own: {{ownership.filter || 'all'}}"),
     ]),
     profile_identity_card(projection),
     profile_credential_plaque(projection),
@@ -2785,7 +2785,7 @@ fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
-        @bunnia.text("Ownership Sync"),
+        @bunnia.text("Own Sync"),
       ]),
       @bunnia.text(step.summary),
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
@@ -2798,7 +2798,7 @@ fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
           "runtime: {{backendStatus.\{backend_status_key(step.endpoint_id)}.state || 'idle'}}",
         ),
       ]),
-      @bunnia.button("Sync Ownership", step.endpoint_id),
+      @bunnia.button("Sync", step.endpoint_id),
     ],
   )
 }
@@ -2905,8 +2905,8 @@ fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
         [@bunnia.class_name("moontown-profile-metrics")],
         [
           profile_metric_chip(
-            label="Follows",
-            value=discovery_results_by_kind(projection, "user").length(),
+            label="Watches",
+            value=visible_watches(projection).length(),
           ),
           profile_metric_chip(
             label="Followers",
@@ -3012,8 +3012,6 @@ fn ownership_filter_chip(
           },
         ),
         @bunnia.data("ownership-filter-id", filter.id),
-        @bunnia.data("ownership-filter-kind", filter.kind),
-        @bunnia.data("ownership-filter-visibility", filter.visibility),
       ],
       events=[@bunnia.event("tap", "ownership-filter-\{filter.id}")],
       children=[@bunnia.text(filter.label)],
@@ -3050,10 +3048,7 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
         @bunnia.class_name("moontown-owned-entry"),
         @bunnia.data("ownership-kind", item.kind),
         @bunnia.data("target-ref", item.target_ref),
-        @bunnia.data("visibility", item.visibility),
-        @bunnia.data("status", item.status),
         @bunnia.data("action-message", item.action_message),
-        @bunnia.data("target-tab", ownership_item_target_tab(item)),
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[

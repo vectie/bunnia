@@ -622,7 +622,12 @@ Current status: identity card, credential plaque, ownership filters, lifecycle
 pipeline, and workbench alerts are implemented. Owned buildings, placements,
 books, and agents now carry explicit action messages, so My can route drafts to
 submission, published work to Discover, reviews and agent chat to Messages,
-archived work to restore, and placed map items back to Realm.
+archived work to restore, and placed map items back to Realm. The seed
+projection now also treats watches as first-class ownership objects: a watched
+public building is counted in the profile plaque, filterable from My, and routed
+back to Realm without becoming a detached social feed. The same watch model is
+ready for public people, books, agents, and listings as the mini-app gets a
+larger dynamic-result event payload.
 
 ### R8: Local Backend Loop
 

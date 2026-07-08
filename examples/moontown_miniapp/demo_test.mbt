@@ -445,9 +445,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
   )
-  assert_true(
-    mine.wxml.contains("runtime ownership: {{ownership.filter || 'all'}}"),
-  )
+  assert_true(mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
   assert_true(mine.wxml.contains("data-setup-gate=\"session\""))
   assert_true(mine.wxml.contains("data-setup-gate=\"publish-ready\""))
   assert_true(
@@ -474,7 +472,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
-  assert_true(mine.wxml.contains("Ownership Sync"))
+  assert_true(mine.wxml.contains("Own Sync"))
   assert_true(mine.wxml.contains("data-backend-step=\"ownership\""))
   assert_true(
     mine.wxml.contains("data-backend-endpoint=\"load-ownership-snapshot\""),
@@ -506,24 +504,19 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"placements\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
+  assert_true(mine.wxml.contains("data-ownership-stat=\"watches\""))
   assert_true(mine.wxml.contains("moontown-ownership-filter active"))
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"placements\""))
-  assert_true(mine.wxml.contains("data-ownership-filter-kind=\"placement\""))
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"drafts\""))
-  assert_true(
-    mine.wxml.contains("data-ownership-filter-visibility=\"private_draft\""),
-  )
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"books\""))
-  assert_true(mine.wxml.contains("data-ownership-filter-kind=\"agent\""))
+  assert_true(mine.wxml.contains("data-ownership-filter-id=\"watches\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"building\""))
   assert_true(
     mine.wxml.contains("data-action-message=\"submit-private-building\""),
   )
-  assert_true(mine.wxml.contains("data-target-tab=\"my\""))
   assert_true(mine.wxml.contains("building / private_draft / Submit / my"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"placement\""))
   assert_true(mine.wxml.contains("data-action-message=\"select-policy-hall\""))
-  assert_true(mine.wxml.contains("data-target-tab=\"realm\""))
   assert_true(
     mine.wxml.contains(
       "data-target-ref=\"placement:placement-user-a-policy-hall\"",
@@ -533,6 +526,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("book / private_draft / Review / messages"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
   assert_true(mine.wxml.contains("agent / private_draft / Chat / messages"))
+  assert_true(mine.wxml.contains("data-ownership-kind=\"watch\""))
+  assert_true(mine.wxml.contains("watch / watching / Open / realm"))
   assert_true(mine.wxml.contains("Private Agent Lab Book"))
   assert_true(mine.wxml.contains("moontown-owned-entry"))
   assert_true(mine.wxml.contains("moontown-create-drawer"))
@@ -1018,6 +1013,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 7)
   assert_eq(projection.notification_channels.length(), 7)
+  assert_eq(projection.watches.length(), 1)
   assert_eq(projection.discovery_items.length(), 11)
   assert_eq(projection.discovery_filters.length(), 7)
   assert_eq(projection.activity_items.length(), 5)
@@ -1105,6 +1101,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(discovery_results_by_kind(projection, "event").length(), 1)
   assert_eq(discovery_results_by_kind(projection, "post").length(), 1)
   assert_eq(market_discovery_results(projection).length(), 4)
+  assert_eq(visible_watches(projection).length(), 1)
+  assert_eq(visible_watches(projection)[0].target_ref, "building:policy-hall")
   let people = switch_discovery_filter(projection, "user")
   assert_eq(selected_discovery_filter(people).id, "user")
   assert_eq(filtered_discovery_results(people).length(), 3)
@@ -1123,13 +1121,15 @@ test "moontown miniapp projection supports mock user create search and agent flo
   )
   assert_eq(owned_buildings(projection).length(), 1)
   assert_eq(owned_books(projection).length(), 1)
-  assert_eq(ownership_stats(projection).length(), 6)
+  assert_eq(ownership_stats(projection).length(), 7)
   assert_eq(ownership_stats(projection)[0].id, "placements")
   assert_eq(ownership_stats(projection)[0].value, 1)
-  assert_eq(projection.ownership_filters.length(), 6)
+  assert_eq(ownership_stats(projection)[6].id, "watches")
+  assert_eq(ownership_stats(projection)[6].value, 1)
+  assert_eq(projection.ownership_filters.length(), 7)
   assert_eq(selected_ownership_filter(projection).id, "all")
-  assert_eq(ownership_items(projection).length(), 4)
-  assert_eq(filtered_ownership_items(projection).length(), 4)
+  assert_eq(ownership_items(projection).length(), 5)
+  assert_eq(filtered_ownership_items(projection).length(), 5)
   let owned = ownership_items(projection)
   assert_eq(owned[0].action_label, "Submit")
   assert_eq(owned[0].action_message, "submit-private-building")
@@ -1137,6 +1137,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(owned[2].action_message, "tab-messages")
   assert_eq(owned[3].action_label, "Chat")
   assert_eq(owned[3].action_message, "tab-messages")
+  assert_eq(owned[4].kind, "watch")
+  assert_eq(owned[4].action_message, "select-policy-hall")
   let default_alerts = workbench_alerts(projection)
   assert_eq(default_alerts.length(), 3)
   assert_eq(default_alerts[0].id, "profile-setup")
@@ -1157,6 +1159,10 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_ownership_filter(agents).kind, "agent")
   assert_eq(filtered_ownership_items(agents).length(), 1)
   assert_eq(filtered_ownership_items(agents)[0].title, "Builder")
+  let watches = switch_ownership_filter(projection, "watches")
+  assert_eq(selected_ownership_filter(watches).kind, "watch")
+  assert_eq(filtered_ownership_items(watches).length(), 1)
+  assert_eq(filtered_ownership_items(watches)[0].title, "Policy Hall")
   let accepted = accept_review(projection, "review-policy-memory")
   assert_eq(pending_reviews(accepted).length(), 0)
   assert_eq(review_runs(accepted).length(), 0)
