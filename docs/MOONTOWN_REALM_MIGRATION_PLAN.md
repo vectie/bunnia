@@ -177,7 +177,9 @@ Done when:
 - frontend output contains no secrets
 
 Current status: profile readiness, setup gates, consent, role, and blocked
-lifecycle actions are represented in tile UI.
+lifecycle actions are represented in tile UI. The local backend now persists
+dev login profiles, creates missing local users on login, saves profile edits,
+and returns the saved profile through snapshot and ownership APIs.
 
 ### R3: Home Town Pulse
 
@@ -335,7 +337,8 @@ Current status: Home exposes a tile-style Backend Loop panel for dev login,
 snapshot load, publish, building query, and cache state visibility. My also
 exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
 buildings, books, agents, placements, and workbench alerts can be exercised
-locally.
+locally. Dev login and profile save now update durable local user/profile state
+instead of returning a throwaway profile object.
 
 ### R9: Style And Performance Hardening
 

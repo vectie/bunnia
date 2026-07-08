@@ -22,6 +22,10 @@ function seedState() {
       { id: "user-a", name: "Ada Builder", roleId: "builder" },
       { id: "user-b", name: "Bo Curator", roleId: "explorer" },
     ],
+    profiles: [
+      profile("user-a", "Ada Builder", "builder", "avatar://ada", true, true),
+      profile("user-b", "Bo Curator", "explorer", "avatar://bo", true, true),
+    ],
     sessions: {},
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -79,6 +83,10 @@ function placement(id, buildingId, ownerId, layer, x, y, status, source) {
   return { id, buildingId, ownerId, layer, x, y, status, source };
 }
 
+function profile(userId, displayName, roleId, avatarRef, consentAccepted, setupCompleted) {
+  return { userId, displayName, roleId, avatarRef, consentAccepted, setupCompleted };
+}
+
 function audit(id, kind, title, summary, actorId, targetRef, buildingId, status, visibility) {
   return { id, kind, title, summary, actorId, targetRef, buildingId, status, visibility, timestamp: new Date().toISOString() };
 }
@@ -127,7 +135,17 @@ function loadState(statePath, resetState = false) {
     saveState(statePath, state);
     return state;
   }
-  return JSON.parse(readFileSync(statePath, "utf8"));
+  return normalizeState(JSON.parse(readFileSync(statePath, "utf8")));
+}
+
+function normalizeState(state) {
+  state.users = state.users || [];
+  state.profiles = state.profiles || [];
+  state.sessions = state.sessions || {};
+  for (const user of state.users) {
+    ensureProfile(state, user.id, { displayName: user.name, roleId: user.roleId, setupCompleted: true, consentAccepted: true });
+  }
+  return state;
 }
 
 function saveState(statePath, state) {
@@ -160,9 +178,14 @@ function dispatch(state, request) {
   }
   if (method === "POST" && path === "/miniapp/auth/dev-login") {
     const userId = body.userId || "user-a";
+    const profileItem = ensureProfile(state, userId, {
+      displayName: body.displayName,
+      roleId: body.roleId,
+      avatarRef: body.avatarRef,
+    });
     const sessionId = `session-${userId}`;
     state.sessions[sessionId] = { id: sessionId, userId };
-    return changed({ session: { id: sessionId, userId }, profile: profileFor(state, userId) });
+    return changed({ session: { id: sessionId, userId }, profile: profileItem });
   }
   if (method === "GET" && path === "/miniapp/town/snapshot") {
     return ok(snapshotFor(state, viewer));
@@ -174,7 +197,7 @@ function dispatch(state, request) {
     return ok({ query: request.query.get("query") || body.query || "", items: discoverItems(state, viewer, request.query.get("query") || body.query || "") });
   }
   if (method === "POST" && path === "/miniapp/me/profile") {
-    return changed({ profile: { userId: viewer, ...body, setupCompleted: true } });
+    return changed({ profile: saveProfile(state, viewer, body) });
   }
   if (method === "POST" && path === "/miniapp/buildings") {
     return createBuilding(state, viewer, body);
@@ -254,8 +277,51 @@ function routeCatalog() {
 }
 
 function profileFor(state, userId) {
-  const user = state.users.find((item) => item.id === userId) || state.users[0];
-  return { userId: user.id, displayName: user.name, roleId: user.roleId || "builder", consentAccepted: true, setupCompleted: true };
+  return ensureProfile(state, userId, {});
+}
+
+function ensureProfile(state, userId, draft) {
+  let user = state.users.find((item) => item.id === userId);
+  const displayName = draft.displayName || draft.name || (user ? user.name : titleizeUser(userId));
+  const roleId = draft.roleId || (user ? user.roleId : "builder");
+  if (!user) {
+    user = { id: userId, name: displayName, roleId };
+    state.users.push(user);
+  }
+  let profileItem = state.profiles.find((item) => item.userId === userId);
+  if (!profileItem) {
+    profileItem = profile(
+      userId,
+      displayName,
+      roleId,
+      draft.avatarRef || `avatar://${userId}`,
+      Boolean(draft.consentAccepted),
+      Boolean(draft.setupCompleted),
+    );
+    state.profiles.push(profileItem);
+  }
+  user.name = profileItem.displayName;
+  user.roleId = profileItem.roleId;
+  return profileItem;
+}
+
+function saveProfile(state, userId, draft) {
+  const profileItem = ensureProfile(state, userId, draft);
+  profileItem.displayName = draft.displayName || profileItem.displayName;
+  profileItem.roleId = draft.roleId || profileItem.roleId;
+  profileItem.avatarRef = draft.avatarRef || profileItem.avatarRef;
+  profileItem.consentAccepted = Boolean(draft.consentAccepted);
+  profileItem.setupCompleted = true;
+  const user = state.users.find((item) => item.id === userId);
+  if (user) {
+    user.name = profileItem.displayName;
+    user.roleId = profileItem.roleId;
+  }
+  return profileItem;
+}
+
+function titleizeUser(userId) {
+  return String(userId || "user").split("-").filter(Boolean).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ") || "Local User";
 }
 
 function visibleBuildings(state, viewer) {
@@ -477,6 +543,16 @@ function smoke(options) {
   const login = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-a" } });
   assert(login.body.session.id === "session-user-a", "login session");
   const headers = { "x-miniapp-session": login.body.session.id };
+  const registered = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-c", displayName: "Chen Mapper" } });
+  assert(registered.body.profile.displayName === "Chen Mapper", "register profile");
+  assert(registered.body.profile.setupCompleted === false, "register starts incomplete");
+  const registeredHeaders = { "x-miniapp-session": registered.body.session.id };
+  const savedProfile = dispatch(state, { method: "POST", path: "/miniapp/me/profile", query: new URLSearchParams(), headers: registeredHeaders, body: { displayName: "Chen Cartographer", roleId: "explorer", avatarRef: "avatar://chen", consentAccepted: true } });
+  assert(savedProfile.body.profile.displayName === "Chen Cartographer", "save profile name");
+  assert(savedProfile.body.profile.setupCompleted === true, "save profile setup");
+  const registeredSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
+  assert(registeredSnapshot.body.profile.displayName === "Chen Cartographer", "snapshot saved profile");
+  assert(registeredSnapshot.body.users.some((item) => item.id === "user-c" && item.name === "Chen Cartographer"), "registered user list");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });

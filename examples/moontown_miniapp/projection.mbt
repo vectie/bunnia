@@ -1591,7 +1591,7 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       endpoint_id="dev-login",
       http_method="POST",
       path="/miniapp/auth/dev-login",
-      summary="Create a local session for the active user.",
+      summary="Create or reuse a local user profile and session.",
       status="ready",
     ),
     mini_town_backend_step(
