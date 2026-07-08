@@ -1682,7 +1682,7 @@ fn page_definition_js(
 
 ///|
 fn backend_request_dispatch_js() -> String {
-  "function __bp(p,e,d){let h=0,b=e.p?p.data[e.p]||{}:{};['runId','reviewId','decision','buildingId','bookId','noticeId','noticeKind','targetRef'].map(k=>d&&d[k]&&(h=b[k]=d[k]));return h?b:undefined}\n" +
+  "function __bp(p,e,d){let h=0,b=e.p?p.data[e.p]||{}:{};['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef'].map(k=>d&&d[k]&&(h=b[k]=d[k]));return h?b:undefined}\n" +
   "function __bunniaMaybeRequest(p,m,d){\n" +
   "  const id=__bunniaBackendEvents[m]\n" +
   "  if(!id)return\n" +
@@ -1691,7 +1691,7 @@ fn backend_request_dispatch_js() -> String {
   "  const pl=__bp(p,e,d)\n" +
   "  if(e.k==='agent-operation-cancel')return __bunniaRequest(p,id,pl)\n" +
   "  if(e.k==='agent-operation-retry')return pl?__bunniaRequest(p,id,pl):__bunniaRetryRequest(p,id)\n" +
-  "  return __bunniaRequest(p,id)\n" +
+  "  return __bunniaRequest(p,id,pl)\n" +
   "}\n"
 }
 

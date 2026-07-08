@@ -1645,10 +1645,28 @@ fn discover_entry(item : MiniTownDiscoveryItem) -> @bunnia.Node {
 fn discover_entry_action(item : MiniTownDiscoveryItem) -> @bunnia.Node {
   if item.kind == "building" && item.visibility == "published" {
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-action")], [
-      @bunnia.button("Place On Map", "place-published-building"),
+      @bunnia.node(
+        kind="button",
+        attrs=[
+          @bunnia.data("discovery-id", item.id),
+          @bunnia.data("building-id", discovery_item_building_id(item)),
+          @bunnia.data("target-ref", item.target_ref),
+        ],
+        events=[@bunnia.tap("place-published-building")],
+        children=[@bunnia.text("Place On Map")],
+      ),
     ])
   } else {
     @bunnia.view([])
+  }
+}
+
+///|
+fn discovery_item_building_id(item : MiniTownDiscoveryItem) -> String {
+  if item.target_ref.has_prefix("building:") {
+    item.target_ref.sub(start=9, end=item.target_ref.length()).to_owned()
+  } else {
+    item.id
   }
 }
 

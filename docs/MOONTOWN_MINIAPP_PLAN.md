@@ -72,6 +72,38 @@ The mini-app should keep Moontown's current tile-gamified style:
 - bright, readable tile colors and crisp pixel/2.5D assets over blurred hero art
 - small motion, stable hit targets, and fast touch feedback for WeChat devices
 
+## Rest-Of-App Maturity Focus
+
+Realm is not a separate migration stream. Realm is the current map. The
+remaining work should be planned as product maturity around that map:
+
+```text
+current map stays as Realm
+  + entry/login/profile gates
+  + Home town pulse
+  + Discover/search/placement
+  + Messages and agent communication
+  + My ownership workbench
+  + building lifecycle and books
+  + local backend loop
+  + style/performance hardening
+```
+
+The app should not grow by adding a second graph, a second map, or unrelated
+page stacks. It should grow by making the existing tile town more useful. New
+functionality should either attach to a building/district on the map, appear as
+a compact panel/drawer around the map, or live in a bottom-tab page that still
+uses the same tile-town language.
+
+Highest-leverage migration rule:
+
+1. Keep the map stable and crisp.
+2. Add only the surrounding functionality that makes the map a mature product.
+3. Translate reference pages into tile-style interactions instead of copying
+   their generic layouts.
+4. Validate every phase against mini-app constraints: small initial data,
+   bounded lists, stable tap targets, and limited `setData` churn.
+
 Bunnia should only absorb generic framework primitives from this work:
 
 - onboarding stepper
@@ -159,7 +191,7 @@ building lifecycle, books, and backend wiring.
 
 | Order | Maturity phase | Type | Current status | Purpose | Primary output |
 | --- | --- | --- | --- | --- | --- |
-| M0 | Realm Map Baseline | hardening | keep green | Preserve the existing full-screen tile map as the Realm. | Crisp map asset, bounded drag/pinch, edge-safe viewport, building hit targets. |
+| M0 | Realm Map Baseline | hardening | keep green | Preserve the existing full-screen tile map as the Realm; do not build a second map. | Crisp map asset, bounded drag/pinch, edge-safe viewport, building hit targets. |
 | M1 | Tile App Shell | feature | done in slice | Make the mini-app navigable without replacing the map. | `Home`, `Discover`, `Realm`, `Messages`, `My` tabs with Realm returning to the same map. |
 | M2 | Onboarding And Identity | feature | started | Let first-time users enter the town, choose profile/role, and satisfy consent gates. | First-run guide, login/profile setup, profile readiness checks. |
 | M3 | Home Town Pulse | feature | started | Turn reference home/community pages into tile-town activity around the map. | Activity stream, recent runs, building shortcuts, town stats, district entries. |
@@ -174,13 +206,17 @@ building lifecycle, books, and backend wiring.
 Near-term build order:
 
 1. Keep M0 stable while changing other screens.
-2. Finish M5's actionable run/review loop because agentic communication is a
+2. Finish M2 enough that every public action has a real user/session/profile
+   boundary.
+3. Mature M3 and M4 so users can understand what changed in town and find or
+   place public objects.
+4. Finish M5's actionable run/review loop because agentic communication is a
    core product behavior, but keep it in tile-styled Messages and run plaques
    rather than turning Realm into a chat page.
-3. Continue M6 and M7 together so owned inventory, building lifecycle, books,
+5. Continue M6 and M7 together so owned inventory, building lifecycle, books,
    memory, review, publish, archive, and permission state stay consistent.
-4. Keep M8 green in WeChat DevTools as each product flow becomes coherent.
-5. Run M9 after each feature slice, not only at the end, because the app is
+6. Keep M8 green in WeChat DevTools as each product flow becomes coherent.
+7. Run M9 after each feature slice, not only at the end, because the app is
    map-heavy and can become slow quickly.
 
 ## Mature Mini-App Migration Plan

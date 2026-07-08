@@ -240,6 +240,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("Published Agent Lab"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"building\""))
   assert_true(discover.wxml.contains("Place On Map"))
+  assert_true(
+    discover.wxml.contains("data-building-id=\"published-agent-lab\""),
+  )
+  assert_true(
+    discover.wxml.contains("data-target-ref=\"building:published-agent-lab\""),
+  )
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(
@@ -571,7 +577,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     project.page.js.contains(
-      "['runId','reviewId','decision','buildingId','bookId','noticeId','noticeKind','targetRef']",
+      "['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef']",
     ),
   )
   assert_true(project.page.js.contains("h=b[k]=d[k]"))
