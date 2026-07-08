@@ -218,8 +218,11 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/buildings/share") {
     return changeBuildingVisibility(state, viewer, body.buildingId, "shared_private", "shared", "share", body.targetUserId || "org-a");
   }
+  if (method === "POST" && path === "/miniapp/buildings/submit") {
+    return submitBuilding(state, viewer, body.buildingId);
+  }
   if (method === "POST" && path === "/miniapp/buildings/publish") {
-    return changeBuildingVisibility(state, viewer, body.buildingId, "published", "stable", "publish", "town");
+    return publishBuilding(state, viewer, body.buildingId);
   }
   if (method === "POST" && path === "/miniapp/buildings/archive") {
     return changeBuildingVisibility(state, viewer, body.buildingId, "archived", "archived", "archive", "archive");
@@ -279,6 +282,7 @@ function routeCatalog() {
     "POST /miniapp/buildings",
     "POST /miniapp/buildings/place",
     "POST /miniapp/buildings/share",
+    "POST /miniapp/buildings/submit",
     "POST /miniapp/buildings/publish",
     "POST /miniapp/buildings/archive",
     "POST /miniapp/buildings/restore",
@@ -445,6 +449,7 @@ function ownedItem(kind, id, title, summary, targetRef, visibility, status, acti
 function actionForVisibility(visibility) {
   if (visibility === "private_draft") return "Publish";
   if (visibility === "shared_private") return "Review";
+  if (visibility === "submitted") return "Publish";
   if (visibility === "published") return "Place";
   if (visibility === "archived") return "Restore";
   return "Open";
@@ -586,6 +591,67 @@ function changeBuildingVisibility(state, viewer, buildingId, visibility, status,
   }
   state.auditEvents.push(audit(`audit-${kind}-${buildingId}`, kind, `${item.title} ${kind}`, `Visibility changed for ${target}.`, viewer, `building:${buildingId}`, buildingId, status, visibility));
   return changed(grant ? { building: item, share: grant } : { building: item });
+}
+
+function submitBuilding(state, viewer, buildingId) {
+  const item = state.buildings.find((building) => building.id === buildingId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
+  if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
+  if (!["private_draft", "shared_private"].includes(item.visibility)) {
+    return { status: 409, changed: false, body: { error: "not_submittable", buildingId, visibility: item.visibility } };
+  }
+  item.visibility = "submitted";
+  item.status = "review";
+  const memory = firstBookForBuilding(state, buildingId);
+  for (const bookItem of state.books) {
+    if (bookItem.buildingId === buildingId) {
+      bookItem.visibility = "submitted";
+      bookItem.status = "review";
+      bookItem.pendingReviewCount += 1;
+    }
+  }
+  const review = {
+    id: `review-publish-${buildingId}-${state.nextReview++}`,
+    runId: `publication-${buildingId}`,
+    buildingId,
+    bookId: memory ? memory.id : "",
+    title: `Review ${item.title} publication`,
+    summary: "Approve this building before it appears in public discovery.",
+    artifactRef: `building://${buildingId}`,
+    reviewerId: viewer,
+    status: "pending",
+    acceptedMemoryDelta: 0,
+  };
+  state.reviews.push(review);
+  state.notifications.push({ id: `notice-${review.id}`, kind: "review", title: "Publication review waiting", body: review.summary, targetRef: `building:${buildingId}`, buildingId, unread: true });
+  state.auditEvents.push(audit(`audit-submit-${buildingId}`, "submit", `${item.title} submitted`, "Building is waiting for town publication review.", viewer, `building:${buildingId}`, buildingId, "review", "submitted"));
+  return changed({ building: item, review });
+}
+
+function publishBuilding(state, viewer, buildingId) {
+  const item = state.buildings.find((building) => building.id === buildingId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
+  if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
+  if (item.visibility !== "submitted") {
+    return { status: 409, changed: false, body: { error: "not_submitted", buildingId, visibility: item.visibility } };
+  }
+  item.visibility = "published";
+  item.status = "stable";
+  for (const memory of state.books) {
+    if (memory.buildingId === buildingId) {
+      memory.visibility = "published";
+      memory.status = "stable";
+      memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
+    }
+  }
+  const review = state.reviews.find((candidate) => candidate.buildingId === buildingId && candidate.runId === `publication-${buildingId}` && candidate.status === "pending");
+  if (review) review.status = "accepted";
+  state.auditEvents.push(audit(`audit-publish-${buildingId}`, "publish", `${item.title} published`, "Publication review accepted; building is searchable and placeable.", viewer, `building:${buildingId}`, buildingId, "stable", "published"));
+  return changed(review ? { building: item, review } : { building: item });
+}
+
+function firstBookForBuilding(state, buildingId) {
+  return state.books.find((item) => item.buildingId === buildingId) || null;
 }
 
 function upsertShareGrant(state, building, ownerId, targetUserId) {
@@ -730,11 +796,17 @@ function smoke(options) {
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
+  const earlyPublish = dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  assert(earlyPublish.status === 409, "publish requires submit");
+  const submitted = dispatch(state, { method: "POST", path: "/miniapp/buildings/submit", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  assert(submitted.body.building.visibility === "submitted", "submit building");
+  assert(submitted.body.review.status === "pending", "submit review");
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   const archived = dispatch(state, { method: "POST", path: "/miniapp/buildings/archive", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(archived.body.building.visibility === "archived", "archive building");
   const restored = dispatch(state, { method: "POST", path: "/miniapp/buildings/restore", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(restored.body.building.visibility === "private_draft", "restore building");
+  dispatch(state, { method: "POST", path: "/miniapp/buildings/submit", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   const search = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=smoke"), headers, body: {} });
   assert(search.body.items.some((item) => item.targetRef === "building:smoke-lab"), "published search");

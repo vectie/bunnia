@@ -36,7 +36,11 @@ pub fn demo_agent_delta_plan() -> @agent.AgentDeltaPlan
 
 pub fn demo_asset_plan() -> @scene.SceneAssetPlan
 
+pub fn demo_backend_budget() -> @effects.BackendBudget
+
 pub fn demo_backend_contract() -> @effects.BackendContract
+
+pub fn demo_backend_plan() -> @effects.BackendPlan
 
 pub fn demo_camera() -> @scene.SceneCamera
 
@@ -215,6 +219,8 @@ pub fn send_message_to_selected_building(MiniTownProjection, String) -> MiniTown
 pub fn setup_gates(MiniTownProjection) -> Array[MiniTownSetupGate]
 
 pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
+
+pub fn submit_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 

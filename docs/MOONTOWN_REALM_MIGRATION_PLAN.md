@@ -49,6 +49,46 @@ unrelated graph, it is out of scope. Attach the feature to the current map, a
 building, a district, a drawer, a message row, a workbench, or a backend status
 plaque.
 
+## Rest-Functionality Focus
+
+The main migration target is now the mature product around Realm, not Realm
+itself. Treat the existing map as a stable game board and migrate the remaining
+reference/product functions into small, useful systems around it.
+
+Do migrate:
+
+- entry, registration, login, consent, and profile readiness
+- Home as a town pulse, not a landing page
+- Discover as public search, filters, and placement
+- Messages as agent/human communication, reviews, and system notices
+- My as ownership, drafts, submissions, published work, archives, and profile
+  state
+- building drawers, lifecycle actions, book shelves, and permissions
+- local backend contracts for realistic WeChat DevTools testing
+
+Do not migrate:
+
+- a separate Realm graph
+- a second map mode
+- generic social-feed pages disconnected from the town
+- large decorative marketing screens
+- chat surfaces that hide building/book/run context
+
+Every migrated function needs a tile-town home:
+
+| Product function | Tile-town home |
+| --- | --- |
+| Onboarding | gate, signpost, setup stamps |
+| Login/profile | town passport, profile plaque, readiness checklist |
+| Home updates | notice board, activity ledger, district shortcuts |
+| Search | market board, filter plaques, placeable result rows |
+| Building details | anchored drawer, lifecycle stamps, book shelf |
+| Book memory | ledger shelf, safe summary, review badge |
+| Agent chat | mail board, run plaque, building thread |
+| Agent work | worker badge, run status, review notice |
+| Ownership | inventory workbench, draft/published/archive tabs |
+| Backend state | sync plaque, stale badge, retry row |
+
 ## Style Contract
 
 Every phase must preserve the current tile-gamified visual language.
@@ -84,7 +124,8 @@ Translate reference functionality by job, not by page shape.
 
 ## Phase Summary
 
-Feature phases: R1 through R8.
+Feature phases: R1 through R8. R1 creates the mini-app shell; R2 through R8 are
+the rest-functionality maturity phases around the existing map.
 
 Hardening phases: R0, R9, and R10.
 
@@ -259,7 +300,8 @@ Done when:
 Current status: lifecycle pipeline and data-derived book shelf are implemented
 in the Moontown mini-app slice. Archive and restore are both wired as explicit
 lifecycle operations, so owned archived work can return to the private draft
-workbench.
+workbench. Submit is now a separate publication-review state before publish,
+leaving room for moderation and reviewer decisions before public discovery.
 
 ### R6: Messages And Agent Communication
 
@@ -348,7 +390,9 @@ now use explicit share grants, so invited users can see them while uninvited
 users and public search cannot. Message send is also persisted locally through
 `/miniapp/messages/send`, and snapshots only return messages attached to
 buildings the viewer can see. Discover search now exercises multi-kind public
-results instead of a building-only route.
+results instead of a building-only route. Local building publication now goes
+through `/miniapp/buildings/submit` before `/miniapp/buildings/publish`, so the
+backend loop has a review state instead of direct draft-to-public publishing.
 
 ### R9: Style And Performance Hardening
 

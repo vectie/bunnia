@@ -2146,9 +2146,9 @@ pub fn selected_building_lifecycle_actions(
       },
     ),
     mini_town_lifecycle_action(
-      id="publish",
-      label="Publish",
-      message="publish-private-building",
+      id="submit",
+      label="Submit",
+      message="submit-private-building",
       target_ref="building:\{building.id}",
       book_id=book.id,
       allowed=building.owner_id == projection.active_user_id &&
@@ -2163,6 +2163,24 @@ pub fn selected_building_lifecycle_actions(
           building.visibility == "private_draft" ||
           building.visibility == "shared_private"
         ) &&
+        profile_ready_to_publish(projection) {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+    mini_town_lifecycle_action(
+      id="publish",
+      label="Publish",
+      message="publish-private-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        building.visibility == "submitted" &&
+        profile_ready_to_publish(projection),
+      reason=lifecycle_publish_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        building.visibility == "submitted" &&
         profile_ready_to_publish(projection) {
         "ready"
       } else {
@@ -2214,6 +2232,7 @@ pub fn publication_steps(
   let shared_ready = building.visibility == "shared_private" &&
     is_owned_by_active_user(projection, building) &&
     profile_ready_to_publish(projection)
+  let submitted = building.visibility == "submitted"
   [
     mini_town_publication_step(
       id="draft",
@@ -2238,7 +2257,8 @@ pub fn publication_steps(
         lifecycle_share_reason(projection, building)
       },
       current=building.visibility == "shared_private",
-      complete=building.visibility == "published" ||
+      complete=building.visibility == "submitted" ||
+        building.visibility == "published" ||
         building.visibility == "archived",
       blocked=!private_ready && building.visibility == "private_draft",
     ),
@@ -2246,16 +2266,32 @@ pub fn publication_steps(
       id="review",
       label="Publish Review",
       summary=if shared_ready {
-        "Ready to submit into town publication."
+        "Ready to submit into town publication review."
+      } else if submitted {
+        "Submitted and waiting for publication decision."
       } else {
         lifecycle_publish_reason(projection, building)
       },
-      current=building.visibility == "shared_private" &&
-        profile_ready_to_publish(projection),
+      current=submitted,
       complete=building.visibility == "published" ||
         building.visibility == "archived",
       blocked=building.visibility == "shared_private" &&
         !profile_ready_to_publish(projection),
+    ),
+    mini_town_publication_step(
+      id="approve",
+      label="Review Decision",
+      summary=if submitted {
+        "A reviewer can publish or reject before public discovery."
+      } else if building.visibility == "published" {
+        "Publication review accepted."
+      } else {
+        "Submit before a reviewer can decide."
+      },
+      current=submitted,
+      complete=building.visibility == "published" ||
+        building.visibility == "archived",
+      blocked=!submitted && building.visibility != "published",
     ),
     mini_town_publication_step(
       id="published",
@@ -2336,9 +2372,11 @@ fn lifecycle_publish_reason(
     "profile setup needed"
   } else if building.visibility == "private_draft" ||
     building.visibility == "shared_private" {
-    "ready for town"
+    "ready for review"
+  } else if building.visibility == "submitted" {
+    "review accepted"
   } else {
-    "not a draft"
+    "not submitted"
   }
 }
 
@@ -2989,6 +3027,21 @@ pub fn share_selected_building(
     kind="share",
     title="\{building.title} shared",
     summary="The building is visible to organization members before publication.",
+  )
+}
+
+///|
+pub fn submit_selected_building(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  update_selected_building_lifecycle(
+    projection,
+    visibility="submitted",
+    status="review",
+    kind="submit",
+    title="\{building.title} submitted",
+    summary="The building is waiting for town publication review.",
   )
 }
 

@@ -473,9 +473,7 @@ fn profile_for_example(
       effect_plans=[@moontown.demo_effect_plan()],
       communication_plans=[@moontown.demo_communication_plan()],
       agent_delta_plans=[@moontown.demo_agent_delta_plan()],
-      backend_plans=[
-        @bunnia.plan_backend_contract(@moontown.demo_backend_contract()),
-      ],
+      backend_plans=[@moontown.demo_backend_plan()],
       snapshot_plans=[@moontown.demo_snapshot_delta_plan()],
       asset_plans=[@moontown.demo_asset_plan()],
       thread_plans=[@moontown.demo_scene_thread_plan()],
