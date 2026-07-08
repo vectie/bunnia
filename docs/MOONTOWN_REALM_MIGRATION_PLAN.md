@@ -122,6 +122,24 @@ Translate reference functionality by job, not by page shape.
 | Profile / owned content | My | Inventory ledger, ownership stamps, draft/published/archive tabs. |
 | Backend/account state | Backend phases | Sync plaques, retry rows, cache state, production safety gates. |
 
+## Migration Tracks
+
+The reference screenshots should be split into maturity tracks around the map.
+Do not migrate them as a one-to-one page clone.
+
+| Track | Migrates from reference | Moontown surface | Product state | Tile style rule |
+| --- | --- | --- | --- | --- |
+| Entry | welcome, first-run intro | setup gate before Realm | session, consent, profile readiness | signposts, stamps, town passport |
+| Home | community home, feature zones | `Home` tab plus district shortcuts | town pulse, stats, recent activity | notice board, ledger, district doors |
+| Discover | public square, search, marketplace | `Discover` tab and place-on-map actions | public buildings, agents, books, users, posts | market board, filter plaques, placeable rows |
+| Realm | reference realm/graph | existing full-screen Moontown map | map layer, placements, selected building | no new graph; only map guardrails |
+| Messages | chat, follows, interactions | `Messages` tab and building threads | messages, runs, reviews, notifications | mail board, run plaque, review notice |
+| My | profile, owned content | `My` tab and ownership workbench | drafts, published work, archives, profile | inventory shelf, lifecycle stamps |
+| Backend | account state and real data | local backend, then production backend | users, permissions, books, audit, search | sync plaque, stale badge, retry row |
+
+This gives every migrated function a durable home while keeping Realm as the map
+instead of expanding it into a catch-all screen.
+
 ## Phase Summary
 
 Feature phases: R1 through R8. R1 creates the mini-app shell; R2 through R8 are
@@ -146,6 +164,17 @@ markers, or render pressure.
 | R8 Local Backend Loop | feature | Exercise the mature product locally from WeChat DevTools. |
 | R9 Style And Performance Hardening | hardening | Keep the mature app fast, bounded, and visually coherent. |
 | R10 Production Backend Readiness | hardening | Prepare real WeChat users, storage, moderation, and operations. |
+
+Implementation priority:
+
+1. Protect Realm quality before every feature slice.
+2. Build user identity and navigation before deeper object workflows.
+3. Make buildings, books, agents, and messages durable before polishing optional
+   community surfaces.
+4. Keep each phase small enough to validate in WeChat DevTools, but do the
+   largest architectural step in that phase first.
+5. End every phase with a style check: the result must still look like the same
+   tile-gamified town.
 
 ## Phase-By-Phase Migration Plan
 
@@ -172,6 +201,8 @@ Done when:
 - dragging/pinching never exposes large empty space
 - map edges, projection, and terrain stay correct
 - Bunnia inspect stays green for map, scene, render, and asset pressure
+- every later phase can deep-link into a building or map placement without
+  changing the map concept
 
 Current status: active guardrail.
 
@@ -187,6 +218,8 @@ Build:
 - Realm route pointing to the same full-screen map state
 - compact tab controls and route metadata
 - lightweight tile backdrops on non-Realm pages
+- shared tile tokens for plaques, ledgers, stamps, and action rows so later
+  phases do not drift into generic mobile cards
 
 Done when:
 
@@ -209,6 +242,7 @@ Build:
 - WeChat login contract for production
 - profile, nickname/avatar reference, role, consent, session, and workspace
 - permission gates for create, publish, share, place, and review
+- town passport state visible from My and checked by public actions
 
 Done when:
 
@@ -237,6 +271,7 @@ Build:
 - town stats for buildings, agents, runs, reviews, and placements
 - district shortcuts for product market, demand hall, event calendar, city
   guide, and OPC/credential hub
+- compact "what changed" rows that link back to Realm, Discover, Messages, or My
 
 Done when:
 
@@ -262,6 +297,8 @@ Build:
 - placement flow for allowed public buildings
 - clear separation between building identity and map placement
 - privacy guardrails so private/shared objects never leak into public search
+- result rows that explain whether an object can be opened, followed, placed,
+  requested, or only previewed
 
 Done when:
 
@@ -288,6 +325,8 @@ Build:
 - create, edit, share, submit, publish, place, archive, and restore actions
 - audit events for lifecycle operations
 - backend-only raw private book content
+- drawer actions that stay spatial: opening a place, reading its shelf, stamping
+  lifecycle state, and sending work to agents
 
 Done when:
 
@@ -321,6 +360,8 @@ Build:
 - pagination/windowing for long chats and notification streams
 - agent-to-human, agent-to-agent, handoff, broadcast, review, and tool-result
   events
+- map badges and building drawer summaries for important communication state, so
+  Realm remains useful without becoming the chat UI
 
 Done when:
 
@@ -352,6 +393,8 @@ Build:
 - warnings for incomplete setup, blocked publication, failed runs, stale backend
   data, and risky lifecycle actions
 - private workbench separate from public discovery
+- ownership actions that return users to the relevant building, book, agent,
+  review, or map placement
 
 Done when:
 
@@ -378,6 +421,8 @@ Build:
 - WeChat DevTools target at `http://127.0.0.1:18191`
 - tile UI for loading, stale, failed, retrying, synced, and degraded backend
   states
+- seeded two-user scenarios for private drafts, shared-private work, public
+  publishing, placed buildings, building chat, and agent handoff
 
 Done when:
 
