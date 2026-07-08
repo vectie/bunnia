@@ -353,6 +353,17 @@ Output:
 - Public buildings can spread across user maps while preserving one canonical
   building identity.
 
+Current implementation:
+
+- Placement is now a separate product record in the Moontown example. A
+  published building can be pinned to a user's personal layer without copying or
+  mutating the canonical building.
+- Discover placement actions now carry building identity into the backend
+  payload and expose placement state in the generated WXML, so a result can show
+  whether it is already pinned.
+- The generated local fixture includes a starter placement for Policy Hall,
+  matching the pure MoonBit projection.
+
 ### M5: Messages And Agent Communication
 
 Classification: feature.
@@ -402,6 +413,12 @@ Tile style:
 Output:
 
 - A user can find and manage every private or public object they own.
+
+Current implementation:
+
+- My now includes a Placed ownership filter and placement stat. Placement rows
+  use `placement:` target refs so the workbench can distinguish "my map pin"
+  from "my building".
 
 ### M7: Building Lifecycle And Books
 

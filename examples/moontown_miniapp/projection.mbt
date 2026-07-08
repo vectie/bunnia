@@ -316,6 +316,7 @@ pub struct MiniTownProjection {
   districts : Array[MiniTownDistrict]
   presence : Array[MiniTownPresence]
   buildings : Array[MiniTownBuilding]
+  placements : Array[MiniTownPlacement]
   books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
@@ -825,6 +826,7 @@ pub fn demo_projection() -> MiniTownProjection {
     districts: demo_districts(),
     presence: demo_presence(),
     buildings: demo_buildings(),
+    placements: demo_placements(),
     books: demo_books(),
     agents: [
       mini_town_agent(
@@ -1550,6 +1552,11 @@ fn demo_ownership_filters() -> Array[MiniTownOwnershipFilter] {
   [
     mini_town_ownership_filter(id="all", label="All"),
     mini_town_ownership_filter(
+      id="placements",
+      label="Placed",
+      kind="placement",
+    ),
+    mini_town_ownership_filter(
       id="drafts",
       label="Drafts",
       visibility="private_draft",
@@ -1807,6 +1814,22 @@ fn demo_buildings() -> Array[MiniTownBuilding] {
       x=538,
       y=528,
       status="stable",
+    ),
+  ]
+}
+
+///|
+fn demo_placements() -> Array[MiniTownPlacement] {
+  [
+    mini_town_placement(
+      id="placement-user-a-policy-hall",
+      building_id="policy-hall",
+      owner_id="user-a",
+      layer="personal",
+      x=479,
+      y=388,
+      status="pinned",
+      source="starter-map",
     ),
   ]
 }
@@ -2535,6 +2558,11 @@ pub fn home_town_stats(
       label="town pulse",
       value=town_activity_items(projection).length(),
     ),
+    mini_town_ownership_stat(
+      id="placements",
+      label="placed",
+      value=visible_placements(projection).length(),
+    ),
   ]
 }
 
@@ -2894,14 +2922,37 @@ pub fn place_published_building(
   building_id : String,
 ) -> MiniTownProjection {
   let mut title = building_id
+  let mut x = 0
+  let mut y = 0
   for building in projection.buildings {
     if building.id == building_id {
       title = building.title
+      x = building.x
+      y = building.y
     }
+  }
+  let placement_id = "placement-\{projection.active_user_id}-\{building_id}"
+  let placements = if placement_exists(projection, placement_id) {
+    projection.placements
+  } else {
+    projection.placements +
+    [
+      mini_town_placement(
+        id=placement_id,
+        building_id~,
+        owner_id=projection.active_user_id,
+        layer="personal",
+        x~,
+        y~,
+        status="pinned",
+        source="discover",
+      ),
+    ]
   }
   {
     ..projection,
     selected_building_id: building_id,
+    placements,
     audit_events: projection.audit_events +
     [
       lifecycle_event(
@@ -2916,6 +2967,19 @@ pub fn place_published_building(
       ),
     ],
   }
+}
+
+///|
+fn placement_exists(
+  projection : MiniTownProjection,
+  placement_id : String,
+) -> Bool {
+  for placement in projection.placements {
+    if placement.id == placement_id {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -3156,6 +3220,11 @@ pub fn ownership_stats(
 ) -> Array[MiniTownOwnershipStat] {
   [
     mini_town_ownership_stat(
+      id="placements",
+      label="Placed",
+      value=visible_placements(projection).length(),
+    ),
+    mini_town_ownership_stat(
       id="drafts",
       label="Drafts",
       value=count_owned_buildings_by_visibility(projection, "private_draft"),
@@ -3202,6 +3271,9 @@ pub fn ownership_items(
       ),
     )
   }
+  for placement in visible_placements(projection) {
+    output.push(placement_ownership_item(projection, placement))
+  }
   for book in owned_books(projection) {
     output.push(
       mini_town_ownership_item(
@@ -3231,6 +3303,33 @@ pub fn ownership_items(
     )
   }
   output
+}
+
+///|
+fn placement_ownership_item(
+  projection : MiniTownProjection,
+  placement : MiniTownPlacement,
+) -> MiniTownOwnershipItem {
+  let mut title = placement.building_id
+  let mut summary = "Placed building on \{placement.layer} layer."
+  let mut status = placement.status
+  for building in projection.buildings {
+    if building.id == placement.building_id {
+      title = building.title
+      summary = "\{building.summary} / placed from \{placement.source}"
+      status = building.status
+    }
+  }
+  mini_town_ownership_item(
+    id="placement-\{placement.id}",
+    kind="placement",
+    title~,
+    summary~,
+    target_ref="placement:\{placement.id}",
+    visibility=placement.layer,
+    status~,
+    action_label="Open",
+  )
 }
 
 ///|

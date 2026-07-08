@@ -254,6 +254,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     discover.wxml.contains("data-target-ref=\"building:published-agent-lab\""),
   )
+  assert_true(discover.wxml.contains("data-placement-state=\"not-placed\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(
@@ -407,8 +408,11 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-audit-kind=\"create\""))
   assert_true(mine.wxml.contains("ready: no"))
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
+  assert_true(mine.wxml.contains("data-ownership-stat=\"placements\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
   assert_true(mine.wxml.contains("moontown-ownership-filter active"))
+  assert_true(mine.wxml.contains("data-ownership-filter-id=\"placements\""))
+  assert_true(mine.wxml.contains("data-ownership-filter-kind=\"placement\""))
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"drafts\""))
   assert_true(
     mine.wxml.contains("data-ownership-filter-visibility=\"private_draft\""),
@@ -416,6 +420,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"books\""))
   assert_true(mine.wxml.contains("data-ownership-filter-kind=\"agent\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"building\""))
+  assert_true(mine.wxml.contains("data-ownership-kind=\"placement\""))
+  assert_true(
+    mine.wxml.contains(
+      "data-target-ref=\"placement:placement-user-a-policy-hall\"",
+    ),
+  )
   assert_true(mine.wxml.contains("data-ownership-kind=\"book\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
   assert_true(mine.wxml.contains("Private Agent Lab Book"))
@@ -483,6 +493,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
       "\"ownership-filter-books\":[{k:\"set\",p:\"ownership.filter\",v:\"books\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"ownership-filter-placements\":[]",
     ),
   )
   assert_true(
@@ -665,6 +680,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]",
+    ),
+  )
+  assert_true(
     file_content(project.files, "pages/moontown/index.wxml").contains(
       "data-bunnia-message=\"dev-login\"",
     ),
@@ -792,11 +812,17 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_building_audit_events(projection).length(), 1)
   assert_eq(owned_audit_events(projection).length(), 2)
   assert_eq(town_activity_items(projection).length(), 5)
-  assert_eq(home_town_stats(projection).length(), 4)
+  assert_eq(home_town_stats(projection).length(), 5)
   assert_eq(community_presence(projection).length(), 4)
   assert_eq(projection.districts[4].feature_kind, "credential")
   assert_eq(projection.districts[4].action_label, "Verify")
   assert_eq(projection.buildings.length(), 10)
+  assert_eq(projection.placements.length(), 1)
+  assert_eq(visible_placements(projection).length(), 1)
+  assert_eq(placed_buildings(projection).length(), 1)
+  assert_eq(placed_buildings(projection)[0].id, "policy-hall")
+  assert_true(placement_for_building(projection, "policy-hall") is Some(_))
+  assert_true(placement_for_building(projection, "published-agent-lab") is None)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(visible_books(projection).length(), 7)
   assert_eq(selected_building_book(projection).id, "book-policy-hall")
@@ -823,11 +849,17 @@ test "moontown miniapp projection supports mock user create search and agent flo
   )
   assert_eq(owned_buildings(projection).length(), 1)
   assert_eq(owned_books(projection).length(), 1)
-  assert_eq(ownership_stats(projection).length(), 5)
-  assert_eq(projection.ownership_filters.length(), 5)
+  assert_eq(ownership_stats(projection).length(), 6)
+  assert_eq(ownership_stats(projection)[0].id, "placements")
+  assert_eq(ownership_stats(projection)[0].value, 1)
+  assert_eq(projection.ownership_filters.length(), 6)
   assert_eq(selected_ownership_filter(projection).id, "all")
-  assert_eq(ownership_items(projection).length(), 3)
-  assert_eq(filtered_ownership_items(projection).length(), 3)
+  assert_eq(ownership_items(projection).length(), 4)
+  assert_eq(filtered_ownership_items(projection).length(), 4)
+  let placements = switch_ownership_filter(projection, "placements")
+  assert_eq(selected_ownership_filter(placements).kind, "placement")
+  assert_eq(filtered_ownership_items(placements).length(), 1)
+  assert_eq(filtered_ownership_items(placements)[0].title, "Policy Hall")
   let drafts = switch_ownership_filter(projection, "drafts")
   assert_eq(selected_ownership_filter(drafts).id, "drafts")
   assert_eq(filtered_ownership_items(drafts).length(), 3)
@@ -927,7 +959,14 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(published_steps[3].complete)
   let placed = place_published_building(published, "published-agent-lab")
   assert_eq(placed.selected_building_id, "published-agent-lab")
+  assert_eq(placed.buildings.length(), published.buildings.length())
+  assert_eq(placed.placements.length(), published.placements.length() + 1)
+  assert_eq(visible_placements(placed).length(), 2)
+  assert_eq(placed_buildings(placed).length(), 2)
+  assert_true(placement_for_building(placed, "published-agent-lab") is Some(_))
   assert_eq(selected_building_audit_events(placed).length(), 2)
+  let duplicate_placed = place_published_building(placed, "published-agent-lab")
+  assert_eq(duplicate_placed.placements.length(), placed.placements.length())
   let archived = archive_selected_building(published)
   assert_eq(selected_building(archived).visibility, "archived")
   assert_eq(visible_buildings(archived).length(), 9)

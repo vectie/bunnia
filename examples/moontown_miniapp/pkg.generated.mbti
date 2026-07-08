@@ -122,6 +122,8 @@ pub fn mini_town_ownership_item(id~ : String, kind~ : String, title~ : String, s
 
 pub fn mini_town_ownership_stat(id~ : String, label~ : String, value~ : Int) -> MiniTownOwnershipStat
 
+pub fn mini_town_placement(id~ : String, building_id~ : String, owner_id~ : String, layer~ : String, x~ : Int, y~ : Int, status~ : String, source~ : String) -> MiniTownPlacement
+
 pub fn mini_town_presence(id~ : String, title~ : String, subtitle~ : String, actor_kind~ : String, building_id~ : String, status~ : String) -> MiniTownPresence
 
 pub fn mini_town_profile(user_id~ : String, display_name~ : String, role_id~ : String, avatar_ref~ : String, consent_accepted? : Bool, setup_completed? : Bool) -> MiniTownProfile
@@ -157,6 +159,10 @@ pub fn ownership_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 pub fn pending_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 
 pub fn place_published_building(MiniTownProjection, String) -> MiniTownProjection
+
+pub fn placed_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn placement_for_building(MiniTownProjection, String) -> MiniTownPlacement?
 
 pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
 
@@ -221,6 +227,8 @@ pub fn visible_books(MiniTownProjection) -> Array[MiniTownBook]
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
 pub fn visible_notifications(MiniTownProjection) -> Array[MiniTownNotification]
+
+pub fn visible_placements(MiniTownProjection) -> Array[MiniTownPlacement]
 
 pub fn visible_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 
@@ -416,6 +424,17 @@ pub struct MiniTownOwnershipStat {
   value : Int
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownPlacement {
+  id : String
+  building_id : String
+  owner_id : String
+  layer : String
+  x : Int
+  y : Int
+  status : String
+  source : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownPresence {
   id : String
   title : String
@@ -454,6 +473,7 @@ pub struct MiniTownProjection {
   districts : Array[MiniTownDistrict]
   presence : Array[MiniTownPresence]
   buildings : Array[MiniTownBuilding]
+  placements : Array[MiniTownPlacement]
   books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
