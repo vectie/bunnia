@@ -34,6 +34,10 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Messages"))
   assert_true(!page.wxml.contains("My Town"))
   assert_true(page.wxml.contains("moontown-building-drawer"))
+  assert_true(page.wxml.contains("moontown-book-entry"))
+  assert_true(page.wxml.contains("Policy Hall Book"))
+  assert_true(page.wxml.contains("data-book-id=\"book-policy-hall\""))
+  assert_true(page.wxml.contains("12 memories / 1 reviews / review"))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
   assert_true(page.wxml.contains("moontown-create-drawer"))
@@ -138,8 +142,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("moontown-discover-entry"))
   assert_true(discover.wxml.contains("discover-search"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
+  assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(
     discover.wxml.contains("data-target-ref=\"agent:agent-policy-guide\""),
+  )
+  assert_true(
+    discover.wxml.contains("data-target-ref=\"book:book-published-agent-lab\""),
   )
   assert_true(discover.wxml.contains("Agent Lab Field Note"))
   assert_true(!discover.wxml.contains("moontown-right-hud"))
@@ -165,6 +173,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("My Town"))
   assert_true(mine.wxml.contains("ready: no"))
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
+  assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"building\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"book\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
@@ -299,16 +308,20 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(projection.activity_items.length(), 5)
+  assert_eq(projection.books.length(), 6)
   assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(subscription_notifications(projection).length(), 1)
   assert_eq(town_activity_items(projection).length(), 5)
   assert_eq(home_town_stats(projection).length(), 4)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
+  assert_eq(visible_books(projection).length(), 6)
+  assert_eq(selected_building_book(projection).id, "book-policy-hall")
   assert_eq(search_results(projection).length(), 1)
   assert_true(unified_discovery_results(projection).length() >= 5)
   assert_eq(owned_buildings(projection).length(), 1)
-  assert_eq(ownership_stats(projection).length(), 4)
+  assert_eq(owned_books(projection).length(), 1)
+  assert_eq(ownership_stats(projection).length(), 5)
   assert_eq(ownership_items(projection).length(), 3)
   let tabbed = switch_tab(projection, "discover")
   assert_eq(tabbed.active_tab_id, "discover")
@@ -327,7 +340,9 @@ test "moontown miniapp projection supports mock user create search and agent flo
     projection, "created-agent-lab", "Created Agent Lab",
   )
   assert_eq(created.buildings.length(), 11)
+  assert_eq(created.books.length(), 7)
   assert_eq(created.selected_building_id, "created-agent-lab")
+  assert_eq(selected_building_book(created).id, "book-created-agent-lab")
   let agent_created = create_agent_for_selected(
     created, "agent-created", "Created Agent",
   )

@@ -38,6 +38,19 @@ pub struct MiniTownBuilding {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownBook {
+  id : String
+  building_id : String
+  title : String
+  owner_id : String
+  visibility : String
+  summary : String
+  accepted_memory_count : Int
+  pending_review_count : Int
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownAgent {
   id : String
   name : String
@@ -153,6 +166,7 @@ pub struct MiniTownProjection {
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
   buildings : Array[MiniTownBuilding]
+  books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
@@ -220,6 +234,31 @@ pub fn mini_town_building(
     y,
     status,
     asset_ref,
+  }
+}
+
+///|
+pub fn mini_town_book(
+  id~ : String,
+  building_id~ : String,
+  title~ : String,
+  owner_id~ : String,
+  visibility~ : String,
+  summary~ : String,
+  accepted_memory_count~ : Int,
+  pending_review_count~ : Int,
+  status~ : String,
+) -> MiniTownBook {
+  {
+    id,
+    building_id,
+    title,
+    owner_id,
+    visibility,
+    summary,
+    accepted_memory_count,
+    pending_review_count,
+    status,
   }
 }
 
@@ -381,6 +420,7 @@ pub fn demo_projection() -> MiniTownProjection {
     onboarding_steps: demo_onboarding_steps(),
     districts: demo_districts(),
     buildings: demo_buildings(),
+    books: demo_books(),
     agents: [
       mini_town_agent(
         id="agent-policy-guide",
@@ -427,6 +467,78 @@ pub fn demo_projection() -> MiniTownProjection {
     discovery_items: demo_discovery_items(),
     activity_items: demo_activity_items(),
   }
+}
+
+///|
+fn demo_books() -> Array[MiniTownBook] {
+  [
+    mini_town_book(
+      id="book-policy-hall",
+      building_id="policy-hall",
+      title="Policy Hall Book",
+      owner_id="system",
+      visibility="published",
+      summary="Accepted policy answers and public review records.",
+      accepted_memory_count=12,
+      pending_review_count=1,
+      status="review",
+    ),
+    mini_town_book(
+      id="book-private-agent-lab",
+      building_id="private-agent-lab",
+      title="Private Agent Lab Book",
+      owner_id="user-a",
+      visibility="private_draft",
+      summary="Draft prompts, agent setup notes, and private memory.",
+      accepted_memory_count=3,
+      pending_review_count=2,
+      status="draft",
+    ),
+    mini_town_book(
+      id="book-team-studio",
+      building_id="team-studio",
+      title="Team Studio Book",
+      owner_id="org-a",
+      visibility="shared_private",
+      summary="Organization planning notes and accepted team decisions.",
+      accepted_memory_count=8,
+      pending_review_count=0,
+      status="shared",
+    ),
+    mini_town_book(
+      id="book-knowledge-house",
+      building_id="knowledge-house",
+      title="Knowledge House Book",
+      owner_id="system",
+      visibility="published",
+      summary="Public memory behind reusable building answers.",
+      accepted_memory_count=36,
+      pending_review_count=0,
+      status="stable",
+    ),
+    mini_town_book(
+      id="book-workshop-book",
+      building_id="book-workshop",
+      title="Book Workshop Ledger",
+      owner_id="org-a",
+      visibility="shared_private",
+      summary="Team review queue for accepted memories before publication.",
+      accepted_memory_count=14,
+      pending_review_count=4,
+      status="review",
+    ),
+    mini_town_book(
+      id="book-published-agent-lab",
+      building_id="published-agent-lab",
+      title="Published Agent Lab Book",
+      owner_id="user-b",
+      visibility="published",
+      summary="Public setup memory for a reusable agent lab.",
+      accepted_memory_count=7,
+      pending_review_count=0,
+      status="stable",
+    ),
+  ]
 }
 
 ///|
@@ -853,6 +965,17 @@ pub fn visible_buildings(
 }
 
 ///|
+pub fn visible_books(projection : MiniTownProjection) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in projection.books {
+    if mini_town_book_visible_for(projection, book) {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
 fn mini_town_building_visible_for(
   projection : MiniTownProjection,
   building : MiniTownBuilding,
@@ -863,6 +986,30 @@ fn mini_town_building_visible_for(
 }
 
 ///|
+fn mini_town_book_visible_for(
+  projection : MiniTownProjection,
+  book : MiniTownBook,
+) -> Bool {
+  book.visibility == "published" ||
+  book.owner_id == projection.active_user_id ||
+  book.owner_id == projection.organization_id ||
+  mini_town_book_building_visible_for(projection, book)
+}
+
+///|
+fn mini_town_book_building_visible_for(
+  projection : MiniTownProjection,
+  book : MiniTownBook,
+) -> Bool {
+  for building in visible_buildings(projection) {
+    if building.id == book.building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
 pub fn selected_building(projection : MiniTownProjection) -> MiniTownBuilding {
   for building in projection.buildings {
     if building.id == projection.selected_building_id {
@@ -870,6 +1017,17 @@ pub fn selected_building(projection : MiniTownProjection) -> MiniTownBuilding {
     }
   }
   projection.buildings[0]
+}
+
+///|
+pub fn selected_building_book(projection : MiniTownProjection) -> MiniTownBook {
+  let selected = selected_building(projection)
+  for book in visible_books(projection) {
+    if book.building_id == selected.id {
+      return book
+    }
+  }
+  projection.books[0]
 }
 
 ///|
@@ -915,6 +1073,22 @@ pub fn unified_discovery_results(
         status=building.status,
       ),
     )
+  }
+  for book in visible_books(projection) {
+    if book.visibility == "published" &&
+      mini_town_book_match(projection.search_query, book) {
+      output.push(
+        mini_town_discovery_item(
+          id="book-\{book.id}",
+          kind="book",
+          title=book.title,
+          summary=book.summary,
+          target_ref="book:\{book.id}",
+          visibility=book.visibility,
+          status=book.status,
+        ),
+      )
+    }
   }
   for item in projection.discovery_items {
     if mini_town_discovery_visible_for(projection, item) &&
@@ -1013,6 +1187,14 @@ fn mini_town_search_match(query : String, building : MiniTownBuilding) -> Bool {
 }
 
 ///|
+fn mini_town_book_match(query : String, book : MiniTownBook) -> Bool {
+  query == "" ||
+  book.title.contains(query) ||
+  book.summary.contains(query) ||
+  book.status.contains(query)
+}
+
+///|
 pub fn switch_mock_user(
   projection : MiniTownProjection,
   user_id : String,
@@ -1088,10 +1270,22 @@ pub fn create_private_building(
     y=513,
     status="draft",
   )
+  let book = mini_town_book(
+    id="book-\{id}",
+    building_id=id,
+    title="\{title} Book",
+    owner_id=projection.active_user_id,
+    visibility="private_draft",
+    summary="Private book memory created with this building.",
+    accepted_memory_count=0,
+    pending_review_count=0,
+    status="draft",
+  )
   {
     ..projection,
     selected_building_id: id,
     buildings: projection.buildings + [created],
+    books: projection.books + [book],
   }
 }
 
@@ -1124,6 +1318,17 @@ pub fn owned_buildings(
 }
 
 ///|
+pub fn owned_books(projection : MiniTownProjection) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in projection.books {
+    if book.owner_id == projection.active_user_id {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
 pub fn ownership_stats(
   projection : MiniTownProjection,
 ) -> Array[MiniTownOwnershipStat] {
@@ -1148,6 +1353,11 @@ pub fn ownership_stats(
       label="Agents",
       value=owned_agents(projection).length(),
     ),
+    mini_town_ownership_stat(
+      id="books",
+      label="Books",
+      value=owned_books(projection).length(),
+    ),
   ]
 }
 
@@ -1169,15 +1379,17 @@ pub fn ownership_items(
         action_label="Open",
       ),
     )
+  }
+  for book in owned_books(projection) {
     output.push(
       mini_town_ownership_item(
-        id="owned-book-\{building.id}",
+        id="owned-book-\{book.id}",
         kind="book",
-        title="\{building.title} Book",
-        summary="Durable memory and accepted knowledge behind this building.",
-        target_ref="book:\{building.id}",
-        visibility=building.visibility,
-        status=building.status,
+        title=book.title,
+        summary=book.summary,
+        target_ref="book:\{book.id}",
+        visibility=book.visibility,
+        status=book.status,
         action_label="Review",
       ),
     )

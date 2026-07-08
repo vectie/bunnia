@@ -86,10 +86,10 @@ fn moontown_wxss() -> String {
   ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
-  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
@@ -1293,6 +1293,7 @@ fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
+  let book = selected_building_book(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
@@ -1305,11 +1306,36 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(building.title),
       @bunnia.text(building.summary),
       @bunnia.text("visibility: \{building.visibility}"),
+      building_book_entry(book),
       @bunnia.button("Ask", "ask-selected-building"),
       @bunnia.button("Place", "place-published-building"),
       @bunnia.button("Share", "share-private-building"),
       @bunnia.button("Publish", "publish-private-building"),
       @bunnia.button("Archive", "archive-private-building"),
+    ],
+  )
+}
+
+///|
+fn building_book_entry(book : MiniTownBook) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-book-entry bunnia-status-\{book.status}"),
+      @bunnia.data("book-id", book.id),
+      @bunnia.data("building-id", book.building_id),
+      @bunnia.data("target-ref", "book:\{book.id}"),
+      @bunnia.data("visibility", book.visibility),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text(book.title),
+      ]),
+      @bunnia.text(book.summary),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "\{book.accepted_memory_count} memories / \{book.pending_review_count} reviews / \{book.status}",
+        ),
+      ]),
     ],
   )
 }

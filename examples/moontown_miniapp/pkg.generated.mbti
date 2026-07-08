@@ -68,6 +68,8 @@ pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, su
 
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
 
+pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owner_id~ : String, visibility~ : String, summary~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, status~ : String) -> MiniTownBook
+
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
 
 pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
@@ -94,6 +96,8 @@ pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
 
+pub fn owned_books(MiniTownProjection) -> Array[MiniTownBook]
+
 pub fn owned_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
 pub fn ownership_items(MiniTownProjection) -> Array[MiniTownOwnershipItem]
@@ -110,6 +114,8 @@ pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 
 pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 
+pub fn selected_building_book(MiniTownProjection) -> MiniTownBook
+
 pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
 pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
@@ -121,6 +127,8 @@ pub fn town_activity_items(MiniTownProjection) -> Array[MiniTownActivityItem]
 pub fn unified_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
 pub fn unread_notifications(MiniTownProjection) -> Array[MiniTownNotification]
+
+pub fn visible_books(MiniTownProjection) -> Array[MiniTownBook]
 
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
@@ -142,6 +150,18 @@ pub struct MiniTownAgent {
   id : String
   name : String
   building_id : String
+  status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownBook {
+  id : String
+  building_id : String
+  title : String
+  owner_id : String
+  visibility : String
+  summary : String
+  accepted_memory_count : Int
+  pending_review_count : Int
   status : String
 } derive(Eq, @debug.Debug)
 
@@ -249,6 +269,7 @@ pub struct MiniTownProjection {
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
   buildings : Array[MiniTownBuilding]
+  books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
