@@ -454,6 +454,10 @@ Current slice:
 - My also exposes the OPC/credential concept as a compact town plaque linked to
   the credential district/building, so account trust remains part of the town
   system instead of a generic wallet page.
+- My now renders data-driven workbench alerts for incomplete profile setup,
+  publication blocks, retryable agent runs, and stale backend state. Alerts use
+  compact tile rows with target refs and action messages, so ownership warnings
+  stay visible without turning My into a generic settings page.
 
 ## R8: Local Backend Loop
 
