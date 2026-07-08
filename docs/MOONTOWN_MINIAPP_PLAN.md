@@ -53,6 +53,11 @@ reference Realm page -> existing Moontown map
 all other reference pages -> surrounding product maturity around the map
 ```
 
+This means the remaining migration work is not "build a realm". The realm is
+already the Moontown map. The work is to make the app around that map feel like
+a complete mini-app: first-run guidance, login/profile, public discovery,
+messages, ownership, publishing, search, and agent communication.
+
 The mini-app should keep Moontown's current tile-gamified style:
 
 - map-first interaction instead of generic social-app page stacks
@@ -79,6 +84,38 @@ Moontown owns the product semantics:
 - product market, demand hall, event calendar, city guide, and OPC hub
 - role names, onboarding copy, map art, ranking rules, and business policy
 
+## Product Maturity Migration Rule
+
+Keep one mental model:
+
+```text
+Realm = the existing Moontown map
+Home = town pulse and shortcuts around the map
+Discover = search and public placement
+Messages = human and agent communication
+My = profile, ownership, drafts, and publishing state
+Buildings = the visible product units on the map
+Books = durable memory behind buildings
+Agents = workers attached to users, buildings, books, or runs
+```
+
+Do not migrate the reference screenshots literally as unrelated pages. Translate
+each function into a Moontown place, drawer, overlay, or tab surface. If a
+feature has a spatial meaning, prefer a building or district. If it is account
+or workflow state, prefer a tile-styled panel attached to `Home`, `Messages`, or
+`My`.
+
+Visual direction:
+
+- use the current tile map as the strongest brand signal
+- use compact plaques, signposts, badges, banners, drawers, and kiosk panels
+- keep edges crisp and colors readable on WeChat phones
+- avoid heavy hero sections, blurred map backdrops, generic social cards, and
+  large decorative gradients
+- keep every list windowed or scoped so the map-heavy app stays fast
+- make agent status visible as map badges, message rows, and run plaques rather
+  than separate chat-only screens
+
 ## Reference Page Interpretation
 
 | Reference page | What it does | Moontown migration |
@@ -94,6 +131,34 @@ Moontown owns the product semantics:
 | Realm | Visual graph/map of domains. | Already covered by Moontown map; do not create a second graph page. |
 | Messages | Follows, interactions, system notices, and WeChat subscription prompt. | Agent/human notification center with run, review, publish, share, and system events. |
 | Profile | User identity, stats, wallet/actions, and owned content tabs. | Account page for owned buildings, books, agents, drafts, published items, and activity. |
+
+## Migration Execution Order
+
+The migration should advance from the biggest user-facing gaps first. Realm/map
+work is the baseline, not a separate app phase, unless map clarity or touch
+constraints regress.
+
+| Order | Phase | Type | Purpose | Primary output |
+| --- | --- | --- | --- | --- |
+| 0 | Realm Baseline | hardening | Keep the existing full-screen tile map crisp, bounded, draggable, pinchable, and recognizably Moontown. | Stable map route, asset pipeline, edge handling, building hit targets. |
+| 1 | Tile App Shell | feature | Turn the map demo into a real mini-app shell. | `Home`, `Discover`, `Realm`, `Messages`, `My` tabs with Realm returning to the same map. |
+| 2 | Onboarding And Identity | feature | Let first-time users enter the town, choose profile/role, and satisfy consent gates. | First-run guide, login/profile setup, profile readiness checks. |
+| 3 | Home Town Pulse | feature | Replace generic home/reference pages with a tile-styled town pulse around the map. | Activity stream, recent runs, building shortcuts, town stats, district entries. |
+| 4 | Discover And Placement | feature | Make published town content searchable and reusable. | Unified search, filters, public building results, "place on my map" flow. |
+| 5 | Messages And Agent Communication | feature | Treat agent events and human interactions as first-class communication. | Notifications, agent run updates, review requests, share/publish events, deep links. |
+| 6 | My Ownership Center | feature | Give users control over private work and published work. | Owned buildings/books/agents, drafts, submitted items, published items, archive state. |
+| 7 | Building Lifecycle And Books | feature | Connect visible buildings to durable Moontown memory and workflow state. | Create/share/publish/archive, book binding, permissions, audit trail. |
+| 8 | Tile Style And Performance Pass | hardening | Keep the mature app fast and visually coherent. | Visual audit, list windowing, asset budgets, setData/delta checks, DevTools validation. |
+
+Near-term build order:
+
+1. Keep Phase 0 stable while changing other screens.
+2. Finish Phase 3 next because Home is currently the largest maturity gap after
+   shell, identity, discovery, messages, and ownership slices.
+3. Expand Phases 4-7 with real backend contracts once the local product shape is
+   coherent.
+4. Run Phase 8 after each feature slice, not only at the end, because the app is
+   map-heavy and can become slow quickly.
 
 ## Phase-By-Phase Reference Migration
 
