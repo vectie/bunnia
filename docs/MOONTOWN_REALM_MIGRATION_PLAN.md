@@ -469,16 +469,17 @@ Done when:
 
 Current status: lifecycle pipeline and data-derived book shelf are implemented
 in the Moontown mini-app slice. Draft building edit is now a first-class
-building/book operation: owners can update the building profile and primary
-book safe summary before submission, while submitted and published buildings
-stay locked behind review/publication state. Archive and restore are both wired
-as explicit lifecycle operations, so owned archived work can return to the
-private draft workbench. Submit is now a separate publication-review state
-before publish, leaving room for moderation and reviewer decisions before public
-discovery. Submitted buildings now create publication review items, so accept
-moves the building and book into public discovery while reject returns them to
-private drafts. Accepted book-memory reviews now create durable safe memory
-records in the local backend instead of only incrementing book counters.
+building/book operation exposed as a compact tile lifecycle stamp: owners can
+update the building profile and primary book safe summary before submission,
+while submitted and published buildings stay locked behind review/publication
+state. Archive and restore are both wired as explicit lifecycle operations, so
+owned archived work can return to the private draft workbench. Submit is now a
+separate publication-review state before publish, leaving room for moderation
+and reviewer decisions before public discovery. Submitted buildings now create
+publication review items, so accept moves the building and book into public
+discovery while reject returns them to private drafts. Accepted book-memory
+reviews now create durable safe memory records in the local backend instead of
+only incrementing book counters.
 
 ### R6: Messages And Agent Communication
 

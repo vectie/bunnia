@@ -351,6 +351,11 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
     ]),
   )
   patches.push(
+    @bunnia.wechat_event_patch("update-private-building", [
+      @bunnia.set_string("lifecycle.lastAction", "update"),
+    ]),
+  )
+  patches.push(
     @bunnia.wechat_event_patch("publish-private-building", [
       @bunnia.set_string("town.lastPublishedBuildingId", "created-agent-lab"),
       @bunnia.set_string("lifecycle.lastAction", "publish"),
@@ -3221,12 +3226,7 @@ fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
       kind="button",
       attrs~,
       events=[@bunnia.event("tap", action.message)],
-      children=[
-        @bunnia.text(action.label),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-          @bunnia.text(action.reason),
-        ]),
-      ],
+      children=[@bunnia.text(action.label)],
     ),
   )
 }

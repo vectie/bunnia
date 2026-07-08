@@ -57,8 +57,12 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("support / 9 memories / 0 reviews / stable"))
   assert_true(page.wxml.contains("moontown-lifecycle-actions"))
   assert_true(page.wxml.contains("data-lifecycle-action=\"ask\""))
+  assert_true(page.wxml.contains("data-lifecycle-action=\"edit\""))
   assert_true(page.wxml.contains("data-lifecycle-action=\"submit\""))
   assert_true(page.wxml.contains("data-lifecycle-action=\"publish\""))
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"update-private-building\""),
+  )
   assert_true(page.wxml.contains("data-target-ref=\"building:policy-hall\""))
   assert_true(page.wxml.contains("data-book-id=\"book-policy-hall\""))
   assert_true(page.wxml.contains("moontown-lifecycle-action blocked"))
@@ -678,6 +682,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/buildings/update",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/submit",
     ),
   )
@@ -1167,17 +1176,20 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(ready_gates[4].complete)
   assert_true(ready_gates[5].complete)
   let default_actions = selected_building_lifecycle_actions(projection)
-  assert_eq(default_actions.length(), 7)
+  assert_eq(default_actions.length(), 8)
   assert_eq(default_actions[0].id, "ask")
   assert_true(default_actions[0].allowed)
   assert_eq(default_actions[0].book_id, "book-policy-hall")
-  assert_eq(default_actions[1].id, "place")
-  assert_true(default_actions[1].allowed)
-  assert_eq(default_actions[3].id, "submit")
-  assert_true(!default_actions[3].allowed)
-  assert_eq(default_actions[3].reason, "owner only")
-  assert_eq(default_actions[4].id, "publish")
+  assert_eq(default_actions[1].id, "edit")
+  assert_true(!default_actions[1].allowed)
+  assert_eq(default_actions[1].reason, "owner only")
+  assert_eq(default_actions[2].id, "place")
+  assert_true(default_actions[2].allowed)
+  assert_eq(default_actions[4].id, "submit")
   assert_true(!default_actions[4].allowed)
+  assert_eq(default_actions[4].reason, "owner only")
+  assert_eq(default_actions[5].id, "publish")
+  assert_true(!default_actions[5].allowed)
   let default_steps = publication_steps(projection)
   assert_eq(default_steps.length(), 6)
   assert_eq(default_steps[0].id, "draft")
@@ -1189,13 +1201,16 @@ test "moontown miniapp projection supports mock user create search and agent flo
     profiled, "ready-agent-lab", "Ready Agent Lab",
   )
   let ready_actions = selected_building_lifecycle_actions(ready_created)
-  assert_true(ready_actions[2].allowed)
-  assert_eq(ready_actions[2].reason, "private draft")
+  assert_eq(ready_actions[1].id, "edit")
+  assert_true(ready_actions[1].allowed)
+  assert_eq(ready_actions[1].reason, "draft editable")
   assert_true(ready_actions[3].allowed)
-  assert_eq(ready_actions[3].reason, "ready for review")
-  assert_true(!ready_actions[4].allowed)
+  assert_eq(ready_actions[3].reason, "private draft")
+  assert_true(ready_actions[4].allowed)
   assert_eq(ready_actions[4].reason, "ready for review")
-  assert_true(ready_actions[5].allowed)
+  assert_true(!ready_actions[5].allowed)
+  assert_eq(ready_actions[5].reason, "ready for review")
+  assert_true(ready_actions[6].allowed)
   let ready_steps = publication_steps(ready_created)
   assert_true(ready_steps[0].current)
   assert_eq(ready_steps[1].status, "draft")
@@ -1267,8 +1282,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(submitted_steps[2].current)
   assert_true(submitted_steps[3].current)
   let submitted_actions = selected_building_lifecycle_actions(submitted)
-  assert_eq(submitted_actions[4].id, "publish")
-  assert_true(!submitted_actions[4].allowed)
+  assert_eq(submitted_actions[5].id, "publish")
+  assert_true(!submitted_actions[5].allowed)
   let rejected_publication = reject_review(
     submitted, "review-publish-created-agent-lab",
   )
@@ -1321,8 +1336,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(archived_steps[5].current)
   assert_true(!archived_steps[5].blocked)
   let archived_actions = selected_building_lifecycle_actions(archived)
-  assert_eq(archived_actions[6].id, "restore")
-  assert_true(archived_actions[6].allowed)
+  assert_eq(archived_actions[7].id, "restore")
+  assert_true(archived_actions[7].allowed)
   let restored = restore_selected_building(archived)
   assert_eq(selected_building(restored).visibility, "private_draft")
   assert_eq(selected_building_book(restored).visibility, "private_draft")

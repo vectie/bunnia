@@ -2365,6 +2365,28 @@ pub fn selected_building_lifecycle_actions(
       status=if building.visibility == "archived" { "blocked" } else { "ready" },
     ),
     mini_town_lifecycle_action(
+      id="edit",
+      label="Edit",
+      message="update-private-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        (
+          building.visibility == "private_draft" ||
+          building.visibility == "shared_private"
+        ),
+      reason=lifecycle_edit_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        (
+          building.visibility == "private_draft" ||
+          building.visibility == "shared_private"
+        ) {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+    mini_town_lifecycle_action(
       id="place",
       label="Place",
       message="place-published-building",
@@ -2611,6 +2633,21 @@ fn lifecycle_share_reason(
     "private draft"
   } else {
     "already shared"
+  }
+}
+
+///|
+fn lifecycle_edit_reason(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id != projection.active_user_id {
+    "owner only"
+  } else if building.visibility == "private_draft" ||
+    building.visibility == "shared_private" {
+    "draft editable"
+  } else {
+    "locked after submit"
   }
 }
 
