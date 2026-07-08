@@ -299,6 +299,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("data-placement-source=\"discover\""))
   assert_true(discover.wxml.contains("data-placement-x=\"538\""))
   assert_true(discover.wxml.contains("data-placement-y=\"528\""))
+  assert_true(discover.wxml.contains("Watch"))
+  assert_true(
+    discover.wxml.contains("data-bunnia-message=\"request-subscription\""),
+  )
+  assert_true(discover.wxml.contains("data-notice-kind=\"subscription\""))
+  assert_true(discover.wxml.contains("data-notice-id=\"notice-subscribe\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(

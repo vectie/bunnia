@@ -507,6 +507,9 @@ than a generic button. Public discovery targets can now also be watched through
 the existing subscription route: the backend validates that watched buildings,
 books, agents, users, and listings are public/visible, persists viewer-scoped
 watch state, and returns those watches through My ownership stats and rows.
+Discover now exposes this as a compact Watch stamp on public result rows,
+reusing the same backend route and carrying each row's target reference instead
+of creating a separate social-follow page.
 
 ### R5: Building Lifecycle And Books
 
