@@ -239,6 +239,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("ready: no"))
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
+  assert_true(mine.wxml.contains("moontown-ownership-filter active"))
+  assert_true(mine.wxml.contains("data-ownership-filter-id=\"drafts\""))
+  assert_true(
+    mine.wxml.contains("data-ownership-filter-visibility=\"private_draft\""),
+  )
+  assert_true(mine.wxml.contains("data-ownership-filter-id=\"books\""))
+  assert_true(mine.wxml.contains("data-ownership-filter-kind=\"agent\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"building\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"book\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
@@ -349,6 +356,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"ownership\":{\"filter\":\"all\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
     ),
   )
@@ -452,7 +464,21 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(owned_buildings(projection).length(), 1)
   assert_eq(owned_books(projection).length(), 1)
   assert_eq(ownership_stats(projection).length(), 5)
+  assert_eq(projection.ownership_filters.length(), 5)
+  assert_eq(selected_ownership_filter(projection).id, "all")
   assert_eq(ownership_items(projection).length(), 3)
+  assert_eq(filtered_ownership_items(projection).length(), 3)
+  let drafts = switch_ownership_filter(projection, "drafts")
+  assert_eq(selected_ownership_filter(drafts).id, "drafts")
+  assert_eq(filtered_ownership_items(drafts).length(), 3)
+  let books = switch_ownership_filter(projection, "books")
+  assert_eq(selected_ownership_filter(books).kind, "book")
+  assert_eq(filtered_ownership_items(books).length(), 1)
+  assert_eq(filtered_ownership_items(books)[0].title, "Private Agent Lab Book")
+  let agents = switch_ownership_filter(projection, "agents")
+  assert_eq(selected_ownership_filter(agents).kind, "agent")
+  assert_eq(filtered_ownership_items(agents).length(), 1)
+  assert_eq(filtered_ownership_items(agents)[0].title, "Builder")
   let accepted = accept_review(projection, "review-policy-memory")
   assert_eq(pending_reviews(accepted).length(), 0)
   assert_eq(review_runs(accepted).length(), 0)

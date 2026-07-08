@@ -222,6 +222,14 @@ pub struct MiniTownOwnershipItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownOwnershipFilter {
+  id : String
+  label : String
+  kind : String
+  visibility : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -233,6 +241,7 @@ pub struct MiniTownProjection {
   search_query : String
   active_discovery_filter_id : String
   active_notification_channel_id : String
+  active_ownership_filter_id : String
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -250,6 +259,7 @@ pub struct MiniTownProjection {
   notification_channels : Array[MiniTownNotificationChannel]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
+  ownership_filters : Array[MiniTownOwnershipFilter]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Debug, Eq)
@@ -602,6 +612,16 @@ pub fn mini_town_ownership_item(
 }
 
 ///|
+pub fn mini_town_ownership_filter(
+  id~ : String,
+  label~ : String,
+  kind? : String = "all",
+  visibility? : String = "all",
+) -> MiniTownOwnershipFilter {
+  { id, label, kind, visibility }
+}
+
+///|
 pub fn demo_projection() -> MiniTownProjection {
   {
     id: "moontown-miniapp",
@@ -614,6 +634,7 @@ pub fn demo_projection() -> MiniTownProjection {
     search_query: "agent",
     active_discovery_filter_id: "all",
     active_notification_channel_id: "all",
+    active_ownership_filter_id: "all",
     users: [
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
@@ -681,6 +702,7 @@ pub fn demo_projection() -> MiniTownProjection {
     notification_channels: demo_notification_channels(),
     discovery_items: demo_discovery_items(),
     discovery_filters: demo_discovery_filters(),
+    ownership_filters: demo_ownership_filters(),
     activity_items: demo_activity_items(),
     audit_events: demo_audit_events(),
   }
@@ -1282,6 +1304,25 @@ fn demo_notification_channels() -> Array[MiniTownNotificationChannel] {
       label="System",
       kind="subscription",
     ),
+  ]
+}
+
+///|
+fn demo_ownership_filters() -> Array[MiniTownOwnershipFilter] {
+  [
+    mini_town_ownership_filter(id="all", label="All"),
+    mini_town_ownership_filter(
+      id="drafts",
+      label="Drafts",
+      visibility="private_draft",
+    ),
+    mini_town_ownership_filter(
+      id="published",
+      label="Published",
+      visibility="published",
+    ),
+    mini_town_ownership_filter(id="books", label="Books", kind="book"),
+    mini_town_ownership_filter(id="agents", label="Agents", kind="agent"),
   ]
 }
 
@@ -2429,6 +2470,49 @@ pub fn ownership_items(
     )
   }
   output
+}
+
+///|
+pub fn selected_ownership_filter(
+  projection : MiniTownProjection,
+) -> MiniTownOwnershipFilter {
+  for item in projection.ownership_filters {
+    if item.id == projection.active_ownership_filter_id {
+      return item
+    }
+  }
+  mini_town_ownership_filter(id="all", label="All")
+}
+
+///|
+pub fn filtered_ownership_items(
+  projection : MiniTownProjection,
+) -> Array[MiniTownOwnershipItem] {
+  let filter = selected_ownership_filter(projection)
+  let output : Array[MiniTownOwnershipItem] = []
+  for item in ownership_items(projection) {
+    if mini_town_ownership_filter_match(filter, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn mini_town_ownership_filter_match(
+  filter : MiniTownOwnershipFilter,
+  item : MiniTownOwnershipItem,
+) -> Bool {
+  (filter.kind == "all" || filter.kind == item.kind) &&
+  (filter.visibility == "all" || filter.visibility == item.visibility)
+}
+
+///|
+pub fn switch_ownership_filter(
+  projection : MiniTownProjection,
+  filter_id : String,
+) -> MiniTownProjection {
+  { ..projection, active_ownership_filter_id: filter_id }
 }
 
 ///|

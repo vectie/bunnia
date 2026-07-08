@@ -1212,6 +1212,10 @@ Current evidence:
 - Messages now has tile-style channels for all, unread, agent-run, review, and
   system notifications. Notification projection uses the same visible-building
   boundary as the map, so private building notices do not leak across users.
+- My now has tile-style ownership filters for all, drafts, published items,
+  books, and agents. The filtered inventory keeps private buildings, books, and
+  attached agents in one workbench while preserving the same owner-scoped
+  projection boundary as the map.
 
 ## Phase 9: Real Backend And Deployment
 
