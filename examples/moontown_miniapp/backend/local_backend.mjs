@@ -84,6 +84,8 @@ function seedState() {
       { id: "notice-review", kind: "review", title: "Review waiting", body: "Policy answer needs approval.", targetRef: "thread-policy-hall", buildingId: "policy-hall", unread: true },
       { id: "notice-subscribe", kind: "subscription", title: "Subscribe to town signals", body: "Receive important mini-app notices.", targetRef: "subscription:wechat", buildingId: "", unread: true },
     ],
+    notificationStates: [],
+    subscriptions: [],
     auditEvents: [
       audit("audit-policy-review", "review", "Policy answer entered review", "Agent output is held until a reviewer accepts it into the book.", "agent-policy-guide", "run:run-policy-review", "policy-hall", "review", "published"),
     ],
@@ -104,6 +106,14 @@ function bookMemory(id, bookId, buildingId, title, safeSummary, authorId, review
 
 function thread(id, buildingId, title, ownerId, visibility, status) {
   return { id, buildingId, title, ownerId, visibility, status, unreadCount: 0, updatedAt: new Date().toISOString() };
+}
+
+function notificationState(userId, noticeId, unread, state) {
+  return { id: `notice-state-${userId}-${noticeId}`, userId, noticeId, unread, state, updatedAt: new Date().toISOString() };
+}
+
+function subscription(id, userId, targetRef, noticeId, status) {
+  return { id, userId, targetRef, noticeId, status, updatedAt: new Date().toISOString() };
 }
 
 function placement(id, buildingId, ownerId, layer, x, y, status, source) {
@@ -201,6 +211,8 @@ function normalizeState(state) {
   state.bookMemories = state.bookMemories || [];
   state.moderationCases = state.moderationCases || [];
   state.notifications = state.notifications || [];
+  state.notificationStates = state.notificationStates || [];
+  state.subscriptions = state.subscriptions || [];
   state.auditEvents = state.auditEvents || [];
   for (const user of state.users) {
     ensureProfile(state, user.id, { displayName: user.name, roleId: user.roleId, setupCompleted: true, consentAccepted: true });
@@ -299,15 +311,13 @@ function dispatch(state, request) {
     return decideReview(state, viewer, body.reviewId, "rejected");
   }
   if (method === "POST" && path === "/miniapp/messages/ack") {
-    const notice = state.notifications.find((item) => item.id === body.noticeId);
-    if (notice) notice.unread = false;
-    return changed({ noticeId: body.noticeId, state: "acknowledged" });
+    return acknowledgeNotification(state, viewer, body);
   }
   if (method === "POST" && path === "/miniapp/tool-results/ack") {
     return acknowledgeToolResult(state, viewer, body);
   }
   if (method === "POST" && path === "/miniapp/messages/subscribe") {
-    return changed({ targetRef: body.targetRef || "subscription:wechat", state: "requested" });
+    return requestSubscription(state, viewer, body);
   }
   if (method === "POST" && path === "/miniapp/moderation/report") {
     return reportBuilding(state, viewer, body);
@@ -454,12 +464,29 @@ function visibleThreads(state, viewer) {
   return state.threads.filter((item) => visibleBuildingIds.has(item.buildingId));
 }
 
+function visibleNotifications(state, viewer, buildings) {
+  const visibleBuildingIds = new Set(buildings.map((item) => item.id));
+  return state.notifications
+    .filter((item) => !item.buildingId || visibleBuildingIds.has(item.buildingId))
+    .map((item) => notificationForViewer(state, viewer, item));
+}
+
+function notificationForViewer(state, viewer, item) {
+  const viewerState = state.notificationStates.find((candidate) => candidate.userId === viewer && candidate.noticeId === item.id);
+  return {
+    ...item,
+    unread: viewerState ? viewerState.unread : Boolean(item.unread),
+    state: viewerState ? viewerState.state : (item.unread ? "unread" : "read"),
+  };
+}
+
 function snapshotFor(state, viewer) {
   const buildings = visibleBuildings(state, viewer);
   const placements = visiblePlacements(state, viewer);
   const books = visibleBooks(state, viewer);
   const bookMemories = visibleBookMemories(state, books);
   const threads = visibleThreads(state, viewer);
+  const notifications = visibleNotifications(state, viewer, buildings);
   const agents = state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId));
   const profile = profileFor(state, viewer);
   return {
@@ -478,7 +505,9 @@ function snapshotFor(state, viewer) {
     toolResults: state.toolResults.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
     messages: visibleMessages(state, viewer),
-    notifications: state.notifications,
+    notifications,
+    notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
+    subscriptions: state.subscriptions.filter((item) => item.userId === viewer),
     moderationCases: state.moderationCases.filter((item) => item.reporterId === viewer || buildings.some((building) => building.id === item.buildingId)),
     shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
@@ -556,6 +585,7 @@ function ownershipFor(state, viewer) {
   const threads = state.threads.filter((item) => buildingIds.has(item.buildingId));
   const relationships = relationshipsFor(state, viewer, buildings, placements, books, agents);
   const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
+  const notifications = visibleNotifications(state, viewer, buildings);
   const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
   const stats = [
     { id: "buildings", label: "Buildings", value: buildings.length },
@@ -589,7 +619,22 @@ function ownershipFor(state, viewer) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
-  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares, bookMemories, threads };
+  return {
+    viewer,
+    profile,
+    permissions,
+    relationships,
+    stats,
+    items,
+    alerts,
+    reviews,
+    shares,
+    bookMemories,
+    threads,
+    notifications,
+    notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
+    subscriptions: state.subscriptions.filter((item) => item.userId === viewer),
+  };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
@@ -937,6 +982,42 @@ function sendMessage(state, viewer, body) {
   touchThread(state, threadItem.id, "running");
   state.auditEvents.push(audit(`audit-message-${message.id}`, "message", `${item.title} message sent`, "A user message was recorded in the building thread.", viewer, `message:${message.id}`, buildingId, "running", item.visibility));
   return changed({ message, thread: threadItem, threadId: message.threadId, building: item });
+}
+
+function acknowledgeNotification(state, viewer, body) {
+  const noticeId = body.noticeId || "";
+  const notice = state.notifications.find((item) => item.id === noticeId);
+  if (!notice) return { status: 404, changed: false, body: { error: "missing_notice", noticeId } };
+  let item = state.notificationStates.find((candidate) => candidate.userId === viewer && candidate.noticeId === noticeId);
+  if (!item) {
+    item = notificationState(viewer, noticeId, false, "acknowledged");
+    state.notificationStates.push(item);
+  } else {
+    item.unread = false;
+    item.state = "acknowledged";
+    item.updatedAt = new Date().toISOString();
+  }
+  return changed({ notice: notificationForViewer(state, viewer, notice), notificationState: item, state: "acknowledged" });
+}
+
+function requestSubscription(state, viewer, body) {
+  const targetRef = body.targetRef || "subscription:wechat";
+  const noticeId = body.noticeId || "notice-subscribe";
+  let item = state.subscriptions.find((candidate) => candidate.userId === viewer && candidate.targetRef === targetRef);
+  if (!item) {
+    item = subscription(`subscription-${viewer}-${targetRef.replace(/[^a-z0-9]+/gi, "-")}`, viewer, targetRef, noticeId, "requested");
+    state.subscriptions.push(item);
+  } else {
+    item.noticeId = noticeId;
+    item.status = "requested";
+    item.updatedAt = new Date().toISOString();
+  }
+  const notice = state.notifications.find((candidate) => candidate.id === noticeId);
+  let noticeResult = null;
+  if (notice) {
+    noticeResult = acknowledgeNotification(state, viewer, { noticeId }).body.notice;
+  }
+  return changed({ subscription: item, notice: noticeResult, targetRef, state: "requested" });
 }
 
 function reportBuilding(state, viewer, body) {
@@ -1329,6 +1410,14 @@ function smoke(options) {
   assert(sent.body.message.threadId === "thread-policy-hall", "send message thread");
   assert(sent.body.thread.id === "thread-policy-hall", "send message durable thread");
   assert(sent.body.message.text === "hello policy hall", "send message text");
+  const ackedNotice = dispatch(state, { method: "POST", path: "/miniapp/messages/ack", query: new URLSearchParams(), headers, body: { noticeId: "notice-review" } });
+  assert(ackedNotice.body.notice.unread === false, "ack notice unread false");
+  assert(ackedNotice.body.notificationState.userId === "user-a", "ack notice viewer state");
+  const subscribed = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { noticeId: "notice-subscribe", targetRef: "subscription:wechat" } });
+  assert(subscribed.body.subscription.status === "requested", "subscription requested");
+  assert(subscribed.body.notice.unread === false, "subscription notice acknowledged");
+  const bobAfterAck = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(bobAfterAck.body.notifications.some((item) => item.id === "notice-review" && item.unread === true), "ack is viewer scoped");
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
   assert(report.body.case.targetRef === "building:published-agent-lab", "report target");
@@ -1354,6 +1443,9 @@ function smoke(options) {
   assert(snapshot.body.permissions.canModerate === true, "moderator snapshot permission");
   assert(snapshot.body.permissions.canReview === true, "reviewer snapshot permission");
   assert(snapshot.body.bookMemories.some((item) => item.id === accepted.body.memory.id && item.bookId === "book-policy-hall"), "snapshot accepted memory");
+  assert(snapshot.body.notifications.some((item) => item.id === "notice-review" && item.unread === false), "snapshot acknowledged notice");
+  assert(snapshot.body.notificationStates.some((item) => item.noticeId === "notice-review" && item.state === "acknowledged"), "snapshot notification state");
+  assert(snapshot.body.subscriptions.some((item) => item.targetRef === "subscription:wechat" && item.status === "requested"), "snapshot subscription");
   assert(snapshot.body.threads.some((item) => item.id === "thread-policy-hall"), "snapshot policy thread");
   assert(snapshot.body.threads.some((item) => item.id === "thread-smoke-lab" && item.visibility === "published"), "snapshot published thread");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
@@ -1370,6 +1462,8 @@ function smoke(options) {
   assert(ownership.body.permissions.canModerate === true, "ownership moderator permission");
   assert(ownership.body.permissions.profileReady === true, "ownership profile ready permission");
   assert(ownership.body.bookMemories.some((item) => item.id === ownedAccepted.body.memory.id), "ownership accepted memory");
+  assert(ownership.body.notificationStates.some((item) => item.noticeId === "notice-subscribe"), "ownership notification state");
+  assert(ownership.body.subscriptions.some((item) => item.targetRef === "subscription:wechat"), "ownership subscription");
   assert(ownership.body.threads.some((item) => item.id === "thread-smoke-lab"), "ownership thread");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");

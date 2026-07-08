@@ -508,7 +508,9 @@ flow so user messages can be persisted against the selected map building.
 Building communication threads are now durable local backend objects exposed
 through snapshot and ownership payloads, and message, run, tool-result, agent,
 and handoff actions create or update those thread records instead of relying on
-implicit `thread-*` ids. The
+implicit `thread-*` ids. Notification acknowledgement and subscription requests
+are now viewer-scoped backend state, so one user handling a notice does not
+clear it for everyone else. The
 review queue now covers both book-memory reviews and publication reviews, so
 agent output and building publication share one decision surface. Creating an
 agent now attaches it to a building thread with an audit event, so agents are
@@ -606,7 +608,9 @@ handoff now persists a building-thread message, reviewable run, notification,
 audit event, and updated target-agent status, so WeChat DevTools can exercise
 agent-to-agent work transfer on this Mac. Tool-result acknowledgement is also
 local-backend backed, so tool artifacts can move from pending to acknowledged
-state and survive DevTools reloads. The local backend also seeds durable market
+state and survive DevTools reloads. Notification acknowledgement and WeChat
+subscription requests are now persisted per viewer and returned through snapshot
+and ownership payloads. The local backend also seeds durable market
 listings for products, demands, events, and posts, so existing DevTools state can
 exercise non-building discovery without resetting the local database. Backend
 cache states now expose explicit recovery actions, so session, snapshot,
