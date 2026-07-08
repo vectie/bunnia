@@ -22,6 +22,60 @@ This is therefore a rest-functionality migration plan. The map remains the
 product's game board; the phases below add the mature app systems that make the
 board useful without changing the board into another product.
 
+## Current Product Decision
+
+Realm is just our map.
+
+The migration should no longer spend product energy inventing a new Realm page,
+domain graph, or abstract visual system. The existing Moontown tile map is the
+Realm: it is the place where buildings live, agents are visible, placements
+matter, and users return after acting elsewhere in the app.
+
+The missing work is the rest of the mini-app maturity:
+
+- entry, registration, login, profile, role, and consent
+- Home as a town pulse, not a marketing landing page
+- Discover as public search, result actions, and place-on-map flow
+- Messages as agent/human communication, runs, reviews, notices, and retries
+- My as ownership, drafts, published work, archived work, and account readiness
+- building lifecycle, book memory, agent creation, sharing, publishing, and
+  review
+- local backend and later production backend flows that make those interactions
+  durable
+
+Every one of these should keep the current tile-gamified style. The UI should
+feel like a mature tile town: signposts, plaques, market boards, ledgers,
+shelves, badges, stamps, drawers, and workbenches. Reference pages are useful
+for understanding product jobs, but they should be translated into this visual
+language instead of copied as generic social or SaaS pages.
+
+## Phase-By-Phase Migration Snapshot
+
+Use this as the concise migration order. R0 is the map guardrail. R1 through R8
+are feature phases around the map. R9 and R10 are hardening phases.
+
+| Phase | Type | Migration focus | Tile-gamified output |
+| --- | --- | --- | --- |
+| R0 Realm Map Guardrail | hardening | Keep the existing full-screen map crisp, bounded, draggable, pinchable, projection-aware, and marker-ready. | The current Moontown tile map remains the only Realm. |
+| R1 Tile Mini-App Shell | feature | Provide `Home`, `Discover`, `Realm`, `Messages`, and `My` without creating another map. | Compact tabs, route plaques, and shared tile tokens. |
+| R2 Entry, Login, And Profile | feature | Let users enter town with session, role, consent, profile, and permission state. | Town passport, setup stamps, and readiness plaques. |
+| R3 Home Town Pulse | feature | Migrate home/community overview into town activity, stats, and district shortcuts. | Notice board, activity ledger, district doors, and stale/retry plaques. |
+| R4 Discover And Placement | feature | Migrate public search, people/products/demands/events/posts, and placeable buildings. | Market board, filter plaques, placeable rows, watch/open/join/request/read stamps. |
+| R5 Building Lifecycle And Books | feature | Make buildings durable places with owner, visibility, lifecycle, permissions, books, memory, and audit. | Anchored building drawer, lifecycle stamps, book shelf, safe memory ledger. |
+| R6 Messages And Agent Communication | feature | Migrate chat, follows, interactions, agent runs, tool results, handoffs, and review requests. | Mail board, run plaques, review notices, agent badges, retry rows. |
+| R7 My Ownership Workbench | feature | Migrate profile/owned-content pages into private work management. | Inventory shelf, draft/submitted/published/archive filters, ownership stamps. |
+| R8 Local Backend Loop | feature | Make the above flows durable and testable on this Mac through WeChat DevTools. | Sync plaques, backend loop panels, two-user fixtures, local smoke coverage. |
+| R9 Style And Performance Hardening | hardening | Keep the mature app fast and visually coherent as pages grow. | Tile-system audit, windowed lists, asset checks, `setData` and render budgets. |
+| R10 Production Backend Readiness | hardening | Move from local proof to real WeChat users, storage, moderation, and operations. | WeChat login contract, HTTPS/cloud backend, moderation/recovery/ops workbench. |
+
+The practical migration rule is:
+
+1. protect the map first;
+2. add identity and backend-owned permissions before deep workflows;
+3. deepen buildings, books, agents, messages, Discover, and My around the same
+   product model;
+4. harden style and performance after every feature slice.
+
 ## Working Interpretation
 
 For migration purposes, "Realm" means only the map layer we already have. It is
