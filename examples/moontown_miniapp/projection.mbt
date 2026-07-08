@@ -87,6 +87,10 @@ pub struct MiniTownNotification {
   title : String
   body : String
   target_ref : String
+  building_id : String
+  action_label : String
+  action_message : String
+  requires_subscription : Bool
   unread : Bool
 } derive(Debug, Eq)
 
@@ -247,9 +251,24 @@ pub fn mini_town_notification(
   title~ : String,
   body~ : String,
   target_ref~ : String,
+  building_id? : String = "",
+  action_label? : String = "Open",
+  action_message? : String = "",
+  requires_subscription? : Bool = false,
   unread? : Bool = true,
 ) -> MiniTownNotification {
-  { id, kind, title, body, target_ref, unread }
+  {
+    id,
+    kind,
+    title,
+    body,
+    target_ref,
+    building_id,
+    action_label,
+    action_message,
+    requires_subscription,
+    unread,
+  }
 }
 
 ///|
@@ -528,6 +547,9 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       title="Memory review needed",
       body="Policy Hall has an accepted answer waiting for book review.",
       target_ref="thread-policy-hall",
+      building_id="policy-hall",
+      action_label="Review",
+      action_message="open-notice-review",
     ),
     mini_town_notification(
       id="notice-publish",
@@ -535,6 +557,9 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       title="Draft ready to publish",
       body="Private Agent Lab can be submitted after profile consent.",
       target_ref="building-private-agent-lab",
+      building_id="private-agent-lab",
+      action_label="Open Draft",
+      action_message="open-notice-publish",
     ),
     mini_town_notification(
       id="notice-share",
@@ -542,6 +567,21 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       title="Team building shared",
       body="Team Studio is visible to organization members.",
       target_ref="building-team-studio",
+      building_id="team-studio",
+      action_label="Open Team",
+      action_message="open-notice-share",
+      unread=false,
+    ),
+    mini_town_notification(
+      id="notice-subscribe",
+      kind="subscription",
+      title="Subscribe to town signals",
+      body="Receive run, review, publish, and share notices through WeChat.",
+      target_ref="subscription:wechat",
+      building_id="gateway",
+      action_label="Subscribe",
+      action_message="request-subscription",
+      requires_subscription=true,
       unread=false,
     ),
   ]
@@ -910,6 +950,19 @@ pub fn unread_notifications(
   let output : Array[MiniTownNotification] = []
   for notice in projection.notifications {
     if notice.unread {
+      output.push(notice)
+    }
+  }
+  output
+}
+
+///|
+pub fn subscription_notifications(
+  projection : MiniTownProjection,
+) -> Array[MiniTownNotification] {
+  let output : Array[MiniTownNotification] = []
+  for notice in projection.notifications {
+    if notice.requires_subscription {
       output.push(notice)
     }
   }

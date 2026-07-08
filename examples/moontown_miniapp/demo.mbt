@@ -988,13 +988,16 @@ fn discover_entry(item : MiniTownDiscoveryItem) -> @bunnia.Node {
 ///|
 fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let unread = unread_notifications(projection)
+  let subscription = subscription_notifications(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
       [@bunnia.text("Messages")],
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
-      @bunnia.text("\{unread.length()} unread agent and town events."),
+      @bunnia.text(
+        "\{unread.length()} unread agent and town events; \{subscription.length()} subscription prompt.",
+      ),
     ]),
     @bunnia.windowed_list(
       projection.notifications,
@@ -1013,12 +1016,23 @@ fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
         @bunnia.class_name("moontown-notice-entry"),
         @bunnia.data("notice-kind", notice.kind),
         @bunnia.data("target-ref", notice.target_ref),
+        @bunnia.data("building-id", notice.building_id),
+        @bunnia.data("action-message", notice.action_message),
+        @bunnia.data(
+          "requires-subscription",
+          if notice.requires_subscription {
+            "true"
+          } else {
+            "false"
+          },
+        ),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
           @bunnia.text(notice.title),
         ]),
         @bunnia.text(notice.body),
+        @bunnia.button(notice.action_label, notice.action_message),
       ],
     ),
   )

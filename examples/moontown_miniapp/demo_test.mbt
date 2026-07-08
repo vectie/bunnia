@@ -128,6 +128,15 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
   assert_true(messages.wxml.contains("Memory review needed"))
+  assert_true(messages.wxml.contains("Subscribe to town signals"))
+  assert_true(
+    messages.wxml.contains("data-action-message=\"open-notice-review\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-action-message=\"request-subscription\""),
+  )
+  assert_true(messages.wxml.contains("data-requires-subscription=\"true\""))
+  assert_true(messages.wxml.contains("data-building-id=\"policy-hall\""))
   assert_true(messages.wxml.contains("moontown-chat-drawer"))
   assert_true(!messages.wxml.contains("moontown-bottom-hud"))
 
@@ -263,9 +272,10 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(projection.tabs[2].map_surface)
   assert_eq(projection.onboarding_steps.length(), 4)
   assert_eq(projection.districts.length(), 4)
-  assert_eq(projection.notifications.length(), 3)
+  assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(unread_notifications(projection).length(), 2)
+  assert_eq(subscription_notifications(projection).length(), 1)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(search_results(projection).length(), 1)

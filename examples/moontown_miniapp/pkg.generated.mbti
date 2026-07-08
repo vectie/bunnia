@@ -72,7 +72,7 @@ pub fn mini_town_district(id~ : String, title~ : String, building_id~ : String, 
 
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
-pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, unread? : Bool) -> MiniTownNotification
+pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, building_id? : String, action_label? : String, action_message? : String, requires_subscription? : Bool, unread? : Bool) -> MiniTownNotification
 
 pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, building_id~ : String) -> MiniTownOnboardingStep
 
@@ -97,6 +97,8 @@ pub fn select_role(MiniTownProjection, String) -> MiniTownProjection
 pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 
 pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
+
+pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
 pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
 
@@ -166,6 +168,10 @@ pub struct MiniTownNotification {
   title : String
   body : String
   target_ref : String
+  building_id : String
+  action_label : String
+  action_message : String
+  requires_subscription : Bool
   unread : Bool
 } derive(Eq, @debug.Debug)
 
