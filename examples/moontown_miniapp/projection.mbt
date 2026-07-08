@@ -1024,6 +1024,17 @@ fn demo_books() -> Array[MiniTownBook] {
       status="review",
     ),
     mini_town_book(
+      id="book-policy-hall-sources",
+      building_id="policy-hall",
+      title="Policy Source Shelf",
+      owner_id="system",
+      visibility="published",
+      summary="Public support sources used by Policy Hall answers.",
+      accepted_memory_count=9,
+      pending_review_count=0,
+      status="stable",
+    ),
+    mini_town_book(
       id="book-private-agent-lab",
       building_id="private-agent-lab",
       title="Private Agent Lab Book",

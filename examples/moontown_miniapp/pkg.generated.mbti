@@ -20,6 +20,8 @@ pub fn active_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn archive_selected_building(MiniTownProjection) -> MiniTownProjection
 
+pub fn building_book_shelf(MiniTownProjection, String) -> Array[MiniTownBookShelfItem]
+
 pub fn community_presence(MiniTownProjection) -> Array[MiniTownPresence]
 
 pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
@@ -95,6 +97,8 @@ pub fn mini_town_backend_cache_state(id~ : String, label~ : String, source~ : St
 pub fn mini_town_backend_step(id~ : String, label~ : String, endpoint_id~ : String, http_method~ : String, path~ : String, summary~ : String, status~ : String) -> MiniTownBackendStep
 
 pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owner_id~ : String, visibility~ : String, summary~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, status~ : String) -> MiniTownBook
+
+pub fn mini_town_book_shelf_item(id~ : String, book_id~ : String, building_id~ : String, role~ : String, title~ : String, safe_summary~ : String, visibility~ : String, status~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, target_ref~ : String) -> MiniTownBookShelfItem
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
 
@@ -189,6 +193,8 @@ pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 pub fn selected_building_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
 pub fn selected_building_book(MiniTownProjection) -> MiniTownBook
+
+pub fn selected_building_book_shelf(MiniTownProjection) -> Array[MiniTownBookShelfItem]
 
 pub fn selected_building_lifecycle_actions(MiniTownProjection) -> Array[MiniTownLifecycleAction]
 
@@ -301,6 +307,20 @@ pub struct MiniTownBook {
   accepted_memory_count : Int
   pending_review_count : Int
   status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownBookShelfItem {
+  id : String
+  book_id : String
+  building_id : String
+  role : String
+  title : String
+  safe_summary : String
+  visibility : String
+  status : String
+  accepted_memory_count : Int
+  pending_review_count : Int
+  target_ref : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownBuilding {

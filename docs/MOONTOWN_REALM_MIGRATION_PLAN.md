@@ -345,6 +345,9 @@ Current implementation:
 - The pipeline is derived from the same ownership, profile, visibility, and
   lifecycle rules used by the action buttons, so blocked states and explanations
   stay consistent.
+- Building drawers now render a data-derived book shelf instead of a single
+  book row. The shelf marks a primary book and support books, exposes only safe
+  summaries, and keeps memory/review counts attached to the visible building.
 
 Acceptance:
 

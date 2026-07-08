@@ -2682,6 +2682,7 @@ fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
 fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
   let book = selected_building_book(projection)
+  let shelf = selected_building_book_shelf(projection)
   let runs = selected_building_runs(projection)
   let actions = selected_building_lifecycle_actions(projection)
   @bunnia.view_with_attrs(
@@ -2696,13 +2697,48 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(building.title),
       @bunnia.text(building.summary),
       @bunnia.text("visibility: \{building.visibility}"),
-      building_book_entry(book),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text("primary book: \{book.title}; shelf: \{shelf.length()}"),
+      ]),
+      @bunnia.windowed_list(
+        shelf,
+        total_count=shelf.length(),
+        render=book_shelf_entry,
+      ),
       @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-lifecycle-actions")],
         [@bunnia.list(actions, lifecycle_action_button)],
       ),
     ],
+  )
+}
+
+///|
+fn book_shelf_entry(item : MiniTownBookShelfItem) -> @bunnia.Node {
+  @bunnia.keyed(
+    "book-shelf-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-book-entry bunnia-status-\{item.status}"),
+        @bunnia.data("book-shelf-role", item.role),
+        @bunnia.data("book-id", item.book_id),
+        @bunnia.data("building-id", item.building_id),
+        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("visibility", item.visibility),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text("\{item.title}"),
+        ]),
+        @bunnia.text(item.safe_summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text(
+            "\{item.role} / \{item.accepted_memory_count} memories / \{item.pending_review_count} reviews / \{item.status}",
+          ),
+        ]),
+      ],
+    ),
   )
 }
 
@@ -2739,30 +2775,6 @@ fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
 ///|
 fn lifecycle_action_building_id(action : MiniTownLifecycleAction) -> String {
   action.target_ref.replace_all(old="building:", new="")
-}
-
-///|
-fn building_book_entry(book : MiniTownBook) -> @bunnia.Node {
-  @bunnia.view_with_attrs(
-    [
-      @bunnia.class_name("moontown-book-entry bunnia-status-\{book.status}"),
-      @bunnia.data("book-id", book.id),
-      @bunnia.data("building-id", book.building_id),
-      @bunnia.data("target-ref", "book:\{book.id}"),
-      @bunnia.data("visibility", book.visibility),
-    ],
-    [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
-        @bunnia.text(book.title),
-      ]),
-      @bunnia.text(book.summary),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-        @bunnia.text(
-          "\{book.accepted_memory_count} memories / \{book.pending_review_count} reviews / \{book.status}",
-        ),
-      ]),
-    ],
-  )
 }
 
 ///|

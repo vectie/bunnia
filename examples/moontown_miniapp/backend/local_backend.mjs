@@ -39,6 +39,7 @@ function seedState() {
     ],
     books: [
       book("book-policy-hall", "policy-hall", "Policy Hall Book", "system", "published", "Accepted public policy memory.", 12, 1, "review"),
+      book("book-policy-hall-sources", "policy-hall", "Policy Source Shelf", "system", "published", "Public support sources used by Policy Hall answers.", 9, 0, "stable"),
       book("book-private-agent-lab", "private-agent-lab", "Private Agent Lab Book", "user-a", "private_draft", "Private draft memory.", 0, 0, "draft"),
       book("book-team-studio", "team-studio", "Team Studio Book", "org-a", "shared_private", "Shared organization memory.", 3, 0, "shared"),
       book("book-published-agent-lab", "published-agent-lab", "Published Agent Lab Book", "user-b", "published", "Public agent lab memory.", 8, 0, "stable"),
