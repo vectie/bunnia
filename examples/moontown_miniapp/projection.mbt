@@ -110,6 +110,17 @@ pub struct MiniTownLifecycleAction {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownSetupGate {
+  id : String
+  label : String
+  summary : String
+  action_label : String
+  action_message : String
+  complete : Bool
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownTab {
   id : String
   label : String
@@ -478,6 +489,30 @@ pub fn mini_town_lifecycle_action(
   status~ : String,
 ) -> MiniTownLifecycleAction {
   { id, label, message, target_ref, book_id, allowed, reason, status }
+}
+
+///|
+pub fn mini_town_setup_gate(
+  id~ : String,
+  label~ : String,
+  summary~ : String,
+  action_label~ : String,
+  action_message~ : String,
+  complete~ : Bool,
+) -> MiniTownSetupGate {
+  {
+    id,
+    label,
+    summary,
+    action_label,
+    action_message,
+    complete,
+    status: if complete {
+      "stable"
+    } else {
+      "blocked"
+    },
+  }
 }
 
 ///|
@@ -2334,6 +2369,84 @@ pub fn profile_ready_to_publish(projection : MiniTownProjection) -> Bool {
   projection.profile.setup_completed &&
   projection.profile.consent_accepted &&
   projection.profile.role_id != ""
+}
+
+///|
+pub fn setup_gates(projection : MiniTownProjection) -> Array[MiniTownSetupGate] {
+  [
+    mini_town_setup_gate(
+      id="session",
+      label="Session",
+      summary=if projection.active_user_id == "" {
+        "Login before private buildings and agent runs can be scoped."
+      } else {
+        "Logged in as \{projection.active_user_id}."
+      },
+      action_label="Login",
+      action_message="dev-login",
+      complete=projection.active_user_id != "",
+    ),
+    mini_town_setup_gate(
+      id="onboarding",
+      label="Onboarding",
+      summary=if projection.onboarding_completed {
+        "Realm intro is complete."
+      } else {
+        "Read the tile-town intro before entering public workflows."
+      },
+      action_label="Enter Realm",
+      action_message="complete-onboarding",
+      complete=projection.onboarding_completed,
+    ),
+    mini_town_setup_gate(
+      id="role",
+      label="Role",
+      summary=if projection.profile.role_id == "" {
+        "Choose a role so recommendations and labels are scoped."
+      } else {
+        "Role selected: \{projection.profile.role_id}."
+      },
+      action_label="Choose",
+      action_message="select-role-builder",
+      complete=projection.profile.role_id != "",
+    ),
+    mini_town_setup_gate(
+      id="consent",
+      label="Consent",
+      summary=if projection.profile.consent_accepted {
+        "Agreement accepted for publish and share workflows."
+      } else {
+        "Accept consent before publishing or sharing town content."
+      },
+      action_label="Accept",
+      action_message="accept-profile-consent",
+      complete=projection.profile.consent_accepted,
+    ),
+    mini_town_setup_gate(
+      id="profile",
+      label="Profile",
+      summary=if projection.profile.setup_completed {
+        "Profile setup is complete."
+      } else {
+        "Save profile details before public building actions."
+      },
+      action_label="Save",
+      action_message="save-profile",
+      complete=projection.profile.setup_completed,
+    ),
+    mini_town_setup_gate(
+      id="publish-ready",
+      label="Publish Ready",
+      summary=if profile_ready_to_publish(projection) {
+        "Create, share, and publish actions can be enabled by ownership."
+      } else {
+        "Publishing stays blocked until role, consent, and profile are ready."
+      },
+      action_label="My",
+      action_message="tab-my",
+      complete=profile_ready_to_publish(projection),
+    ),
+  ]
 }
 
 ///|

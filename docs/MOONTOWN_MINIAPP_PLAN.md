@@ -887,6 +887,11 @@ Current evidence:
   organization/workspace role propagation, private building isolation, shared
   organization building visibility, and search that excludes invisible private
   buildings.
+- Bunnia `examples/moontown_miniapp` projects setup readiness as tile-style
+  gates for session, onboarding, role, consent, profile save, and publish
+  readiness. The My/Identity Setup surface shows why public actions remain
+  blocked and provides compact action messages that match the same lifecycle
+  gates used by building publish/share controls.
 
 ## Phase 3: Building Registry And Map Placement
 

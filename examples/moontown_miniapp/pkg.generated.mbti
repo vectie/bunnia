@@ -126,6 +126,8 @@ pub fn mini_town_role(id~ : String, title~ : String, summary~ : String, building
 
 pub fn mini_town_run(id~ : String, agent_id~ : String, building_id~ : String, book_id~ : String, thread_id~ : String, title~ : String, summary~ : String, status~ : String, review_required? : Bool, artifact_ref? : String) -> MiniTownRun
 
+pub fn mini_town_setup_gate(id~ : String, label~ : String, summary~ : String, action_label~ : String, action_message~ : String, complete~ : Bool) -> MiniTownSetupGate
+
 pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
 
 pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
@@ -175,6 +177,8 @@ pub fn selected_discovery_filter(MiniTownProjection) -> MiniTownDiscoveryFilter
 pub fn selected_notification_channel(MiniTownProjection) -> MiniTownNotificationChannel
 
 pub fn selected_ownership_filter(MiniTownProjection) -> MiniTownOwnershipFilter
+
+pub fn setup_gates(MiniTownProjection) -> Array[MiniTownSetupGate]
 
 pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
 
@@ -473,6 +477,16 @@ pub struct MiniTownRun {
   status : String
   review_required : Bool
   artifact_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownSetupGate {
+  id : String
+  label : String
+  summary : String
+  action_label : String
+  action_message : String
+  complete : Bool
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownTab {

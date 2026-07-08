@@ -140,6 +140,13 @@ Deliverable:
 
 - Users can enter the town with a known identity and safe setup state.
 
+Current implementation:
+
+- Profile readiness is projected as tile-style setup gates for session,
+  onboarding, role, consent, profile save, and publish readiness.
+- My/Identity Setup renders those gates as compact checklist rows with local
+  action messages for login, onboarding, role choice, consent, and profile save.
+
 Acceptance:
 
 - New users see onboarding/setup once.

@@ -257,6 +257,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let mine = tab_page(projection, "my")
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
   assert_true(mine.wxml.contains("Identity Setup"))
+  assert_true(mine.wxml.contains("data-setup-gate=\"session\""))
+  assert_true(mine.wxml.contains("data-setup-gate=\"publish-ready\""))
+  assert_true(
+    mine.wxml.contains(
+      "Publishing stays blocked until role, consent, and profile are ready.",
+    ),
+  )
+  assert_true(mine.wxml.contains("data-complete=\"false\""))
+  assert_true(
+    mine.wxml.contains("data-bunnia-message=\"accept-profile-consent\""),
+  )
   assert_true(mine.wxml.contains("My Town"))
   assert_true(mine.wxml.contains("My Lifecycle"))
   assert_true(mine.wxml.contains("Private Agent Lab drafted"))
@@ -461,6 +472,16 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.backend_cache_states[1].state, "stale-safe")
   assert_eq(projection.backend_cache_states[2].source, "request-log")
   assert_true(!profile_ready_to_publish(projection))
+  let gates = setup_gates(projection)
+  assert_eq(gates.length(), 6)
+  assert_eq(gates[0].id, "session")
+  assert_true(gates[0].complete)
+  assert_eq(gates[1].id, "onboarding")
+  assert_true(!gates[1].complete)
+  assert_eq(gates[3].id, "consent")
+  assert_true(!gates[3].complete)
+  assert_eq(gates[5].id, "publish-ready")
+  assert_true(!gates[5].complete)
   assert_eq(projection.tabs.length(), 5)
   assert_eq(projection.active_tab_id, "realm")
   assert_true(projection.tabs[2].map_surface)
@@ -552,6 +573,11 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(profiled.profile.role_id, "explorer")
   assert_true(profiled.profile.consent_accepted)
   assert_true(profile_ready_to_publish(profiled))
+  let ready_gates = setup_gates(profiled)
+  assert_true(ready_gates[2].complete)
+  assert_true(ready_gates[3].complete)
+  assert_true(ready_gates[4].complete)
+  assert_true(ready_gates[5].complete)
   let default_actions = selected_building_lifecycle_actions(projection)
   assert_eq(default_actions.length(), 5)
   assert_eq(default_actions[0].id, "ask")
