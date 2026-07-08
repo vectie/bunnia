@@ -243,10 +243,10 @@ function dispatch(state, request) {
     return changeRunStatus(state, body.runId, "running");
   }
   if (method === "POST" && path === "/miniapp/reviews/accept") {
-    return decideReview(state, body.reviewId, "accepted");
+    return decideReview(state, viewer, body.reviewId, "accepted");
   }
   if (method === "POST" && path === "/miniapp/reviews/reject") {
-    return decideReview(state, body.reviewId, "rejected");
+    return decideReview(state, viewer, body.reviewId, "rejected");
   }
   if (method === "POST" && path === "/miniapp/messages/ack") {
     const notice = state.notifications.find((item) => item.id === body.noticeId);
@@ -635,18 +635,8 @@ function publishBuilding(state, viewer, buildingId) {
   if (item.visibility !== "submitted") {
     return { status: 409, changed: false, body: { error: "not_submitted", buildingId, visibility: item.visibility } };
   }
-  item.visibility = "published";
-  item.status = "stable";
-  for (const memory of state.books) {
-    if (memory.buildingId === buildingId) {
-      memory.visibility = "published";
-      memory.status = "stable";
-      memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
-    }
-  }
   const review = state.reviews.find((candidate) => candidate.buildingId === buildingId && candidate.runId === `publication-${buildingId}` && candidate.status === "pending");
-  if (review) review.status = "accepted";
-  state.auditEvents.push(audit(`audit-publish-${buildingId}`, "publish", `${item.title} published`, "Publication review accepted; building is searchable and placeable.", viewer, `building:${buildingId}`, buildingId, "stable", "published"));
+  acceptPublication(state, viewer, item, review);
   return changed(review ? { building: item, review } : { building: item });
 }
 
@@ -710,22 +700,71 @@ function changeRunStatus(state, runId, status) {
   return changed({ run });
 }
 
-function decideReview(state, reviewId, decision) {
+function decideReview(state, viewer, reviewId, decision) {
   const review = state.reviews.find((item) => item.id === reviewId) || state.reviews.find((item) => item.status === "pending");
   if (!review) return { status: 404, changed: false, body: { error: "missing_review", reviewId } };
+  if (review.reviewerId !== viewer) return { status: 403, changed: false, body: { error: "reviewer_only", reviewId } };
+  if (review.status !== "pending") return { status: 409, changed: false, body: { error: "review_closed", reviewId, status: review.status } };
   review.status = decision;
+  const building = state.buildings.find((item) => item.id === review.buildingId);
+  if (isPublicationReview(review)) {
+    if (!building) return { status: 404, changed: false, body: { error: "missing_building", buildingId: review.buildingId } };
+    if (decision === "accepted") {
+      acceptPublication(state, viewer, building, review);
+    } else {
+      rejectPublication(state, viewer, building, review);
+    }
+    return changed({ review, building, book: firstBookForBuilding(state, building.id) });
+  }
   const run = state.runs.find((item) => item.id === review.runId);
   if (run) {
     run.status = decision === "accepted" ? "done" : "rejected";
     run.reviewRequired = false;
   }
   const memory = state.books.find((item) => item.id === review.bookId);
-  if (memory && decision === "accepted") {
-    memory.acceptedMemoryCount += review.acceptedMemoryDelta || 1;
+  if (memory) {
+    if (decision === "accepted") {
+      memory.acceptedMemoryCount += review.acceptedMemoryDelta || 1;
+      memory.status = "stable";
+    }
     memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
-    memory.status = "stable";
+  }
+  if (building) {
+    state.auditEvents.push(audit(`audit-review-${decision}-${review.id}`, `review-${decision}`, `${review.title} ${decision}`, decision === "accepted" ? "Accepted agent output entered book memory." : "Rejected agent output returned to the run.", viewer, `review:${review.id}`, building.id, decision === "accepted" ? "stable" : "rejected", building.visibility));
   }
   return changed({ review, run, book: memory });
+}
+
+function isPublicationReview(review) {
+  return String(review.artifactRef || "").startsWith("building://") || String(review.runId || "").startsWith("publication-");
+}
+
+function acceptPublication(state, viewer, building, review) {
+  building.visibility = "published";
+  building.status = "stable";
+  for (const memory of state.books) {
+    if (memory.buildingId === building.id) {
+      memory.visibility = "published";
+      memory.status = "stable";
+      memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
+    }
+  }
+  if (review) review.status = "accepted";
+  state.auditEvents.push(audit(`audit-publish-${building.id}`, "publish", `${building.title} published`, "Publication review accepted; building is searchable and placeable.", viewer, `building:${building.id}`, building.id, "stable", "published"));
+}
+
+function rejectPublication(state, viewer, building, review) {
+  building.visibility = "private_draft";
+  building.status = "draft";
+  for (const memory of state.books) {
+    if (memory.buildingId === building.id) {
+      memory.visibility = "private_draft";
+      memory.status = "draft";
+      memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
+    }
+  }
+  if (review) review.status = "rejected";
+  state.auditEvents.push(audit(`audit-reject-${building.id}`, "review-reject", `${building.title} publication rejected`, "Publication review rejected; building returned to private drafts.", viewer, `building:${building.id}`, building.id, "draft", "private_draft"));
 }
 
 async function serve(options) {
@@ -801,7 +840,13 @@ function smoke(options) {
   const submitted = dispatch(state, { method: "POST", path: "/miniapp/buildings/submit", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(submitted.body.building.visibility === "submitted", "submit building");
   assert(submitted.body.review.status === "pending", "submit review");
-  dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  const rejectedPublication = dispatch(state, { method: "POST", path: "/miniapp/reviews/reject", query: new URLSearchParams(), headers, body: { reviewId: submitted.body.review.id } });
+  assert(rejectedPublication.body.review.status === "rejected", "reject publication review");
+  assert(rejectedPublication.body.building.visibility === "private_draft", "rejected publication returns draft");
+  const resubmitted = dispatch(state, { method: "POST", path: "/miniapp/buildings/submit", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  const acceptedPublication = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: resubmitted.body.review.id } });
+  assert(acceptedPublication.body.review.status === "accepted", "accept publication review");
+  assert(acceptedPublication.body.building.visibility === "published", "accepted publication is public");
   const archived = dispatch(state, { method: "POST", path: "/miniapp/buildings/archive", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(archived.body.building.visibility === "archived", "archive building");
   const restored = dispatch(state, { method: "POST", path: "/miniapp/buildings/restore", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });

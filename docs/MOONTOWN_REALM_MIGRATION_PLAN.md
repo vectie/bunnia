@@ -302,6 +302,9 @@ in the Moontown mini-app slice. Archive and restore are both wired as explicit
 lifecycle operations, so owned archived work can return to the private draft
 workbench. Submit is now a separate publication-review state before publish,
 leaving room for moderation and reviewer decisions before public discovery.
+Submitted buildings now create publication review items, so accept moves the
+building and book into public discovery while reject returns them to private
+drafts.
 
 ### R6: Messages And Agent Communication
 
@@ -328,7 +331,9 @@ Done when:
 
 Current status: Messages has run plaques, review controls, notification sync,
 ack/subscription actions, scoped backend metadata, and a building-thread send
-flow so user messages can be persisted against the selected map building.
+flow so user messages can be persisted against the selected map building. The
+review queue now covers both book-memory reviews and publication reviews, so
+agent output and building publication share one decision surface.
 
 ### R7: My Ownership Workbench
 
@@ -393,6 +398,8 @@ buildings the viewer can see. Discover search now exercises multi-kind public
 results instead of a building-only route. Local building publication now goes
 through `/miniapp/buildings/submit` before `/miniapp/buildings/publish`, so the
 backend loop has a review state instead of direct draft-to-public publishing.
+The local review endpoints now accept or reject publication reviews as well as
+book-memory reviews, matching the mini-app queue.
 
 ### R9: Style And Performance Hardening
 

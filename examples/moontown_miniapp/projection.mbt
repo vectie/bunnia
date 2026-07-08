@@ -1953,7 +1953,10 @@ fn mini_town_review_visible_for(
   item : MiniTownReviewItem,
 ) -> Bool {
   item.reviewer_id == projection.active_user_id &&
-  mini_town_review_run_visible_for(projection, item)
+  (
+    mini_town_review_run_visible_for(projection, item) ||
+    mini_town_review_building_visible_for(projection, item)
+  )
 }
 
 ///|
@@ -1963,6 +1966,19 @@ fn mini_town_review_run_visible_for(
 ) -> Bool {
   for run in visible_runs(projection) {
     if run.id == item.run_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn mini_town_review_building_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownReviewItem,
+) -> Bool {
+  for building in visible_buildings(projection) {
+    if building.id == item.building_id {
       return true
     }
   }
@@ -3035,7 +3051,8 @@ pub fn submit_selected_building(
   projection : MiniTownProjection,
 ) -> MiniTownProjection {
   let building = selected_building(projection)
-  update_selected_building_lifecycle(
+  let book = selected_building_book(projection)
+  let submitted = update_selected_building_lifecycle(
     projection,
     visibility="submitted",
     status="review",
@@ -3043,6 +3060,44 @@ pub fn submit_selected_building(
     title="\{building.title} submitted",
     summary="The building is waiting for town publication review.",
   )
+  {
+    ..submitted,
+    books: update_book_lifecycle_with_review_delta(
+      submitted.books,
+      building.id,
+      "submitted",
+      "review",
+      1,
+    ),
+    reviews: submitted.reviews +
+    [
+      mini_town_review_item(
+        id="review-publish-\{building.id}",
+        run_id="publication-\{building.id}",
+        building_id=building.id,
+        book_id=book.id,
+        title="Review \{building.title} publication",
+        summary="Approve this building before it appears in public discovery, or reject it back to drafts.",
+        artifact_ref="building://\{building.id}",
+        reviewer_id=projection.active_user_id,
+        status="pending",
+        accepted_memory_delta=0,
+      ),
+    ],
+    notifications: submitted.notifications +
+    [
+      mini_town_notification(
+        id="notice-review-publish-\{building.id}",
+        kind="review",
+        title="Publication review waiting",
+        body="\{building.title} needs a decision before public discovery.",
+        target_ref="building:\{building.id}",
+        building_id=building.id,
+        action_label="Review",
+        action_message="open-notice-review",
+      ),
+    ],
+  }
 }
 
 ///|
@@ -3249,6 +3304,62 @@ fn update_book_lifecycle(
 }
 
 ///|
+fn update_book_lifecycle_with_review_delta(
+  books : Array[MiniTownBook],
+  building_id : String,
+  visibility : String,
+  status : String,
+  review_delta : Int,
+) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in books {
+    if book.building_id == building_id {
+      output.push({
+        ..book,
+        visibility,
+        status,
+        pending_review_count: clamp_pending_review(
+          book.pending_review_count + review_delta,
+        ),
+      })
+    } else {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
+fn decrement_book_pending_review(
+  books : Array[MiniTownBook],
+  book_id : String,
+) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in books {
+    if book.id == book_id {
+      output.push({
+        ..book,
+        pending_review_count: clamp_pending_review(
+          book.pending_review_count - 1,
+        ),
+      })
+    } else {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
+fn clamp_pending_review(value : Int) -> Int {
+  if value < 0 {
+    0
+  } else {
+    value
+  }
+}
+
+///|
 fn lifecycle_event(
   id~ : String,
   kind~ : String,
@@ -3295,16 +3406,52 @@ pub fn accept_review(
 ) -> MiniTownProjection {
   let mut delta = 0
   let mut target_book_id = ""
+  let mut target_building_id = ""
   let mut target_run_id = ""
   let reviews : Array[MiniTownReviewItem] = []
   for item in projection.reviews {
     if item.id == review_id && item.status == "pending" {
       delta = item.accepted_memory_delta
       target_book_id = item.book_id
+      if item.artifact_ref.has_prefix("building://") {
+        target_building_id = item.building_id
+      }
       target_run_id = item.run_id
       reviews.push({ ..item, status: "accepted" })
     } else {
       reviews.push(item)
+    }
+  }
+  if target_building_id != "" {
+    return {
+      ..projection,
+      reviews,
+      buildings: update_building_lifecycle(
+        projection.buildings,
+        target_building_id,
+        "published",
+        "stable",
+      ),
+      books: update_book_lifecycle_with_review_delta(
+        projection.books,
+        target_building_id,
+        "published",
+        "stable",
+        -1,
+      ),
+      audit_events: projection.audit_events +
+      [
+        lifecycle_event(
+          id="audit-accept-\{target_building_id}",
+          kind="review-accept",
+          title="\{target_building_id} publication accepted",
+          summary="Publication review accepted; building is searchable and placeable.",
+          actor_id=projection.active_user_id,
+          building_id=target_building_id,
+          status="stable",
+          visibility="published",
+        ),
+      ],
     }
   }
   {
@@ -3320,20 +3467,59 @@ pub fn reject_review(
   projection : MiniTownProjection,
   review_id : String,
 ) -> MiniTownProjection {
+  let mut target_book_id = ""
+  let mut target_building_id = ""
   let mut target_run_id = ""
   let reviews : Array[MiniTownReviewItem] = []
   for item in projection.reviews {
     if item.id == review_id && item.status == "pending" {
+      target_book_id = item.book_id
+      if item.artifact_ref.has_prefix("building://") {
+        target_building_id = item.building_id
+      }
       target_run_id = item.run_id
       reviews.push({ ..item, status: "rejected" })
     } else {
       reviews.push(item)
     }
   }
+  if target_building_id != "" {
+    return {
+      ..projection,
+      reviews,
+      buildings: update_building_lifecycle(
+        projection.buildings,
+        target_building_id,
+        "private_draft",
+        "draft",
+      ),
+      books: update_book_lifecycle_with_review_delta(
+        projection.books,
+        target_building_id,
+        "private_draft",
+        "draft",
+        -1,
+      ),
+      audit_events: projection.audit_events +
+      [
+        lifecycle_event(
+          id="audit-reject-\{target_building_id}",
+          kind="review-reject",
+          title="\{target_building_id} publication rejected",
+          summary="Publication review rejected; building returned to private drafts.",
+          actor_id=projection.active_user_id,
+          building_id=target_building_id,
+          status="draft",
+          visibility="private_draft",
+        ),
+      ],
+    }
+  }
   {
     ..projection,
     reviews,
     runs: update_run_status(projection.runs, target_run_id, "rejected"),
+    books: decrement_book_pending_review(projection.books, target_book_id),
   }
 }
 

@@ -359,7 +359,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Review Queue"))
   assert_true(
     messages.wxml.contains(
-      "Accepted agent output becomes book memory; rejected output returns to the run.",
+      "Accepted memory enters books; accepted publication enters town discovery.",
     ),
   )
   assert_true(messages.wxml.contains("data-review-id=\"review-policy-memory\""))
@@ -1066,17 +1066,43 @@ test "moontown miniapp projection supports mock user create search and agent flo
   let shared_steps = publication_steps(shared)
   assert_true(shared_steps[1].current)
   assert_eq(shared_steps[2].summary, "profile setup needed")
+  let shared_unread_count = unread_notifications(shared).length()
   let submitted = submit_selected_building(shared)
   assert_eq(selected_building(submitted).visibility, "submitted")
   assert_eq(selected_building_book(submitted).visibility, "submitted")
+  assert_eq(selected_building_book(submitted).pending_review_count, 1)
+  assert_eq(pending_reviews(submitted).length(), 2)
+  assert_eq(
+    pending_reviews(submitted)[1].artifact_ref,
+    "building://created-agent-lab",
+  )
+  assert_eq(pending_reviews(submitted)[1].accepted_memory_delta, 0)
+  assert_eq(unread_notifications(submitted).length(), shared_unread_count + 1)
   let submitted_steps = publication_steps(submitted)
   assert_true(submitted_steps[2].current)
   assert_true(submitted_steps[3].current)
   let submitted_actions = selected_building_lifecycle_actions(submitted)
   assert_eq(submitted_actions[4].id, "publish")
   assert_true(!submitted_actions[4].allowed)
-  let published = publish_selected_building(submitted)
+  let rejected_publication = reject_review(
+    submitted, "review-publish-created-agent-lab",
+  )
+  assert_eq(selected_building(rejected_publication).visibility, "private_draft")
+  assert_eq(
+    selected_building_book(rejected_publication).visibility,
+    "private_draft",
+  )
+  assert_eq(
+    selected_building_book(rejected_publication).pending_review_count,
+    0,
+  )
+  assert_eq(pending_reviews(rejected_publication).length(), 1)
+  let resubmitted = submit_selected_building(rejected_publication)
+  let published = accept_review(resubmitted, "review-publish-created-agent-lab")
   assert_eq(selected_building(published).visibility, "published")
+  assert_eq(selected_building_book(published).visibility, "published")
+  assert_eq(selected_building_book(published).pending_review_count, 0)
+  assert_eq(pending_reviews(published).length(), 1)
   assert_eq(search_results(published).length(), 2)
   let published_steps = publication_steps(published)
   assert_true(published_steps[4].current)
@@ -1104,7 +1130,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_building(restored).visibility, "private_draft")
   assert_eq(selected_building_book(restored).visibility, "private_draft")
   assert_eq(selected_building(restored).status, "draft")
-  assert_eq(selected_building_audit_events(restored).length(), 6)
+  assert_eq(selected_building_audit_events(restored).length(), 8)
   let sent_message = send_message_to_selected_building(
     projection, "Can this building publish an agent?",
   )

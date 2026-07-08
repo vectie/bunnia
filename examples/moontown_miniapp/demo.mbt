@@ -2086,7 +2086,7 @@ fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(
-        "Accepted agent output becomes book memory; rejected output returns to the run.",
+        "Accepted memory enters books; accepted publication enters town discovery.",
       ),
     ]),
     @bunnia.windowed_list(
@@ -2117,7 +2117,7 @@ fn review_entry(item : MiniTownReviewItem) -> @bunnia.Node {
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-          @bunnia.text("\{item.status} / +\{item.accepted_memory_delta} memory"),
+          @bunnia.text(review_meta_text(item)),
         ]),
         review_controls_entry(item),
       ],
@@ -2135,11 +2135,29 @@ fn review_controls_entry(item : MiniTownReviewItem) -> @bunnia.Node {
       @bunnia.data("review-enabled", "true"),
     ],
     [
-      @bunnia.text("Memory review"),
+      @bunnia.text(review_kind_label(item)),
       review_decision_button(item, "Approve", "accept", item.accept_message),
       review_decision_button(item, "Reject", "reject", item.reject_message),
     ],
   )
+}
+
+///|
+fn review_kind_label(item : MiniTownReviewItem) -> String {
+  if item.artifact_ref.has_prefix("building://") {
+    "Publication review"
+  } else {
+    "Memory review"
+  }
+}
+
+///|
+fn review_meta_text(item : MiniTownReviewItem) -> String {
+  if item.artifact_ref.has_prefix("building://") {
+    "\{item.status} / publication gate"
+  } else {
+    "\{item.status} / +\{item.accepted_memory_delta} memory"
+  }
 }
 
 ///|
