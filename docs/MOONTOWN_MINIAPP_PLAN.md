@@ -1216,6 +1216,10 @@ Current evidence:
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped
   projection boundary as the map.
+- The selected building drawer now projects lifecycle actions from building,
+  owner, profile, and book state. Ask, place, share, publish, and archive actions
+  stay visibly tied to the selected building and its primary book, including
+  blocked reasons such as owner-only or profile setup requirements.
 
 ## Phase 9: Real Backend And Deployment
 

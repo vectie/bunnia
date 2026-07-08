@@ -98,6 +98,18 @@ pub struct MiniTownReviewItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownLifecycleAction {
+  id : String
+  label : String
+  message : String
+  target_ref : String
+  book_id : String
+  allowed : Bool
+  reason : String
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownTab {
   id : String
   label : String
@@ -429,6 +441,20 @@ pub fn mini_town_review_item(
     accept_message,
     reject_message,
   }
+}
+
+///|
+pub fn mini_town_lifecycle_action(
+  id~ : String,
+  label~ : String,
+  message~ : String,
+  target_ref~ : String,
+  book_id~ : String,
+  allowed~ : Bool,
+  reason~ : String,
+  status~ : String,
+) -> MiniTownLifecycleAction {
+  { id, label, message, target_ref, book_id, allowed, reason, status }
 }
 
 ///|
@@ -1631,6 +1657,149 @@ pub fn selected_building_runs(
     }
   }
   output
+}
+
+///|
+pub fn selected_building_lifecycle_actions(
+  projection : MiniTownProjection,
+) -> Array[MiniTownLifecycleAction] {
+  let building = selected_building(projection)
+  let book = selected_building_book(projection)
+  [
+    mini_town_lifecycle_action(
+      id="ask",
+      label="Ask",
+      message="ask-selected-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.visibility != "archived",
+      reason=if building.visibility == "archived" {
+        "archived building"
+      } else {
+        "book linked"
+      },
+      status=if building.visibility == "archived" { "blocked" } else { "ready" },
+    ),
+    mini_town_lifecycle_action(
+      id="place",
+      label="Place",
+      message="place-published-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.visibility == "published",
+      reason=if building.visibility == "published" {
+        "published building"
+      } else {
+        "publish first"
+      },
+      status=if building.visibility == "published" {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+    mini_town_lifecycle_action(
+      id="share",
+      label="Share",
+      message="share-private-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        building.visibility == "private_draft",
+      reason=lifecycle_share_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        building.visibility == "private_draft" {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+    mini_town_lifecycle_action(
+      id="publish",
+      label="Publish",
+      message="publish-private-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        (
+          building.visibility == "private_draft" ||
+          building.visibility == "shared_private"
+        ) &&
+        profile_ready_to_publish(projection),
+      reason=lifecycle_publish_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        (
+          building.visibility == "private_draft" ||
+          building.visibility == "shared_private"
+        ) &&
+        profile_ready_to_publish(projection) {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+    mini_town_lifecycle_action(
+      id="archive",
+      label="Archive",
+      message="archive-private-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        building.visibility != "archived",
+      reason=lifecycle_archive_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        building.visibility != "archived" {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
+  ]
+}
+
+///|
+fn lifecycle_share_reason(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id != projection.active_user_id {
+    "owner only"
+  } else if building.visibility == "private_draft" {
+    "private draft"
+  } else {
+    "already shared"
+  }
+}
+
+///|
+fn lifecycle_publish_reason(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id != projection.active_user_id {
+    "owner only"
+  } else if !profile_ready_to_publish(projection) {
+    "profile setup needed"
+  } else if building.visibility == "private_draft" ||
+    building.visibility == "shared_private" {
+    "ready for town"
+  } else {
+    "not a draft"
+  }
+}
+
+///|
+fn lifecycle_archive_reason(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id != projection.active_user_id {
+    "owner only"
+  } else if building.visibility == "archived" {
+    "already archived"
+  } else {
+    "owner action"
+  }
 }
 
 ///|

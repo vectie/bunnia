@@ -94,6 +94,8 @@ pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, s
 
 pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, action_label~ : String, status~ : String) -> MiniTownDistrict
 
+pub fn mini_town_lifecycle_action(id~ : String, label~ : String, message~ : String, target_ref~ : String, book_id~ : String, allowed~ : Bool, reason~ : String, status~ : String) -> MiniTownLifecycleAction
+
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
 pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, building_id? : String, action_label? : String, action_message? : String, requires_subscription? : Bool, unread? : Bool) -> MiniTownNotification
@@ -157,6 +159,8 @@ pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 pub fn selected_building_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
 pub fn selected_building_book(MiniTownProjection) -> MiniTownBook
+
+pub fn selected_building_lifecycle_actions(MiniTownProjection) -> Array[MiniTownLifecycleAction]
 
 pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
 
@@ -284,6 +288,17 @@ pub struct MiniTownDistrict {
   stat_label : String
   stat_value : String
   action_label : String
+  status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownLifecycleAction {
+  id : String
+  label : String
+  message : String
+  target_ref : String
+  book_id : String
+  allowed : Bool
+  reason : String
   status : String
 } derive(Eq, @debug.Debug)
 

@@ -96,7 +96,7 @@ fn moontown_wxss() -> String {
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
   ".moontown-presence-row .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
-  ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
+  ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; padding: 8rpx 10rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.58); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
@@ -1399,7 +1399,7 @@ fn review_entry(item : MiniTownReviewItem) -> @bunnia.Node {
 fn lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
   lifecycle_panel_with_events(
     "Lifecycle",
-    "Create, share, publish, place, archive, and review actions stay auditable.",
+    "Building actions stay auditable.",
     selected_building_audit_events(projection),
   )
 }
@@ -1695,6 +1695,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
   let book = selected_building_book(projection)
   let runs = selected_building_runs(projection)
+  let actions = selected_building_lifecycle_actions(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
@@ -1709,12 +1710,27 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text("visibility: \{building.visibility}"),
       building_book_entry(book),
       @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
-      @bunnia.button("Ask", "ask-selected-building"),
-      @bunnia.button("Place", "place-published-building"),
-      @bunnia.button("Share", "share-private-building"),
-      @bunnia.button("Publish", "publish-private-building"),
-      @bunnia.button("Archive", "archive-private-building"),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-lifecycle-actions")],
+        [@bunnia.list(actions, lifecycle_action_button)],
+      ),
     ],
+  )
+}
+
+///|
+fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
+  @bunnia.keyed(
+    "lifecycle-action-\{action.id}",
+    @bunnia.node(
+      kind="button",
+      attrs=[
+        @bunnia.class_name("moontown-lifecycle-action \{action.status}"),
+        @bunnia.data("lifecycle-action", action.id),
+      ],
+      events=[@bunnia.event("tap", action.message)],
+      children=[@bunnia.text(action.label)],
+    ),
   )
 }
 
