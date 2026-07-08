@@ -210,7 +210,7 @@ function normalizeState(state) {
   state.nextModeration = state.nextModeration || 2;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
-  state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? state.moderatorIds : ["user-a"];
+  state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = normalizeSessions(state.sessions || {});
@@ -333,6 +333,7 @@ function healthFor(state) {
     status: "ok",
     routeCount: routeCatalog().length,
     userCount: state.users.length,
+    moderatorCount: state.moderatorIds.length,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
     auditEventCount: state.auditEvents.length,
@@ -343,6 +344,54 @@ function healthFor(state) {
 function requireModerator(state, viewer) {
   if (canModerate(state, viewer)) return null;
   return { status: 403, changed: false, body: { error: "moderator_only" } };
+}
+
+function moderatorsForAdmin(state, viewer) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const items = state.moderatorIds.map((userId) => {
+    const user = state.users.find((item) => item.id === userId);
+    const profile = state.profiles.find((item) => item.userId === userId);
+    return {
+      userId,
+      displayName: profile ? profile.displayName : (user ? user.name : userId),
+      roleId: profile ? profile.roleId : (user ? user.roleId : ""),
+      profileReady: Boolean(profile && profile.setupCompleted && profile.consentAccepted),
+    };
+  });
+  return ok({ items, count: items.length });
+}
+
+function changeModeratorForAdmin(state, viewer, body, action) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const targetUserId = body.targetUserId || body.userId || "";
+  if (!targetUserId) return { status: 400, changed: false, body: { error: "missing_user" } };
+  const targetUser = state.users.find((item) => item.id === targetUserId);
+  if (!targetUser) return { status: 404, changed: false, body: { error: "missing_user", targetUserId } };
+  const alreadyModerator = state.moderatorIds.includes(targetUserId);
+  if (action === "grant") {
+    if (!alreadyModerator) state.moderatorIds.push(targetUserId);
+  } else {
+    if (targetUserId === viewer && state.moderatorIds.length <= 1) {
+      return { status: 409, changed: false, body: { error: "last_moderator", targetUserId } };
+    }
+    state.moderatorIds = state.moderatorIds.filter((item) => item !== targetUserId);
+  }
+  const changedState = action === "grant" ? !alreadyModerator : alreadyModerator;
+  if (changedState) {
+    state.auditEvents.push(audit(`audit-moderator-${action}-${targetUserId}`, `moderator-${action}`, `${targetUser.name} moderator ${action}`, `Moderator trust ${action} by ${viewer}.`, viewer, `user:${targetUserId}`, "", action, "private"));
+  }
+  return {
+    status: 200,
+    changed: changedState,
+    body: {
+      userId: targetUserId,
+      action,
+      isModerator: state.moderatorIds.includes(targetUserId),
+      moderatorIds: state.moderatorIds,
+    },
+  };
 }
 
 function auditForAdmin(state, viewer, query) {
@@ -415,6 +464,7 @@ function opsForAdmin(state, viewer) {
     },
     counts: {
       users: state.users.length,
+      moderators: state.moderatorIds.length,
       buildings: state.buildings.length,
       books: state.books.length,
       agents: state.agents.length,
@@ -544,6 +594,15 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
   }
+  if (method === "GET" && path === "/miniapp/admin/moderators") {
+    return moderatorsForAdmin(state, viewer);
+  }
+  if (method === "POST" && path === "/miniapp/admin/moderators/grant") {
+    return changeModeratorForAdmin(state, viewer, body, "grant");
+  }
+  if (method === "POST" && path === "/miniapp/admin/moderators/revoke") {
+    return changeModeratorForAdmin(state, viewer, body, "revoke");
+  }
   if (method === "POST" && path === "/miniapp/admin/retention/prune") {
     return retentionPruneForAdmin(state, viewer, body);
   }
@@ -660,6 +719,9 @@ function routeCatalog() {
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
     "GET /miniapp/admin/ops",
+    "GET /miniapp/admin/moderators",
+    "POST /miniapp/admin/moderators/grant",
+    "POST /miniapp/admin/moderators/revoke",
     "POST /miniapp/admin/retention/prune",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
@@ -1740,11 +1802,30 @@ function smoke(options) {
   assert(deniedAudit.status === 403, "admin audit moderator only");
   const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedOps.status === 403, "admin ops moderator only");
+  const deniedModerators = dispatch(state, { method: "GET", path: "/miniapp/admin/moderators", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedModerators.status === 403, "admin moderators moderator only");
   const deniedPrune = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedPrune.status === 403, "admin retention prune moderator only");
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
+  const adminModerators = dispatch(state, { method: "GET", path: "/miniapp/admin/moderators", query: new URLSearchParams(), headers, body: {} });
+  assert(adminModerators.body.count === 1, "admin moderators count");
+  assert(adminModerators.body.items.some((item) => item.userId === "user-a" && item.profileReady === true), "admin moderators list user-a");
+  const grantedModerator = dispatch(state, { method: "POST", path: "/miniapp/admin/moderators/grant", query: new URLSearchParams(), headers, body: { targetUserId: "user-c" } });
+  assert(grantedModerator.changed === true, "admin moderator grant changed");
+  assert(grantedModerator.body.isModerator === true, "admin moderator grant state");
+  const grantedSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
+  assert(grantedSnapshot.body.permissions.canModerate === true, "admin moderator grant permission");
+  const duplicateGrant = dispatch(state, { method: "POST", path: "/miniapp/admin/moderators/grant", query: new URLSearchParams(), headers, body: { targetUserId: "user-c" } });
+  assert(duplicateGrant.changed === false, "admin duplicate moderator grant stable");
+  const revokedModerator = dispatch(state, { method: "POST", path: "/miniapp/admin/moderators/revoke", query: new URLSearchParams(), headers, body: { targetUserId: "user-c" } });
+  assert(revokedModerator.changed === true, "admin moderator revoke changed");
+  assert(revokedModerator.body.isModerator === false, "admin moderator revoke state");
+  const moderatorRevokedSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
+  assert(moderatorRevokedSnapshot.body.permissions.canModerate === false, "admin moderator revoke permission");
+  const selfRevoke = dispatch(state, { method: "POST", path: "/miniapp/admin/moderators/revoke", query: new URLSearchParams(), headers, body: { targetUserId: "user-a" } });
+  assert(selfRevoke.status === 409, "admin last moderator protected");
   const adminBackup = dispatch(state, { method: "GET", path: "/miniapp/admin/backup", query: new URLSearchParams(), headers, body: {} });
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
@@ -1757,6 +1838,7 @@ function smoke(options) {
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
   assert(adminOps.body.counts.users >= 2, "admin ops user count");
+  assert(adminOps.body.counts.moderators === 1, "admin ops moderator count");
   assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
   state.sessions["session-expired-prune"] = { id: "session-expired-prune", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
   state.rateLimits["user-a:/miniapp/old"] = { key: "user-a:/miniapp/old", count: 9, resetAt: "2000-01-01T00:00:00.000Z" };
