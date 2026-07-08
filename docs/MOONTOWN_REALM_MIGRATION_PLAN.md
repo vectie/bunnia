@@ -288,6 +288,9 @@ Current slice:
   triggering a global endpoint.
 - Review buttons carry `reviewId`, `runId`, and `decision` on the tap target,
   so accepting or rejecting memory is tied to the intended review item.
+- Building lifecycle controls carry `buildingId`, `bookId`, and target refs on
+  the tap target, so place, share, publish, and archive requests stay scoped to
+  the building plaque that triggered them.
 
 ## R7: My Ownership Workbench
 

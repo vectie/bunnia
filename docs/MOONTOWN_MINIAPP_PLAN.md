@@ -1239,6 +1239,9 @@ Current evidence:
 - Review controls now attach `reviewId`, `runId`, and `decision` to the tapped
   button, and the WeChat adapter merges those fields into review decision
   payloads before calling the backend.
+- Building lifecycle buttons now attach `buildingId`, `bookId`, and target
+  references to the tapped button, and the backend adapter can merge those
+  scoped ids into place/share/publish/archive payloads.
 - My now has tile-style ownership filters for all, drafts, published items,
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped

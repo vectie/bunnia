@@ -82,7 +82,9 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
       "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
     ),
   )
-  assert_true(js.contains("['runId','reviewId','decision']"))
+  assert_true(
+    js.contains("['runId','reviewId','decision','buildingId','bookId']"),
+  )
   assert_true(js.contains("h=b[k]=d[k]"))
   assert_true(js.contains("e.k==='agent-operation-cancel'"))
   assert_true(js.contains("e.k==='agent-operation-retry'"))

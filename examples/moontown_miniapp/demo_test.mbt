@@ -40,6 +40,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-lifecycle-actions"))
   assert_true(page.wxml.contains("data-lifecycle-action=\"ask\""))
   assert_true(page.wxml.contains("data-lifecycle-action=\"publish\""))
+  assert_true(page.wxml.contains("data-target-ref=\"building:policy-hall\""))
+  assert_true(page.wxml.contains("data-book-id=\"book-policy-hall\""))
   assert_true(page.wxml.contains("moontown-lifecycle-action blocked"))
   assert_true(page.wxml.contains("data-allowed=\"false\""))
   assert_true(page.wxml.contains("data-blocked-reason=\"owner only\""))
@@ -421,7 +423,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
       "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
     ),
   )
-  assert_true(project.page.js.contains("['runId','reviewId','decision']"))
+  assert_true(
+    project.page.js.contains(
+      "['runId','reviewId','decision','buildingId','bookId']",
+    ),
+  )
   assert_true(project.page.js.contains("h=b[k]=d[k]"))
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(

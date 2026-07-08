@@ -2021,6 +2021,9 @@ fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
   let attrs = [
     @bunnia.class_name("moontown-lifecycle-action \{action.status}"),
     @bunnia.data("lifecycle-action", action.id),
+    @bunnia.data("target-ref", action.target_ref),
+    @bunnia.data("building-id", lifecycle_action_building_id(action)),
+    @bunnia.data("book-id", action.book_id),
     @bunnia.data("allowed", if action.allowed { "true" } else { "false" }),
     @bunnia.data("blocked-reason", action.reason),
   ]
@@ -2041,6 +2044,11 @@ fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
       ],
     ),
   )
+}
+
+///|
+fn lifecycle_action_building_id(action : MiniTownLifecycleAction) -> String {
+  action.target_ref.replace_all(old="building:", new="")
 }
 
 ///|
