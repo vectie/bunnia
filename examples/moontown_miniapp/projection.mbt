@@ -121,6 +121,17 @@ pub struct MiniTownSetupGate {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownPublicationStep {
+  id : String
+  label : String
+  summary : String
+  current : Bool
+  complete : Bool
+  blocked : Bool
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownTab {
   id : String
   label : String
@@ -511,6 +522,34 @@ pub fn mini_town_setup_gate(
       "stable"
     } else {
       "blocked"
+    },
+  }
+}
+
+///|
+pub fn mini_town_publication_step(
+  id~ : String,
+  label~ : String,
+  summary~ : String,
+  current~ : Bool,
+  complete~ : Bool,
+  blocked~ : Bool,
+) -> MiniTownPublicationStep {
+  {
+    id,
+    label,
+    summary,
+    current,
+    complete,
+    blocked,
+    status: if blocked {
+      "blocked"
+    } else if current {
+      "review"
+    } else if complete {
+      "stable"
+    } else {
+      "draft"
     },
   }
 }
@@ -1925,6 +1964,112 @@ pub fn selected_building_lifecycle_actions(
       },
     ),
   ]
+}
+
+///|
+pub fn publication_steps(
+  projection : MiniTownProjection,
+) -> Array[MiniTownPublicationStep] {
+  let building = publication_subject_building(projection)
+  let private_ready = building.visibility == "private_draft" &&
+    is_owned_by_active_user(projection, building)
+  let shared_ready = building.visibility == "shared_private" &&
+    is_owned_by_active_user(projection, building) &&
+    profile_ready_to_publish(projection)
+  [
+    mini_town_publication_step(
+      id="draft",
+      label="Private Draft",
+      summary=if building.visibility == "private_draft" {
+        "Owner can edit and prepare the building book."
+      } else {
+        "Initial private owner workspace is complete."
+      },
+      current=building.visibility == "private_draft",
+      complete=building.visibility != "private_draft",
+      blocked=!is_owned_by_active_user(projection, building),
+    ),
+    mini_town_publication_step(
+      id="share",
+      label="Team Share",
+      summary=if private_ready {
+        "Share privately with invited or organization members."
+      } else if building.visibility == "shared_private" {
+        "Visible to the team before public publication."
+      } else {
+        lifecycle_share_reason(projection, building)
+      },
+      current=building.visibility == "shared_private",
+      complete=building.visibility == "published" ||
+        building.visibility == "archived",
+      blocked=!private_ready && building.visibility == "private_draft",
+    ),
+    mini_town_publication_step(
+      id="review",
+      label="Publish Review",
+      summary=if shared_ready {
+        "Ready to submit into town publication."
+      } else {
+        lifecycle_publish_reason(projection, building)
+      },
+      current=building.visibility == "shared_private" &&
+        profile_ready_to_publish(projection),
+      complete=building.visibility == "published" ||
+        building.visibility == "archived",
+      blocked=building.visibility == "shared_private" &&
+        !profile_ready_to_publish(projection),
+    ),
+    mini_town_publication_step(
+      id="published",
+      label="Town Published",
+      summary=if building.visibility == "published" {
+        "Searchable and placeable by allowed users."
+      } else {
+        "Not yet visible in public discovery."
+      },
+      current=building.visibility == "published",
+      complete=building.visibility == "published" ||
+        building.visibility == "archived",
+      blocked=false,
+    ),
+    mini_town_publication_step(
+      id="archive",
+      label="Archive",
+      summary=if building.visibility == "archived" {
+        "Hidden from normal map and discovery surfaces."
+      } else {
+        lifecycle_archive_reason(projection, building)
+      },
+      current=building.visibility == "archived",
+      complete=building.visibility == "archived",
+      blocked=building.visibility == "archived",
+    ),
+  ]
+}
+
+///|
+fn publication_subject_building(
+  projection : MiniTownProjection,
+) -> MiniTownBuilding {
+  let selected = selected_building(projection)
+  if is_owned_by_active_user(projection, selected) {
+    selected
+  } else {
+    let owned = owned_buildings(projection)
+    if owned.length() > 0 {
+      owned[0]
+    } else {
+      selected
+    }
+  }
+}
+
+///|
+fn is_owned_by_active_user(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> Bool {
+  building.owner_id == projection.active_user_id
 }
 
 ///|

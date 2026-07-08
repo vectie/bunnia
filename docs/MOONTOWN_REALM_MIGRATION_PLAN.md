@@ -225,6 +225,15 @@ Deliverable:
 
 - Building drawers become the main object detail surface.
 
+Current implementation:
+
+- My Lifecycle renders a tile-style publication pipeline for the active owned
+  building: private draft, team share, publish review, town published, and
+  archive.
+- The pipeline is derived from the same ownership, profile, visibility, and
+  lifecycle rules used by the action buttons, so blocked states and explanations
+  stay consistent.
+
 Acceptance:
 
 - The user can tell whether a building is private, shared, submitted,

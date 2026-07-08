@@ -1233,6 +1233,11 @@ Current evidence:
   owner, profile, and book state. Ask, place, share, publish, and archive actions
   stay visibly tied to the selected building and its primary book, including
   blocked reasons such as owner-only or profile setup requirements.
+- My Lifecycle now renders a tile-style publication pipeline for the active
+  owned building: private draft, team share, publish review, town published, and
+  archive. The pipeline reuses the same ownership, profile, visibility, and
+  lifecycle rules as the action buttons, so publication state stays consistent
+  across My, building drawers, and backend-bound actions.
 - Moontown mini-app WXSS is now minified at generation time, and the default
   Realm first screen defers full onboarding/profile setup to Home/My. The
   map-heavy WeChat route keeps more budget headroom for the next backend loop

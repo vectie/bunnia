@@ -120,6 +120,8 @@ pub fn mini_town_presence(id~ : String, title~ : String, subtitle~ : String, act
 
 pub fn mini_town_profile(user_id~ : String, display_name~ : String, role_id~ : String, avatar_ref~ : String, consent_accepted? : Bool, setup_completed? : Bool) -> MiniTownProfile
 
+pub fn mini_town_publication_step(id~ : String, label~ : String, summary~ : String, current~ : Bool, complete~ : Bool, blocked~ : Bool) -> MiniTownPublicationStep
+
 pub fn mini_town_review_item(id~ : String, run_id~ : String, building_id~ : String, book_id~ : String, title~ : String, summary~ : String, artifact_ref~ : String, reviewer_id~ : String, status~ : String, accepted_memory_delta? : Int, accept_message? : String, reject_message? : String) -> MiniTownReviewItem
 
 pub fn mini_town_role(id~ : String, title~ : String, summary~ : String, building_id~ : String) -> MiniTownRole
@@ -149,6 +151,8 @@ pub fn pending_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 pub fn place_published_building(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
+
+pub fn publication_steps(MiniTownProjection) -> Array[MiniTownPublicationStep]
 
 pub fn publish_selected_building(MiniTownProjection) -> MiniTownProjection
 
@@ -442,6 +446,16 @@ pub struct MiniTownProjection {
   backend_cache_states : Array[MiniTownBackendCacheState]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownPublicationStep {
+  id : String
+  label : String
+  summary : String
+  current : Bool
+  complete : Bool
+  blocked : Bool
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownReviewItem {

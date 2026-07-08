@@ -91,10 +91,10 @@ fn moontown_wxss_source() -> String {
   ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-onboarding-step, .moontown-setup-gate, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
-  ".moontown-onboarding-step text, .moontown-setup-gate text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-onboarding-step text, .moontown-setup-gate text, .moontown-publication-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
@@ -1542,6 +1542,7 @@ fn lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
   lifecycle_panel_with_events(
     "Lifecycle",
     "Building actions stay auditable.",
+    [],
     selected_building_audit_events(projection),
   )
 }
@@ -1551,6 +1552,7 @@ fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
   lifecycle_panel_with_events(
     "My Lifecycle",
     "Owned drafts, shares, publishing, placements, and archives stay visible here.",
+    publication_steps(projection),
     owned_audit_events(projection),
   )
 }
@@ -1559,9 +1561,10 @@ fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
 fn lifecycle_panel_with_events(
   title : String,
   note : String,
+  steps : Array[MiniTownPublicationStep],
   events : Array[MiniTownAuditEvent],
 ) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+  let children = [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
       [@bunnia.text(title)],
@@ -1569,12 +1572,51 @@ fn lifecycle_panel_with_events(
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(note),
     ]),
+  ]
+  if steps.length() > 0 {
+    children.push(
+      @bunnia.windowed_list(
+        steps,
+        total_count=steps.length(),
+        render=publication_step_entry,
+      ),
+    )
+  }
+  children.push(
     @bunnia.windowed_list(
       events,
       total_count=events.length(),
       render=audit_entry,
     ),
-  ])
+  )
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("moontown-shell-panel")],
+    children,
+  )
+}
+
+///|
+fn publication_step_entry(item : MiniTownPublicationStep) -> @bunnia.Node {
+  @bunnia.keyed(
+    "publication-step-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name(
+          "moontown-publication-step bunnia-status-\{item.status}",
+        ),
+        @bunnia.data("publication-step", item.id),
+        @bunnia.data("current", if item.current { "true" } else { "false" }),
+        @bunnia.data("complete", if item.complete { "true" } else { "false" }),
+        @bunnia.data("blocked", if item.blocked { "true" } else { "false" }),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.label),
+        ]),
+        @bunnia.text(item.summary),
+      ],
+    ),
+  )
 }
 
 ///|
