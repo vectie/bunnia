@@ -41,9 +41,10 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("__bs(update, endpointId, 'cancelled', '')"))
   assert_true(js.contains("__bunniaRetryRequest"))
   assert_true(js.contains("__bunniaCancelRequest"))
+  assert_true(js.contains("const __bk='runId reviewId decision"))
   assert_true(
     js.contains(
-      "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest }",
+      "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bk }",
     ),
   )
 }
@@ -84,10 +85,11 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   )
   assert_true(
     js.contains(
-      "['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef','discoveryAction','discoveryId','discoveryKind','query','filter','kind','channel','status','visibility','limit','cursor','placeableOnly','includeAlerts']",
+      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk }",
     ),
   )
   assert_true(js.contains("Object.assign({},p.data[e.p]||{})"))
+  assert_true(js.contains("__bk.map(k=>"))
   assert_true(js.contains("d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1)"))
   assert_true(js.contains("e.k==='agent-operation-cancel'"))
   assert_true(js.contains("e.k==='agent-operation-retry'"))

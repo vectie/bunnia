@@ -931,10 +931,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     project.page.js.contains(
-      "['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef','discoveryAction','discoveryId','discoveryKind','query','filter','kind','channel','status','visibility','limit','cursor','placeableOnly','includeAlerts']",
+      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk }",
     ),
   )
   assert_true(project.page.js.contains("Object.assign({},p.data[e.p]||{})"))
+  assert_true(project.page.js.contains("__bk.map(k=>"))
   assert_true(
     project.page.js.contains("d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1)"),
   )

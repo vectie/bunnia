@@ -539,6 +539,7 @@ pub fn generate_runtime_js() -> String {
 ///|
 pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
+  "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility limit cursor placeableOnly includeAlerts'.split(' ')\n" +
   "\n" +
   "function __bunniaRequest(page, endpointId, payload) {\n" +
   "  const endpoint = __bunniaBackend.e[endpointId]\n" +
@@ -618,7 +619,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  return __bunniaRequest(page, endpointId, current ? current.request : undefined)\n" +
   "}\n" +
   "\n" +
-  "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest }"
+  "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bk }"
 }
 
 ///|
@@ -1589,7 +1590,7 @@ fn project_page_js_with_backend(
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
-  "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest } = require('\{backend_require_path(route)}')\n" +
+  "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk } = require('\{backend_require_path(route)}')\n" +
   "const __bunniaBackendEvents = \{backend_event_object(contract, plan)}\n" +
   "\n" +
   backend_request_dispatch_js() +
@@ -1679,7 +1680,7 @@ fn page_definition_js(
 
 ///|
 fn backend_request_dispatch_js() -> String {
-  "function __bp(p,e,d){let h=0,b=e.p?Object.assign({},p.data[e.p]||{}):{};['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef','discoveryAction','discoveryId','discoveryKind','query','filter','kind','channel','status','visibility','limit','cursor','placeableOnly','includeAlerts'].map(k=>d&&d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1));return h?b:undefined}\n" +
+  "function __bp(p,e,d){let h=0,b=e.p?Object.assign({},p.data[e.p]||{}):{};__bk.map(k=>d&&d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1));return h?b:undefined}\n" +
   "function __bunniaMaybeRequest(p,m,d){\n" +
   "  const id=__bunniaBackendEvents[m]\n" +
   "  if(!id)return\n" +

@@ -885,6 +885,12 @@ inside the large package budget at 262108/262144 bytes, with `event_patch_ops`
 unchanged at 156 and diagnostics at 0. This is the current pattern for large
 lists: add backend cursor windows first, then expose only the smallest tile
 control needed to exercise the next window.
+The WeChat adapter now also stores the backend dataset-overlay key whitelist
+once in `bunnia.backend.js` and imports it into generated pages. That removes a
+long repeated key array from every backend-enabled route, dropping the Moontown
+strict build to 261073/262144 bytes without changing the backend contract,
+`event_patch_ops`, or page behavior. Future generated-code constants should use
+the same shared-adapter pattern before page-level duplication is accepted.
 
 ### R10: Production Backend Readiness
 
