@@ -1252,6 +1252,10 @@ Current evidence:
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped
   projection boundary as the map.
+- My also maps the reference profile page into a tile-styled identity card with
+  display name, UID, avatar reference, readiness, social/activity stats, and
+  edit/consent actions, plus an OPC credential plaque linked to the credential
+  district/building.
 - The selected building drawer now projects lifecycle actions from building,
   owner, profile, and book state. Ask, place, share, publish, and archive actions
   stay visibly tied to the selected building and its primary book, including

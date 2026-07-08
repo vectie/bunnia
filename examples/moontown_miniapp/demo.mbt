@@ -96,6 +96,9 @@ fn moontown_wxss_source() -> String {
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
   ".moontown-onboarding-step text, .moontown-setup-gate text, .moontown-publication-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
+  ".moontown-profile-card, .moontown-credential-plaque { margin-top: 8rpx; padding: 12rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.66); box-sizing: border-box; }\n" +
+  ".moontown-profile-actions, .moontown-profile-metrics { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
+  ".moontown-profile-metric { flex: 1 1 0; min-width: 0; padding: 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
@@ -1906,6 +1909,8 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "role: \{projection.profile.role_id}; consent: \{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; showing: \{selected_ownership_filter(projection).label}; owned items: \{items.length()}",
       ),
     ]),
+    profile_identity_card(projection),
+    profile_credential_plaque(projection),
     @bunnia.windowed_list(
       stats,
       total_count=stats.length(),
@@ -1934,6 +1939,125 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=ownership_item_entry,
     ),
   ])
+}
+
+///|
+fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
+  let stats = ownership_stats(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-profile-card"),
+      @bunnia.data("profile-user-id", projection.profile.user_id),
+      @bunnia.data("profile-role", projection.profile.role_id),
+      @bunnia.data(
+        "profile-ready",
+        if profile_ready_to_publish(projection) {
+          "true"
+        } else {
+          "false"
+        },
+      ),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text(projection.profile.display_name),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "UID:\{projection.profile.user_id} / \{projection.profile.avatar_ref}",
+        ),
+      ]),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-profile-metrics")],
+        [
+          profile_metric_chip(
+            label="Follows",
+            value=discovery_results_by_kind(projection, "user").length(),
+          ),
+          profile_metric_chip(
+            label="Followers",
+            value=notification_kind_count(projection, "follow"),
+          ),
+          profile_metric_chip(
+            label="Reviews",
+            value=pending_reviews(projection).length(),
+          ),
+          profile_metric_chip(
+            label="Published",
+            value=ownership_stat_value(stats, "published"),
+          ),
+        ],
+      ),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-profile-actions")],
+        [
+          @bunnia.button("Edit Profile", "save-profile"),
+          @bunnia.button("Accept Consent", "accept-profile-consent"),
+        ],
+      ),
+    ],
+  )
+}
+
+///|
+fn profile_metric_chip(label~ : String, value~ : Int) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-profile-metric")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.text(value.to_string()),
+    ]),
+    @bunnia.text(label),
+  ])
+}
+
+///|
+fn profile_credential_plaque(projection : MiniTownProjection) -> @bunnia.Node {
+  let district = profile_credential_district(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.data("district-id", district.id),
+      @bunnia.data("feature-kind", district.feature_kind),
+      @bunnia.data("target-building-id", district.building_id),
+      @bunnia.data("status", district.status),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text("OPC Credential"),
+      ]),
+      @bunnia.text("\{district.title}: \{district.summary}"),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "\{district.stat_value} \{district.stat_label} / \{district.status}",
+        ),
+      ]),
+      @bunnia.button(district.action_label, "select-\{district.building_id}"),
+    ],
+  )
+}
+
+///|
+fn profile_credential_district(
+  projection : MiniTownProjection,
+) -> MiniTownDistrict {
+  for district in projection.districts {
+    if district.feature_kind == "credential" {
+      return district
+    }
+  }
+  projection.districts[0]
+}
+
+///|
+fn ownership_stat_value(
+  stats : Array[MiniTownOwnershipStat],
+  id : String,
+) -> Int {
+  for stat in stats {
+    if stat.id == id {
+      return stat.value
+    }
+  }
+  0
 }
 
 ///|

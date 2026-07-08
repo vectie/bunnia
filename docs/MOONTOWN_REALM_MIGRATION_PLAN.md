@@ -324,6 +324,15 @@ Acceptance:
 - Visibility state is obvious.
 - Private book content is not exposed through profile surfaces.
 
+Current slice:
+
+- My now translates the reference profile page into a tile-styled identity card
+  with display name, UID, avatar reference, profile readiness, social/activity
+  stats, and edit/consent actions.
+- My also exposes the OPC/credential concept as a compact town plaque linked to
+  the credential district/building, so account trust remains part of the town
+  system instead of a generic wallet page.
+
 ## R8: Local Backend Loop
 
 Type: feature.
