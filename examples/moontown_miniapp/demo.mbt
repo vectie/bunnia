@@ -1763,9 +1763,7 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
       [@bunnia.text("Discover")],
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
-      @bunnia.text(
-        "Search buildings, users, agents, books, products, events, demands, and posts.",
-      ),
+      @bunnia.text("Search public town objects."),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
       @bunnia.text("runtime filter: {{discover.filter || 'all'}}"),

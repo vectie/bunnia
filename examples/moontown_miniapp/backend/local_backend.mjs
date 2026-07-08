@@ -1575,6 +1575,7 @@ function ownershipFor(state, viewer) {
   const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
   const notifications = visibleNotifications(state, viewer, buildings);
   const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
+  const subscriptions = state.subscriptions.filter((item) => item.userId === viewer);
   const stats = [
     { id: "buildings", label: "Buildings", value: buildings.length },
     { id: "placements", label: "Placed", value: placements.length },
@@ -1583,6 +1584,7 @@ function ownershipFor(state, viewer) {
     { id: "books", label: "Books", value: books.length },
     { id: "agents", label: "Agents", value: agents.length },
     { id: "threads", label: "Threads", value: threads.length },
+    { id: "watches", label: "Watches", value: subscriptions.filter((item) => item.targetRef !== "subscription:wechat").length },
   ];
   const items = [
     ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility), actionMessageForBuilding(item))),
@@ -1594,6 +1596,9 @@ function ownershipFor(state, viewer) {
     ...books.map((item) => ownedItem("book", item.id, item.title, item.summary, `book:${item.id}`, item.visibility, item.status, "Review", "tab-messages")),
     ...agents.map((item) => ownedItem("agent", item.id, item.name, `Agent attached to ${item.buildingId}.`, `agent:${item.id}`, "owned", item.status, "Chat", "tab-messages")),
     ...threads.map((item) => ownedItem("thread", item.id, item.title, `Conversation attached to ${item.buildingId}.`, `thread:${item.id}`, item.visibility, item.status, "Open", "tab-messages")),
+    ...subscriptions
+      .filter((item) => item.targetRef !== "subscription:wechat")
+      .map((item) => ownedItem("watch", item.id, targetTitleForRef(state, item.targetRef), "Public town updates are watched.", item.targetRef, "watching", item.status, "Open", actionMessageForTargetRef(item.targetRef))),
   ];
   const alerts = [];
   if (!profile.setupCompleted || !profile.consentAccepted) {
@@ -1621,12 +1626,18 @@ function ownershipFor(state, viewer) {
     threads,
     notifications,
     notificationStates: state.notificationStates.filter((item) => item.userId === viewer),
-    subscriptions: state.subscriptions.filter((item) => item.userId === viewer),
+    subscriptions,
   };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
   return { id, kind, title, summary, targetRef, visibility, status, actionLabel, actionMessage };
+}
+
+function actionMessageForTargetRef(targetRef) {
+  if (targetRef.startsWith("building:")) return `select-${targetRef.slice("building:".length)}`;
+  if (targetRef.startsWith("thread:") || targetRef.startsWith("run:") || targetRef.startsWith("review:")) return "tab-messages";
+  return "tab-discover";
 }
 
 function permissionsFor(state, viewer, profile) {
@@ -2016,13 +2027,17 @@ function acknowledgeNotification(state, viewer, body) {
 function requestSubscription(state, viewer, body) {
   const targetRef = body.targetRef || "subscription:wechat";
   const noticeId = body.noticeId || "notice-subscribe";
+  if (!canSubscribeToTarget(state, viewer, targetRef)) {
+    return { status: 403, changed: false, body: { error: "not_subscribable", targetRef } };
+  }
   let item = state.subscriptions.find((candidate) => candidate.userId === viewer && candidate.targetRef === targetRef);
+  const nextStatus = targetRef === "subscription:wechat" ? "requested" : "watching";
   if (!item) {
-    item = subscription(`subscription-${viewer}-${targetRef.replace(/[^a-z0-9]+/gi, "-")}`, viewer, targetRef, noticeId, "requested");
+    item = subscription(`subscription-${viewer}-${targetRef.replace(/[^a-z0-9]+/gi, "-")}`, viewer, targetRef, noticeId, nextStatus);
     state.subscriptions.push(item);
   } else {
     item.noticeId = noticeId;
-    item.status = "requested";
+    item.status = nextStatus;
     item.updatedAt = new Date().toISOString();
   }
   const notice = state.notifications.find((candidate) => candidate.id === noticeId);
@@ -2030,7 +2045,56 @@ function requestSubscription(state, viewer, body) {
   if (notice) {
     noticeResult = acknowledgeNotification(state, viewer, { noticeId }).body.notice;
   }
-  return changed({ subscription: item, notice: noticeResult, targetRef, state: "requested" });
+  state.auditEvents.push(audit(`audit-subscribe-${item.id}-${state.auditEvents.length + 1}`, "subscribe", `${targetTitleForRef(state, targetRef)} watched`, "Viewer subscribed to public town updates.", viewer, targetRef, buildingIdForRef(targetRef), nextStatus, "published"));
+  return changed({ subscription: item, notice: noticeResult, targetRef, state: nextStatus });
+}
+
+function canSubscribeToTarget(state, viewer, targetRef) {
+  if (targetRef === "subscription:wechat") return true;
+  if (targetRef.startsWith("building:")) {
+    const id = targetRef.slice("building:".length);
+    return publicDiscoverBuildings(state, viewer).some((item) => item.id === id);
+  }
+  if (targetRef.startsWith("book:")) {
+    const id = targetRef.slice("book:".length);
+    const item = state.books.find((bookItem) => bookItem.id === id && bookItem.visibility === "published");
+    return Boolean(item && publicDiscoverBuildings(state, viewer).some((buildingItem) => buildingItem.id === item.buildingId));
+  }
+  if (targetRef.startsWith("agent:")) {
+    const id = targetRef.slice("agent:".length);
+    const item = state.agents.find((agentItem) => agentItem.id === id);
+    return Boolean(item && publicDiscoverBuildings(state, viewer).some((buildingItem) => buildingItem.id === item.buildingId));
+  }
+  if (targetRef.startsWith("user:")) {
+    const id = targetRef.slice("user:".length);
+    return publicDiscoverUsers(state, viewer).some((item) => item.id === id);
+  }
+  return state.listings.some((item) => item.targetRef === targetRef && item.visibility === "published");
+}
+
+function targetTitleForRef(state, targetRef) {
+  if (targetRef.startsWith("building:")) {
+    const item = state.buildings.find((candidate) => candidate.id === targetRef.slice("building:".length));
+    return item ? item.title : targetRef;
+  }
+  if (targetRef.startsWith("book:")) {
+    const item = state.books.find((candidate) => candidate.id === targetRef.slice("book:".length));
+    return item ? item.title : targetRef;
+  }
+  if (targetRef.startsWith("agent:")) {
+    const item = state.agents.find((candidate) => candidate.id === targetRef.slice("agent:".length));
+    return item ? item.name : targetRef;
+  }
+  if (targetRef.startsWith("user:")) {
+    const item = state.users.find((candidate) => candidate.id === targetRef.slice("user:".length));
+    return item ? item.name : targetRef;
+  }
+  const listing = state.listings.find((item) => item.targetRef === targetRef);
+  return listing ? listing.title : targetRef;
+}
+
+function buildingIdForRef(targetRef) {
+  return targetRef.startsWith("building:") ? targetRef.slice("building:".length) : "";
 }
 
 function reportBuilding(state, viewer, body) {
@@ -2717,6 +2781,12 @@ function smoke(options) {
   const subscribed = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { noticeId: "notice-subscribe", targetRef: "subscription:wechat" } });
   assert(subscribed.body.subscription.status === "requested", "subscription requested");
   assert(subscribed.body.notice.unread === false, "subscription notice acknowledged");
+  const watched = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "building:policy-hall" } });
+  assert(watched.body.subscription.status === "watching", "public building watch");
+  const watchedAgain = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "building:policy-hall" } });
+  assert(watchedAgain.body.subscription.id === watched.body.subscription.id, "watch idempotent");
+  const deniedWatch = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "building:private-agent-lab" } });
+  assert(deniedWatch.status === 403, "private watch blocked");
   const bobAfterAck = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(bobAfterAck.body.notifications.some((item) => item.id === "notice-review" && item.unread === true), "ack is viewer scoped");
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
@@ -2760,6 +2830,7 @@ function smoke(options) {
   assert(snapshot.body.notifications.some((item) => item.id === "notice-review" && item.unread === false), "snapshot acknowledged notice");
   assert(snapshot.body.notificationStates.some((item) => item.noticeId === "notice-review" && item.state === "acknowledged"), "snapshot notification state");
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "subscription:wechat" && item.status === "requested"), "snapshot subscription");
+  assert(snapshot.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "snapshot public watch");
   assert(snapshot.body.threads.some((item) => item.id === "thread-policy-hall"), "snapshot policy thread");
   assert(snapshot.body.threads.some((item) => item.id === "thread-smoke-lab" && item.visibility === "published"), "snapshot published thread");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
@@ -2778,6 +2849,7 @@ function smoke(options) {
   assert(ownership.body.bookMemories.some((item) => item.id === ownedAccepted.body.memory.id), "ownership accepted memory");
   assert(ownership.body.notificationStates.some((item) => item.noticeId === "notice-subscribe"), "ownership notification state");
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "subscription:wechat"), "ownership subscription");
+  assert(ownership.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "ownership public watch");
   assert(ownership.body.threads.some((item) => item.id === "thread-smoke-lab"), "ownership thread");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
@@ -2789,6 +2861,8 @@ function smoke(options) {
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke" && item.actionMessage === "tab-messages"), "ownership agent action");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   assert(ownership.body.stats.some((item) => item.id === "threads" && item.value >= 1), "ownership threads");
+  assert(ownership.body.stats.some((item) => item.id === "watches" && item.value === 1), "ownership watches");
+  assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "building:policy-hall"), "ownership watch item");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");

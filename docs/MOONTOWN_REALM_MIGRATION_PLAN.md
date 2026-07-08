@@ -503,7 +503,10 @@ results. This keeps the realm as the map and moves the remaining maturity work
 into the market-board/search surface. Placeable discovery rows now carry the
 target layer, source, and map coordinates, and already pinned buildings drop out
 of the placeable filter so placement remains a real map-layer action rather
-than a generic button.
+than a generic button. Public discovery targets can now also be watched through
+the existing subscription route: the backend validates that watched buildings,
+books, agents, users, and listings are public/visible, persists viewer-scoped
+watch state, and returns those watches through My ownership stats and rows.
 
 ### R5: Building Lifecycle And Books
 

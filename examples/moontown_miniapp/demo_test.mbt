@@ -261,11 +261,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("moontown-map-fullscreen"))
   assert_true(discover.wxml.contains("moontown-page-surface"))
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
-  assert_true(
-    discover.wxml.contains(
-      "Search buildings, users, agents, books, products, events, demands, and posts.",
-    ),
-  )
+  assert_true(discover.wxml.contains("Search public town objects."))
   assert_true(
     discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
   )
