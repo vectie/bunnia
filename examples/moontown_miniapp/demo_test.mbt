@@ -134,6 +134,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(realm.wxml.contains("moontown-map-fullscreen"))
   assert_true(realm.wxml.contains("moontown-left-hud"))
   assert_true(realm.wxml.contains("moontown-right-hud"))
+  assert_true(realm.wxml.contains("data-bunnia-route=\"pages/moontown/home\""))
+  assert_true(
+    realm.wxml.contains("data-bunnia-route=\"pages/moontown/messages\""),
+  )
   assert_true(!realm.wxml.contains("moontown-page-surface"))
   assert_true(realm.wxml.contains("data-map-surface=\"true\""))
   assert_true(!realm.wxml.contains("Map Districts"))
@@ -397,9 +401,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 test "moontown miniapp generates wechat project with backend hooks" {
   let project = demo_wechat_project()
   assert_eq(project.route, "pages/moontown/index")
-  assert_eq(project.page_count, 1)
+  assert_eq(project.page_count, 5)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
+  assert_true(has_file(project.files, "pages/moontown/home.wxml"))
+  assert_true(has_file(project.files, "pages/moontown/discover.wxml"))
+  assert_true(has_file(project.files, "pages/moontown/messages.wxml"))
+  assert_true(has_file(project.files, "pages/moontown/my.wxml"))
   assert_true(
     has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png"),
   )
@@ -410,6 +418,27 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
+  assert_true(project.page.js.contains("wx.redirectTo"))
+  assert_true(
+    file_content(project.files, "app.json").contains(
+      "\"pages/moontown/index\", \"pages/moontown/home\", \"pages/moontown/discover\", \"pages/moontown/messages\", \"pages/moontown/my\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/home.data.js").contains(
+      "\"shell\":{\"activeTab\":\"home\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.wxml").contains(
+      "data-active-tab=\"messages\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.wxml").contains(
+      "data-bunnia-route=\"pages/moontown/index\"",
+    ),
+  )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"create-private-building\"",
@@ -421,7 +450,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
-    !file_content(project.files, "bunnia.backend.js").contains(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/me/profile",
     ),
   )
@@ -431,7 +460,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
-    !file_content(project.files, "bunnia.backend.js").contains(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/messages/subscribe",
     ),
   )
@@ -467,6 +496,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains("bunniaSessionId"),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"shell\":{\"activeTab\":\"realm\"",
+    ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
@@ -579,7 +613,13 @@ test "moontown miniapp generates wechat project with backend hooks" {
       "data-bunnia-message=\"dev-login\"",
     ),
   )
+  assert_eq(project.manifest.pages[0].route, "pages/moontown/index")
+  assert_eq(project.manifest.pages[1].route, "pages/moontown/home")
+  assert_eq(project.manifest.pages[2].route, "pages/moontown/discover")
+  assert_eq(project.manifest.pages[3].route, "pages/moontown/messages")
+  assert_eq(project.manifest.pages[4].route, "pages/moontown/my")
   assert_true(project.manifest.pages[0].backend_event_count >= 3)
+  assert_true(project.manifest.pages[3].backend_event_count >= 2)
   assert_true(project.manifest.pages[0].scene_marker_count >= 8)
   assert_true(project.manifest.pages[0].scene_region_count == 2)
   assert_true(project.manifest.summary.contains("app_files="))
@@ -846,7 +886,7 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_true(threads.total_link_count >= 8)
   assert_eq(assets.assets.length(), 2)
   assert_eq(quality.diagnostics.length(), 0)
-  assert_eq(inspection.route_count, 1)
+  assert_eq(inspection.route_count, 5)
   assert_true(inspection.max_update_payload_bytes > 0)
   assert_true(inspection.max_scene_marker_count >= 4)
 }

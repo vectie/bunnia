@@ -747,6 +747,8 @@ pub fn wechat_page_with_wxss(@wechat.WechatPage, String) -> @wechat.WechatPage
 
 pub fn wechat_project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : @wechat.WechatRuntime, render_budget? : @core.RenderBudget) -> @wechat.WechatProjectPage
 
+pub fn wechat_project_page_with_runtime(@wechat.WechatProjectPage, @wechat.WechatRuntime) -> @wechat.WechatProjectPage
+
 pub fn wechat_project_page_with_wxss(@wechat.WechatProjectPage, String) -> @wechat.WechatProjectPage
 
 pub fn wechat_project_with_report(@wechat.WechatProject, @wechat.WechatBuildReport) -> @wechat.WechatProject

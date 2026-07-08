@@ -192,6 +192,18 @@ Acceptance:
 - Navigation does not reduce map clarity or touch quality.
 - The user can return from any tab to the same spatial context.
 
+Current implementation:
+
+- The generated WeChat project now emits separate tile-styled routes for
+  `Realm`, `Home`, `Discover`, `Messages`, and `My`, with Realm remaining the
+  entry route at `pages/moontown/index`.
+- Tab buttons carry route metadata and use the generic Bunnia WeChat navigation
+  hook, so the surrounding product surfaces are real mini-app pages instead of
+  only test-rendered panels.
+- Non-Realm routes use lightweight tile-map backdrops instead of duplicating the
+  full draggable scene, keeping Realm as the only map route while preserving the
+  same visual language and route budgets.
+
 ## R2: Entry, Login, And Profile
 
 Type: feature.

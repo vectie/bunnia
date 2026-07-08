@@ -163,6 +163,14 @@ pub fn project_page_with_wxss(
 }
 
 ///|
+pub fn project_page_with_runtime(
+  page : WechatProjectPage,
+  runtime : WechatRuntime,
+) -> WechatProjectPage {
+  { ..page, runtime, }
+}
+
+///|
 pub fn generate_page(name : String, root : @core.Node) -> WechatPage {
   generate_page_with_runtime(name, root, default_runtime())
 }
@@ -1664,6 +1672,10 @@ fn page_definition_js(
   "      ...patches\n" +
   "    ])\n" +
   after_event_js +
+  "    const route = event.currentTarget.dataset.bunniaRoute\n" +
+  "    if (route && route !== this.route && typeof wx !== 'undefined' && wx.redirectTo) {\n" +
+  "      wx.redirectTo({ url: route[0] === '/' ? route : '/' + route })\n" +
+  "    }\n" +
   "  }\n" +
   "})"
 }

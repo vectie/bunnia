@@ -46,6 +46,8 @@ pub fn page_with_wxss(WechatPage, String) -> WechatPage
 
 pub fn project_page(name~ : String, route~ : String, root~ : @core.Node, runtime? : WechatRuntime, render_budget? : @core.RenderBudget) -> WechatProjectPage
 
+pub fn project_page_with_runtime(WechatProjectPage, WechatRuntime) -> WechatProjectPage
+
 pub fn project_page_with_wxss(WechatProjectPage, String) -> WechatProjectPage
 
 pub fn project_with_report(WechatProject, WechatBuildReport) -> WechatProject

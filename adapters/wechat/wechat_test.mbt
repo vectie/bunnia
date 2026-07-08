@@ -98,6 +98,32 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
 }
 
 ///|
+test "wechat event handler can navigate from route data" {
+  let project = generate_project(
+    name="Route Navigation",
+    route="pages/nav/index",
+    root=@core.page([
+      @core.node(
+        kind="button",
+        attrs=[@core.data("bunnia-route", "pages/nav/messages")],
+        events=[@core.event("tap", "tab-messages")],
+        children=[@core.text("Messages")],
+      ),
+    ]),
+  )
+  assert_true(
+    project.page.wxml.contains("data-bunnia-route=\"pages/nav/messages\""),
+  )
+  assert_true(
+    project.page.js.contains("event.currentTarget.dataset.bunniaRoute"),
+  )
+  assert_true(project.page.js.contains("wx.redirectTo"))
+  assert_true(
+    project.page.js.contains("url: route[0] === '/' ? route : '/' + route"),
+  )
+}
+
+///|
 test "wechat project backend module emits only route reachable endpoints" {
   let contract = @effects.backend_contract(id="route-filter", endpoints=[
     @effects.operator_submit_endpoint(

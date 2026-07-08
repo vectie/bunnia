@@ -5,6 +5,22 @@ pub fn demo_view() -> @bunnia.Node {
 
 ///|
 pub fn mini_town_view(projection : MiniTownProjection) -> @bunnia.Node {
+  mini_town_view_with_map_mode(projection, full_map=true)
+}
+
+///|
+fn mini_town_route_view(projection : MiniTownProjection) -> @bunnia.Node {
+  mini_town_view_with_map_mode(
+    projection,
+    full_map=projection.active_tab_id == "realm",
+  )
+}
+
+///|
+fn mini_town_view_with_map_mode(
+  projection : MiniTownProjection,
+  full_map~ : Bool,
+) -> @bunnia.Node {
   @bunnia.page([
     @bunnia.view_with_attrs(
       [
@@ -12,7 +28,11 @@ pub fn mini_town_view(projection : MiniTownProjection) -> @bunnia.Node {
         @bunnia.data("active-user", projection.active_user_id),
       ],
       [
-        town_map_surface(projection),
+        if full_map {
+          town_map_surface(projection)
+        } else {
+          town_map_backdrop(projection)
+        },
         town_top_bar(projection),
         town_active_surface(projection),
         town_tabbar(projection),
@@ -40,19 +60,109 @@ pub fn demo_wechat_project() -> @bunnia.WechatProject {
 pub fn demo_wechat_project_with_render_budget(
   render_budget : @bunnia.RenderBudget,
 ) -> @bunnia.WechatProject {
-  let page = @bunnia.wechat_project_page(
-    name="Moontown Miniapp",
-    route="pages/moontown/index",
-    root=demo_view(),
-    runtime=demo_runtime(),
-    render_budget~,
-  )
-  let styled_page = @bunnia.wechat_project_page_with_wxss(page, moontown_wxss())
   @bunnia.generate_wechat_project_from_pages_with_backend(
     name="Moontown Miniapp",
-    pages=[styled_page],
+    pages=demo_wechat_project_pages(render_budget),
     backend_contract=demo_backend_contract(),
   )
+}
+
+///|
+fn demo_wechat_project_pages(
+  render_budget : @bunnia.RenderBudget,
+) -> Array[@bunnia.WechatProjectPage] {
+  let pages : Array[@bunnia.WechatProjectPage] = []
+  for tab_id in ["realm", "home", "discover", "messages", "my"] {
+    pages.push(demo_wechat_project_page_for_tab(tab_id, render_budget))
+  }
+  pages
+}
+
+///|
+fn demo_wechat_project_page_for_tab(
+  tab_id : String,
+  render_budget : @bunnia.RenderBudget,
+) -> @bunnia.WechatProjectPage {
+  let page = @bunnia.wechat_project_page(
+    name=moontown_tab_page_name(tab_id),
+    route=moontown_tab_route(tab_id),
+    root=mini_town_route_view(switch_tab(demo_projection(), tab_id)),
+    runtime=demo_runtime_for_tab(tab_id),
+    render_budget~,
+  )
+  scoped_project_page_runtime(
+    @bunnia.wechat_project_page_with_wxss(page, moontown_wxss()),
+  )
+}
+
+///|
+fn scoped_project_page_runtime(
+  page : @bunnia.WechatProjectPage,
+) -> @bunnia.WechatProjectPage {
+  let runtime = @bunnia.wechat_runtime(
+    initial_data_json=page.runtime.initial_data_json,
+    event_patches=scoped_event_patches(
+      page.runtime.event_patches,
+      page.page.plan.event_messages,
+    ),
+    page_methods_js=page.runtime.page_methods_js,
+  )
+  @bunnia.wechat_project_page_with_runtime(page, runtime)
+}
+
+///|
+fn scoped_event_patches(
+  patches : Array[@bunnia.WechatEventPatch],
+  messages : Array[String],
+) -> Array[@bunnia.WechatEventPatch] {
+  let output : Array[@bunnia.WechatEventPatch] = []
+  for message in messages {
+    output.push(scoped_event_patch(patches, message))
+  }
+  output
+}
+
+///|
+fn scoped_event_patch(
+  patches : Array[@bunnia.WechatEventPatch],
+  message : String,
+) -> @bunnia.WechatEventPatch {
+  for patch in patches {
+    if patch.message == message {
+      return patch
+    }
+  }
+  @bunnia.wechat_event_patch(message, [])
+}
+
+///|
+fn moontown_tab_page_name(tab_id : String) -> String {
+  if tab_id == "home" {
+    "Moontown Home"
+  } else if tab_id == "discover" {
+    "Moontown Discover"
+  } else if tab_id == "messages" {
+    "Moontown Messages"
+  } else if tab_id == "my" {
+    "Moontown My"
+  } else {
+    "Moontown Realm"
+  }
+}
+
+///|
+fn moontown_tab_route(tab_id : String) -> String {
+  if tab_id == "home" {
+    "pages/moontown/home"
+  } else if tab_id == "discover" {
+    "pages/moontown/discover"
+  } else if tab_id == "messages" {
+    "pages/moontown/messages"
+  } else if tab_id == "my" {
+    "pages/moontown/my"
+  } else {
+    "pages/moontown/index"
+  }
 }
 
 ///|
@@ -149,6 +259,11 @@ fn minify_moontown_wxss(css : String) -> String {
 
 ///|
 pub fn demo_runtime() -> @bunnia.WechatRuntime {
+  demo_runtime_for_tab("realm")
+}
+
+///|
+fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
   patches.push(@bunnia.wechat_event_patch("dev-login", []))
@@ -254,7 +369,7 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
     ]),
   )
   @bunnia.wechat_runtime(
-    initial_data_json=demo_initial_data_json(),
+    initial_data_json=demo_initial_data_json_for_tab(tab_id),
     event_patches=patches,
     page_methods_js=moontown_map_page_methods_js(),
   )
@@ -680,6 +795,34 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
         total_count=thread_links.length(),
       ),
     ]),
+  ])
+}
+
+///|
+fn town_map_backdrop(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-map-fullscreen moontown-map-backdrop"),
+      @bunnia.data("map-backdrop", projection.active_tab_id),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-touch-area")], [
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-map-drag-content")],
+          [moontown_map_backdrop_image()],
+        ),
+      ]),
+    ],
+  )
+}
+
+///|
+fn moontown_map_backdrop_image() -> @bunnia.Node {
+  @bunnia.node(kind="image", attrs=[
+    @bunnia.class_name("moontown-wenyu-map-image"),
+    @bunnia.attr("src", moontown_map_asset_src()),
+    @bunnia.attr("alt", "Moontown Wenyu Valley map backdrop"),
+    @bunnia.attr("mode", "scaleToFill"),
   ])
 }
 
@@ -2262,6 +2405,7 @@ fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
           },
         ),
         @bunnia.data("tab-id", tab.id),
+        @bunnia.data("bunnia-route", moontown_tab_route(tab.id)),
         @bunnia.data(
           "map-surface",
           if tab.map_surface {
@@ -2579,6 +2723,6 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 }
 
 ///|
-fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
+fn demo_initial_data_json_for_tab(tab_id : String) -> String {
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
 }

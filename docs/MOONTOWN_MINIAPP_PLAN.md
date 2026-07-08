@@ -1284,6 +1284,14 @@ Current evidence:
   dev login, snapshot loading, publishing, and agent query endpoints. This makes
   WeChat DevTools point at the local backend on this Mac without manual data
   editing.
+- The generated project now exposes Realm, Home, Discover, Messages, and My as
+  real WeChat routes under `pages/moontown/`, with Realm still first in
+  `app.json`. Tab buttons carry Bunnia route metadata so navigation reaches the
+  mature tile-styled product surfaces instead of relying on a single static
+  route.
+- Non-Realm routes render lightweight tile-map backdrops instead of the full
+  interactive scene, and route runtimes are scoped to visible events. This keeps
+  release readiness green while letting the app grow as a multi-page mini-app.
 - The Backend Loop panel now also shows tile-style session, snapshot cache,
   mutation queue, and review-result states. The snapshot row explicitly marks
   stale-safe rendering, so backend failures do not silently disconnect the map

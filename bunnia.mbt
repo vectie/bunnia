@@ -3322,6 +3322,14 @@ pub fn wechat_project_page_with_wxss(
 }
 
 ///|
+pub fn wechat_project_page_with_runtime(
+  page : WechatProjectPage,
+  runtime : WechatRuntime,
+) -> WechatProjectPage {
+  @wechat.project_page_with_runtime(page, runtime)
+}
+
+///|
 pub fn profile_wechat_project(
   project : WechatProject,
   patches : PatchPlan,
