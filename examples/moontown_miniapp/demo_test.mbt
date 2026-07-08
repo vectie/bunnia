@@ -29,7 +29,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Product Market"))
   assert_true(page.wxml.contains("Discover"))
   assert_true(page.wxml.contains("Messages"))
-  assert_true(page.wxml.contains("My Town"))
+  assert_true(!page.wxml.contains("My Town"))
   assert_true(page.wxml.contains("moontown-building-drawer"))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
@@ -88,7 +88,42 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
   assert_true(page.plan.scene_asset_count == 2)
-  assert_true(page.plan.windowed_list_count >= 7)
+  assert_true(page.plan.windowed_list_count >= 4)
+}
+
+///|
+test "moontown miniapp renders dedicated tab surfaces around the same map" {
+  let projection = demo_projection()
+  let realm = tab_page(projection, "realm")
+  assert_true(realm.wxml.contains("moontown-map-fullscreen"))
+  assert_true(realm.wxml.contains("moontown-left-hud"))
+  assert_true(realm.wxml.contains("moontown-right-hud"))
+  assert_true(!realm.wxml.contains("moontown-page-surface"))
+  assert_true(realm.wxml.contains("data-map-surface=\"true\""))
+
+  let discover = tab_page(projection, "discover")
+  assert_true(discover.wxml.contains("moontown-map-fullscreen"))
+  assert_true(discover.wxml.contains("moontown-page-surface"))
+  assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
+  assert_true(
+    discover.wxml.contains(
+      "Search buildings, agents, books, events, and demands.",
+    ),
+  )
+  assert_true(discover.wxml.contains("moontown-discover-entry"))
+  assert_true(!discover.wxml.contains("moontown-right-hud"))
+
+  let messages = tab_page(projection, "messages")
+  assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
+  assert_true(messages.wxml.contains("Memory review needed"))
+  assert_true(messages.wxml.contains("moontown-chat-drawer"))
+  assert_true(!messages.wxml.contains("moontown-bottom-hud"))
+
+  let mine = tab_page(projection, "my")
+  assert_true(mine.wxml.contains("data-active-tab=\"my\""))
+  assert_true(mine.wxml.contains("My Town"))
+  assert_true(mine.wxml.contains("moontown-owned-entry"))
+  assert_true(mine.wxml.contains("moontown-create-drawer"))
 }
 
 ///|
@@ -245,6 +280,17 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(inspection.route_count, 1)
   assert_true(inspection.max_update_payload_bytes > 0)
   assert_true(inspection.max_scene_marker_count >= 4)
+}
+
+///|
+fn tab_page(
+  projection : MiniTownProjection,
+  tab_id : String,
+) -> @bunnia.WechatPage {
+  @bunnia.generate_wechat_page(
+    "Moontown Miniapp",
+    mini_town_view(switch_tab(projection, tab_id)),
+  )
 }
 
 ///|
