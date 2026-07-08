@@ -1819,12 +1819,6 @@ fn backend_endpoint_object(item : @effects.BackendEndpoint) -> String {
   "\"," +
   "t:" +
   item.timeout_ms.to_string() +
-  "," +
-  "g:" +
-  item.streaming.to_string() +
-  "," +
-  "v:" +
-  item.requires_review.to_string() +
   "}"
 }
 

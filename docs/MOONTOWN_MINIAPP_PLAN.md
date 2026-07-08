@@ -1229,6 +1229,10 @@ Current evidence:
 - Messages now derives tile-style run actions from pure run state. Each run
   plaque can open its building, accept or reject reviewable output, and expose a
   retry affordance only when the run is failed, rejected, or cancelled.
+- The Moontown mini-app backend contract now includes stable
+  `cancel-run` and `retry-run` endpoints, and the Home Backend Loop
+  exposes both as tile rows for WeChat DevTools. Messages buttons carry the run
+  id as data while using those stable endpoint messages.
 - My now has tile-style ownership filters for all, drafts, published items,
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped

@@ -1539,6 +1539,24 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       summary="Send a building question and record a reviewable run.",
       status="guarded",
     ),
+    mini_town_backend_step(
+      id="cancel-run",
+      label="Cancel Run",
+      endpoint_id="cancel-run",
+      http_method="POST",
+      path="/miniapp/runs/cancel",
+      summary="Stop a running agent task without accepting output as memory.",
+      status="guarded",
+    ),
+    mini_town_backend_step(
+      id="retry-run",
+      label="Retry Run",
+      endpoint_id="retry-run",
+      http_method="POST",
+      path="/miniapp/runs/retry",
+      summary="Restart a failed, rejected, or cancelled run with the same context.",
+      status="guarded",
+    ),
   ]
 }
 
@@ -2330,6 +2348,7 @@ pub fn review_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
 pub fn run_actions(run : MiniTownRun) -> Array[MiniTownRunAction] {
   let reviewable = run.review_required &&
     (run.status == "review" || run.status == "waiting-review")
+  let cancellable = run.status == "running"
   let retryable = run.status == "failed" ||
     run.status == "rejected" ||
     run.status == "cancelled"
@@ -2362,9 +2381,18 @@ pub fn run_actions(run : MiniTownRun) -> Array[MiniTownRunAction] {
       status=if reviewable { "ready" } else { "blocked" },
     ),
     mini_town_run_action(
+      id="cancel",
+      label="Cancel",
+      message="cancel-run",
+      target_ref="run:\{run.id}",
+      allowed=cancellable,
+      reason=if cancellable { "running run" } else { "not running" },
+      status=if cancellable { "ready" } else { "blocked" },
+    ),
+    mini_town_run_action(
       id="retry",
       label="Retry",
-      message="retry-run-\{run.id}",
+      message="retry-run",
       target_ref="run:\{run.id}",
       allowed=retryable,
       reason=if retryable { "run can be retried" } else { "wait for status" },

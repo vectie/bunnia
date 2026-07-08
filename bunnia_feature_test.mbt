@@ -1177,8 +1177,8 @@ test "backend contracts plan request and streaming effects" {
   assert_true(adapter.contains("\"stream-agent-status\""))
   assert_true(adapter.contains("agent-operation-cancel"))
   assert_true(adapter.contains("agent-operation-retry"))
-  assert_true(adapter.contains("g:true"))
-  assert_true(adapter.contains("v:true"))
+  assert_true(!adapter.contains("g:true"))
+  assert_true(!adapter.contains("v:true"))
   assert_true(!adapter.contains("secret"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(

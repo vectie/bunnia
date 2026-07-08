@@ -279,6 +279,10 @@ Current slice:
 - Run actions are derived from run state. Open-building is always available,
   review accept/reject only enable for reviewable runs, and retry only enables
   for failed, rejected, or cancelled runs.
+- Cancel and retry use stable mini-app backend endpoint messages
+  (`cancel-run`, `retry-run`) while the run id stays attached as UI
+  data. That keeps Messages portable across WeChat, Alipay, and TikTok-style
+  adapters without generating one endpoint per run.
 
 ## R7: My Ownership Workbench
 

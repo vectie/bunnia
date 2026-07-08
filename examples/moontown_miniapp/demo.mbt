@@ -446,6 +446,12 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "ask-selected-building", "/miniapp/buildings/query", "buildingQuestion",
         "queryResult",
       ),
+      @bunnia.agent_cancel_endpoint(
+        "cancel-run", "/miniapp/runs/cancel", "runCancel", "cancelResult",
+      ),
+      @bunnia.agent_retry_endpoint(
+        "retry-run", "/miniapp/runs/retry", "runRetry", "retryResult",
+      ),
       @bunnia.review_decision_endpoint(
         "accept-memory-review", "/miniapp/reviews/accept", "reviewDecision", "reviewResult",
       ),
