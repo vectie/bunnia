@@ -57,6 +57,11 @@ pub fn demo_wechat_project_with_render_budget(
 
 ///|
 fn moontown_wxss() -> String {
+  minify_moontown_wxss(moontown_wxss_source())
+}
+
+///|
+fn moontown_wxss_source() -> String {
   ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
   ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
   ".moontown-map-touch-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
@@ -123,6 +128,20 @@ fn moontown_wxss() -> String {
 }
 
 ///|
+fn minify_moontown_wxss(css : String) -> String {
+  css
+  .replace_all(old="\n", new="")
+  .replace_all(old=" {", new="{")
+  .replace_all(old="{ ", new="{")
+  .replace_all(old="; ", new=";")
+  .replace_all(old=": ", new=":")
+  .replace_all(old=", ", new=",")
+  .replace_all(old=" }", new="}")
+  .replace_all(old=";}", new="}")
+  .replace_all(old=" > ", new=">")
+}
+
+///|
 pub fn demo_runtime() -> @bunnia.WechatRuntime {
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
@@ -140,24 +159,6 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
       ]),
     )
   }
-  for role in projection.roles {
-    patches.push(
-      @bunnia.wechat_event_patch("select-role-\{role.id}", [
-        @bunnia.set_string("profile.roleId", role.id),
-      ]),
-    )
-  }
-  patches.push(
-    @bunnia.wechat_event_patch("accept-profile-consent", [
-      @bunnia.set_string("profile.consentAccepted", "true"),
-    ]),
-  )
-  patches.push(
-    @bunnia.wechat_event_patch("save-profile", [
-      @bunnia.set_string("profile.setupCompleted", "true"),
-      @bunnia.set_string("profile.consentAccepted", "true"),
-    ]),
-  )
   for building in visible_buildings(projection) {
     patches.push(select_building_patch(building))
     patches.push(open_building_thread_patch(building))
@@ -783,6 +784,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
     ])
   } else if projection.active_tab_id == "home" {
     town_page_surface(projection, [
+      onboarding_panel(projection),
       home_overview_panel(projection),
       community_hub_panel(projection),
       town_activity_panel(projection),
@@ -838,8 +840,29 @@ fn town_left_hud(projection : MiniTownProjection) -> @bunnia.Node {
         },
       ),
     ],
-    [onboarding_panel(projection), identity_setup_panel(projection)],
+    [realm_entry_panel(projection)],
   )
+}
+
+///|
+fn realm_entry_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("First Visit")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(
+        "Realm is the map. Home and My hold setup, pulse, and inventory.",
+      ),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-profile-status")], [
+      @bunnia.text(
+        "\{projection.profile.role_id} / ready: \{if profile_ready_to_publish(projection) { "yes" } else { "no" }}",
+      ),
+    ]),
+    @bunnia.button("Enter Realm", "complete-onboarding"),
+  ])
 }
 
 ///|

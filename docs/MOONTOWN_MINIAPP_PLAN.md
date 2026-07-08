@@ -1220,6 +1220,10 @@ Current evidence:
   owner, profile, and book state. Ask, place, share, publish, and archive actions
   stay visibly tied to the selected building and its primary book, including
   blocked reasons such as owner-only or profile setup requirements.
+- Moontown mini-app WXSS is now minified at generation time, and the default
+  Realm first screen defers full onboarding/profile setup to Home/My. The
+  map-heavy WeChat route keeps more budget headroom for the next backend loop
+  slice without losing the first-visit entry point.
 
 ## Phase 9: Real Backend And Deployment
 
