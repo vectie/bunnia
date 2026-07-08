@@ -1040,7 +1040,8 @@ fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
 
 ///|
 fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let owned = owned_buildings(projection)
+  let stats = ownership_stats(projection)
+  let items = ownership_items(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
@@ -1048,32 +1049,63 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(
-        "role: \{projection.profile.role_id}; consent: \{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; owned buildings: \{owned.length()}",
+        "role: \{projection.profile.role_id}; consent: \{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; owned items: \{items.length()}",
       ),
     ]),
     @bunnia.windowed_list(
-      owned,
-      total_count=owned.length(),
-      render=owned_building_entry,
+      stats,
+      total_count=stats.length(),
+      render=ownership_stat_entry,
+    ),
+    @bunnia.windowed_list(
+      items,
+      total_count=items.length(),
+      render=ownership_item_entry,
     ),
   ])
 }
 
 ///|
-fn owned_building_entry(building : MiniTownBuilding) -> @bunnia.Node {
+fn ownership_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
   @bunnia.keyed(
-    "owned-\{building.id}",
+    "ownership-stat-\{stat.id}",
     @bunnia.view_with_attrs(
       [
         @bunnia.class_name("moontown-owned-entry"),
-        @bunnia.data("building-id", building.id),
-        @bunnia.data("visibility", building.visibility),
+        @bunnia.data("ownership-stat", stat.id),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
-          @bunnia.text(building.title),
+          @bunnia.text(stat.label),
         ]),
-        @bunnia.text(building.visibility),
+        @bunnia.text(stat.value.to_string()),
+      ],
+    ),
+  )
+}
+
+///|
+fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
+  @bunnia.keyed(
+    "owned-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-owned-entry"),
+        @bunnia.data("ownership-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("visibility", item.visibility),
+        @bunnia.data("status", item.status),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text(
+            "\{item.kind} / \{item.visibility} / \{item.action_label}",
+          ),
+        ]),
       ],
     ),
   )

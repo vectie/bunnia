@@ -106,6 +106,25 @@ pub struct MiniTownDiscoveryItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownOwnershipStat {
+  id : String
+  label : String
+  value : Int
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownOwnershipItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  target_ref : String
+  visibility : String
+  status : String
+  action_label : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -282,6 +301,29 @@ pub fn mini_town_discovery_item(
   status~ : String,
 ) -> MiniTownDiscoveryItem {
   { id, kind, title, summary, target_ref, visibility, status }
+}
+
+///|
+pub fn mini_town_ownership_stat(
+  id~ : String,
+  label~ : String,
+  value~ : Int,
+) -> MiniTownOwnershipStat {
+  { id, label, value }
+}
+
+///|
+pub fn mini_town_ownership_item(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+  target_ref~ : String,
+  visibility~ : String,
+  status~ : String,
+  action_label~ : String,
+) -> MiniTownOwnershipItem {
+  { id, kind, title, summary, target_ref, visibility, status, action_label }
 }
 
 ///|
@@ -941,6 +983,131 @@ pub fn owned_buildings(
     }
   }
   output
+}
+
+///|
+pub fn ownership_stats(
+  projection : MiniTownProjection,
+) -> Array[MiniTownOwnershipStat] {
+  [
+    mini_town_ownership_stat(
+      id="drafts",
+      label="Drafts",
+      value=count_owned_buildings_by_visibility(projection, "private_draft"),
+    ),
+    mini_town_ownership_stat(
+      id="shared",
+      label="Shared",
+      value=count_shared_buildings(projection),
+    ),
+    mini_town_ownership_stat(
+      id="published",
+      label="Published",
+      value=count_owned_buildings_by_visibility(projection, "published"),
+    ),
+    mini_town_ownership_stat(
+      id="agents",
+      label="Agents",
+      value=owned_agents(projection).length(),
+    ),
+  ]
+}
+
+///|
+pub fn ownership_items(
+  projection : MiniTownProjection,
+) -> Array[MiniTownOwnershipItem] {
+  let output : Array[MiniTownOwnershipItem] = []
+  for building in owned_buildings(projection) {
+    output.push(
+      mini_town_ownership_item(
+        id="owned-building-\{building.id}",
+        kind="building",
+        title=building.title,
+        summary=building.summary,
+        target_ref="building:\{building.id}",
+        visibility=building.visibility,
+        status=building.status,
+        action_label="Open",
+      ),
+    )
+    output.push(
+      mini_town_ownership_item(
+        id="owned-book-\{building.id}",
+        kind="book",
+        title="\{building.title} Book",
+        summary="Durable memory and accepted knowledge behind this building.",
+        target_ref="book:\{building.id}",
+        visibility=building.visibility,
+        status=building.status,
+        action_label="Review",
+      ),
+    )
+  }
+  for agent in owned_agents(projection) {
+    output.push(
+      mini_town_ownership_item(
+        id="owned-agent-\{agent.id}",
+        kind="agent",
+        title=agent.name,
+        summary="Agent attached to an owned or private building.",
+        target_ref="agent:\{agent.id}",
+        visibility="private_draft",
+        status=agent.status,
+        action_label="Chat",
+      ),
+    )
+  }
+  output
+}
+
+///|
+fn owned_agents(projection : MiniTownProjection) -> Array[MiniTownAgent] {
+  let output : Array[MiniTownAgent] = []
+  for agent in projection.agents {
+    if agent_attached_to_owned_building(projection, agent) {
+      output.push(agent)
+    }
+  }
+  output
+}
+
+///|
+fn agent_attached_to_owned_building(
+  projection : MiniTownProjection,
+  agent : MiniTownAgent,
+) -> Bool {
+  for building in owned_buildings(projection) {
+    if building.id == agent.building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn count_owned_buildings_by_visibility(
+  projection : MiniTownProjection,
+  visibility : String,
+) -> Int {
+  let mut count = 0
+  for building in owned_buildings(projection) {
+    if building.visibility == visibility {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn count_shared_buildings(projection : MiniTownProjection) -> Int {
+  let mut count = 0
+  for building in projection.buildings {
+    if building.owner_id == projection.organization_id {
+      count += 1
+    }
+  }
+  count
 }
 
 ///|

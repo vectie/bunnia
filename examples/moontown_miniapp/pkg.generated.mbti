@@ -76,6 +76,10 @@ pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, bod
 
 pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, building_id~ : String) -> MiniTownOnboardingStep
 
+pub fn mini_town_ownership_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String, action_label~ : String) -> MiniTownOwnershipItem
+
+pub fn mini_town_ownership_stat(id~ : String, label~ : String, value~ : Int) -> MiniTownOwnershipStat
+
 pub fn mini_town_profile(user_id~ : String, display_name~ : String, role_id~ : String, avatar_ref~ : String, consent_accepted? : Bool, setup_completed? : Bool) -> MiniTownProfile
 
 pub fn mini_town_role(id~ : String, title~ : String, summary~ : String, building_id~ : String) -> MiniTownRole
@@ -87,6 +91,10 @@ pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
 
 pub fn owned_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn ownership_items(MiniTownProjection) -> Array[MiniTownOwnershipItem]
+
+pub fn ownership_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
 
@@ -180,6 +188,23 @@ pub struct MiniTownOnboardingStep {
   title : String
   body : String
   building_id : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownOwnershipItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  target_ref : String
+  visibility : String
+  status : String
+  action_label : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownOwnershipStat {
+  id : String
+  label : String
+  value : Int
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownProfile {
