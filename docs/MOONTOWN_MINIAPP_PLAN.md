@@ -1234,6 +1234,10 @@ Current evidence:
   dev login, snapshot loading, publishing, and agent query endpoints. This makes
   WeChat DevTools point at the local backend on this Mac without manual data
   editing.
+- The Backend Loop panel now also shows tile-style session, snapshot cache,
+  mutation queue, and review-result states. The snapshot row explicitly marks
+  stale-safe rendering, so backend failures do not silently disconnect the map
+  from the last visible town state.
 
 ## Phase 9: Real Backend And Deployment
 

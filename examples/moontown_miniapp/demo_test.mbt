@@ -146,6 +146,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     home.wxml.contains("data-backend-path=\"/miniapp/town/snapshot\""),
   )
+  assert_true(home.wxml.contains("data-backend-cache=\"snapshot\""))
+  assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
+  assert_true(
+    home.wxml.contains(
+      "Last visible town stays rendered when snapshot loading fails.",
+    ),
+  )
   assert_true(
     home.wxml.contains(
       "Realm is the map; Home shows recent work around the same tile town.",
@@ -426,6 +433,10 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.backend_steps[0].endpoint_id, "dev-login")
   assert_eq(projection.backend_steps[1].path, "/miniapp/town/snapshot")
   assert_eq(projection.backend_steps[2].status, "guarded")
+  assert_eq(projection.backend_cache_states.length(), 4)
+  assert_eq(projection.backend_cache_states[1].id, "snapshot")
+  assert_eq(projection.backend_cache_states[1].state, "stale-safe")
+  assert_eq(projection.backend_cache_states[2].source, "request-log")
   assert_true(!profile_ready_to_publish(projection))
   assert_eq(projection.tabs.length(), 5)
   assert_eq(projection.active_tab_id, "realm")

@@ -253,6 +253,16 @@ pub struct MiniTownBackendStep {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownBackendCacheState {
+  id : String
+  label : String
+  source : String
+  state : String
+  summary : String
+  target_ref : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -284,6 +294,7 @@ pub struct MiniTownProjection {
   discovery_filters : Array[MiniTownDiscoveryFilter]
   ownership_filters : Array[MiniTownOwnershipFilter]
   backend_steps : Array[MiniTownBackendStep]
+  backend_cache_states : Array[MiniTownBackendCacheState]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Debug, Eq)
@@ -673,6 +684,18 @@ pub fn mini_town_backend_step(
 }
 
 ///|
+pub fn mini_town_backend_cache_state(
+  id~ : String,
+  label~ : String,
+  source~ : String,
+  state~ : String,
+  summary~ : String,
+  target_ref~ : String,
+) -> MiniTownBackendCacheState {
+  { id, label, source, state, summary, target_ref }
+}
+
+///|
 pub fn demo_projection() -> MiniTownProjection {
   {
     id: "moontown-miniapp",
@@ -755,6 +778,7 @@ pub fn demo_projection() -> MiniTownProjection {
     discovery_filters: demo_discovery_filters(),
     ownership_filters: demo_ownership_filters(),
     backend_steps: demo_backend_steps(),
+    backend_cache_states: demo_backend_cache_states(),
     activity_items: demo_activity_items(),
     audit_events: demo_audit_events(),
   }
@@ -1416,6 +1440,44 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       path="/miniapp/buildings/query",
       summary="Send a building question and record a reviewable run.",
       status="guarded",
+    ),
+  ]
+}
+
+///|
+fn demo_backend_cache_states() -> Array[MiniTownBackendCacheState] {
+  [
+    mini_town_backend_cache_state(
+      id="session",
+      label="Session",
+      source="local",
+      state="empty",
+      summary="Dev login fills bunniaSessionId and sends x-miniapp-session.",
+      target_ref="backend:dev-login",
+    ),
+    mini_town_backend_cache_state(
+      id="snapshot",
+      label="Town Snapshot",
+      source="cache",
+      state="stale-safe",
+      summary="Last visible town stays rendered when snapshot loading fails.",
+      target_ref="backend:load-town-snapshot",
+    ),
+    mini_town_backend_cache_state(
+      id="mutations",
+      label="Mutation Queue",
+      source="request-log",
+      state="idle",
+      summary="Create, share, publish, archive, and place actions keep retry payloads.",
+      target_ref="backend:mutations",
+    ),
+    mini_town_backend_cache_state(
+      id="reviews",
+      label="Review Result",
+      source="run-log",
+      state="pending",
+      summary="Agent answers wait for review before becoming book memory.",
+      target_ref="review:memory",
     ),
   ]
 }

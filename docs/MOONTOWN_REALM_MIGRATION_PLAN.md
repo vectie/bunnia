@@ -297,6 +297,14 @@ Deliverable:
 
 - A local end-to-end Moontown mini-app loop on this computer.
 
+Current implementation:
+
+- Home exposes a tile-style Backend Loop panel for local dev login, snapshot
+  load, publish, and building query endpoints.
+- The same panel shows session, snapshot cache, mutation queue, and review
+  result states, including a stale-safe snapshot row for backend failure
+  visibility.
+
 Acceptance:
 
 - Two local users have isolated private data.

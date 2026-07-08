@@ -1097,6 +1097,11 @@ fn backend_loop_panel(projection : MiniTownProjection) -> @bunnia.Node {
       total_count=projection.backend_steps.length(),
       render=backend_step_entry,
     ),
+    @bunnia.windowed_list(
+      projection.backend_cache_states,
+      total_count=projection.backend_cache_states.length(),
+      render=backend_cache_entry,
+    ),
   ])
 }
 
@@ -1119,6 +1124,31 @@ fn backend_step_entry(item : MiniTownBackendStep) -> @bunnia.Node {
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
           @bunnia.text("\{item.http_method} \{item.path} / \{item.status}"),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn backend_cache_entry(item : MiniTownBackendCacheState) -> @bunnia.Node {
+  @bunnia.keyed(
+    "backend-cache-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.state}"),
+        @bunnia.data("backend-cache", item.id),
+        @bunnia.data("cache-state", item.state),
+        @bunnia.data("cache-source", item.source),
+        @bunnia.data("target-ref", item.target_ref),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.label),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{item.source} / \{item.state} / \{item.target_ref}"),
         ]),
       ],
     ),
