@@ -68,6 +68,20 @@ pub struct MiniTownMessage {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownRun {
+  id : String
+  agent_id : String
+  building_id : String
+  book_id : String
+  thread_id : String
+  title : String
+  summary : String
+  status : String
+  review_required : Bool
+  artifact_ref : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownTab {
   id : String
   label : String
@@ -169,6 +183,7 @@ pub struct MiniTownProjection {
   books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
+  runs : Array[MiniTownRun]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
   activity_items : Array[MiniTownActivityItem]
@@ -281,6 +296,33 @@ pub fn mini_town_message(
   status? : @bunnia.RunStatus = @bunnia.run_done(),
 ) -> MiniTownMessage {
   { id, actor_id, thread_id, text, status }
+}
+
+///|
+pub fn mini_town_run(
+  id~ : String,
+  agent_id~ : String,
+  building_id~ : String,
+  book_id~ : String,
+  thread_id~ : String,
+  title~ : String,
+  summary~ : String,
+  status~ : String,
+  review_required? : Bool = false,
+  artifact_ref? : String = "",
+) -> MiniTownRun {
+  {
+    id,
+    agent_id,
+    building_id,
+    book_id,
+    thread_id,
+    title,
+    summary,
+    status,
+    review_required,
+    artifact_ref,
+  }
 }
 
 ///|
@@ -463,10 +505,62 @@ pub fn demo_projection() -> MiniTownProjection {
         status=@bunnia.run_running(),
       ),
     ],
+    runs: demo_runs(),
     notifications: demo_notifications(),
     discovery_items: demo_discovery_items(),
     activity_items: demo_activity_items(),
   }
+}
+
+///|
+fn demo_runs() -> Array[MiniTownRun] {
+  [
+    mini_town_run(
+      id="run-policy-review",
+      agent_id="agent-policy-guide",
+      building_id="policy-hall",
+      book_id="book-policy-hall",
+      thread_id="thread-policy-hall",
+      title="Policy answer review",
+      summary="Agent answer is waiting before it becomes public book memory.",
+      status="review",
+      review_required=true,
+      artifact_ref="artifact://book-policy-hall",
+    ),
+    mini_town_run(
+      id="run-market-scan",
+      agent_id="agent-map-curator",
+      building_id="market-square",
+      book_id="book-market-square",
+      thread_id="thread-market-square",
+      title="Market placement scan",
+      summary="Map Curator is finding published buildings that can be placed.",
+      status="running",
+      artifact_ref="artifact://market-square",
+    ),
+    mini_town_run(
+      id="run-private-lab-draft",
+      agent_id="agent-builder",
+      building_id="private-agent-lab",
+      book_id="book-private-agent-lab",
+      thread_id="thread-private-agent-lab",
+      title="Private lab setup",
+      summary="Builder is preparing the private agent lab before publishing.",
+      status="running",
+      artifact_ref="artifact://book-private-agent-lab",
+    ),
+    mini_town_run(
+      id="run-knowledge-sync",
+      agent_id="agent-policy-guide",
+      building_id="knowledge-house",
+      book_id="book-knowledge-house",
+      thread_id="thread-knowledge-house",
+      title="Knowledge memory sync",
+      summary="Accepted memories were synchronized into Knowledge House.",
+      status="done",
+      artifact_ref="artifact://book-knowledge-house",
+    ),
+  ]
 }
 
 ///|
@@ -504,6 +598,17 @@ fn demo_books() -> Array[MiniTownBook] {
       accepted_memory_count=8,
       pending_review_count=0,
       status="shared",
+    ),
+    mini_town_book(
+      id="book-market-square",
+      building_id="market-square",
+      title="Market Square Ledger",
+      owner_id="system",
+      visibility="published",
+      summary="Published placement results, market scans, and public listings.",
+      accepted_memory_count=20,
+      pending_review_count=0,
+      status="running",
     ),
     mini_town_book(
       id="book-knowledge-house",
@@ -976,6 +1081,17 @@ pub fn visible_books(projection : MiniTownProjection) -> Array[MiniTownBook] {
 }
 
 ///|
+pub fn visible_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
+  let output : Array[MiniTownRun] = []
+  for run in projection.runs {
+    if mini_town_run_visible_for(projection, run) {
+      output.push(run)
+    }
+  }
+  output
+}
+
+///|
 fn mini_town_building_visible_for(
   projection : MiniTownProjection,
   building : MiniTownBuilding,
@@ -1010,6 +1126,45 @@ fn mini_town_book_building_visible_for(
 }
 
 ///|
+fn mini_town_run_visible_for(
+  projection : MiniTownProjection,
+  run : MiniTownRun,
+) -> Bool {
+  mini_town_run_building_visible_for(projection, run) &&
+  mini_town_run_book_visible_for(projection, run)
+}
+
+///|
+fn mini_town_run_building_visible_for(
+  projection : MiniTownProjection,
+  run : MiniTownRun,
+) -> Bool {
+  for building in visible_buildings(projection) {
+    if building.id == run.building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn mini_town_run_book_visible_for(
+  projection : MiniTownProjection,
+  run : MiniTownRun,
+) -> Bool {
+  if run.book_id == "" {
+    true
+  } else {
+    for book in visible_books(projection) {
+      if book.id == run.book_id {
+        return true
+      }
+    }
+    false
+  }
+}
+
+///|
 pub fn selected_building(projection : MiniTownProjection) -> MiniTownBuilding {
   for building in projection.buildings {
     if building.id == projection.selected_building_id {
@@ -1028,6 +1183,20 @@ pub fn selected_building_book(projection : MiniTownProjection) -> MiniTownBook {
     }
   }
   projection.books[0]
+}
+
+///|
+pub fn selected_building_runs(
+  projection : MiniTownProjection,
+) -> Array[MiniTownRun] {
+  let selected = selected_building(projection)
+  let output : Array[MiniTownRun] = []
+  for run in visible_runs(projection) {
+    if run.building_id == selected.id {
+      output.push(run)
+    }
+  }
+  output
 }
 
 ///|
@@ -1107,6 +1276,28 @@ pub fn town_activity_items(
   for item in projection.activity_items {
     if mini_town_activity_visible_for(projection, item) {
       output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn active_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
+  let output : Array[MiniTownRun] = []
+  for run in visible_runs(projection) {
+    if run.status == "running" || run.status == "review" {
+      output.push(run)
+    }
+  }
+  output
+}
+
+///|
+pub fn review_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
+  let output : Array[MiniTownRun] = []
+  for run in visible_runs(projection) {
+    if run.review_required || run.status == "review" {
+      output.push(run)
     }
   }
   output

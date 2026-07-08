@@ -38,6 +38,12 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Policy Hall Book"))
   assert_true(page.wxml.contains("data-book-id=\"book-policy-hall\""))
   assert_true(page.wxml.contains("12 memories / 1 reviews / review"))
+  assert_true(page.wxml.contains("moontown-run-entry"))
+  assert_true(page.wxml.contains("Policy answer review"))
+  assert_true(page.wxml.contains("data-run-id=\"run-policy-review\""))
+  assert_true(
+    page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
+  )
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
   assert_true(page.wxml.contains("moontown-create-drawer"))
@@ -155,6 +161,15 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
   assert_true(messages.wxml.contains("Memory review needed"))
+  assert_true(messages.wxml.contains("Agent Runs"))
+  assert_true(
+    messages.wxml.contains(
+      "Runs stay linked to buildings, books, threads, and review artifacts.",
+    ),
+  )
+  assert_true(messages.wxml.contains("Market placement scan"))
+  assert_true(messages.wxml.contains("data-run-id=\"run-market-scan\""))
+  assert_true(messages.wxml.contains("data-review-required=\"true\""))
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(
     messages.wxml.contains("data-action-message=\"open-notice-review\""),
@@ -308,14 +323,19 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(projection.activity_items.length(), 5)
-  assert_eq(projection.books.length(), 6)
+  assert_eq(projection.books.length(), 7)
+  assert_eq(projection.runs.length(), 4)
   assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(subscription_notifications(projection).length(), 1)
+  assert_eq(visible_runs(projection).length(), 4)
+  assert_eq(active_runs(projection).length(), 3)
+  assert_eq(review_runs(projection).length(), 1)
+  assert_eq(selected_building_runs(projection).length(), 1)
   assert_eq(town_activity_items(projection).length(), 5)
   assert_eq(home_town_stats(projection).length(), 4)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
-  assert_eq(visible_books(projection).length(), 6)
+  assert_eq(visible_books(projection).length(), 7)
   assert_eq(selected_building_book(projection).id, "book-policy-hall")
   assert_eq(search_results(projection).length(), 1)
   assert_true(unified_discovery_results(projection).length() >= 5)
@@ -340,7 +360,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
     projection, "created-agent-lab", "Created Agent Lab",
   )
   assert_eq(created.buildings.length(), 11)
-  assert_eq(created.books.length(), 7)
+  assert_eq(created.books.length(), 8)
   assert_eq(created.selected_building_id, "created-agent-lab")
   assert_eq(selected_building_book(created).id, "book-created-agent-lab")
   let agent_created = create_agent_for_selected(

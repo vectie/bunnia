@@ -86,10 +86,10 @@ fn moontown_wxss() -> String {
   ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry, .moontown-run-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
-  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
@@ -737,6 +737,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
   } else if projection.active_tab_id == "messages" {
     town_page_surface(projection, [
       messages_panel(projection),
+      run_queue_panel(projection),
       chat_drawer(projection),
     ])
   } else if projection.active_tab_id == "my" {
@@ -1083,6 +1084,7 @@ fn discover_entry(item : MiniTownDiscoveryItem) -> @bunnia.Node {
 fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let unread = unread_notifications(projection)
   let subscription = subscription_notifications(projection)
+  let reviews = review_runs(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
@@ -1090,7 +1092,7 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(
-        "\{unread.length()} unread agent and town events; \{subscription.length()} subscription prompt.",
+        "\{unread.length()} unread agent and town events; \{reviews.length()} review run; \{subscription.length()} subscription prompt.",
       ),
     ]),
     @bunnia.windowed_list(
@@ -1099,6 +1101,60 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=notification_entry,
     ),
   ])
+}
+
+///|
+fn run_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let runs = active_runs(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Agent Runs")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(
+        "Runs stay linked to buildings, books, threads, and review artifacts.",
+      ),
+    ]),
+    @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
+  ])
+}
+
+///|
+fn run_entry(run : MiniTownRun) -> @bunnia.Node {
+  @bunnia.keyed(
+    "run-\{run.id}",
+    @bunnia.node(
+      kind="view",
+      attrs=[
+        @bunnia.class_name("moontown-run-entry bunnia-status-\{run.status}"),
+        @bunnia.data("run-id", run.id),
+        @bunnia.data("agent-id", run.agent_id),
+        @bunnia.data("building-id", run.building_id),
+        @bunnia.data("book-id", run.book_id),
+        @bunnia.data("thread-id", run.thread_id),
+        @bunnia.data("artifact-ref", run.artifact_ref),
+        @bunnia.data(
+          "review-required",
+          if run.review_required {
+            "true"
+          } else {
+            "false"
+          },
+        ),
+      ],
+      events=[@bunnia.event("tap", "select-\{run.building_id}")],
+      children=[
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(run.title),
+        ]),
+        @bunnia.text(run.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{run.status} / \{run.thread_id}"),
+        ]),
+      ],
+    ),
+  )
 }
 
 ///|
@@ -1294,6 +1350,7 @@ fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
 fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
   let book = selected_building_book(projection)
+  let runs = selected_building_runs(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
@@ -1307,6 +1364,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(building.summary),
       @bunnia.text("visibility: \{building.visibility}"),
       building_book_entry(book),
+      @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
       @bunnia.button("Ask", "ask-selected-building"),
       @bunnia.button("Place", "place-published-building"),
       @bunnia.button("Share", "share-private-building"),
