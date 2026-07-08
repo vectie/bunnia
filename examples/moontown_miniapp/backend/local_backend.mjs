@@ -257,9 +257,7 @@ function dispatch(state, request) {
     return changed({ targetRef: body.targetRef || "subscription:wechat", state: "requested" });
   }
   if (method === "POST" && path === "/miniapp/agents") {
-    const agent = { id: body.id || `agent-${state.agents.length + 1}`, name: body.displayName || "Created Agent", buildingId: body.buildingId || "private-agent-lab", status: "idle" };
-    state.agents.push(agent);
-    return changed({ agent });
+    return createAgent(state, viewer, body);
   }
   return { status: 404, changed: false, body: { error: "not_found", path, method } };
 }
@@ -692,6 +690,32 @@ function sendMessage(state, viewer, body) {
   return changed({ message, threadId: message.threadId, building: item });
 }
 
+function createAgent(state, viewer, body) {
+  const buildingId = body.buildingId || "private-agent-lab";
+  const building = visibleBuildings(state, viewer).find((item) => item.id === buildingId);
+  if (!building) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
+  if (building.ownerId !== viewer && building.ownerId !== "org-a") {
+    return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
+  }
+  const id = body.id || `agent-${state.agents.length + 1}`;
+  if (state.agents.some((item) => item.id === id)) {
+    return { status: 409, changed: false, body: { error: "duplicate_agent", agentId: id } };
+  }
+  const name = body.displayName || body.name || "Created Agent";
+  const agent = { id, name, buildingId, status: "idle" };
+  const message = {
+    id: `msg-agent-${state.nextMessage++}`,
+    actorId: id,
+    threadId: `thread-${buildingId}`,
+    text: `${name} is ready inside ${building.title}.`,
+    status: "done",
+  };
+  state.agents.push(agent);
+  state.messages.push(message);
+  state.auditEvents.push(audit(`audit-agent-${id}`, "agent-create", `${name} created`, `Agent is attached to ${building.title} and can join building threads.`, viewer, `agent:${id}`, buildingId, "idle", building.visibility));
+  return changed({ agent, message, building });
+}
+
 function changeRunStatus(state, runId, status) {
   const run = state.runs.find((item) => item.id === runId) || state.runs[state.runs.length - 1];
   if (!run) return { status: 404, changed: false, body: { error: "missing_run", runId } };
@@ -835,6 +859,13 @@ function smoke(options) {
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
+  const createdAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
+  assert(createdAgent.body.agent.buildingId === "smoke-lab", "create agent building");
+  assert(createdAgent.body.message.threadId === "thread-smoke-lab", "create agent message");
+  const duplicateAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
+  assert(duplicateAgent.status === 409, "duplicate agent blocked");
+  const publicAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-public-denied", displayName: "Denied Agent", buildingId: "published-agent-lab" } });
+  assert(publicAgent.status === 403, "agent creation owner only");
   const earlyPublish = dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   assert(earlyPublish.status === 409, "publish requires submit");
   const submitted = dispatch(state, { method: "POST", path: "/miniapp/buildings/submit", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
@@ -874,6 +905,7 @@ function smoke(options) {
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
+  assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke"), "ownership agent");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   saveState(statePath, state);
   rmSync(statePath);

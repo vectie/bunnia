@@ -333,7 +333,9 @@ Current status: Messages has run plaques, review controls, notification sync,
 ack/subscription actions, scoped backend metadata, and a building-thread send
 flow so user messages can be persisted against the selected map building. The
 review queue now covers both book-memory reviews and publication reviews, so
-agent output and building publication share one decision surface.
+agent output and building publication share one decision surface. Creating an
+agent now attaches it to a building thread with an audit event, so agents are
+durable town workers rather than standalone form output.
 
 ### R7: My Ownership Workbench
 
@@ -399,7 +401,9 @@ results instead of a building-only route. Local building publication now goes
 through `/miniapp/buildings/submit` before `/miniapp/buildings/publish`, so the
 backend loop has a review state instead of direct draft-to-public publishing.
 The local review endpoints now accept or reject publication reviews as well as
-book-memory reviews, matching the mini-app queue.
+book-memory reviews, matching the mini-app queue. Local agent creation now
+validates building ownership, rejects duplicates, persists the agent, writes a
+thread message, and returns it through snapshot and ownership APIs.
 
 ### R9: Style And Performance Hardening
 

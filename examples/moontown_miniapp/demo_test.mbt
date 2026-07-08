@@ -749,6 +749,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"}",
     ),
   )
@@ -1144,6 +1149,22 @@ test "moontown miniapp projection supports mock user create search and agent flo
     created, "agent-created", "Created Agent",
   )
   assert_eq(agent_created.agents.length(), 4)
+  assert_eq(selected_building_messages(agent_created).length(), 1)
+  assert_eq(
+    selected_building_messages(agent_created)[0].text,
+    "Created Agent is ready inside Created Agent Lab.",
+  )
+  assert_eq(
+    selected_building_messages(agent_created)[0].actor_id,
+    "agent-created",
+  )
+  assert_eq(selected_building_audit_events(agent_created).length(), 2)
+  let agent_owned = switch_ownership_filter(agent_created, "agents")
+  assert_eq(filtered_ownership_items(agent_owned).length(), 2)
+  assert_eq(
+    filtered_ownership_items(agent_owned)[1].target_ref,
+    "agent:agent-created",
+  )
 }
 
 ///|
