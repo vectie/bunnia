@@ -18,6 +18,7 @@ function seedState() {
     nextRun: 2,
     nextMessage: 2,
     nextReview: 2,
+    nextModeration: 2,
     users: [
       { id: "user-a", name: "Ada Builder", roleId: "builder" },
       { id: "user-b", name: "Bo Curator", roleId: "explorer" },
@@ -66,6 +67,9 @@ function seedState() {
     ],
     reviews: [
       { id: "review-policy-memory", runId: "run-policy-review", buildingId: "policy-hall", bookId: "book-policy-hall", title: "Review policy answer", summary: "Accept this answer into Policy Hall Book.", artifactRef: "artifact://book-policy-hall", reviewerId: "user-a", status: "pending", acceptedMemoryDelta: 1 },
+    ],
+    moderationCases: [
+      { id: "mod-policy-hall", buildingId: "policy-hall", reporterId: "user-a", targetRef: "building:policy-hall", title: "Policy Hall safety watch", summary: "Reports become review-council cases before hide or takedown.", status: "watch", actionLabel: "Review", actionMessage: "tab-messages" },
     ],
     notifications: [
       { id: "notice-review", kind: "review", title: "Review waiting", body: "Policy answer needs approval.", targetRef: "thread-policy-hall", buildingId: "policy-hall", unread: true },
@@ -165,6 +169,7 @@ function normalizeState(state) {
   state.nextRun = state.nextRun || 2;
   state.nextMessage = state.nextMessage || 2;
   state.nextReview = state.nextReview || 2;
+  state.nextModeration = state.nextModeration || 2;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.shares = state.shares || [];
@@ -174,6 +179,7 @@ function normalizeState(state) {
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
   state.reviews = state.reviews || [];
+  state.moderationCases = state.moderationCases || [];
   state.notifications = state.notifications || [];
   state.auditEvents = state.auditEvents || [];
   for (const user of state.users) {
@@ -283,6 +289,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/messages/subscribe") {
     return changed({ targetRef: body.targetRef || "subscription:wechat", state: "requested" });
   }
+  if (method === "POST" && path === "/miniapp/moderation/report") {
+    return reportBuilding(state, viewer, body);
+  }
   if (method === "POST" && path === "/miniapp/agents") {
     return createAgent(state, viewer, body);
   }
@@ -323,6 +332,7 @@ function routeCatalog() {
     "POST /miniapp/messages/ack",
     "POST /miniapp/tool-results/ack",
     "POST /miniapp/messages/subscribe",
+    "POST /miniapp/moderation/report",
     "POST /miniapp/agents",
     "POST /miniapp/agents/handoff",
   ];
@@ -417,6 +427,7 @@ function snapshotFor(state, viewer) {
     reviews: state.reviews.filter((item) => item.reviewerId === viewer),
     messages: visibleMessages(state, viewer),
     notifications: state.notifications,
+    moderationCases: state.moderationCases.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     shares: state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer),
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer || buildings.some((building) => building.id === item.buildingId)),
   };
@@ -743,6 +754,37 @@ function sendMessage(state, viewer, body) {
   return changed({ message, threadId: message.threadId, building: item });
 }
 
+function reportBuilding(state, viewer, body) {
+  const buildingId = body.buildingId || "policy-hall";
+  const item = visibleBuildings(state, viewer).find((building) => building.id === buildingId);
+  if (!item) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
+  if (item.visibility !== "published") {
+    return { status: 409, changed: false, body: { error: "not_public", buildingId, visibility: item.visibility } };
+  }
+  const id = body.id || `mod-${buildingId}-${viewer}`;
+  let moderationCase = state.moderationCases.find((candidate) => candidate.id === id);
+  if (!moderationCase) {
+    moderationCase = {
+      id,
+      buildingId,
+      reporterId: viewer,
+      targetRef: `building:${buildingId}`,
+      title: `${item.title} report`,
+      summary: String(body.reason || "Safety review request").trim(),
+      status: "pending",
+      actionLabel: "Review",
+      actionMessage: "tab-messages",
+    };
+    state.moderationCases.push(moderationCase);
+  } else {
+    moderationCase.summary = String(body.reason || moderationCase.summary).trim();
+    moderationCase.status = "pending";
+  }
+  state.notifications.push({ id: `notice-${moderationCase.id}`, kind: "moderation", title: "Moderation case opened", body: moderationCase.summary, targetRef: moderationCase.targetRef, buildingId, unread: true });
+  state.auditEvents.push(audit(`audit-report-${moderationCase.id}`, "report", `${item.title} reported`, "A public report was routed to the review council before hide or takedown.", viewer, moderationCase.targetRef, buildingId, "pending", "published"));
+  return changed({ case: moderationCase, building: item });
+}
+
 function acknowledgeToolResult(state, viewer, body) {
   const toolResultId = body.toolResultId || body.id || "tool-policy-summary";
   const item = state.toolResults.find((result) => result.id === toolResultId);
@@ -1024,6 +1066,9 @@ function smoke(options) {
   const sent = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "hello policy hall" } });
   assert(sent.body.message.threadId === "thread-policy-hall", "send message thread");
   assert(sent.body.message.text === "hello policy hall", "send message text");
+  const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", reason: "smoke safety report" } });
+  assert(report.body.case.status === "pending", "report pending");
+  assert(report.body.case.targetRef === "building:policy-hall", "report target");
   const toolAck = dispatch(state, { method: "POST", path: "/miniapp/tool-results/ack", query: new URLSearchParams(), headers, body: { toolResultId: "tool-policy-summary" } });
   assert(toolAck.body.toolResult.status === "done", "tool result acknowledged");
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
@@ -1032,6 +1077,7 @@ function smoke(options) {
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   assert(snapshot.body.toolResults.some((item) => item.id === "tool-policy-summary" && item.status === "done"), "snapshot tool result ack");
+  assert(snapshot.body.moderationCases.some((item) => item.id === report.body.case.id), "snapshot moderation case");
   assert(snapshot.body.runs.some((item) => item.id === handoff.body.run.id), "snapshot handoff run");
   assert(snapshot.body.notifications.some((item) => item.id === handoff.body.notification.id), "snapshot handoff notice");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });

@@ -263,6 +263,19 @@ pub struct MiniTownAuditEvent {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownModerationCase {
+  id : String
+  building_id : String
+  reporter_id : String
+  target_ref : String
+  title : String
+  summary : String
+  status : String
+  action_label : String
+  action_message : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownOwnershipStat {
   id : String
   label : String
@@ -350,6 +363,7 @@ pub struct MiniTownProjection {
   backend_cache_states : Array[MiniTownBackendCacheState]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
+  moderation_cases : Array[MiniTownModerationCase]
 } derive(Debug, Eq)
 
 ///|
@@ -785,6 +799,31 @@ pub fn mini_town_audit_event(
 }
 
 ///|
+pub fn mini_town_moderation_case(
+  id~ : String,
+  building_id~ : String,
+  reporter_id~ : String,
+  target_ref~ : String,
+  title~ : String,
+  summary~ : String,
+  status~ : String,
+  action_label? : String = "Review",
+  action_message? : String = "tab-messages",
+) -> MiniTownModerationCase {
+  {
+    id,
+    building_id,
+    reporter_id,
+    target_ref,
+    title,
+    summary,
+    status,
+    action_label,
+    action_message,
+  }
+}
+
+///|
 pub fn mini_town_ownership_stat(
   id~ : String,
   label~ : String,
@@ -952,7 +991,23 @@ pub fn demo_projection() -> MiniTownProjection {
     backend_cache_states: demo_backend_cache_states(),
     activity_items: demo_activity_items(),
     audit_events: demo_audit_events(),
+    moderation_cases: demo_moderation_cases(),
   }
+}
+
+///|
+fn demo_moderation_cases() -> Array[MiniTownModerationCase] {
+  [
+    mini_town_moderation_case(
+      id="mod-policy-hall",
+      building_id="policy-hall",
+      reporter_id="user-a",
+      target_ref="building:policy-hall",
+      title="Policy Hall safety watch",
+      summary="Reports become review-council cases before hide or takedown.",
+      status="watch",
+    ),
+  ]
 }
 
 ///|
@@ -2792,6 +2847,19 @@ pub fn selected_building_audit_events(
 ) -> Array[MiniTownAuditEvent] {
   let output : Array[MiniTownAuditEvent] = []
   for item in visible_audit_events(projection) {
+    if item.building_id == projection.selected_building_id {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn selected_building_moderation_cases(
+  projection : MiniTownProjection,
+) -> Array[MiniTownModerationCase] {
+  let output : Array[MiniTownModerationCase] = []
+  for item in projection.moderation_cases {
     if item.building_id == projection.selected_building_id {
       output.push(item)
     }

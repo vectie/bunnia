@@ -126,6 +126,8 @@ pub fn mini_town_lifecycle_action(id~ : String, label~ : String, message~ : Stri
 
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
+pub fn mini_town_moderation_case(id~ : String, building_id~ : String, reporter_id~ : String, target_ref~ : String, title~ : String, summary~ : String, status~ : String, action_label? : String, action_message? : String) -> MiniTownModerationCase
+
 pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, building_id? : String, action_label? : String, action_message? : String, requires_subscription? : Bool, unread? : Bool) -> MiniTownNotification
 
 pub fn mini_town_notification_channel(id~ : String, label~ : String, kind~ : String, unread_only? : Bool) -> MiniTownNotificationChannel
@@ -215,6 +217,8 @@ pub fn selected_building_book_shelf(MiniTownProjection) -> Array[MiniTownBookShe
 pub fn selected_building_lifecycle_actions(MiniTownProjection) -> Array[MiniTownLifecycleAction]
 
 pub fn selected_building_messages(MiniTownProjection) -> Array[MiniTownMessage]
+
+pub fn selected_building_moderation_cases(MiniTownProjection) -> Array[MiniTownModerationCase]
 
 pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
 
@@ -428,6 +432,18 @@ pub struct MiniTownMessage {
   status : @agent.RunStatus
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownModerationCase {
+  id : String
+  building_id : String
+  reporter_id : String
+  target_ref : String
+  title : String
+  summary : String
+  status : String
+  action_label : String
+  action_message : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownNotification {
   id : String
   kind : String
@@ -545,6 +561,7 @@ pub struct MiniTownProjection {
   backend_cache_states : Array[MiniTownBackendCacheState]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
+  moderation_cases : Array[MiniTownModerationCase]
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownPublicationStep {

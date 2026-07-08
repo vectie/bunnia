@@ -40,6 +40,12 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Messages"))
   assert_true(!page.wxml.contains("My Town"))
   assert_true(page.wxml.contains("moontown-building-drawer"))
+  assert_true(page.wxml.contains("Safety Desk 1 / Report"))
+  assert_true(page.wxml.contains("data-moderation-building=\"policy-hall\""))
+  assert_true(page.wxml.contains("data-moderation-count=\"1\""))
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"report-public-building\""),
+  )
   assert_true(page.wxml.contains("moontown-book-entry"))
   assert_true(page.wxml.contains("Policy Hall Book"))
   assert_true(page.wxml.contains("Policy Source Shelf"))
@@ -64,17 +70,6 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("data-run-id=\"run-policy-review\""))
   assert_true(
     page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
-  )
-  assert_true(page.wxml.contains("moontown-review-entry"))
-  assert_true(page.wxml.contains("Review policy answer"))
-  assert_true(page.wxml.contains("data-review-id=\"review-policy-memory\""))
-  assert_true(page.wxml.contains("data-decision=\"accept\""))
-  assert_true(page.wxml.contains("data-decision=\"reject\""))
-  assert_true(
-    page.wxml.contains("data-bunnia-message=\"accept-memory-review\""),
-  )
-  assert_true(
-    page.wxml.contains("data-bunnia-message=\"reject-memory-review\""),
   )
   assert_true(page.wxml.contains("Lifecycle"))
   assert_true(page.wxml.contains("moontown-audit-entry"))
@@ -639,6 +634,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/moderation/report",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )
@@ -744,6 +744,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"}",
     ),
   )
   assert_true(
@@ -903,6 +908,13 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.backend_cache_states[3].source, "request-log")
   assert_eq(projection.backend_cache_states[3].action_message, "tab-my")
   assert_eq(projection.backend_cache_states[4].action_message, "tab-messages")
+  assert_eq(projection.moderation_cases.length(), 1)
+  assert_eq(projection.moderation_cases[0].id, "mod-policy-hall")
+  assert_eq(selected_building_moderation_cases(projection).length(), 1)
+  assert_eq(
+    selected_building_moderation_cases(projection)[0].action_message,
+    "tab-messages",
+  )
   assert_true(!profile_ready_to_publish(projection))
   let gates = setup_gates(projection)
   assert_eq(gates.length(), 6)
@@ -1325,12 +1337,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(tool_result.missing_ack_count, 0)
   assert_eq(tool_result.artifact_ref_count, 2)
   assert_eq(tool_result.diagnostics.length(), 0)
-  assert_eq(backend.endpoint_count, 23)
+  assert_eq(backend.endpoint_count, 24)
   assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 23)
+  assert_eq(effects.effect_count, 24)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)
