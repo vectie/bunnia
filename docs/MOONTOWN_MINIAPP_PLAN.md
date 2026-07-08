@@ -39,6 +39,243 @@ Moontown owns:
 The generated mini-app must not contain Moontown filesystem paths, local daemon
 control, app secrets, privileged keys, or desktop-only runtime assumptions.
 
+## Reference Design Migration Scope
+
+The reference design in `/Users/kq/Desktop/ref_design` is useful for product
+maturity, but its "realm" page should not become a second map concept. In
+Moontown, Realm is simply the existing full-screen town map: the user's spatial
+home, building launcher, agent surface, and discovery context.
+
+Migration rule:
+
+```text
+reference Realm page -> existing Moontown map
+all other reference pages -> surrounding product maturity around the map
+```
+
+The mini-app should keep Moontown's current tile-gamified style:
+
+- map-first interaction instead of generic social-app page stacks
+- buildings, districts, signposts, docks, halls, and kiosks as feature entries
+- lightweight panels and drawers over the map, not large unrelated card pages
+- bottom tabs as navigation shortcuts, with Realm opening the same map surface
+- bright, readable tile colors and crisp pixel/2.5D assets over blurred hero art
+- small motion, stable hit targets, and fast touch feedback for WeChat devices
+
+Bunnia should only absorb generic framework primitives from this work:
+
+- onboarding stepper
+- identity/setup forms
+- tab shell
+- floating action controls
+- search and feed lists
+- profile/message surfaces
+- scene overlays and drawers
+
+Moontown owns the product semantics:
+
+- AI Walker wording
+- town/circle/building labels
+- product market, demand hall, event calendar, city guide, and OPC hub
+- role names, onboarding copy, map art, ranking rules, and business policy
+
+## Reference Page Interpretation
+
+| Reference page | What it does | Moontown migration |
+| --- | --- | --- |
+| AI Walker welcome | First-run entry into an AI city fantasy. | Onboarding step 1; introduce the town map and agent-guided city. |
+| Inspiration square | Explains public sharing and community discoveries. | Public activity stream around buildings, agents, books, and runs. |
+| Community center | Introduces feature zones such as product market, demands, events, and guide. | Convert each zone into a tile building or district entrance on the map. |
+| Navigation intro | Teaches bottom tabs and primary app areas. | Keep as onboarding step; map tab opens existing full-screen Realm/map. |
+| Identity selection | Collects nickname, role, and agreement consent. | Register/profile setup after dev or WeChat login. |
+| Community home | Shows a visual camp, stats, member avatars, search, publish, and feature entries. | Map landing state plus building stats, nearby agents, and search/publish actions. |
+| Circle engine/feed | Combines feature launchers with dynamic content. | District drawer from the map; cards become building categories and activity feeds. |
+| Discover | Searches people, circles, products, needs, and posts. | Unified search for buildings, users, agents, books, events, demands, and posts. |
+| Realm | Visual graph/map of domains. | Already covered by Moontown map; do not create a second graph page. |
+| Messages | Follows, interactions, system notices, and WeChat subscription prompt. | Agent/human notification center with run, review, publish, share, and system events. |
+| Profile | User identity, stats, wallet/actions, and owned content tabs. | Account page for owned buildings, books, agents, drafts, published items, and activity. |
+
+## Phase-By-Phase Reference Migration
+
+These phases sit on top of the existing backend and map phases below. They
+should be implemented in Moontown product/example code first, while Bunnia only
+keeps reusable primitives.
+
+### Reference Phase A: Tile-Gamified App Shell
+
+Classification: feature.
+
+Goal: wrap the current full-screen map with mature mini-app navigation while
+keeping the map as the main surface.
+
+Tasks:
+
+- Add bottom tabs: `Home`, `Discover`, `Realm`, `Messages`, `My`.
+- Route `Realm` to the existing full-screen Moontown map.
+- Keep search and publish as floating map actions.
+- Use tile-styled icons, building plaques, signpost labels, and drawer panels.
+- Avoid generic rounded social cards when a tile/building entry can represent
+  the same action.
+
+Acceptance:
+
+- Tapping Realm always returns to the same map state, not a separate mock graph.
+- Home can summarize map activity without replacing the map as the product core.
+- Navigation chrome does not reduce touch performance or map clarity.
+
+### Reference Phase B: First-Time Onboarding
+
+Classification: feature.
+
+Goal: explain the product fantasy and main actions before the user enters the
+map.
+
+Tasks:
+
+- Add four onboarding steps: welcome, inspiration/activity, community/building
+  zones, navigation.
+- Use Moontown tile art or cropped map scenes instead of unrelated hero art.
+- Store `onboarding_completed` per user/session.
+- Keep copy product-specific and data-driven, not hardcoded into Bunnia core.
+
+Acceptance:
+
+- New users see onboarding once.
+- Returning users go directly to the map.
+- Onboarding assets stay within mini-app package budget or use remote-safe
+  loading later.
+
+### Reference Phase C: Identity And Consent Setup
+
+Classification: feature.
+
+Goal: let different users establish profile, role, and consent before creating
+or publishing buildings.
+
+Tasks:
+
+- Add nickname/avatar/profile setup.
+- Add role selection as Moontown config.
+- Add service agreement and privacy consent state.
+- Connect profile setup to dev login now and WeChat login later.
+
+Acceptance:
+
+- A user cannot publish or create public-facing content before required profile
+  and consent fields are complete.
+- Role choice affects labels/recommendations only; it must not bypass
+  permissions.
+
+### Reference Phase D: Map Home And Building Districts
+
+Classification: feature.
+
+Goal: migrate community-center and home-page functions into the tile map.
+
+Tasks:
+
+- Represent product market, demand hall, event calendar, city guide, and OPC
+  hub as buildings or districts.
+- Add building/district detail drawers with stats, summary, actions, and active
+  agents.
+- Show town stats such as building count, demand count, member count, and recent
+  activity without covering the map.
+- Keep map markers and hit targets data-driven.
+
+Acceptance:
+
+- Every major feature page has a visible place on the map.
+- Tapping a feature building opens the correct drawer or route.
+- New buildings can be placed without changing durable building identity.
+
+### Reference Phase E: Discover And Search
+
+Classification: feature.
+
+Goal: mature the "find existing things" workflow.
+
+Tasks:
+
+- Add unified search across buildings, users, agents, books, events, demands,
+  products, and posts.
+- Add filters for visibility, category, capability, owner, freshness, and
+  publish state.
+- Use virtualized/windowed list rendering for large results.
+- Provide "place on my map" for allowed published buildings.
+
+Acceptance:
+
+- Private content is not leaked through search.
+- Published buildings can be discovered and placed by other users.
+- Search results remain responsive with large fixture data.
+
+### Reference Phase F: Messages And Agent Notifications
+
+Classification: feature.
+
+Goal: make communication mature while keeping agent chat first-class.
+
+Tasks:
+
+- Add message categories: new follows/shares, interactions, system notices,
+  agent runs, review requests, publish decisions, and failed actions.
+- Let each notification deep-link to a building, thread, run, review, or profile.
+- Model WeChat subscription prompts through a platform adapter, not core
+  product code.
+- Keep long message streams append-friendly and windowed.
+
+Acceptance:
+
+- Agent events appear in the same notification model as human interactions.
+- Review-needed and run-complete events are visible from Messages.
+- WeChat subscription capability is isolated behind platform reporting.
+
+### Reference Phase G: Profile And Ownership Center
+
+Classification: feature.
+
+Goal: give users a clear place for identity, private work, published work, and
+owned objects.
+
+Tasks:
+
+- Add profile summary, stats, edit-profile entry, and content tabs.
+- Tabs should cover buildings, books, agents, drafts, published items, activity,
+  and optionally products/demands/events when those modules are enabled.
+- Show private, shared, submitted, published, and archived states clearly.
+- Keep account operations separate from public discovery.
+
+Acceptance:
+
+- User can find their private drafts and published buildings.
+- User can understand what is private, shared, submitted, published, or
+  archived.
+- Profile page does not expose private book content to other users.
+
+### Reference Phase H: Style And Performance Hardening
+
+Classification: hardening.
+
+Goal: keep the mature app feeling like Moontown and fast enough for a mini-app.
+
+Tasks:
+
+- Audit every migrated page against the tile-gamified visual system.
+- Replace generic community cards with tile/building/signpost components where
+  appropriate.
+- Compress and budget onboarding/profile/search assets.
+- Measure first-screen data, setData deltas, component count, repeated-list
+  pressure, and scene pressure.
+- Validate on WeChat DevTools with map pan/zoom, drawer interactions, and large
+  search/message fixtures.
+
+Acceptance:
+
+- Realm/map remains crisp and full-screen.
+- No migrated page introduces heavy hero art, blurred map assets, or slow
+  whole-page rerenders.
+- Bunnia diagnostics stay inside the agreed mini-app budgets.
+
 ## Product Model
 
 Best relationship:
