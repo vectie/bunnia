@@ -13,6 +13,30 @@ Rest of app = onboarding, login, home pulse, search, messages, ownership,
 The goal is a mature WeChat mini-app that still feels like Moontown: tile-based,
 map-first, agentic, fast, and readable on phones.
 
+## Current Scope Decision
+
+Realm is done conceptually: it is our current Moontown map. Do not spend feature
+phases inventing another realm surface, graph, or spatial model. From here, map
+work is defensive hardening only: keep the raster crisp, edges constrained,
+drag/pinch correct, terrain meaningful, markers tappable, and render budgets
+green.
+
+The migration work is the rest of the product:
+
+- entry, register/login, profile, role, consent, and setup gates
+- Home as town pulse and district shortcuts
+- Discover as public search and placement
+- building drawers, lifecycle, books, permissions, review, and publishing
+- Messages as human/agent communication, run status, reviews, and notices
+- My as ownership, drafts, published work, archives, and account readiness
+- local backend loop for WeChat DevTools on this Mac
+- production backend readiness after local flows are coherent
+
+Every phase must keep the existing tile-gamified style. Non-map pages should
+feel like town ledgers, kiosks, plaques, signposts, workbenches, inventory
+rows, mail boards, and building drawers. They should not become generic mobile
+community pages with the map reduced to decoration.
+
 This is the key product boundary:
 
 - Realm is not a new feature to migrate. Realm is the current Moontown map.
@@ -535,6 +559,24 @@ Build in this order:
 The highest-leverage next work is not another map experiment. It is completing
 the app maturity around the existing map: identity gates, Home pulse, Discover,
 building lifecycle, messages, ownership, and the local backend loop.
+
+## Per-Phase Migration Checklist
+
+Use this checklist before starting each phase:
+
+- What real user job does this add around the existing map?
+- Which tile-town form fits it best: building, district, drawer, plaque,
+  signpost, ledger, mail board, workbench, or badge?
+- What data must be backend-owned rather than bundled in the mini-app?
+- What list, scene, backend, agent, and `setData` budgets can this phase
+  pressure?
+- What stale/error/retry state does the user see when the backend or agent run
+  fails?
+- Which route or building should receive the deep link after the action
+  completes?
+
+If the answer requires a new Realm page or a second graph, it is out of scope.
+Attach it to the existing map or one of the mature product surfaces instead.
 
 ## Data Relationship
 

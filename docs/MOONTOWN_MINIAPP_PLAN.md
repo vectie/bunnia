@@ -466,6 +466,22 @@ Output:
 
 - The app can be exercised end-to-end locally before production deployment.
 
+Current implementation:
+
+- Bunnia now ships a standalone local backend runner at
+  `examples/moontown_miniapp/backend/local_backend.mjs`.
+- The runner serves the same endpoint paths used by `demo_backend_contract()` on
+  `http://127.0.0.1:18191`: dev login, snapshot, discover search, profile save,
+  building create/place/share/publish/archive, building query, run cancel/retry,
+  review accept/reject, notification ack, subscription request, and agent
+  creation.
+- Runtime state is persisted under `_build/moontown_miniapp/` by default, so
+  users, buildings, placements, books, agents, messages, runs, reviews, notices,
+  and audit events survive local DevTools reloads without entering the git
+  worktree.
+- `--smoke` exercises the full local loop without leaving a server running, and
+  `--reset-state` gives WeChat DevTools a clean local town.
+
 ### M9: Style And Performance Hardening
 
 Classification: hardening.
@@ -1222,20 +1238,17 @@ Goal: make the whole slice testable locally before production backend work.
 
 Recommended path:
 
-1. Add Moontown CLI commands that emit and mutate mini-app JSON.
-2. Add a tiny local HTTP wrapper around those commands or package APIs.
+1. Use the Bunnia Moontown example backend runner for local development.
+2. Keep the route contract aligned with the generated mini-app backend actions.
 3. Use dev login and local storage.
 4. Point WeChat DevTools at the local backend.
 
 Example local commands:
 
 ```text
-moon run src/cmd/main -- miniapp snapshot --user user-a
-moon run src/cmd/main -- miniapp buildings search --query policy
-moon run src/cmd/main -- miniapp buildings create ...
-moon run src/cmd/main -- miniapp buildings publish ...
-moon run src/cmd/main -- miniapp buildings archive ...
-moon run src/cmd/main -- miniapp chat send ...
+node examples/moontown_miniapp/backend/local_backend.mjs --reset-state
+node examples/moontown_miniapp/backend/local_backend.mjs --smoke
+curl http://127.0.0.1:18191/miniapp/routes
 ```
 
 Acceptance:
@@ -1250,22 +1263,18 @@ Acceptance:
 
 Current evidence:
 
-- Moontown `src/miniapp_local_backend` owns a deterministic local backend state
-  and route catalog for dev login, snapshot, search, create/place building,
-  create agent, chat send, cancel, retry, and review accept operations.
-- The local backend remains pure and storage-free, so a tiny HTTP wrapper can
-  later call the same APIs without changing product policy.
-- `moon run src/cmd/main -- miniapp ...` exposes one-shot local commands for
-  routes, login-backed snapshot/search, building create/place, agent create,
-  chat send, and run/review actions.
-- Moontown `scripts/miniapp-local-backend.mjs` starts a localhost HTTP wrapper
-  around the same route set for WeChat DevTools, with a built-in `--smoke`
-  check and `backendBaseUrl=http://127.0.0.1:18191`.
+- Bunnia `examples/moontown_miniapp/backend/local_backend.mjs` starts a
+  localhost HTTP backend for WeChat DevTools, with a built-in `--smoke` check
+  and `backendBaseUrl=http://127.0.0.1:18191`.
+- The local backend owns a deterministic seed state and route catalog for dev
+  login, snapshot, search, create/place/share/publish/archive building, create
+  agent, chat send, cancel, retry, notification ack/subscription, and review
+  accept/reject operations.
 - The local HTTP wrapper persists users, buildings, placements, agents,
   threads, messages, runs, and audit events to
-  `.moontown/miniapp-local-backend-state.json` by default, keeps sessions
-  ephemeral, supports `--state` and `--reset-state`, and smoke-tests persistence
-  through a temporary state file.
+  `_build/moontown_miniapp/local_backend_state.json` by default, supports
+  `--state` and `--reset-state`, and smoke-tests persistence through a temporary
+  state file.
 - The local backend route catalog and HTTP wrapper include
   `POST /miniapp/buildings/publish`, so a user can create a private draft,
   publish it to town, and another user can discover it through building search.

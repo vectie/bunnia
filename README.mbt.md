@@ -39,6 +39,10 @@ See [docs/MOONTOWN_MINIAPP_PLAN.md](/Users/kq/Workspace/moonmini/docs/MOONTOWN_M
 for the Moontown product/backend dogfood plan, including user login,
 building ownership, publication, search, books, and agent interaction.
 
+See [docs/MOONTOWN_REALM_MIGRATION_PLAN.md](/Users/kq/Workspace/moonmini/docs/MOONTOWN_REALM_MIGRATION_PLAN.md)
+for the focused migration plan where Realm is the existing tile map and the
+remaining work is the mature mini-app functionality around it.
+
 ## Package Shape
 
 - `core`: platform-neutral tree, events, adapters, render planning, and generic
@@ -96,6 +100,14 @@ The Moontown mini-app slice uses the same build path:
 ```bash
 moon run cmd/main -- build --target wechat --example moontown_miniapp --strict --budget large --render-budget large
 moon run cmd/main -- inspect --target wechat --example moontown_miniapp --budget large --render-budget large
+```
+
+For WeChat DevTools backend calls, start the local Moontown example backend on
+this Mac:
+
+```bash
+node examples/moontown_miniapp/backend/local_backend.mjs --reset-state
+node examples/moontown_miniapp/backend/local_backend.mjs --smoke
 ```
 
 The same generator also accepts explicit build-style arguments:
