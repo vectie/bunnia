@@ -24,6 +24,13 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-tabbar"))
   assert_true(page.wxml.contains("data-map-surface=\"true\""))
   assert_true(page.wxml.contains("First Visit"))
+  assert_true(page.wxml.contains("moontown-guide-step"))
+  assert_true(page.wxml.contains("data-guide-step=\"enter-town\""))
+  assert_true(page.wxml.contains("data-guide-step=\"discover-public\""))
+  assert_true(page.wxml.contains("data-tab-id=\"discover\""))
+  assert_true(
+    page.wxml.contains("data-bunnia-route=\"pages/moontown/discover\""),
+  )
   assert_true(!page.wxml.contains("Identity Setup"))
   assert_true(!page.wxml.contains("Town Builder"))
   assert_true(!page.wxml.contains("Accept Consent"))
@@ -92,6 +99,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxss.contains(".moontown-bottom-hud"))
   assert_true(page.wxss.contains(".moontown-tabbar"))
   assert_true(page.wxss.contains(".moontown-tab-button.active"))
+  assert_true(page.wxss.contains(".moontown-guide-step"))
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"tab-realm\""))
   assert_true(page.js.contains("\"complete-onboarding\""))
@@ -661,6 +669,21 @@ test "moontown miniapp generates wechat project with backend hooks" {
       "data-bunnia-message=\"dev-login\"",
     ),
   )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.wxml").contains(
+      "data-guide-step=\"agent-mail\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.wxml").contains(
+      "data-bunnia-route=\"pages/moontown/messages\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/home.wxml").contains(
+      "data-guide-step=\"passport\"",
+    ),
+  )
   assert_eq(project.manifest.pages[0].route, "pages/moontown/index")
   assert_eq(project.manifest.pages[1].route, "pages/moontown/home")
   assert_eq(project.manifest.pages[2].route, "pages/moontown/discover")
@@ -707,6 +730,18 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.active_tab_id, "realm")
   assert_true(projection.tabs[2].map_surface)
   assert_eq(projection.onboarding_steps.length(), 4)
+  let guides = guide_steps(projection)
+  assert_eq(guides.length(), 5)
+  assert_eq(guides[0].id, "enter-town")
+  assert_eq(guides[0].tab_id, "realm")
+  assert_true(!guides[0].complete)
+  assert_eq(guides[2].id, "discover-public")
+  assert_eq(guides[2].action_message, "tab-discover")
+  assert_true(guides[2].complete)
+  assert_eq(guides[3].id, "agent-mail")
+  assert_eq(guides[3].status, "review")
+  assert_eq(guides[4].id, "passport")
+  assert_true(!guides[4].complete)
   assert_eq(projection.districts.length(), 5)
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 7)

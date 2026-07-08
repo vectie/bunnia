@@ -291,6 +291,18 @@ Output:
 
 - A user can enter the town, finish setup, and safely reach the map.
 
+Current implementation:
+
+- Realm and Home now render data-driven tile guide plaques derived from the
+  current projection. The guide translates the reference onboarding/navigation
+  screenshots into compact town steps: enter Realm, read Home, discover public
+  places, review agent mail, and finish the user's passport.
+- Each guide plaque carries tab id, route metadata, building context, action
+  message, completion state, and status color, so first-run education can become
+  backend-driven later without copying generic onboarding pages.
+- The guide keeps Realm as the existing map. It sends users into the mature
+  surrounding surfaces instead of introducing a second realm or graph.
+
 ### M3: Home As Town Pulse
 
 Classification: feature.
