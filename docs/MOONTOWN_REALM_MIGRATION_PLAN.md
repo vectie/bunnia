@@ -13,6 +13,17 @@ Rest of app = onboarding, login, home pulse, search, messages, ownership,
 The goal is a mature WeChat mini-app that still feels like Moontown: tile-based,
 map-first, agentic, fast, and readable on phones.
 
+This is the key product boundary:
+
+- Realm is not a new feature to migrate. Realm is the current Moontown map.
+- Map work is only guardrail work: clarity, edge constraints, pinch/drag, asset
+  generation, marker quality, and performance.
+- Product maturity comes from the rest of the app: first-run setup, login,
+  profile, Home, Discover, Messages, My, building lifecycle, books, agents,
+  search, local backend, and production readiness.
+- Every non-map surface should still look like it belongs to the same tile
+  town, not like a generic social/community app placed beside the map.
+
 ## Product Direction
 
 The user should understand the app as a town:
@@ -48,6 +59,28 @@ Every migrated screen must align with the current tile-gamified style.
 - Agent status should appear in map badges, building drawers, message rows, and
   run plaques, not only in a chat page.
 
+## Migration Boundary
+
+The reference design should be translated by function, not copied page by page.
+The existing map already covers the Realm concept. The remaining migration is a
+set of mature product surfaces around the map.
+
+| Reference function | Moontown destination | Tile-gamified treatment |
+| --- | --- | --- |
+| Welcome / first entry | R2 Entry and setup | Signpost intro, short guide, enter-town gate. |
+| Login / identity / consent | R2 Entry and setup, R7 My | Town passport, profile plaque, readiness stamps. |
+| Community home | R3 Home Town Pulse | Town notice board, stats plaques, recent activity ledger. |
+| Feature zones | R3 Home, R4 Discover, map districts | District doors, building shortcuts, kiosks. |
+| Public search / square | R4 Discover | Market board for buildings, people, agents, books, events. |
+| Realm graph | R0 Realm Map Guardrail | Use the existing full-screen Moontown map only. |
+| Messages / follows / interactions | R6 Messages | Town mail, run plaques, review notices, subscription prompts. |
+| Profile / owned content | R7 My Ownership Workbench | Inventory ledger, ownership stamps, private/shared/published tabs. |
+| Backend and account state | R8/R10 backend phases | Backend loop panel, sync badges, production safety gates. |
+
+Do not introduce a second map, a second spatial metaphor, or a separate graph
+page. If a feature needs spatial identity, attach it to an existing building,
+district, marker, drawer, or placement on the current map.
+
 ## Phase Summary
 
 | Phase | Name | Type | Goal |
@@ -71,6 +104,43 @@ Hardening phases: R0, R9, and R10.
 R0 is always active as a guardrail. Any map blur, black space, broken edge
 constraint, broken drag/pinch, wrong projection, or sluggish marker interaction
 blocks the current slice.
+
+For planning, count R1-R8 as feature phases and R0/R9/R10 as hardening phases.
+R0 is continuous and defensive; it should not absorb product maturity work.
+R9 runs after each feature slice to keep the growing non-map UI fast and
+visually coherent. R10 waits until local flows are coherent enough to expose to
+real users.
+
+## Phase-By-Phase Migration Plan
+
+The migration should advance by product leverage. The map gives the app its
+identity already, so the highest leverage work is to make everything around the
+map usable, durable, searchable, and safe.
+
+| Order | Phase | Build first | Then mature | Done when |
+| --- | --- | --- | --- | --- |
+| 0 | R0 Realm Map Guardrail | Keep current tile map crisp, bounded, and pinchable. | Keep asset pipeline and edge fill natural as data grows. | Realm remains a full-screen map with no empty-space leaks or blur regressions. |
+| 1 | R1 Tile Mini-App Shell | Home, Discover, Realm, Messages, My tabs. | Preserve map context and route budget as tabs gain real content. | Users can move around the app and always return to the same map. |
+| 2 | R2 Entry, Login, Profile | Dev login, onboarding, profile, role, consent gates. | WeChat login contract and account safety. | Public actions know who the user is and whether setup is complete. |
+| 3 | R3 Home Town Pulse | Activity, town stats, district shortcuts, recent runs. | Personalized pulse, stale/backend states, larger windowed lists. | Home explains what changed without becoming a generic feed. |
+| 4 | R4 Discover And Placement | Unified search, filters, public building results. | Placeable public buildings, people/circle/book/event results. | Users can find public content and place allowed buildings on their layer. |
+| 5 | R5 Building Lifecycle And Books | Building drawer, book summary, lifecycle actions. | Audit trail, review policy, private/raw book safety. | Buildings feel like durable places backed by memory and permissions. |
+| 6 | R6 Messages And Agent Communication | Agent run rows, review notices, notification channels. | Cancel/retry/ack/subscription, deep links, windowing. | Agentic interaction is first-class without turning Realm into chat. |
+| 7 | R7 My Ownership Workbench | Owned buildings/books/agents, drafts, published, archived. | Profile trust, lifecycle controls, failed/stale warnings. | Users can manage everything they own from one tile-styled workbench. |
+| 8 | R8 Local Backend Loop | Local login, snapshot, query, publish, run/review endpoints. | Persistence, multi-user isolation, failed/stale/retry states. | WeChat DevTools can exercise the full product against this Mac. |
+| 9 | R9 Style And Performance Hardening | Visual audit and budget checks after every feature slice. | List windowing, setData/delta pressure, device smoke tests. | The mature app still feels like Moontown and stays fast. |
+| 10 | R10 Production Backend Readiness | WeChat login, HTTPS/cloud backend, storage. | Rate limits, moderation, audit retention, monitoring, backups. | Real users can use the app without leaking secrets or private data. |
+
+Near-term priority:
+
+1. Keep R0 green.
+2. Finish R2 enough that every public action has identity and setup gates.
+3. Deepen R3/R4 so users can understand the town and find public objects.
+4. Deepen R5/R6 because buildings, books, agents, runs, and reviews are the
+   core product loop.
+5. Deepen R7 so private and published work is manageable.
+6. Expand R8 only after the UI contracts are stable enough to test end to end.
+7. Apply R9 continuously.
 
 ## R0: Realm Map Guardrail
 
