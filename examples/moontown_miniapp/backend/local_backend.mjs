@@ -332,8 +332,72 @@ function healthFor(state) {
     userCount: state.users.length,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
+    auditEventCount: state.auditEvents.length,
     rateLimitBucketCount: Object.keys(state.rateLimits).length,
   };
+}
+
+function requireModerator(state, viewer) {
+  if (canModerate(state, viewer)) return null;
+  return { status: 403, changed: false, body: { error: "moderator_only" } };
+}
+
+function auditForAdmin(state, viewer, query) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const kind = query.get("kind") || "";
+  const buildingId = query.get("buildingId") || "";
+  const rawLimit = Number(query.get("limit") || 50);
+  const limit = Math.max(1, Math.min(100, Number.isFinite(rawLimit) ? rawLimit : 50));
+  let events = state.auditEvents;
+  if (kind) events = events.filter((item) => item.kind === kind);
+  if (buildingId) events = events.filter((item) => item.buildingId === buildingId);
+  return ok({
+    items: events.slice(-limit).reverse(),
+    total: events.length,
+    limit,
+    filters: { kind, buildingId },
+  });
+}
+
+function backupForAdmin(state, viewer) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const tables = [
+    "users",
+    "profiles",
+    "moderatorIds",
+    "shares",
+    "listings",
+    "buildings",
+    "placements",
+    "books",
+    "bookMemories",
+    "agents",
+    "threads",
+    "messages",
+    "runs",
+    "toolResults",
+    "reviews",
+    "moderationCases",
+    "notifications",
+    "notificationStates",
+    "subscriptions",
+    "auditEvents",
+  ];
+  const snapshot = {};
+  const counts = {};
+  for (const key of tables) {
+    snapshot[key] = state[key] || [];
+    counts[key] = snapshot[key].length;
+  }
+  return ok({
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    excludes: ["sessions", "rateLimits"],
+    counts,
+    state: snapshot,
+  });
 }
 
 function dispatch(state, request) {
@@ -353,6 +417,12 @@ function dispatch(state, request) {
   }
   if (method === "GET" && path === "/miniapp/health") {
     return ok(healthFor(state));
+  }
+  if (method === "GET" && path === "/miniapp/admin/audit") {
+    return auditForAdmin(state, viewer, request.query);
+  }
+  if (method === "GET" && path === "/miniapp/admin/backup") {
+    return backupForAdmin(state, viewer);
   }
   if (method === "POST" && path === "/miniapp/auth/dev-login") {
     const userId = body.userId || "user-a";
@@ -461,6 +531,8 @@ function changed(body) {
 function routeCatalog() {
   return [
     "GET /miniapp/health",
+    "GET /miniapp/admin/audit",
+    "GET /miniapp/admin/backup",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
@@ -1475,6 +1547,7 @@ function smoke(options) {
   assert(health.body.status === "ok", "health ok");
   assert(health.body.routeCount === routeCatalog().length, "health route count");
   assert(health.body.activeSessionCount === 1, "health active sessions");
+  assert(health.body.auditEventCount >= 1, "health audit count");
   const logoutProbe = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-logout", displayName: "Logout Probe" } });
   const logoutHeaders = { "x-miniapp-session": logoutProbe.body.session.id };
   const loggedOut = dispatch(state, { method: "POST", path: "/miniapp/auth/logout", query: new URLSearchParams(), headers: logoutHeaders, body: {} });
@@ -1505,6 +1578,16 @@ function smoke(options) {
   assert(registeredSnapshot.body.users.some((item) => item.id === "user-c" && item.name === "Chen Cartographer"), "registered user list");
   const bobLogin = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-b" } });
   const bobHeaders = { "x-miniapp-session": bobLogin.body.session.id };
+  const deniedAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedAudit.status === 403, "admin audit moderator only");
+  const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
+  assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
+  assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
+  const adminBackup = dispatch(state, { method: "GET", path: "/miniapp/admin/backup", query: new URLSearchParams(), headers, body: {} });
+  assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
+  assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
+  assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
+  assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
   const sharedDraft = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "shared-lab", title: "Shared Lab" } });
   assert(sharedDraft.body.building.visibility === "private_draft", "create shared draft");
   const shared = dispatch(state, { method: "POST", path: "/miniapp/buildings/share", query: new URLSearchParams(), headers, body: { buildingId: "shared-lab", targetUserId: "user-b" } });

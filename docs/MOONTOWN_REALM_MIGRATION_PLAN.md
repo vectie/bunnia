@@ -7,16 +7,20 @@ Realm = the existing Moontown map
 Migration = the mature mini-app functionality around that map
 ```
 
-Realm is not a new page, graph, or spatial metaphor to rebuild. It is the
+Realm is not a new page, graph, or spatial metaphor to rebuild. It is just the
 current full-screen tile map: draggable, pinchable, bounded, projection-aware,
-and visually Moontown. The remaining work is to make the app around it mature:
-entry, login, Home, Discover, Messages, My, building lifecycle, books, agents,
-local backend, and production readiness.
+and visually Moontown. The remaining work is to make the app around that map
+mature: entry, login, Home, Discover, Messages, My, building lifecycle, books,
+agents, local backend, and production readiness.
 
 The product should stay tile-gamified. Every new screen should feel like it
 belongs to the same town: kiosks, signposts, plaques, ledgers, drawers, mail
 boards, inventory shelves, stamps, and building panels. Do not copy reference
 designs as generic mobile social pages.
+
+This is therefore a rest-functionality migration plan. The map remains the
+product's game board; the phases below add the mature app systems that make the
+board useful without changing the board into another product.
 
 ## Scope Decision
 
@@ -293,6 +297,19 @@ Current direction:
   Home, Discover, buildings, books, agents, messages, My, and backend recovery.
 - In each slice, migrate the largest product boundary first, then the compact
   tile UI needed to exercise it.
+
+Rest-functionality phase intent:
+
+| Phase | Maturity question |
+| --- | --- |
+| R1 | Can users move through the mini-app without leaving the tile-town system? |
+| R2 | Does every action know who the user is and what they are allowed to do? |
+| R3 | Does Home explain what changed in town without becoming a feed clone? |
+| R4 | Can users find public objects and place allowed buildings on the map? |
+| R5 | Are buildings durable places with lifecycle, books, and permissions? |
+| R6 | Are agent and human interactions visible, retryable, and tied to context? |
+| R7 | Can users manage all private, shared, submitted, published, and archived work? |
+| R8 | Can the full loop run locally in WeChat DevTools with realistic state? |
 
 ## Phase-By-Phase Migration Plan
 
@@ -641,9 +658,10 @@ decisions are now backend-gated by local moderator trust, so normal logged-in
 users can report but cannot hide or takedown public buildings. Run cancel/retry
 now requires an explicit visible run id, and local smoke coverage checks missing
 and private cross-user run mutations. The local backend now also exposes a
-`/miniapp/health` readiness route and backend-owned rate-limit buckets for
-sensitive routes, so DevTools can exercise health and abuse-control behavior
-without adding frontend weight.
+`/miniapp/health` readiness route, backend-owned rate-limit buckets for
+sensitive routes, and moderator-only audit/backup routes, so DevTools can
+exercise health, abuse-control, and recovery behavior without adding frontend
+weight.
 
 ### R9: Style And Performance Hardening
 
@@ -698,11 +716,12 @@ through the selected building Safety Desk, Messages Moderation Desk, and
 backend-owned moderator trust before mutating building or book visibility. The
 local backend now uses opaque sessions with expiry and logout revocation, giving
 the production login path a safer contract to replace with real WeChat identity.
-It also exposes `/miniapp/health` and rate-limits sensitive local routes such as
-dev login and public reports, so abuse-control behavior is testable before
-production infrastructure exists. Production still needs real reviewer/admin
-identity, appeals, retention, backups, monitoring, and stronger abuse controls
-after local flows are coherent.
+It also exposes `/miniapp/health`, rate-limits sensitive local routes such as
+dev login and public reports, and provides moderator-only audit/backup endpoints
+that exclude live session and rate-limit buckets, so abuse-control and recovery
+behavior are testable before production infrastructure exists. Production still
+needs real reviewer/admin identity, appeals, retention, monitoring, and stronger
+abuse controls after local flows are coherent.
 
 ## Migration Order
 
