@@ -449,14 +449,14 @@ function ownershipFor(state, viewer) {
     { id: "agents", label: "Agents", value: agents.length },
   ];
   const items = [
-    ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility))),
+    ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility), actionMessageForBuilding(item))),
     ...placements.map((item) => {
       const buildingItem = state.buildings.find((building) => building.id === item.buildingId);
       const title = buildingItem ? buildingItem.title : item.buildingId;
-      return ownedItem("placement", item.id, title, `${item.layer} map pin from ${item.source}.`, `placement:${item.id}`, item.layer, item.status, "Open");
+      return ownedItem("placement", item.id, title, `${item.layer} map pin from ${item.source}.`, `placement:${item.id}`, item.layer, item.status, "Open", `select-${item.buildingId}`);
     }),
-    ...books.map((item) => ownedItem("book", item.id, item.title, item.summary, `book:${item.id}`, item.visibility, item.status, "Review")),
-    ...agents.map((item) => ownedItem("agent", item.id, item.name, `Agent attached to ${item.buildingId}.`, `agent:${item.id}`, "owned", item.status, "Open")),
+    ...books.map((item) => ownedItem("book", item.id, item.title, item.summary, `book:${item.id}`, item.visibility, item.status, "Review", "tab-messages")),
+    ...agents.map((item) => ownedItem("agent", item.id, item.name, `Agent attached to ${item.buildingId}.`, `agent:${item.id}`, "owned", item.status, "Chat", "tab-messages")),
   ];
   const alerts = [];
   if (!profile.setupCompleted || !profile.consentAccepted) {
@@ -473,17 +473,26 @@ function ownershipFor(state, viewer) {
   return { viewer, profile, stats, items, alerts, reviews, shares };
 }
 
-function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel) {
-  return { id, kind, title, summary, targetRef, visibility, status, actionLabel };
+function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
+  return { id, kind, title, summary, targetRef, visibility, status, actionLabel, actionMessage };
 }
 
 function actionForVisibility(visibility) {
-  if (visibility === "private_draft") return "Publish";
-  if (visibility === "shared_private") return "Review";
-  if (visibility === "submitted") return "Publish";
+  if (visibility === "private_draft") return "Submit";
+  if (visibility === "shared_private") return "Submit";
+  if (visibility === "submitted") return "Review";
   if (visibility === "published") return "Place";
   if (visibility === "archived") return "Restore";
   return "Open";
+}
+
+function actionMessageForBuilding(item) {
+  if (item.visibility === "private_draft") return "submit-private-building";
+  if (item.visibility === "shared_private") return "submit-private-building";
+  if (item.visibility === "submitted") return "tab-messages";
+  if (item.visibility === "published") return "tab-discover";
+  if (item.visibility === "archived") return "restore-archived-building";
+  return `select-${item.id}`;
 }
 
 function discoverItems(state, viewer, query) {
@@ -1029,6 +1038,8 @@ function smoke(options) {
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke"), "ownership agent");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke-helper"), "ownership helper agent");
+  assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab" && item.actionMessage === "tab-discover"), "ownership building action");
+  assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke" && item.actionMessage === "tab-messages"), "ownership agent action");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   saveState(statePath, state);
   rmSync(statePath);

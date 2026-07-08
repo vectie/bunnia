@@ -2854,27 +2854,49 @@ fn ownership_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
 fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
   @bunnia.keyed(
     "owned-\{item.id}",
-    @bunnia.view_with_attrs(
-      [
+    @bunnia.node(
+      kind="view",
+      attrs=[
         @bunnia.class_name("moontown-owned-entry"),
         @bunnia.data("ownership-kind", item.kind),
         @bunnia.data("target-ref", item.target_ref),
         @bunnia.data("visibility", item.visibility),
         @bunnia.data("status", item.status),
+        @bunnia.data("action-message", item.action_message),
+        @bunnia.data("target-tab", ownership_item_target_tab(item)),
       ],
-      [
+      events=[@bunnia.event("tap", item.action_message)],
+      children=[
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
           @bunnia.text(
-            "\{item.kind} / \{item.visibility} / \{item.action_label}",
+            "\{item.kind} / \{item.visibility} / \{item.action_label} / \{ownership_item_target_tab(item)}",
           ),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn ownership_item_target_tab(item : MiniTownOwnershipItem) -> String {
+  if item.action_message.has_prefix("tab-") {
+    item.action_message
+    .sub(start=4, end=item.action_message.length())
+    .to_owned()
+  } else if item.action_message.has_prefix("select-") {
+    "realm"
+  } else if item.action_message.contains("building") ||
+    item.action_message.contains("publish") ||
+    item.action_message.contains("archive") ||
+    item.action_message.contains("restore") {
+    "my"
+  } else {
+    "my"
+  }
 }
 
 ///|

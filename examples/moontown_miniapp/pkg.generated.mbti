@@ -134,7 +134,7 @@ pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, 
 
 pub fn mini_town_ownership_filter(id~ : String, label~ : String, kind? : String, visibility? : String) -> MiniTownOwnershipFilter
 
-pub fn mini_town_ownership_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String, action_label~ : String) -> MiniTownOwnershipItem
+pub fn mini_town_ownership_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String, action_label~ : String, action_message~ : String) -> MiniTownOwnershipItem
 
 pub fn mini_town_ownership_stat(id~ : String, label~ : String, value~ : Int) -> MiniTownOwnershipStat
 
@@ -469,6 +469,7 @@ pub struct MiniTownOwnershipItem {
   visibility : String
   status : String
   action_label : String
+  action_message : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownOwnershipStat {

@@ -495,14 +495,23 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"books\""))
   assert_true(mine.wxml.contains("data-ownership-filter-kind=\"agent\""))
   assert_true(mine.wxml.contains("data-ownership-kind=\"building\""))
+  assert_true(
+    mine.wxml.contains("data-action-message=\"submit-private-building\""),
+  )
+  assert_true(mine.wxml.contains("data-target-tab=\"my\""))
+  assert_true(mine.wxml.contains("building / private_draft / Submit / my"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"placement\""))
+  assert_true(mine.wxml.contains("data-action-message=\"select-policy-hall\""))
+  assert_true(mine.wxml.contains("data-target-tab=\"realm\""))
   assert_true(
     mine.wxml.contains(
       "data-target-ref=\"placement:placement-user-a-policy-hall\"",
     ),
   )
   assert_true(mine.wxml.contains("data-ownership-kind=\"book\""))
+  assert_true(mine.wxml.contains("book / private_draft / Review / messages"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
+  assert_true(mine.wxml.contains("agent / private_draft / Chat / messages"))
   assert_true(mine.wxml.contains("Private Agent Lab Book"))
   assert_true(mine.wxml.contains("moontown-owned-entry"))
   assert_true(mine.wxml.contains("moontown-create-drawer"))
@@ -1018,6 +1027,13 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_ownership_filter(projection).id, "all")
   assert_eq(ownership_items(projection).length(), 4)
   assert_eq(filtered_ownership_items(projection).length(), 4)
+  let owned = ownership_items(projection)
+  assert_eq(owned[0].action_label, "Submit")
+  assert_eq(owned[0].action_message, "submit-private-building")
+  assert_eq(owned[1].action_message, "select-policy-hall")
+  assert_eq(owned[2].action_message, "tab-messages")
+  assert_eq(owned[3].action_label, "Chat")
+  assert_eq(owned[3].action_message, "tab-messages")
   let default_alerts = workbench_alerts(projection)
   assert_eq(default_alerts.length(), 3)
   assert_eq(default_alerts[0].id, "profile-setup")

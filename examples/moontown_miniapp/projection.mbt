@@ -279,6 +279,7 @@ pub struct MiniTownOwnershipItem {
   visibility : String
   status : String
   action_label : String
+  action_message : String
 } derive(Debug, Eq)
 
 ///|
@@ -800,8 +801,19 @@ pub fn mini_town_ownership_item(
   visibility~ : String,
   status~ : String,
   action_label~ : String,
+  action_message~ : String,
 ) -> MiniTownOwnershipItem {
-  { id, kind, title, summary, target_ref, visibility, status, action_label }
+  {
+    id,
+    kind,
+    title,
+    summary,
+    target_ref,
+    visibility,
+    status,
+    action_label,
+    action_message,
+  }
 }
 
 ///|
@@ -3989,7 +4001,8 @@ pub fn ownership_items(
         target_ref="building:\{building.id}",
         visibility=building.visibility,
         status=building.status,
-        action_label="Open",
+        action_label=ownership_building_action_label(building),
+        action_message=ownership_building_action_message(building),
       ),
     )
   }
@@ -4007,6 +4020,7 @@ pub fn ownership_items(
         visibility=book.visibility,
         status=book.status,
         action_label="Review",
+        action_message="tab-messages",
       ),
     )
   }
@@ -4021,6 +4035,7 @@ pub fn ownership_items(
         visibility="private_draft",
         status=agent.status,
         action_label="Chat",
+        action_message="tab-messages",
       ),
     )
   }
@@ -4051,7 +4066,42 @@ fn placement_ownership_item(
     visibility=placement.layer,
     status~,
     action_label="Open",
+    action_message="select-\{placement.building_id}",
   )
+}
+
+///|
+fn ownership_building_action_label(building : MiniTownBuilding) -> String {
+  if building.visibility == "private_draft" {
+    "Submit"
+  } else if building.visibility == "shared_private" {
+    "Submit"
+  } else if building.visibility == "submitted" {
+    "Review"
+  } else if building.visibility == "published" {
+    "Place"
+  } else if building.visibility == "archived" {
+    "Restore"
+  } else {
+    "Open"
+  }
+}
+
+///|
+fn ownership_building_action_message(building : MiniTownBuilding) -> String {
+  if building.visibility == "private_draft" {
+    "submit-private-building"
+  } else if building.visibility == "shared_private" {
+    "submit-private-building"
+  } else if building.visibility == "submitted" {
+    "tab-messages"
+  } else if building.visibility == "published" {
+    "tab-discover"
+  } else if building.visibility == "archived" {
+    "restore-archived-building"
+  } else {
+    "select-\{building.id}"
+  }
 }
 
 ///|

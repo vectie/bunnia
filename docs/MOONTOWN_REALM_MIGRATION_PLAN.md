@@ -417,7 +417,10 @@ Done when:
 - ownership warnings are actionable from My
 
 Current status: identity card, credential plaque, ownership filters, lifecycle
-pipeline, and workbench alerts are implemented.
+pipeline, and workbench alerts are implemented. Owned buildings, placements,
+books, and agents now carry explicit action messages, so My can route drafts to
+submission, published work to Discover, reviews and agent chat to Messages,
+archived work to restore, and placed map items back to Realm.
 
 ### R8: Local Backend Loop
 
