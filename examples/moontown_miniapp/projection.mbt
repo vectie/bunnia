@@ -242,6 +242,17 @@ pub struct MiniTownOwnershipFilter {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownBackendStep {
+  id : String
+  label : String
+  endpoint_id : String
+  http_method : String
+  path : String
+  summary : String
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -272,6 +283,7 @@ pub struct MiniTownProjection {
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   ownership_filters : Array[MiniTownOwnershipFilter]
+  backend_steps : Array[MiniTownBackendStep]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Debug, Eq)
@@ -648,6 +660,19 @@ pub fn mini_town_ownership_filter(
 }
 
 ///|
+pub fn mini_town_backend_step(
+  id~ : String,
+  label~ : String,
+  endpoint_id~ : String,
+  http_method~ : String,
+  path~ : String,
+  summary~ : String,
+  status~ : String,
+) -> MiniTownBackendStep {
+  { id, label, endpoint_id, http_method, path, summary, status }
+}
+
+///|
 pub fn demo_projection() -> MiniTownProjection {
   {
     id: "moontown-miniapp",
@@ -729,6 +754,7 @@ pub fn demo_projection() -> MiniTownProjection {
     discovery_items: demo_discovery_items(),
     discovery_filters: demo_discovery_filters(),
     ownership_filters: demo_ownership_filters(),
+    backend_steps: demo_backend_steps(),
     activity_items: demo_activity_items(),
     audit_events: demo_audit_events(),
   }
@@ -1350,6 +1376,53 @@ fn demo_ownership_filters() -> Array[MiniTownOwnershipFilter] {
     mini_town_ownership_filter(id="books", label="Books", kind="book"),
     mini_town_ownership_filter(id="agents", label="Agents", kind="agent"),
   ]
+}
+
+///|
+fn demo_backend_steps() -> Array[MiniTownBackendStep] {
+  [
+    mini_town_backend_step(
+      id="login",
+      label="Dev Login",
+      endpoint_id="dev-login",
+      http_method="POST",
+      path="/miniapp/auth/dev-login",
+      summary="Create a local session for the active user.",
+      status="ready",
+    ),
+    mini_town_backend_step(
+      id="snapshot",
+      label="Load Snapshot",
+      endpoint_id="load-town-snapshot",
+      http_method="GET",
+      path="/miniapp/town/snapshot",
+      summary="Pull scoped buildings, books, agents, runs, and reviews.",
+      status="ready",
+    ),
+    mini_town_backend_step(
+      id="publish",
+      label="Publish",
+      endpoint_id="publish-private-building",
+      http_method="POST",
+      path="/miniapp/buildings/publish",
+      summary="Move an owned draft into public discovery.",
+      status="guarded",
+    ),
+    mini_town_backend_step(
+      id="chat",
+      label="Ask Agent",
+      endpoint_id="ask-selected-building",
+      http_method="POST",
+      path="/miniapp/buildings/query",
+      summary="Send a building question and record a reviewable run.",
+      status="guarded",
+    ),
+  ]
+}
+
+///|
+pub fn local_backend_base_url() -> String {
+  "http://127.0.0.1:18191"
 }
 
 ///|

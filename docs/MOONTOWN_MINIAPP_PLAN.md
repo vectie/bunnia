@@ -1224,6 +1224,11 @@ Current evidence:
   Realm first screen defers full onboarding/profile setup to Home/My. The
   map-heavy WeChat route keeps more budget headroom for the next backend loop
   slice without losing the first-visit entry point.
+- The generated page now seeds `backendBaseUrl` to
+  `http://127.0.0.1:18191`, and Home exposes a tile-style Backend Loop panel for
+  dev login, snapshot loading, publishing, and agent query endpoints. This makes
+  WeChat DevTools point at the local backend on this Mac without manual data
+  editing.
 
 ## Phase 9: Real Backend And Deployment
 

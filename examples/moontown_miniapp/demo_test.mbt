@@ -137,6 +137,15 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
   assert_true(home.wxml.contains("Town Pulse"))
+  assert_true(home.wxml.contains("Backend Loop"))
+  assert_true(home.wxml.contains("DevTools target: http://127.0.0.1:18191"))
+  assert_true(home.wxml.contains("data-backend-endpoint=\"dev-login\""))
+  assert_true(
+    home.wxml.contains("data-backend-endpoint=\"load-town-snapshot\""),
+  )
+  assert_true(
+    home.wxml.contains("data-backend-path=\"/miniapp/town/snapshot\""),
+  )
   assert_true(
     home.wxml.contains(
       "Realm is the map; Home shows recent work around the same tile town.",
@@ -327,6 +336,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"backendBaseUrl\":\"http://127.0.0.1:18191\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",
     ),
   )
@@ -407,6 +421,11 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.users.length(), 2)
   assert_eq(projection.profile.display_name, "Ada Builder")
   assert_eq(projection.roles.length(), 5)
+  assert_eq(local_backend_base_url(), "http://127.0.0.1:18191")
+  assert_eq(projection.backend_steps.length(), 4)
+  assert_eq(projection.backend_steps[0].endpoint_id, "dev-login")
+  assert_eq(projection.backend_steps[1].path, "/miniapp/town/snapshot")
+  assert_eq(projection.backend_steps[2].status, "guarded")
   assert_true(!profile_ready_to_publish(projection))
   assert_eq(projection.tabs.length(), 5)
   assert_eq(projection.active_tab_id, "realm")

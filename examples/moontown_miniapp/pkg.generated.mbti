@@ -78,11 +78,15 @@ pub fn filtered_ownership_items(MiniTownProjection) -> Array[MiniTownOwnershipIt
 
 pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
+pub fn local_backend_base_url() -> String
+
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
 
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
 
 pub fn mini_town_audit_event(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String, visibility~ : String, timestamp~ : String) -> MiniTownAuditEvent
+
+pub fn mini_town_backend_step(id~ : String, label~ : String, endpoint_id~ : String, http_method~ : String, path~ : String, summary~ : String, status~ : String) -> MiniTownBackendStep
 
 pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owner_id~ : String, visibility~ : String, summary~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, status~ : String) -> MiniTownBook
 
@@ -234,6 +238,16 @@ pub struct MiniTownAuditEvent {
   status : String
   visibility : String
   timestamp : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownBackendStep {
+  id : String
+  label : String
+  endpoint_id : String
+  http_method : String
+  path : String
+  summary : String
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownBook {
@@ -409,6 +423,7 @@ pub struct MiniTownProjection {
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   ownership_filters : Array[MiniTownOwnershipFilter]
+  backend_steps : Array[MiniTownBackendStep]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Eq, @debug.Debug)
