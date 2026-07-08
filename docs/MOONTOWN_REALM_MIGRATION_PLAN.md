@@ -579,7 +579,10 @@ submit through one backend-backed Discover action contract, and persist
 viewer-scoped audit state in the local backend without reshaping the compact
 tile UI. Snapshot and ownership responses now also expose recent Discover
 actions, so DevTools reloads and My ownership sync can inspect what public
-objects the viewer opened, answered, joined, or read.
+objects the viewer opened, answered, joined, or read. Discover action responses
+now include route and target context; answering a demand records a building
+thread message, while joining an event creates a viewer-visible interaction
+notice.
 
 ### R5: Building Lifecycle And Books
 
