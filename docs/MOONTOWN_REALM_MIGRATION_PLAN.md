@@ -372,7 +372,12 @@ Done when:
 Current status: profile readiness, setup gates, consent, role, and blocked
 lifecycle actions are represented in tile UI. The local backend now persists
 dev login profiles, creates missing local users on login, saves profile edits,
-and returns the saved profile through snapshot and ownership APIs.
+and returns the saved profile through snapshot and ownership APIs. Snapshot and
+ownership responses now also carry explicit viewer permissions for profile
+readiness, creation, submission, publishing, placement, report, moderation, and
+review state, so mini-app surfaces do not need to infer capability from raw role
+strings. The local backend enforces profile readiness for building creation,
+sharing, submission, publication, and placement.
 
 ### R3: Home Town Pulse
 
@@ -571,10 +576,13 @@ snapshot load, publish, building query, and cache state visibility. My also
 exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
 buildings, books, agents, placements, and workbench alerts can be exercised
 locally. Dev login and profile save now update durable local user/profile state
-instead of returning a throwaway profile object. Shared-private local buildings
-now use explicit share grants, so invited users can see them while uninvited
-users and public search cannot. Message send is also persisted locally through
-`/miniapp/messages/send`, and snapshots only return messages attached to
+instead of returning a throwaway profile object. Snapshot and ownership payloads
+now include explicit viewer permissions, keeping account readiness, review
+eligibility, and moderator trust backend-owned. Profile readiness is enforced
+for create, share, submit, publish, and place actions. Shared-private local
+buildings now use explicit share grants, so invited users can see them while
+uninvited users and public search cannot. Message send is also persisted locally
+through `/miniapp/messages/send`, and snapshots only return messages attached to
 buildings the viewer can see. Discover search now exercises multi-kind public
 results instead of a building-only route. Local building publication now goes
 through `/miniapp/buildings/submit` before `/miniapp/buildings/publish`, so the

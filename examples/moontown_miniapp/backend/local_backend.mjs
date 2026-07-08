@@ -428,9 +428,11 @@ function visibleBooks(state, viewer) {
 
 function snapshotFor(state, viewer) {
   const buildings = visibleBuildings(state, viewer);
+  const profile = profileFor(state, viewer);
   return {
     viewer,
-    profile: profileFor(state, viewer),
+    profile,
+    permissions: permissionsFor(state, viewer, profile),
     users: state.users,
     buildings,
     placements: visiblePlacements(state, viewer),
@@ -458,6 +460,7 @@ function buildingIdFromThread(threadId) {
 
 function ownershipFor(state, viewer) {
   const profile = profileFor(state, viewer);
+  const permissions = permissionsFor(state, viewer, profile);
   const buildings = state.buildings.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || (item.visibility === "shared_private" && isBuildingSharedWith(state, item.id, viewer)));
   const placements = visiblePlacements(state, viewer);
   const buildingIds = new Set(buildings.map((item) => item.id));
@@ -495,11 +498,25 @@ function ownershipFor(state, viewer) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
-  return { viewer, profile, stats, items, alerts, reviews, shares };
+  return { viewer, profile, permissions, stats, items, alerts, reviews, shares };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
   return { id, kind, title, summary, targetRef, visibility, status, actionLabel, actionMessage };
+}
+
+function permissionsFor(state, viewer, profile) {
+  const profileReady = Boolean(profile.setupCompleted && profile.consentAccepted && profile.roleId);
+  return {
+    profileReady,
+    canCreateBuilding: profileReady,
+    canSubmitBuilding: profileReady,
+    canPublishBuilding: profileReady,
+    canPlacePublicBuilding: profileReady,
+    canReportPublicBuilding: true,
+    canModerate: canModerate(state, viewer),
+    canReview: state.reviews.some((item) => item.reviewerId === viewer && item.status === "pending"),
+  };
 }
 
 function actionForVisibility(visibility) {
@@ -624,6 +641,9 @@ function discoverMatch(item, needle) {
 }
 
 function createBuilding(state, viewer, body) {
+  if (!permissionsFor(state, viewer, profileFor(state, viewer)).canCreateBuilding) {
+    return { status: 403, changed: false, body: { error: "profile_not_ready", action: "create_building" } };
+  }
   const id = body.id || `building-${state.buildings.length + 1}`;
   const title = body.title || "Created Building";
   const item = building(id, title, "agent_lab", "private_draft", viewer, "Local private building created from WeChat DevTools.", body.tags || ["agent", "local"], 432, 513, "draft");
@@ -635,6 +655,9 @@ function createBuilding(state, viewer, body) {
 }
 
 function placeBuilding(state, viewer, body) {
+  if (!permissionsFor(state, viewer, profileFor(state, viewer)).canPlacePublicBuilding) {
+    return { status: 403, changed: false, body: { error: "profile_not_ready", action: "place_building" } };
+  }
   const buildingId = body.buildingId;
   const item = state.buildings.find((building) => building.id === buildingId && building.visibility === "published");
   if (!item) return { status: 403, changed: false, body: { error: "not_placeable", buildingId } };
@@ -649,6 +672,9 @@ function placeBuilding(state, viewer, body) {
 }
 
 function changeBuildingVisibility(state, viewer, buildingId, visibility, status, kind, target) {
+  if (kind === "share" && !permissionsFor(state, viewer, profileFor(state, viewer)).canSubmitBuilding) {
+    return { status: 403, changed: false, body: { error: "profile_not_ready", action: "share_building" } };
+  }
   const item = state.buildings.find((building) => building.id === buildingId);
   if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
   if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
@@ -670,6 +696,9 @@ function changeBuildingVisibility(state, viewer, buildingId, visibility, status,
 }
 
 function submitBuilding(state, viewer, buildingId) {
+  if (!permissionsFor(state, viewer, profileFor(state, viewer)).canSubmitBuilding) {
+    return { status: 403, changed: false, body: { error: "profile_not_ready", action: "submit_building" } };
+  }
   const item = state.buildings.find((building) => building.id === buildingId);
   if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
   if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
@@ -705,6 +734,9 @@ function submitBuilding(state, viewer, buildingId) {
 }
 
 function publishBuilding(state, viewer, buildingId) {
+  if (!permissionsFor(state, viewer, profileFor(state, viewer)).canPublishBuilding) {
+    return { status: 403, changed: false, body: { error: "profile_not_ready", action: "publish_building" } };
+  }
   const item = state.buildings.find((building) => building.id === buildingId);
   if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId } };
   if (item.ownerId !== viewer && item.ownerId !== "org-a") return { status: 403, changed: false, body: { error: "owner_only", buildingId } };
@@ -1035,11 +1067,17 @@ function smoke(options) {
   assert(registered.body.profile.displayName === "Chen Mapper", "register profile");
   assert(registered.body.profile.setupCompleted === false, "register starts incomplete");
   const registeredHeaders = { "x-miniapp-session": registered.body.session.id };
+  const blockedCreate = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers: registeredHeaders, body: { id: "blocked-lab", title: "Blocked Lab" } });
+  assert(blockedCreate.status === 403, "profile blocks building create");
+  assert(blockedCreate.body.error === "profile_not_ready", "profile block reason");
   const savedProfile = dispatch(state, { method: "POST", path: "/miniapp/me/profile", query: new URLSearchParams(), headers: registeredHeaders, body: { displayName: "Chen Cartographer", roleId: "explorer", avatarRef: "avatar://chen", consentAccepted: true } });
   assert(savedProfile.body.profile.displayName === "Chen Cartographer", "save profile name");
   assert(savedProfile.body.profile.setupCompleted === true, "save profile setup");
   const registeredSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(registeredSnapshot.body.profile.displayName === "Chen Cartographer", "snapshot saved profile");
+  assert(registeredSnapshot.body.permissions.profileReady === true, "snapshot profile ready permission");
+  assert(registeredSnapshot.body.permissions.canCreateBuilding === true, "snapshot create permission");
+  assert(registeredSnapshot.body.permissions.canModerate === false, "registered user cannot moderate");
   assert(registeredSnapshot.body.users.some((item) => item.id === "user-c" && item.name === "Chen Cartographer"), "registered user list");
   const bobLogin = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-b" } });
   const bobHeaders = { "x-miniapp-session": bobLogin.body.session.id };
@@ -1050,6 +1088,8 @@ function smoke(options) {
   assert(shared.body.building.visibility === "shared_private", "share visibility");
   const bobSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(bobSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "invited user sees shared building");
+  assert(bobSnapshot.body.permissions.profileReady === true, "invited user profile ready");
+  assert(bobSnapshot.body.permissions.canModerate === false, "invited user cannot moderate");
   const chenSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(!chenSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "uninvited user cannot see shared building");
   assert(!chenSnapshot.body.messages.some((item) => item.threadId === "thread-private-agent-lab"), "private messages hidden from uninvited user");
@@ -1126,6 +1166,8 @@ function smoke(options) {
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
   assert(accepted.body.review.status === "accepted", "accept review");
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
+  assert(snapshot.body.permissions.canModerate === true, "moderator snapshot permission");
+  assert(snapshot.body.permissions.canReview === true, "reviewer snapshot permission");
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   assert(snapshot.body.toolResults.some((item) => item.id === "tool-policy-summary" && item.status === "done"), "snapshot tool result ack");
@@ -1134,6 +1176,8 @@ function smoke(options) {
   assert(snapshot.body.runs.some((item) => item.id === handoff.body.run.id), "snapshot handoff run");
   assert(snapshot.body.notifications.some((item) => item.id === handoff.body.notification.id), "snapshot handoff notice");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
+  assert(ownership.body.permissions.canModerate === true, "ownership moderator permission");
+  assert(ownership.body.permissions.profileReady === true, "ownership profile ready permission");
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke"), "ownership agent");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke-helper"), "ownership helper agent");
