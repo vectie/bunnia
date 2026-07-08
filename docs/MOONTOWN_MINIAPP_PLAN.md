@@ -892,6 +892,9 @@ Current evidence:
   readiness. The My/Identity Setup surface shows why public actions remain
   blocked and provides compact action messages that match the same lifecycle
   gates used by building publish/share controls.
+- Building lifecycle buttons expose `data-allowed` and blocked-reason metadata,
+  and blocked actions render as disabled WeChat buttons so profile/ownership
+  gates are visible without allowing accidental backend dispatch.
 
 ## Phase 3: Building Registry And Map Placement
 

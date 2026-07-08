@@ -146,6 +146,8 @@ Current implementation:
   onboarding, role, consent, profile save, and publish readiness.
 - My/Identity Setup renders those gates as compact checklist rows with local
   action messages for login, onboarding, role choice, consent, and profile save.
+- Building lifecycle controls carry allowed/blocked metadata, show the block
+  reason, and render blocked actions as disabled buttons.
 
 Acceptance:
 

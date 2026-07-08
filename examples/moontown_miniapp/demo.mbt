@@ -1868,16 +1868,27 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
+  let attrs = [
+    @bunnia.class_name("moontown-lifecycle-action \{action.status}"),
+    @bunnia.data("lifecycle-action", action.id),
+    @bunnia.data("allowed", if action.allowed { "true" } else { "false" }),
+    @bunnia.data("blocked-reason", action.reason),
+  ]
+  if !action.allowed {
+    attrs.push(@bunnia.attr("disabled", "true"))
+  }
   @bunnia.keyed(
     "lifecycle-action-\{action.id}",
     @bunnia.node(
       kind="button",
-      attrs=[
-        @bunnia.class_name("moontown-lifecycle-action \{action.status}"),
-        @bunnia.data("lifecycle-action", action.id),
-      ],
+      attrs~,
       events=[@bunnia.event("tap", action.message)],
-      children=[@bunnia.text(action.label)],
+      children=[
+        @bunnia.text(action.label),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text(action.reason),
+        ]),
+      ],
     ),
   )
 }
