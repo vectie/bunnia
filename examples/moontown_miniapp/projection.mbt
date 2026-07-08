@@ -1908,6 +1908,15 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       status="platform",
     ),
     mini_town_backend_step(
+      id="discover-action",
+      label="Discover Action",
+      endpoint_id="discover-action",
+      http_method="POST",
+      path="/miniapp/discover/action",
+      summary="Open, answer, join, or read a public discovery target with viewer-scoped audit.",
+      status="ready",
+    ),
+    mini_town_backend_step(
       id="handoff-agent-work",
       label="Handoff",
       endpoint_id="handoff-agent-work",

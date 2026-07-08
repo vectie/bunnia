@@ -51,6 +51,7 @@ const BACKUP_TABLES = [
   "notifications",
   "notificationStates",
   "subscriptions",
+  "discoveryActions",
   "auditEvents",
 ];
 
@@ -62,6 +63,7 @@ function seedState() {
     nextModeration: 2,
     nextAbuse: 1,
     nextIncident: 1,
+    nextDiscoveryAction: 1,
     users: [
       { id: "user-a", name: "Ada Builder", roleId: "builder" },
       { id: "user-b", name: "Bo Curator", roleId: "explorer" },
@@ -136,6 +138,7 @@ function seedState() {
     ],
     notificationStates: [],
     subscriptions: [],
+    discoveryActions: [],
     auditEvents: [
       audit("audit-policy-review", "review", "Policy answer entered review", "Agent output is held until a reviewer accepts it into the book.", "agent-policy-guide", "run:run-policy-review", "policy-hall", "review", "published"),
     ],
@@ -164,6 +167,10 @@ function notificationState(userId, noticeId, unread, state) {
 
 function subscription(id, userId, targetRef, noticeId, status) {
   return { id, userId, targetRef, noticeId, status, updatedAt: new Date().toISOString() };
+}
+
+function discoveryAction(id, userId, action, kind, discoveryId, targetRef, title, status) {
+  return { id, userId, action, kind, discoveryId, targetRef, title, status, createdAt: new Date().toISOString() };
 }
 
 function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns) {
@@ -282,6 +289,7 @@ function normalizeState(state) {
   state.nextModeration = state.nextModeration || 2;
   state.nextAbuse = state.nextAbuse || 1;
   state.nextIncident = state.nextIncident || 1;
+  state.nextDiscoveryAction = state.nextDiscoveryAction || 1;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
@@ -305,6 +313,7 @@ function normalizeState(state) {
   state.notifications = state.notifications || [];
   state.notificationStates = state.notificationStates || [];
   state.subscriptions = state.subscriptions || [];
+  state.discoveryActions = state.discoveryActions || [];
   state.auditEvents = state.auditEvents || [];
   for (const user of state.users) {
     ensureProfile(state, user.id, { displayName: user.name, roleId: user.roleId, setupCompleted: true, consentAccepted: true });
@@ -1232,6 +1241,9 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/discover/search") {
     return ok({ query: request.query.get("query") || body.query || "", items: discoverItems(state, viewer, request.query.get("query") || body.query || "") });
   }
+  if (method === "POST" && path === "/miniapp/discover/action") {
+    return submitDiscoveryAction(state, viewer, body);
+  }
   if (method === "POST" && path === "/miniapp/me/profile") {
     return changed({ profile: saveProfile(state, viewer, body) });
   }
@@ -1339,6 +1351,7 @@ function routeCatalog() {
     "GET /miniapp/town/snapshot",
     "GET /miniapp/me/ownership",
     "GET /miniapp/discover/search",
+    "POST /miniapp/discover/action",
     "POST /miniapp/me/profile",
     "POST /miniapp/buildings",
     "POST /miniapp/buildings/update",
@@ -1819,6 +1832,50 @@ function discoverMatch(item, needle) {
     item.status.toLowerCase().includes(needle);
 }
 
+function submitDiscoveryAction(state, viewer, body) {
+  const action = String(body.discoveryAction || body.action || "open").trim();
+  const kind = String(body.discoveryKind || body.kind || "").trim();
+  const discoveryId = String(body.discoveryId || body.id || "").trim();
+  const targetRef = String(body.targetRef || "").trim();
+  if (!targetRef) return { status: 400, changed: false, body: { error: "missing_target_ref" } };
+  if (!kind) return { status: 400, changed: false, body: { error: "missing_discovery_kind", targetRef } };
+  const expectedAction = expectedDiscoveryAction(kind);
+  if (expectedAction && action !== expectedAction) {
+    return { status: 409, changed: false, body: { error: "action_kind_mismatch", action, expectedAction, kind, targetRef } };
+  }
+  if (!canActOnDiscoveryTarget(state, viewer, targetRef)) {
+    return { status: 403, changed: false, body: { error: "target_not_public", targetRef } };
+  }
+  const title = targetTitleForRef(state, targetRef);
+  const id = body.actionId || `discovery-action-${state.nextDiscoveryAction++}`;
+  const item = discoveryAction(id, viewer, action, kind, discoveryId, targetRef, title, "accepted");
+  state.discoveryActions.push(item);
+  state.auditEvents.push(audit(`audit-discovery-action-${id}`, `discover-${action}`, `${title} ${action}`, "Viewer acted on a public discovery target.", viewer, targetRef, buildingIdForRef(targetRef), "accepted", "published"));
+  return changed({ action: item, targetRef, title });
+}
+
+function expectedDiscoveryAction(kind) {
+  if (kind === "demand") return "request";
+  if (kind === "event" || kind === "circle") return "join";
+  if (kind === "post" || kind === "book") return "read";
+  if (kind === "product" || kind === "agent" || kind === "user") return "open";
+  return "";
+}
+
+function canActOnDiscoveryTarget(state, viewer, targetRef) {
+  if (targetRef.startsWith("review:")) {
+    const id = targetRef.slice("review:".length);
+    const item = state.reviews.find((candidate) => candidate.id === id && candidate.status === "pending");
+    return Boolean(item && publicDiscoverBuildings(state, viewer).some((buildingItem) => buildingItem.id === item.buildingId));
+  }
+  if (targetRef.startsWith("run:")) {
+    const id = targetRef.slice("run:".length);
+    const item = state.runs.find((candidate) => candidate.id === id);
+    return Boolean(item && publicDiscoverBuildings(state, viewer).some((buildingItem) => buildingItem.id === item.buildingId));
+  }
+  return canSubscribeToTarget(state, viewer, targetRef);
+}
+
 function createBuilding(state, viewer, body) {
   if (!permissionsFor(state, viewer, profileFor(state, viewer)).canCreateBuilding) {
     return { status: 403, changed: false, body: { error: "profile_not_ready", action: "create_building" } };
@@ -2090,6 +2147,14 @@ function targetTitleForRef(state, targetRef) {
   if (targetRef.startsWith("user:")) {
     const item = state.users.find((candidate) => candidate.id === targetRef.slice("user:".length));
     return item ? item.name : targetRef;
+  }
+  if (targetRef.startsWith("review:")) {
+    const item = state.reviews.find((candidate) => candidate.id === targetRef.slice("review:".length));
+    return item ? item.title : targetRef;
+  }
+  if (targetRef.startsWith("run:")) {
+    const item = state.runs.find((candidate) => candidate.id === targetRef.slice("run:".length));
+    return item ? item.title : targetRef;
   }
   const listing = state.listings.find((item) => item.targetRef === targetRef);
   return listing ? listing.title : targetRef;
@@ -2709,6 +2774,18 @@ function smoke(options) {
   assert(circleSearch.body.items.some((item) => item.kind === "circle" && item.targetRef === "circle:ai-exploration-camp"), "public circle search");
   const postSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=field"), headers, body: {} });
   assert(postSearch.body.items.some((item) => item.kind === "post" && item.targetRef === "post:published-agent-lab"), "public post search");
+  const productAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "open", discoveryKind: "product", discoveryId: "product-agent-publishing-kit", targetRef: "product:agent-publishing-kit" } });
+  assert(productAction.body.action.targetRef === "product:agent-publishing-kit", "product action target");
+  assert(productAction.body.action.action === "open", "product action open");
+  const demandAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "request", discoveryKind: "demand", discoveryId: "demand-review-policy-memory", targetRef: "review:review-policy-memory" } });
+  assert(demandAction.body.action.action === "request", "demand action request");
+  const eventAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "join", discoveryKind: "event", discoveryId: "event-run-policy-review", targetRef: "run:run-policy-review" } });
+  assert(eventAction.body.action.action === "join", "event action join");
+  const mismatchedAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "read", discoveryKind: "demand", discoveryId: "demand-review-policy-memory", targetRef: "review:review-policy-memory" } });
+  assert(mismatchedAction.status === 409, "mismatched discovery action blocked");
+  const deniedDiscoveryAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "open", discoveryKind: "building", discoveryId: "building-private-agent-lab", targetRef: "building:private-agent-lab" } });
+  assert(deniedDiscoveryAction.status === 403, "private discovery action blocked");
+  assert(state.discoveryActions.length >= 3, "discovery actions persisted");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
   const updated = dispatch(state, { method: "POST", path: "/miniapp/buildings/update", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", title: "Smoke Workshop", summary: "Edited smoke building summary.", bookTitle: "Smoke Workshop Book", bookSummary: "Edited smoke memory shelf.", tags: ["agent", "edited"] } });
