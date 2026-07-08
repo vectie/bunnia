@@ -827,7 +827,7 @@ test "build example flag selects Moontown miniapp project" {
   )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(patches.patches.length(), 3)
-  assert_eq(report.diagnostics.length(), 2)
+  assert_eq(report.diagnostics.length(), 0)
   assert_eq(profile.effect_count, 13)
   assert_eq(profile.backend_endpoint_count, 13)
   assert_eq(profile.backend_streaming_count, 0)
@@ -875,7 +875,7 @@ test "build example flag selects Moontown miniapp project" {
     should_fail_build(
       true, project, report, patches, profile, profile_gate, gate, release,
     ),
-    true,
+    false,
   )
 }
 

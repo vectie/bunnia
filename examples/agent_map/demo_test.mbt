@@ -20,8 +20,8 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("data-anchor-y=\"176\""))
   assert_true(page.wxml.contains("data-anchor-x=\"472\""))
   assert_true(page.wxml.contains("data-anchor-y=\"302\""))
-  assert_true(page.wxml.contains("left: 174rpx; top: 176rpx;"))
-  assert_true(page.wxml.contains("left: 472rpx; top: 302rpx;"))
+  assert_true(page.wxml.contains("left:174rpx;top:176rpx"))
+  assert_true(page.wxml.contains("left:472rpx;top:302rpx"))
   assert_true(page.wxml.contains("bunnia-status-review"))
   assert_true(page.wxml.contains("bunnia-tool-result-card"))
   assert_true(page.wxml.contains("data-tool-result-id=\"route-tool-result\""))
@@ -36,12 +36,12 @@ test "agent map demo generates wechat output" {
   assert_true(page.wxml.contains("data-scene-width=\"720\""))
   assert_true(page.wxml.contains("data-render-width=\"520\""))
   assert_true(page.wxml.contains("data-render-height=\"360\""))
-  assert_true(page.wxml.contains("left: 360rpx; top: 210rpx;"))
-  assert_true(page.wxml.contains("width: 240rpx; height: 180rpx;"))
+  assert_true(page.wxml.contains("left:360rpx;top:210rpx"))
+  assert_true(page.wxml.contains("width:240rpx;height:180rpx"))
   assert_true(page.wxml.contains("data-hit-width=\"44\""))
   assert_true(page.wxml.contains("data-hit-height=\"44\""))
   assert_true(page.wxml.contains("data-run-status=\"waiting-review\""))
-  assert_true(page.wxml.contains("style=\"width: 520rpx; height: 360rpx;\""))
+  assert_true(page.wxml.contains("style=\"width:520rpx;height:360rpx\""))
   assert_true(page.wxss.contains(".demo-shell"))
   assert_true(page.wxss.contains(".bunnia-scene-thread-overlay-anchored"))
   assert_true(page.wxss.contains("pointer-events: none"))
@@ -61,43 +61,37 @@ test "agent map demo generates wechat output" {
   assert_true(page.js.contains("\"open-thread-zone-b\""))
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"scenes.ops-map.selectedRegion\",value:\"zone-b\"}",
+      "{k:\"set\",p:\"scenes.ops-map.selectedRegion\",v:\"zone-b\"}",
     ),
   )
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"scenes.ops-map.regions.zone-b.status\",value:\"running\"}",
+      "{k:\"set\",p:\"scenes.ops-map.regions.zone-b.status\",v:\"running\"}",
+    ),
+  )
+  assert_true(
+    page.js.contains("{k:\"set\",p:\"review.routeReview\",v:\"approved\"}"),
+  )
+  assert_true(
+    page.js.contains(
+      "{k:\"set\",p:\"tool.routeToolResult\",v:\"acknowledged\"}",
     ),
   )
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"review.routeReview\",value:\"approved\"}",
+      "{k:\"set\",p:\"scenes.ops-map.camera.position\",v:{\"x\":128,\"y\":96}}",
     ),
   )
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"tool.routeToolResult\",value:\"acknowledged\"}",
+      "{k:\"set\",p:\"scenes.ops-map.camera.zoomPercent\",v:150}",
     ),
   )
   assert_true(
-    page.js.contains(
-      "{kind:\"set\",path:\"scenes.ops-map.camera.position\",value:{\"x\":128,\"y\":96}}",
-    ),
+    page.js.contains("{k:\"set\",p:\"agent.routeRun.status\",v:\"cancelled\"}"),
   )
   assert_true(
-    page.js.contains(
-      "{kind:\"set\",path:\"scenes.ops-map.camera.zoomPercent\",value:150}",
-    ),
-  )
-  assert_true(
-    page.js.contains(
-      "{kind:\"set\",path:\"agent.routeRun.status\",value:\"cancelled\"}",
-    ),
-  )
-  assert_true(
-    page.js.contains(
-      "{kind:\"set\",path:\"agent.routeRun.status\",value:\"retrying\"}",
-    ),
+    page.js.contains("{k:\"set\",p:\"agent.routeRun.status\",v:\"retrying\"}"),
   )
   assert_true(page.js.contains("\"subjectKind\":\"region\""))
   assert_true(page.js.contains("\"subjectId\":\"agent-b\""))
@@ -133,10 +127,10 @@ test "agent map demo generates a mini-program file set" {
     project.page.js.contains("\"retry-agent-run\":\"retry-agent-run\""),
   )
   assert_true(
-    project.page.js.contains("endpoint.kind === 'agent-operation-cancel'"),
+    project.page.js.contains("endpoint.k === 'agent-operation-cancel'"),
   )
   assert_true(
-    project.page.js.contains("endpoint.kind === 'agent-operation-retry'"),
+    project.page.js.contains("endpoint.k === 'agent-operation-retry'"),
   )
   assert_true(!project.page.js.contains("\"send-agent-message\""))
   assert_true(!project.page.js.contains("\"stream-route-status\""))

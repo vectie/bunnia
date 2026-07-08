@@ -18,7 +18,7 @@ test "wenyu proof slice generates wechat output from projection" {
   assert_true(page.js.contains("\"submit-operator-request\""))
   assert_true(
     page.js.contains(
-      "{kind:\"set\",path:\"backend.submit-operator-request.state\",value:\"loading\"}",
+      "{k:\"set\",p:\"backend.submit-operator-request.state\",v:\"loading\"}",
     ),
   )
   assert_true(page.plan.node_count > 35)

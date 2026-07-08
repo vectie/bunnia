@@ -14,7 +14,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxml.contains("moontown-map-backfill"))
   assert_true(page.wxml.contains("moontown-wenyu-map-image"))
   assert_true(page.wxml.contains("data-asset-id=\"moontown-wenyu-map\""))
-  assert_true(page.wxml.contains("left: 958rpx; top: 776rpx;"))
+  assert_true(page.wxml.contains("left:958rpx;top:776rpx"))
   assert_true(page.wxml.contains("moontown-map-marker"))
   assert_true(page.wxml.contains("moontown-thread-pin"))
   assert_true(page.wxml.contains("moontown-topbar"))

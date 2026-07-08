@@ -60,7 +60,7 @@ test "agent feed and scene primitives produce keyed mini-app trees" {
   )
   assert_true(
     @bunnia.generate_wechat_set_data_call(patches.patches).contains(
-      "{kind:\"set\",path:\"scenes.overview.regions.region-a.status\",value:\"selected\"}",
+      "{k:\"set\",p:\"scenes.overview.regions.region-a.status\",v:\"selected\"}",
     ),
   )
   assert_true(@bunnia.node_count(root) > 8)
@@ -211,7 +211,7 @@ test "scene assets render sprites and report asset budgets" {
   assert_eq(patches.patches.length(), 2)
   assert_true(
     @bunnia.generate_wechat_set_data_call(patches.patches).contains(
-      "{kind:\"set\",path:\"scenes.overview.markers.marker-a.status\",value:\"selected\"}",
+      "{k:\"set\",p:\"scenes.overview.markers.marker-a.status\",v:\"selected\"}",
     ),
   )
   assert_eq(@bunnia.scene_asset_kind_id(@bunnia.scene_asset_sprite()), "sprite")
@@ -274,7 +274,7 @@ test "scene thread links connect map subjects to agent communication cheaply" {
   assert_true(output.wxml.contains("data-anchor-state=\"anchored\""))
   assert_true(output.wxml.contains("data-anchor-x=\"250\""))
   assert_true(output.wxml.contains("data-anchor-y=\"240\""))
-  assert_true(output.wxml.contains("left: 250rpx; top: 240rpx;"))
+  assert_true(output.wxml.contains("left:250rpx;top:240rpx"))
   assert_true(
     output.wxml.contains("data-subject-ref=\"scene://ops-map/zone-a\""),
   )
@@ -366,14 +366,14 @@ test "viewported scene thread overlays keep hidden map communication out of firs
   assert_true(output.wxml.contains("data-thread-overlay-viewport=\"true\""))
   assert_true(output.wxml.contains("data-visible-count=\"1\""))
   assert_true(output.wxml.contains("data-total-count=\"2\""))
-  assert_true(output.wxml.contains("style=\"width: 520rpx; height: 360rpx;\""))
+  assert_true(output.wxml.contains("style=\"width:520rpx;height:360rpx\""))
   assert_true(output.wxml.contains("data-scene-width=\"900\""))
   assert_true(output.wxml.contains("data-render-width=\"520\""))
-  assert_true(output.wxml.contains("left: 40rpx; top: 40rpx;"))
+  assert_true(output.wxml.contains("left:40rpx;top:40rpx"))
   assert_true(output.wxml.contains("data-subject-id=\"zone-a\""))
   assert_true(output.wxml.contains("data-anchor-x=\"130\""))
   assert_true(output.wxml.contains("data-anchor-y=\"100\""))
-  assert_true(output.wxml.contains("left: 130rpx; top: 100rpx;"))
+  assert_true(output.wxml.contains("left:130rpx;top:100rpx"))
   assert_true(!output.wxml.contains("data-subject-id=\"agent-far\""))
   assert_true(!output.plan.event_messages.contains("open-thread-far"))
 }
@@ -679,17 +679,15 @@ test "wechat generator emits page files with targeted event routing" {
   let output = @bunnia.generate_wechat_page_with_runtime("Demo", root, runtime)
   assert_true(output.wxml.contains("bindtap=\"__bunniaEvent\""))
   assert_true(output.wxml.contains("data-bunnia-message=\"open-detail\""))
-  assert_true(output.js.contains("path: '__bunnia.lastMessage'"))
+  assert_true(output.js.contains("p: '__bunnia.lastMessage'"))
   assert_true(output.js.contains("const __bunniaEventPatches"))
   assert_true(output.js.contains("__bunniaApplyPatches"))
   assert_true(
-    output.js.contains(
-      "\"open-detail\":[{kind:\"set\",path:\"counter\",value:1}]",
-    ),
+    output.js.contains("\"open-detail\":[{k:\"set\",p:\"counter\",v:1}]"),
   )
   assert_true(output.js.contains("...({\"counter\":0})"))
   assert_true(!output.js.contains("__bunniaMaybeRequest"))
-  assert_true(output.js.contains("path: '__bunnia.handledEvents'"))
+  assert_true(output.js.contains("p: '__bunnia.handledEvents'"))
   assert_true(output.json.contains("navigationBarTitleText"))
   assert_eq(output.plan.node_count, 5)
 }
@@ -1175,12 +1173,12 @@ test "backend contracts plan request and streaming effects" {
   )
   assert_true(patches.total_estimated_bytes < 160)
   assert_true(adapter.contains("wx.request"))
-  assert_true(adapter.contains("baseUrlKey:\"backendBaseUrl\""))
+  assert_true(adapter.contains("b:\"backendBaseUrl\""))
   assert_true(adapter.contains("\"stream-agent-status\""))
   assert_true(adapter.contains("agent-operation-cancel"))
   assert_true(adapter.contains("agent-operation-retry"))
-  assert_true(adapter.contains("streaming:true"))
-  assert_true(adapter.contains("requiresReview:true"))
+  assert_true(adapter.contains("g:true"))
+  assert_true(adapter.contains("v:true"))
   assert_true(!adapter.contains("secret"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(
@@ -1320,7 +1318,7 @@ test "wechat project generator emits deterministic mini-program files" {
   )
   assert_true(
     file_content(project.files, "pages/home/home.data.js").contains(
-      "const eventPatches = {\"open-detail\":[{kind:\"set\",path:\"__bunnia.lastMessage\",value:\"open-detail\"}]}",
+      "const eventPatches = {\"open-detail\":[{k:\"set\",p:\"__bunnia.lastMessage\",v:\"open-detail\"}]}",
     ),
   )
   assert_true(
@@ -1682,14 +1680,10 @@ test "patch plans keep mini-app updates bounded" {
   let js = @bunnia.generate_wechat_set_data_call(patches)
   assert_true(js.contains("__bunniaApplyPatches(this"))
   assert_true(
-    js.contains(
-      "{kind:\"set\",path:\"__bunnia.lastMessage\",value:\"open-detail\"}",
-    ),
+    js.contains("{k:\"set\",p:\"__bunnia.lastMessage\",v:\"open-detail\"}"),
   )
   assert_true(
-    js.contains(
-      "{kind:\"set\",path:\"scene.markers.marker-a.status\",value:\"running\"}",
-    ),
+    js.contains("{k:\"set\",p:\"scene.markers.marker-a.status\",v:\"running\"}"),
   )
 }
 
@@ -1726,7 +1720,7 @@ test "agent deltas lower chat and review updates to small patch plans" {
   assert_eq(@bunnia.agent_delta_kind_id(deltas[2].kind), "set-stream-chunk")
   assert_true(
     @bunnia.generate_wechat_set_data_call(plan.patch_plan.patches).contains(
-      "{kind:\"set\",path:\"reviews.route.state\",value:\"approved\"}",
+      "{k:\"set\",p:\"reviews.route.state\",v:\"approved\"}",
     ),
   )
 }

@@ -12,9 +12,7 @@ fn test_backend_contract() -> @effects.BackendContract {
 test "wechat request adapter records replayable request data" {
   let js = generate_request_adapter(test_backend_contract())
   assert_true(js.contains("const requestPayload"))
-  assert_true(
-    js.contains("endpoint.payloadKey ? page.data[endpoint.payloadKey]"),
-  )
+  assert_true(js.contains("endpoint.p ? page.data[endpoint.p]"))
   assert_true(js.contains("replayKey"))
   assert_true(js.contains("backend.' + endpointId + '.request"))
 }
@@ -22,14 +20,10 @@ test "wechat request adapter records replayable request data" {
 ///|
 test "wechat request adapter carries session headers and response keys" {
   let js = generate_request_adapter(test_backend_contract())
-  assert_true(js.contains("sessionTokenKey:\"bunniaSessionId\""))
-  assert_true(js.contains("sessionHeaderKey:\"x-miniapp-session\""))
+  assert_true(js.contains("s:\"bunniaSessionId\""))
+  assert_true(js.contains("h:\"x-miniapp-session\""))
   assert_true(js.contains("header: __bunniaRequestHeaders(page)"))
-  assert_true(
-    js.contains(
-      "if (endpoint.responseKey) update[endpoint.responseKey] = res.data",
-    ),
-  )
+  assert_true(js.contains("if (endpoint.r) update[endpoint.r] = res.data"))
   assert_true(js.contains("__bunniaSessionIdFromResponse(res.data)"))
 }
 
@@ -81,10 +75,10 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   let backend_js = file_content(project.files, "bunnia.backend.js")
   assert_true(js.contains("return __bunniaRequest(page, endpointId)"))
   assert_true(js.contains("__bunniaRetryRequest(page, endpointId)"))
-  assert_true(js.contains("endpoint.kind === 'agent-operation-cancel'"))
-  assert_true(js.contains("endpoint.kind === 'agent-operation-retry'"))
-  assert_true(backend_js.contains("kind:\"agent-operation-cancel\""))
-  assert_true(backend_js.contains("kind:\"agent-operation-retry\""))
+  assert_true(js.contains("endpoint.k === 'agent-operation-cancel'"))
+  assert_true(js.contains("endpoint.k === 'agent-operation-retry'"))
+  assert_true(backend_js.contains("k:\"agent-operation-cancel\""))
+  assert_true(backend_js.contains("k:\"agent-operation-retry\""))
 }
 
 ///|
@@ -95,17 +89,13 @@ test "wechat runtime preserves patch operation kinds" {
     @core.remove_path("draft.message"),
   ])
   assert_true(js.contains("__bunniaApplyPatches(this"))
-  assert_true(
-    js.contains("{kind:\"set\",path:\"review.state\",value:\"approved\"}"),
-  )
+  assert_true(js.contains("{k:\"set\",p:\"review.state\",v:\"approved\"}"))
   assert_true(
     js.contains(
-      "{kind:\"append\",path:\"threads.thread-a.messages\",value:{\"id\":\"msg-1\"}}",
+      "{k:\"append\",p:\"threads.thread-a.messages\",v:{\"id\":\"msg-1\"}}",
     ),
   )
-  assert_true(
-    js.contains("{kind:\"remove\",path:\"draft.message\",value:null}"),
-  )
+  assert_true(js.contains("{k:\"remove\",p:\"draft.message\",v:null}"))
 }
 
 ///|
@@ -128,7 +118,7 @@ test "wechat projects share generated patch runtime" {
   assert_true(!project.page.js.contains("function __bunniaReadPath"))
   assert_true(
     file_content(project.files, "pages/runtime/index.data.js").contains(
-      "const eventPatches = {\"open\":[{kind:\"set\",path:\"state.open\",value:\"yes\"}]}",
+      "const eventPatches = {\"open\":[{k:\"set\",p:\"state.open\",v:\"yes\"}]}",
     ),
   )
   assert_true(
@@ -249,12 +239,12 @@ test "wechat projects can package backend request adapter" {
   assert_true(project.page.js.contains("__bunniaRequest(page, endpointId)"))
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
-      "const __bunniaBackend = {baseUrlKey:\"backendBaseUrl\"",
+      "const __bunniaBackend = {b:\"backendBaseUrl\"",
     ),
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
-      "\"send-message\":{kind:\"agent-message-send\"",
+      "\"send-message\":{k:\"agent-message-send\"",
     ),
   )
   assert_true(
@@ -424,7 +414,7 @@ test "wechat build reports missing and orphan event patches" {
   )
   assert_true(
     file_content(project.files, "pages/index/index.data.js").contains(
-      "\"open\":[{kind:\"set\",path:\"state.open\",value:\"yes\"}]",
+      "\"open\":[{k:\"set\",p:\"state.open\",v:\"yes\"}]",
     ),
   )
   assert_true(

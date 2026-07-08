@@ -353,7 +353,7 @@ fn generate_project_from_pages_internal(
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
     wechat_file("bunnia.runtime.js", runtime_js()),
-    wechat_file("app.wxss", default_wxss()),
+    wechat_file("app.wxss", compact_wxss(default_wxss())),
   ]
   match backend_contract {
     Some(contract) =>
@@ -365,7 +365,9 @@ fn generate_project_from_pages_internal(
   for item in generated_pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
     if item.page.wxss != "" {
-      files.push(wechat_file("\{item.route}.wxss", item.page.wxss))
+      files.push(
+        wechat_file("\{item.route}.wxss", compact_wxss(item.page.wxss)),
+      )
     }
     files.push(
       wechat_file(
@@ -503,22 +505,22 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
   "\n" +
   "function __bunniaRequest(page, endpointId, payload) {\n" +
-  "  const endpoint = __bunniaBackend.endpoints[endpointId]\n" +
+  "  const endpoint = __bunniaBackend.e[endpointId]\n" +
   "  if (!endpoint) throw new Error('Unknown Bunnia endpoint: ' + endpointId)\n" +
-  "  const baseUrl = page.data[__bunniaBackend.baseUrlKey] || ''\n" +
+  "  const baseUrl = page.data[__bunniaBackend.b] || ''\n" +
   "  const loading = {}\n" +
   "  loading['backend.' + endpointId + '.state'] = 'loading'\n" +
   "  loading['backend.' + endpointId + '.error'] = ''\n" +
-  "  const requestPayload = payload === undefined && endpoint.payloadKey ? page.data[endpoint.payloadKey] : (payload || {})\n" +
+  "  const requestPayload = payload === undefined && endpoint.p ? page.data[endpoint.p] : (payload || {})\n" +
   "  loading['backend.' + endpointId + '.request'] = requestPayload\n" +
   "  loading['backend.' + endpointId + '.replayKey'] = endpointId + ':' + Date.now()\n" +
   "  page.setData(loading)\n" +
   "  return wx.request({\n" +
-  "    url: baseUrl + endpoint.path,\n" +
-  "    method: endpoint.method,\n" +
+  "    url: baseUrl + endpoint.u,\n" +
+  "    method: endpoint.m,\n" +
   "    data: requestPayload,\n" +
   "    header: __bunniaRequestHeaders(page),\n" +
-  "    timeout: endpoint.timeoutMs,\n" +
+  "    timeout: endpoint.t,\n" +
   "    success(res) {\n" +
   "      const update = {}\n" +
   "      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {\n" +
@@ -531,9 +533,9 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "        update['backend.' + endpointId + '.state'] = 'ready'\n" +
   "        update['backend.' + endpointId + '.response'] = res.data\n" +
   "        update['backend.' + endpointId + '.error'] = ''\n" +
-  "        if (endpoint.responseKey) update[endpoint.responseKey] = res.data\n" +
+  "        if (endpoint.r) update[endpoint.r] = res.data\n" +
   "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
-  "        if (sessionId && __bunniaBackend.sessionTokenKey) update[__bunniaBackend.sessionTokenKey] = sessionId\n" +
+  "        if (sessionId && __bunniaBackend.s) update[__bunniaBackend.s] = sessionId\n" +
   "      }\n" +
   "      page.setData(update)\n" +
   "    },\n" +
@@ -548,7 +550,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "}\n" +
   "\n" +
   "function __bunniaRequestHeaders(page) {\n" +
-  "  const k = __bunniaBackend.sessionTokenKey, h = __bunniaBackend.sessionHeaderKey, t = k && page && page.data ? page.data[k] : ''\n" +
+  "  const k = __bunniaBackend.s, h = __bunniaBackend.h, t = k && page && page.data ? page.data[k] : ''\n" +
   "  return t && h ? { [h]: t } : {}\n" +
   "}\n" +
   "\n" +
@@ -1233,6 +1235,84 @@ fn sitemap_json() -> String {
 }
 
 ///|
+fn compact_wxss(input : String) -> String {
+  let out = StringBuilder::new()
+  for i in 0..<input.length() {
+    let ch = input[i]
+    if is_css_space(ch) {
+      if should_keep_css_space(input, i) {
+        out.write_string(" ")
+      }
+    } else if ch.to_int() == 59 && next_non_css_space_is(input, i + 1, 125) {
+      ()
+    } else {
+      out.write_string(input.sub(start=i, end=i + 1).to_owned())
+    }
+  }
+  out.to_string()
+}
+
+///|
+fn should_keep_css_space(input : String, i : Int) -> Bool {
+  let prev = previous_non_css_space(input, i)
+  let next = next_non_css_space(input, i + 1)
+  prev != "" &&
+  next != "" &&
+  !css_space_optional_around(prev[0]) &&
+  !css_space_optional_around(next[0])
+}
+
+///|
+fn previous_non_css_space(input : String, i : Int) -> String {
+  for offset in 1..<=i {
+    let idx = i - offset
+    if !is_css_space(input[idx]) {
+      return input.sub(start=idx, end=idx + 1).to_owned()
+    }
+  }
+  ""
+}
+
+///|
+fn next_non_css_space(input : String, start : Int) -> String {
+  for i in start..<input.length() {
+    if !is_css_space(input[i]) {
+      return input.sub(start=i, end=i + 1).to_owned()
+    }
+  }
+  ""
+}
+
+///|
+fn next_non_css_space_is(input : String, start : Int, expected : Int) -> Bool {
+  for i in start..<input.length() {
+    if !is_css_space(input[i]) {
+      return input[i].to_int() == expected
+    }
+  }
+  false
+}
+
+///|
+fn is_css_space(ch : UInt16) -> Bool {
+  let code = ch.to_int()
+  code == 32 || code == 10 || code == 9 || code == 13
+}
+
+///|
+fn css_space_optional_around(ch : UInt16) -> Bool {
+  let code = ch.to_int()
+  code == 123 ||
+  code == 125 ||
+  code == 58 ||
+  code == 59 ||
+  code == 44 ||
+  code == 62 ||
+  code == 40 ||
+  code == 33
+}
+
+///|
 fn patches_to_operations(patches : Array[@core.Patch]) -> String {
   let out = StringBuilder::new()
   out.write_string("[")
@@ -1241,11 +1321,11 @@ fn patches_to_operations(patches : Array[@core.Patch]) -> String {
     if i > 0 {
       out.write_string(",")
     }
-    out.write_string("{kind:\"")
+    out.write_string("{k:\"")
     out.write_string(patch_kind_id(item.kind))
-    out.write_string("\",path:\"")
+    out.write_string("\",p:\"")
     out.write_string(escape_json(item.path))
-    out.write_string("\",value:")
+    out.write_string("\",v:")
     out.write_string(item.value_json)
     out.write_string("}")
   }
@@ -1362,7 +1442,7 @@ fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
     out.write_string(" data-bunnia-key=\"\{escape_xml(root.key)}\"")
   }
   for attr in root.attrs {
-    out.write_string(" \{attr.name}=\"\{escape_xml(attr.value)}\"")
+    out.write_string(" \{attr.name}=\"\{escape_xml(wechat_attr_value(attr))}\"")
   }
   for binding in root.events {
     let rendered_event = event_name(binding.event, adapter)
@@ -1370,6 +1450,26 @@ fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
     out.write_string(" data-bunnia-message=\"\{escape_xml(binding.message)}\"")
   }
   out.to_string()
+}
+
+///|
+fn wechat_attr_value(attr : @core.Attr) -> String {
+  if attr.name == "style" {
+    compact_inline_style(attr.value)
+  } else {
+    attr.value
+  }
+}
+
+///|
+fn compact_inline_style(value : String) -> String {
+  let compact = compact_wxss(value)
+  let length = compact.length()
+  if length > 0 && compact[length - 1].to_int() == 59 {
+    compact.sub(start=0, end=length - 1).to_owned()
+  } else {
+    compact
+  }
 }
 
 ///|
@@ -1482,13 +1582,13 @@ fn runtime_helpers_js() -> String {
   "function __bunniaApplyPatches(page, operations) {\n" +
   "  const update = {}\n" +
   "  ;(operations || []).forEach((patch) => {\n" +
-  "    if (patch.kind === 'append') {\n" +
-  "      const current = __bunniaReadPath(page.data, patch.path)\n" +
-  "      update[patch.path] = Array.isArray(current) ? current.concat([patch.value]) : [patch.value]\n" +
-  "    } else if (patch.kind === 'remove') {\n" +
-  "      update[patch.path] = null\n" +
+  "    if (patch.k === 'append') {\n" +
+  "      const current = __bunniaReadPath(page.data, patch.p)\n" +
+  "      update[patch.p] = Array.isArray(current) ? current.concat([patch.v]) : [patch.v]\n" +
+  "    } else if (patch.k === 'remove') {\n" +
+  "      update[patch.p] = null\n" +
   "    } else {\n" +
-  "      update[patch.path] = patch.value\n" +
+  "      update[patch.p] = patch.v\n" +
   "    }\n" +
   "  })\n" +
   "  page.setData(update)\n" +
@@ -1519,8 +1619,8 @@ fn page_definition_js(
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
   "    const patches = __bunniaEventPatches[message] || []\n" +
   "    __bunniaApplyPatches(this, [\n" +
-  "      { kind: 'set', path: '__bunnia.lastMessage', value: message },\n" +
-  "      { kind: 'set', path: '__bunnia.handledEvents', value: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
+  "      { k: 'set', p: '__bunnia.lastMessage', v: message },\n" +
+  "      { k: 'set', p: '__bunnia.handledEvents', v: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
   "      ...patches\n" +
   "    ])\n" +
   after_event_js +
@@ -1533,12 +1633,12 @@ fn backend_request_dispatch_js() -> String {
   "function __bunniaMaybeRequest(page, message) {\n" +
   "  const endpointId = __bunniaBackendEvents[message]\n" +
   "  if (!endpointId) return\n" +
-  "  const endpoint = __bunniaBackend.endpoints[endpointId]\n" +
+  "  const endpoint = __bunniaBackend.e[endpointId]\n" +
   "  if (!endpoint) return\n" +
-  "  if (endpoint.kind === 'agent-operation-cancel') {\n" +
+  "  if (endpoint.k === 'agent-operation-cancel') {\n" +
   "    return __bunniaRequest(page, endpointId)\n" +
   "  }\n" +
-  "  if (endpoint.kind === 'agent-operation-retry') {\n" +
+  "  if (endpoint.k === 'agent-operation-retry') {\n" +
   "    return __bunniaRetryRequest(page, endpointId)\n" +
   "  }\n" +
   "  return __bunniaRequest(page, endpointId)\n" +
@@ -1658,13 +1758,13 @@ fn backend_event_object(
 
 ///|
 fn backend_contract_object(contract : @effects.BackendContract) -> String {
-  "{baseUrlKey:\"" +
+  "{b:\"" +
   escape_json(contract.base_url_key) +
-  "\",sessionTokenKey:\"" +
+  "\",s:\"" +
   escape_json(contract.session_token_key) +
-  "\",sessionHeaderKey:\"" +
+  "\",h:\"" +
   escape_json(contract.session_header_key) +
-  "\",endpoints:" +
+  "\",e:" +
   backend_endpoints_object(contract.endpoints) +
   "}"
 }
@@ -1690,28 +1790,28 @@ fn backend_endpoints_object(items : Array[@effects.BackendEndpoint]) -> String {
 ///|
 fn backend_endpoint_object(item : @effects.BackendEndpoint) -> String {
   "{" +
-  "kind:\"" +
+  "k:\"" +
   escape_json(@effects.backend_endpoint_kind_id(item.kind)) +
   "\"," +
-  "method:\"" +
+  "m:\"" +
   escape_json(@effects.http_method_id(item.http_method)) +
   "\"," +
-  "path:\"" +
+  "u:\"" +
   escape_json(item.path) +
   "\"," +
-  "payloadKey:\"" +
+  "p:\"" +
   escape_json(item.payload_key) +
   "\"," +
-  "responseKey:\"" +
+  "r:\"" +
   escape_json(item.response_key) +
   "\"," +
-  "timeoutMs:" +
+  "t:" +
   item.timeout_ms.to_string() +
   "," +
-  "streaming:" +
+  "g:" +
   item.streaming.to_string() +
   "," +
-  "requiresReview:" +
+  "v:" +
   item.requires_review.to_string() +
   "}"
 }

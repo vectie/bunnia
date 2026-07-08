@@ -384,6 +384,39 @@ towns are map/discovery layers
 runs are auditable work records
 ```
 
+## Current Mini-App Target
+
+Realm is not a separate product module. Realm is the current Moontown map:
+full-screen, tile-styled, draggable/pinchable, bounded to meaningful terrain,
+and used as the spatial entry point for buildings and agents.
+
+The maturity work is everything around that map:
+
+- first-run guidance that explains why the town exists
+- login, profile, role, and consent setup
+- home/town pulse panels that summarize activity without replacing the map
+- discovery and search for public buildings, users, agents, books, and events
+- messages for human interactions, agent runs, reviews, shares, and publishes
+- ownership pages for private drafts, shared work, published work, and archives
+- building detail drawers that connect visible places to books, agents, and
+  workflow state
+
+Do not build:
+
+- a second "Realm" graph unrelated to the Moontown map
+- a generic social feed app with the map as decoration
+- card-heavy marketing pages or blurred hero surfaces
+- product semantics inside Bunnia framework core
+
+The target experience should feel like a mature tile game UI:
+
+- buildings are launchers
+- districts are feature groups
+- signposts and plaques are summaries
+- drawers are detail and action surfaces
+- badges show agent/run/review state
+- tabs are shortcuts back into the same spatial model
+
 ## Visibility And Ownership
 
 Every building and book-backed surface needs both an owner and a scope.
