@@ -14,6 +14,11 @@ const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 18191;
 const DEFAULT_STATE = "_build/moontown_miniapp/local_backend_state.json";
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMITS = {
+  "/miniapp/auth/dev-login": 12,
+  "/miniapp/moderation/report": 2,
+};
 
 function seedState() {
   return {
@@ -32,6 +37,7 @@ function seedState() {
     moderatorIds: ["user-a"],
     shares: [],
     sessions: {},
+    rateLimits: {},
     listings: defaultListings(),
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -205,6 +211,7 @@ function normalizeState(state) {
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = normalizeSessions(state.sessions || {});
+  state.rateLimits = normalizeRateLimits(state.rateLimits || {});
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
@@ -233,6 +240,20 @@ function normalizeSessions(sessions) {
       issuedAt: raw.issuedAt || new Date().toISOString(),
       expiresAt: raw.expiresAt || new Date(Date.now() + SESSION_TTL_MS).toISOString(),
       revokedAt: raw.revokedAt || "",
+    };
+  }
+  return output;
+}
+
+function normalizeRateLimits(rateLimits) {
+  const output = {};
+  for (const [key, raw] of Object.entries(rateLimits)) {
+    if (!raw || !raw.resetAt) continue;
+    if (Date.parse(raw.resetAt) <= Date.now()) continue;
+    output[key] = {
+      key,
+      count: Number(raw.count || 0),
+      resetAt: raw.resetAt,
     };
   }
   return output;
@@ -275,18 +296,63 @@ function createSession(state, userId) {
   return session;
 }
 
+function rateLimitFor(state, viewer, path) {
+  const max = RATE_LIMITS[path] || 0;
+  if (max <= 0) return null;
+  const userKey = viewer || "anonymous";
+  const key = `${userKey}:${path}`;
+  const now = Date.now();
+  let bucket = state.rateLimits[key];
+  if (!bucket || Date.parse(bucket.resetAt) <= now) {
+    bucket = { key, count: 0, resetAt: new Date(now + RATE_LIMIT_WINDOW_MS).toISOString() };
+    state.rateLimits[key] = bucket;
+  }
+  bucket.count += 1;
+  if (bucket.count <= max) return null;
+  return {
+    status: 429,
+    changed: true,
+    body: {
+      error: "rate_limited",
+      path,
+      limit: max,
+      resetAt: bucket.resetAt,
+    },
+  };
+}
+
+function healthFor(state) {
+  const now = Date.now();
+  const sessions = Object.values(state.sessions);
+  const activeSessions = sessions.filter((session) => !session.revokedAt && Date.parse(session.expiresAt) > now).length;
+  const pendingModeration = state.moderationCases.filter((item) => item.status === "pending" || item.status === "watch").length;
+  return {
+    status: "ok",
+    routeCount: routeCatalog().length,
+    userCount: state.users.length,
+    activeSessionCount: activeSessions,
+    pendingModerationCount: pendingModeration,
+    rateLimitBucketCount: Object.keys(state.rateLimits).length,
+  };
+}
+
 function dispatch(state, request) {
   const method = request.method.toUpperCase();
   const path = request.path;
   const body = request.body || {};
   const auth = authFromRequest(state, request.headers || {});
-  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes") {
+  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes" && path !== "/miniapp/health") {
     return { status: 401, changed: false, body: { error: auth.error } };
   }
   const viewer = auth.userId || body.userId || "user-a";
+  const limit = rateLimitFor(state, viewer, path);
+  if (limit) return limit;
 
   if (method === "GET" && path === "/miniapp/routes") {
     return ok({ routes: routeCatalog() });
+  }
+  if (method === "GET" && path === "/miniapp/health") {
+    return ok(healthFor(state));
   }
   if (method === "POST" && path === "/miniapp/auth/dev-login") {
     const userId = body.userId || "user-a";
@@ -394,6 +460,7 @@ function changed(body) {
 
 function routeCatalog() {
   return [
+    "GET /miniapp/health",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
@@ -1404,6 +1471,10 @@ function smoke(options) {
   assert(login.body.session.id !== "session-user-a", "opaque login session");
   assert(login.body.session.expiresAt > login.body.session.issuedAt, "login session expiry");
   const headers = { "x-miniapp-session": login.body.session.id };
+  const health = dispatch(state, { method: "GET", path: "/miniapp/health", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(health.body.status === "ok", "health ok");
+  assert(health.body.routeCount === routeCatalog().length, "health route count");
+  assert(health.body.activeSessionCount === 1, "health active sessions");
   const logoutProbe = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-logout", displayName: "Logout Probe" } });
   const logoutHeaders = { "x-miniapp-session": logoutProbe.body.session.id };
   const loggedOut = dispatch(state, { method: "POST", path: "/miniapp/auth/logout", query: new URLSearchParams(), headers: logoutHeaders, body: {} });
@@ -1539,6 +1610,11 @@ function smoke(options) {
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
   assert(report.body.case.targetRef === "building:published-agent-lab", "report target");
+  const duplicateReport = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "second smoke safety report" } });
+  assert(duplicateReport.body.case.status === "pending", "second report allowed");
+  const limitedReport = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "third smoke safety report" } });
+  assert(limitedReport.status === 429, "report rate limited");
+  assert(limitedReport.body.error === "rate_limited", "report rate limit reason");
   const deniedHide = dispatch(state, { method: "POST", path: "/miniapp/moderation/hide", query: new URLSearchParams(), headers: bobHeaders, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
   assert(deniedHide.status === 403, "moderation reviewer only");
   assert(deniedHide.body.error === "moderator_only", "moderation denial reason");

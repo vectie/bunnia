@@ -640,7 +640,10 @@ search while the case, notification, and audit trail remain inspectable. Those
 decisions are now backend-gated by local moderator trust, so normal logged-in
 users can report but cannot hide or takedown public buildings. Run cancel/retry
 now requires an explicit visible run id, and local smoke coverage checks missing
-and private cross-user run mutations.
+and private cross-user run mutations. The local backend now also exposes a
+`/miniapp/health` readiness route and backend-owned rate-limit buckets for
+sensitive routes, so DevTools can exercise health and abuse-control behavior
+without adding frontend weight.
 
 ### R9: Style And Performance Hardening
 
@@ -695,8 +698,11 @@ through the selected building Safety Desk, Messages Moderation Desk, and
 backend-owned moderator trust before mutating building or book visibility. The
 local backend now uses opaque sessions with expiry and logout revocation, giving
 the production login path a safer contract to replace with real WeChat identity.
-Production still needs real reviewer/admin identity, appeals, retention, rate
-limits, and abuse controls after local flows are coherent.
+It also exposes `/miniapp/health` and rate-limits sensitive local routes such as
+dev login and public reports, so abuse-control behavior is testable before
+production infrastructure exists. Production still needs real reviewer/admin
+identity, appeals, retention, backups, monitoring, and stronger abuse controls
+after local flows are coherent.
 
 ## Migration Order
 
