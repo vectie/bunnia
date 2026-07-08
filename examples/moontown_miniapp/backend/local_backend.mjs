@@ -52,6 +52,9 @@ function seedState() {
       book("book-team-studio", "team-studio", "Team Studio Book", "org-a", "shared_private", "Shared organization memory.", 3, 0, "shared"),
       book("book-published-agent-lab", "published-agent-lab", "Published Agent Lab Book", "user-b", "published", "Public agent lab memory.", 8, 0, "stable"),
     ],
+    bookMemories: [
+      bookMemory("memory-policy-public-1", "book-policy-hall", "policy-hall", "Public policy memory seed", "Seeded accepted public memory for Policy Hall.", "system", "review-policy-memory", "run-policy-review", "published"),
+    ],
     agents: [
       { id: "agent-policy-guide", name: "Policy Guide", buildingId: "policy-hall", status: "waiting-review" },
       { id: "agent-builder", name: "Builder", buildingId: "private-agent-lab", status: "idle" },
@@ -88,6 +91,10 @@ function building(id, title, kind, visibility, ownerId, summary, tags, x, y, sta
 
 function book(id, buildingId, title, ownerId, visibility, summary, acceptedMemoryCount, pendingReviewCount, status) {
   return { id, buildingId, title, ownerId, visibility, summary, acceptedMemoryCount, pendingReviewCount, status };
+}
+
+function bookMemory(id, bookId, buildingId, title, safeSummary, authorId, reviewId, runId, visibility) {
+  return { id, bookId, buildingId, title, safeSummary, authorId, reviewId, runId, visibility, status: "accepted", timestamp: new Date().toISOString() };
 }
 
 function placement(id, buildingId, ownerId, layer, x, y, status, source) {
@@ -181,6 +188,7 @@ function normalizeState(state) {
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
   state.reviews = state.reviews || [];
+  state.bookMemories = state.bookMemories || [];
   state.moderationCases = state.moderationCases || [];
   state.notifications = state.notifications || [];
   state.auditEvents = state.auditEvents || [];
@@ -426,10 +434,16 @@ function visibleBooks(state, viewer) {
   return state.books.filter((item) => item.visibility === "published" || item.ownerId === viewer || item.ownerId === "org-a" || visibleBuildingIds.has(item.buildingId));
 }
 
+function visibleBookMemories(state, books) {
+  const visibleBookIds = new Set(books.map((item) => item.id));
+  return state.bookMemories.filter((item) => visibleBookIds.has(item.bookId));
+}
+
 function snapshotFor(state, viewer) {
   const buildings = visibleBuildings(state, viewer);
   const placements = visiblePlacements(state, viewer);
   const books = visibleBooks(state, viewer);
+  const bookMemories = visibleBookMemories(state, books);
   const agents = state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId));
   const profile = profileFor(state, viewer);
   return {
@@ -441,6 +455,7 @@ function snapshotFor(state, viewer) {
     buildings,
     placements,
     books,
+    bookMemories,
     agents,
     runs: state.runs.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     toolResults: state.toolResults.filter((item) => buildings.some((building) => building.id === item.buildingId)),
@@ -469,6 +484,7 @@ function ownershipFor(state, viewer) {
   const placements = visiblePlacements(state, viewer);
   const buildingIds = new Set(buildings.map((item) => item.id));
   const books = state.books.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || buildingIds.has(item.buildingId));
+  const bookMemories = visibleBookMemories(state, books);
   const agents = state.agents.filter((item) => buildingIds.has(item.buildingId));
   const relationships = relationshipsFor(state, viewer, buildings, placements, books, agents);
   const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
@@ -503,7 +519,7 @@ function ownershipFor(state, viewer) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
-  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares };
+  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares, bookMemories };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
@@ -1026,21 +1042,45 @@ function decideReview(state, viewer, reviewId, decision) {
     run.reviewRequired = false;
   }
   const memory = state.books.find((item) => item.id === review.bookId);
+  let acceptedMemory = null;
   if (memory) {
     if (decision === "accepted") {
       memory.acceptedMemoryCount += review.acceptedMemoryDelta || 1;
       memory.status = "stable";
+      acceptedMemory = acceptBookMemory(state, viewer, review, memory, building);
     }
     memory.pendingReviewCount = Math.max(0, memory.pendingReviewCount - 1);
   }
   if (building) {
     state.auditEvents.push(audit(`audit-review-${decision}-${review.id}`, `review-${decision}`, `${review.title} ${decision}`, decision === "accepted" ? "Accepted agent output entered book memory." : "Rejected agent output returned to the run.", viewer, `review:${review.id}`, building.id, decision === "accepted" ? "stable" : "rejected", building.visibility));
   }
-  return changed({ review, run, book: memory });
+  return changed(acceptedMemory ? { review, run, book: memory, memory: acceptedMemory } : { review, run, book: memory });
 }
 
 function isPublicationReview(review) {
   return String(review.artifactRef || "").startsWith("building://") || String(review.runId || "").startsWith("publication-");
+}
+
+function acceptBookMemory(state, viewer, review, memory, building) {
+  const id = `memory-${review.id}`;
+  let item = state.bookMemories.find((candidate) => candidate.id === id);
+  if (!item) {
+    item = bookMemory(
+      id,
+      memory.id,
+      memory.buildingId,
+      review.title,
+      review.summary,
+      viewer,
+      review.id,
+      review.runId,
+      building ? building.visibility : memory.visibility,
+    );
+    state.bookMemories.push(item);
+  }
+  item.status = "accepted";
+  item.visibility = building ? building.visibility : memory.visibility;
+  return item;
 }
 
 function acceptPublication(state, viewer, building, review) {
@@ -1214,9 +1254,15 @@ function smoke(options) {
   assert(toolAck.body.toolResult.status === "done", "tool result acknowledged");
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
   assert(accepted.body.review.status === "accepted", "accept review");
+  assert(accepted.body.memory.id === `memory-${asked.body.review.id}`, "accepted memory record");
+  assert(accepted.body.memory.safeSummary === "Accept this local answer into building memory.", "accepted memory safe summary");
+  const ownedAsked = dispatch(state, { method: "POST", path: "/miniapp/buildings/query", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", body: "owned memory?" } });
+  const ownedAccepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: ownedAsked.body.review.id } });
+  assert(ownedAccepted.body.memory.bookId === "book-smoke-lab", "owned accepted memory book");
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
   assert(snapshot.body.permissions.canModerate === true, "moderator snapshot permission");
   assert(snapshot.body.permissions.canReview === true, "reviewer snapshot permission");
+  assert(snapshot.body.bookMemories.some((item) => item.id === accepted.body.memory.id && item.bookId === "book-policy-hall"), "snapshot accepted memory");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
   assert(hasRelationship(snapshot.body.relationships, "building", "team-studio", "team"), "snapshot team relationship");
   assert(hasRelationship(snapshot.body.relationships, "placement", "placement-user-a-policy-hall", "owner"), "snapshot placement relationship");
@@ -1230,6 +1276,7 @@ function smoke(options) {
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
   assert(ownership.body.permissions.canModerate === true, "ownership moderator permission");
   assert(ownership.body.permissions.profileReady === true, "ownership profile ready permission");
+  assert(ownership.body.bookMemories.some((item) => item.id === ownedAccepted.body.memory.id), "ownership accepted memory");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
   assert(hasRelationship(ownership.body.relationships, "agent", "agent-smoke", "owner"), "ownership agent relationship");

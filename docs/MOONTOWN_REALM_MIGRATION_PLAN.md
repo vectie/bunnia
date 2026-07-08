@@ -474,7 +474,8 @@ workbench. Submit is now a separate publication-review state before publish,
 leaving room for moderation and reviewer decisions before public discovery.
 Submitted buildings now create publication review items, so accept moves the
 building and book into public discovery while reject returns them to private
-drafts.
+drafts. Accepted book-memory reviews now create durable safe memory records in
+the local backend instead of only incrementing book counters.
 
 ### R6: Messages And Agent Communication
 
@@ -592,9 +593,11 @@ building publication now goes through `/miniapp/buildings/submit` before
 `/miniapp/buildings/publish`, so the backend loop has a review state instead of
 direct draft-to-public publishing.
 The local review endpoints now accept or reject publication reviews as well as
-book-memory reviews, matching the mini-app queue. Local agent creation now
-validates building ownership, rejects duplicates, persists the agent, writes a
-thread message, and returns it through snapshot and ownership APIs. Local agent
+book-memory reviews, matching the mini-app queue. Accepted book-memory reviews
+now persist safe memory records and expose them through snapshot and ownership
+payloads according to visible book boundaries. Local agent creation now validates
+building ownership, rejects duplicates, persists the agent, writes a thread
+message, and returns it through snapshot and ownership APIs. Local agent
 handoff now persists a building-thread message, reviewable run, notification,
 audit event, and updated target-agent status, so WeChat DevTools can exercise
 agent-to-agent work transfer on this Mac. Tool-result acknowledgement is also
@@ -709,6 +712,9 @@ BuildingPlacement
 
 Book
   durable memory, safe summaries, ledgers, reviews, accepted knowledge
+
+BookMemory
+  accepted safe memory records linked to books, buildings, reviews, and runs
 
 Agent
   worker/persona attached to user, building, book, thread, or run
