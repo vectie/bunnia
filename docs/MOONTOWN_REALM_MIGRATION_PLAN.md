@@ -469,7 +469,10 @@ Current status: Home has tile-styled pulse panels, backend cache visibility,
 district shortcuts, and recent activity rows. Districts now carry explicit tab
 destinations for market, demand, event, guide, and credential surfaces, and
 activity rows route review/run work back to Messages while book/publish/place
-work routes to Discover.
+work routes to Discover. District cards now also carry Discover filter, query,
+and tone metadata, so product, demand, event, city-guide, and credential tiles
+can behave like the reference community-center cards without becoming separate
+mini-app roots.
 
 ### R4: Discover And Placement
 
@@ -503,7 +506,9 @@ circles, products, review demands, run events, and public posts while keeping
 private and shared-private work out of public results. Placeable discovery rows
 now carry the target layer, source, and map coordinates, and already pinned
 buildings drop out of the placeable filter so placement remains a real map-layer
-action rather than a generic button. Public discovery targets can now also be
+action rather than a generic button. Discover filters now include the market
+object kinds used by the district cards: products, demands, events, and posts.
+Public discovery targets can now also be
 watched through the existing subscription route: the backend validates that
 watched buildings, books, agents, users, and listings including circles are
 public/visible, persists viewer-scoped watch state, and returns those watches

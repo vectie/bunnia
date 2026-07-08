@@ -214,6 +214,12 @@ fn moontown_wxss_source() -> String {
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
+  ".moontown-district-actions { display: flex; gap: 8rpx; margin-top: 8rpx; }\n" +
+  ".moontown-district-entry.tone-blue { border-color: rgba(49,130,206,0.44); background: rgba(231,243,255,0.72); }\n" +
+  ".moontown-district-entry.tone-orange { border-color: rgba(221,107,32,0.42); background: rgba(255,238,214,0.72); }\n" +
+  ".moontown-district-entry.tone-purple { border-color: rgba(128,90,213,0.38); background: rgba(241,234,255,0.72); }\n" +
+  ".moontown-district-entry.tone-pink { border-color: rgba(213,63,140,0.34); background: rgba(255,232,242,0.72); }\n" +
+  ".moontown-district-entry.tone-green { border-color: rgba(56,161,105,0.42); background: rgba(226,246,231,0.72); }\n" +
   ".moontown-presence-row .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
   ".moontown-guide-strip .bunnia-list-windowed, .moontown-discovery-strip .bunnia-list-windowed, .moontown-message-buckets { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
@@ -1436,11 +1442,14 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
       kind="view",
       attrs=[
         @bunnia.class_name(
-          "moontown-district-entry bunnia-status-\{district.status}",
+          "moontown-district-entry feature-\{district.feature_kind} tone-\{district.accent} bunnia-status-\{district.status}",
         ),
         @bunnia.data("district-id", district.id),
         @bunnia.data("feature-kind", district.feature_kind),
         @bunnia.data("building-id", district.building_id),
+        @bunnia.data("district-filter", district.discovery_filter_id),
+        @bunnia.data("district-query", district.search_query),
+        @bunnia.data("district-accent", district.accent),
         @bunnia.data("action-message", district_action_message(district)),
         @bunnia.data("target-tab", district_target_tab(district)),
       ],
@@ -1455,6 +1464,23 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
             "\{district.stat_value} \{district.stat_label} / \{district.action_label} / \{district_target_tab(district)}",
           ),
         ]),
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-district-actions")],
+          [
+            @bunnia.node(
+              kind="button",
+              attrs=[
+                @bunnia.data("district-id", district.id),
+                @bunnia.data("filter-id", district.discovery_filter_id),
+                @bunnia.data("query", district.search_query),
+              ],
+              events=[
+                @bunnia.tap("discover-filter-\{district.discovery_filter_id}"),
+              ],
+              children=[@bunnia.text("Filter")],
+            ),
+          ],
+        ),
       ],
     ),
   )

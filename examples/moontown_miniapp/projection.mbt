@@ -182,6 +182,9 @@ pub struct MiniTownDistrict {
   stat_value : String
   action_label : String
   action_message : String
+  discovery_filter_id : String
+  search_query : String
+  accent : String
   status : String
 } derive(Debug, Eq)
 
@@ -682,6 +685,9 @@ pub fn mini_town_district(
   action_label~ : String,
   status~ : String,
   action_message? : String = "",
+  discovery_filter_id? : String = "all",
+  search_query? : String = "",
+  accent? : String = "blue",
 ) -> MiniTownDistrict {
   {
     id,
@@ -693,6 +699,9 @@ pub fn mini_town_district(
     stat_value,
     action_label,
     action_message,
+    discovery_filter_id,
+    search_query,
+    accent,
     status,
   }
 }
@@ -1454,6 +1463,10 @@ fn demo_discovery_filters() -> Array[MiniTownDiscoveryFilter] {
     mini_town_discovery_filter(id="all", label="All", kind="all"),
     mini_town_discovery_filter(id="user", label="People", kind="user"),
     mini_town_discovery_filter(id="circle", label="Circles", kind="circle"),
+    mini_town_discovery_filter(id="product", label="Products", kind="product"),
+    mini_town_discovery_filter(id="demand", label="Demands", kind="demand"),
+    mini_town_discovery_filter(id="event", label="Events", kind="event"),
+    mini_town_discovery_filter(id="post", label="Posts", kind="post"),
     mini_town_discovery_filter(
       id="building",
       label="Buildings",
@@ -1560,6 +1573,9 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_value="20",
       action_label="Browse",
       action_message="tab-discover",
+      discovery_filter_id="product",
+      search_query="product",
+      accent="blue",
       status="running",
     ),
     mini_town_district(
@@ -1572,6 +1588,9 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_value="34",
       action_label="Review",
       action_message="tab-messages",
+      discovery_filter_id="demand",
+      search_query="review demand",
+      accent="orange",
       status="review",
     ),
     mini_town_district(
@@ -1584,6 +1603,9 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_value="6",
       action_label="Join",
       action_message="tab-messages",
+      discovery_filter_id="event",
+      search_query="team event",
+      accent="purple",
       status="shared",
     ),
     mini_town_district(
@@ -1596,6 +1618,9 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_value="4",
       action_label="Open",
       action_message="tab-home",
+      discovery_filter_id="post",
+      search_query="guide",
+      accent="pink",
       status="stable",
     ),
     mini_town_district(
@@ -1608,6 +1633,9 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_value="8",
       action_label="Verify",
       action_message="tab-my",
+      discovery_filter_id="all",
+      search_query="trust policy",
+      accent="green",
       status="stable",
     ),
   ]

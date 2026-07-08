@@ -236,9 +236,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     ),
   )
   assert_true(home.wxml.contains("data-feature-kind=\"market\""))
+  assert_true(home.wxml.contains("feature-market tone-blue"))
+  assert_true(home.wxml.contains("data-district-filter=\"product\""))
+  assert_true(home.wxml.contains("data-district-query=\"product\""))
+  assert_true(home.wxml.contains("data-district-accent=\"blue\""))
+  assert_true(
+    home.wxml.contains("data-bunnia-message=\"discover-filter-product\""),
+  )
   assert_true(home.wxml.contains("data-action-message=\"tab-discover\""))
   assert_true(home.wxml.contains("data-target-tab=\"discover\""))
   assert_true(home.wxml.contains("data-feature-kind=\"credential\""))
+  assert_true(home.wxml.contains("data-district-query=\"trust policy\""))
   assert_true(home.wxml.contains("data-action-message=\"tab-my\""))
   assert_true(home.wxml.contains("OPC Hub"))
   assert_true(home.wxml.contains("8 checks / Verify / my"))
@@ -283,6 +291,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("moontown-discovery-filter active"))
   assert_true(discover.wxml.contains("data-filter-id=\"user\""))
   assert_true(discover.wxml.contains("data-filter-id=\"circle\""))
+  assert_true(discover.wxml.contains("data-filter-id=\"product\""))
+  assert_true(discover.wxml.contains("data-filter-id=\"demand\""))
+  assert_true(discover.wxml.contains("data-filter-id=\"event\""))
+  assert_true(discover.wxml.contains("data-filter-id=\"post\""))
   assert_true(discover.wxml.contains("data-filter-id=\"placeable\""))
   assert_true(discover.wxml.contains("data-filter-kind=\"building\""))
   assert_true(discover.wxml.contains("Published Agent Lab"))
@@ -586,6 +598,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
       "\"discover-filter-building\":[{k:\"set\",p:\"discover.filter\",v:\"building\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"}]",
     ),
   )
   assert_true(
@@ -1017,12 +1034,15 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(guides[4].id, "passport")
   assert_true(!guides[4].complete)
   assert_eq(projection.districts.length(), 5)
+  assert_eq(projection.districts[0].discovery_filter_id, "product")
+  assert_eq(projection.districts[0].search_query, "product")
+  assert_eq(projection.districts[0].accent, "blue")
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 7)
   assert_eq(projection.notification_channels.length(), 7)
   assert_eq(projection.watches.length(), 1)
   assert_eq(projection.discovery_items.length(), 11)
-  assert_eq(projection.discovery_filters.length(), 7)
+  assert_eq(projection.discovery_filters.length(), 11)
   assert_eq(projection.activity_items.length(), 5)
   assert_eq(projection.audit_events.length(), 4)
   assert_eq(projection.books.length(), 8)
@@ -1116,6 +1136,18 @@ test "moontown miniapp projection supports mock user create search and agent flo
   let circles = switch_discovery_filter(projection, "circle")
   assert_eq(selected_discovery_filter(circles).id, "circle")
   assert_eq(filtered_discovery_results(circles).length(), 2)
+  let products = switch_discovery_filter(projection, "product")
+  assert_eq(selected_discovery_filter(products).id, "product")
+  assert_eq(filtered_discovery_results(products).length(), 1)
+  let demands = switch_discovery_filter(projection, "demand")
+  assert_eq(selected_discovery_filter(demands).id, "demand")
+  assert_eq(filtered_discovery_results(demands).length(), 1)
+  let events = switch_discovery_filter(projection, "event")
+  assert_eq(selected_discovery_filter(events).id, "event")
+  assert_eq(filtered_discovery_results(events).length(), 1)
+  let posts = switch_discovery_filter(projection, "post")
+  assert_eq(selected_discovery_filter(posts).id, "post")
+  assert_eq(filtered_discovery_results(posts).length(), 1)
   let buildings_only = switch_discovery_filter(projection, "building")
   assert_eq(selected_discovery_filter(buildings_only).id, "building")
   assert_eq(filtered_discovery_results(buildings_only).length(), 1)
