@@ -358,7 +358,12 @@ fn generate_project_from_pages_internal(
   match backend_contract {
     Some(contract) =>
       files.push(
-        wechat_file("bunnia.backend.js", generate_request_adapter(contract)),
+        wechat_file(
+          "bunnia.backend.js",
+          generate_request_adapter(
+            backend_contract_for_pages(contract, generated_pages),
+          ),
+        ),
       )
     None => ()
   }
@@ -421,6 +426,29 @@ fn project_pages_for_backend(
     }
   }
   output
+}
+
+///|
+fn backend_contract_for_pages(
+  contract : @effects.BackendContract,
+  pages : Array[WechatProjectPage],
+) -> @effects.BackendContract {
+  let endpoints : Array[@effects.BackendEndpoint] = []
+  for endpoint in contract.endpoints {
+    for page in pages {
+      if page.page.plan.event_messages.contains(endpoint.id) {
+        endpoints.push(endpoint)
+        break
+      }
+    }
+  }
+  @effects.backend_contract(
+    id=contract.id,
+    base_url_key=contract.base_url_key,
+    session_token_key=contract.session_token_key,
+    session_header_key=contract.session_header_key,
+    endpoints~,
+  )
 }
 
 ///|
@@ -1642,7 +1670,7 @@ fn page_definition_js(
 
 ///|
 fn backend_request_dispatch_js() -> String {
-  "function __bp(p,e,d){let h=0,b=e.p?p.data[e.p]||{}:{};['runId','reviewId','decision','buildingId','bookId'].map(k=>d&&d[k]&&(h=b[k]=d[k]));return h?b:undefined}\n" +
+  "function __bp(p,e,d){let h=0,b=e.p?p.data[e.p]||{}:{};['runId','reviewId','decision','buildingId','bookId','noticeId','noticeKind','targetRef'].map(k=>d&&d[k]&&(h=b[k]=d[k]));return h?b:undefined}\n" +
   "function __bunniaMaybeRequest(p,m,d){\n" +
   "  const id=__bunniaBackendEvents[m]\n" +
   "  if(!id)return\n" +

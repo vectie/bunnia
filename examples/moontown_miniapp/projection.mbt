@@ -1621,6 +1621,24 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       summary="Restart a failed, rejected, or cancelled run with the same context.",
       status="guarded",
     ),
+    mini_town_backend_step(
+      id="ack-notification",
+      label="Ack Notice",
+      endpoint_id="ack-notification",
+      http_method="POST",
+      path="/miniapp/messages/ack",
+      summary="Mark a follow, interaction, review, or run notice as handled.",
+      status="ready",
+    ),
+    mini_town_backend_step(
+      id="request-subscription",
+      label="Subscribe",
+      endpoint_id="request-subscription",
+      http_method="POST",
+      path="/miniapp/messages/subscribe",
+      summary="Request WeChat subscription delivery for important town signals.",
+      status="platform",
+    ),
   ]
 }
 

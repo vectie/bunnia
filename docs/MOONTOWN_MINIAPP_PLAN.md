@@ -1232,6 +1232,13 @@ Current evidence:
 - Messages also maps the reference follow, interaction, and subscription pages
   into compact tile buckets while preserving agent run/review notifications as
   first-class communication events.
+- Notification actions now use stable ack/subscription endpoints with tapped
+  notice ids, notice kinds, target refs, and building ids merged into payloads,
+  so follow, interaction, review, run, and subscription prompts can be exercised
+  from DevTools without creating one endpoint per notice.
+- The WeChat adapter now emits backend endpoint metadata only for messages
+  reachable from the rendered route. The full contract remains available for
+  planning, but hidden tab endpoints no longer consume route JS budget.
 - Messages now derives tile-style run actions from pure run state. Each run
   plaque can open its building, accept or reject reviewable output, and expose a
   retry affordance only when the run is failed, rejected, or cancelled.

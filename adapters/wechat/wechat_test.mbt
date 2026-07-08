@@ -83,7 +83,9 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
     ),
   )
   assert_true(
-    js.contains("['runId','reviewId','decision','buildingId','bookId']"),
+    js.contains(
+      "['runId','reviewId','decision','buildingId','bookId','noticeId','noticeKind','targetRef']",
+    ),
   )
   assert_true(js.contains("h=b[k]=d[k]"))
   assert_true(js.contains("e.k==='agent-operation-cancel'"))
@@ -93,6 +95,30 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   )
   assert_true(backend_js.contains("k:\"agent-operation-cancel\""))
   assert_true(backend_js.contains("k:\"agent-operation-retry\""))
+}
+
+///|
+test "wechat project backend module emits only route reachable endpoints" {
+  let contract = @effects.backend_contract(id="route-filter", endpoints=[
+    @effects.operator_submit_endpoint(
+      "visible-submit", "/visible", "visibleDraft", "visibleResult",
+    ),
+    @effects.operator_submit_endpoint(
+      "hidden-submit", "/hidden", "hiddenDraft", "hiddenResult",
+    ),
+  ])
+  let project = generate_project_with_runtime_and_backend(
+    name="Route Filter",
+    route="pages/filter/index",
+    root=@core.page([@core.button("Visible", "visible-submit")]),
+    runtime=runtime(),
+    backend_contract=contract,
+  )
+  let backend_js = file_content(project.files, "bunnia.backend.js")
+  assert_true(backend_js.contains("/visible"))
+  assert_true(!backend_js.contains("/hidden"))
+  assert_true(project.page.js.contains("\"visible-submit\":\"visible-submit\""))
+  assert_true(!project.page.js.contains("hidden-submit"))
 }
 
 ///|

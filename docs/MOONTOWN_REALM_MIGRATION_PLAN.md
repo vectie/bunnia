@@ -298,6 +298,13 @@ Current slice:
 - Messages now translates new follows, interactions, and system subscription
   prompts into tile buckets, while keeping agent runs and reviews in the same
   communication model.
+- Notification buttons now carry notice id, kind, target refs, and building ids
+  into stable ack/subscription backend actions, so follows, interactions, and
+  subscription prompts can be exercised from WeChat DevTools without per-notice
+  endpoints.
+- Route generation keeps backend metadata filtered to endpoints reachable from
+  the rendered tab/surface, preserving JS budget as Messages, My, and backend
+  loop endpoints mature.
 
 ## R7: My Ownership Workbench
 

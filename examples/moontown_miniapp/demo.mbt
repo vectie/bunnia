@@ -464,6 +464,13 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "reject-memory-review", "/miniapp/reviews/reject", "reviewDecision", "reviewResult",
       ),
       @bunnia.operator_submit_endpoint(
+        "ack-notification", "/miniapp/messages/ack", "notificationAck", "notificationAckResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "request-subscription", "/miniapp/messages/subscribe", "subscriptionRequest",
+        "subscriptionResult",
+      ),
+      @bunnia.operator_submit_endpoint(
         "create-agent", "/miniapp/agents", "agentDraft", "agentResult",
       ),
     ],
@@ -1888,9 +1895,54 @@ fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
           @bunnia.text(notice.title),
         ]),
         @bunnia.text(notice.body),
-        @bunnia.button(notice.action_label, notice.action_message),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
+          notification_action_button(notice),
+          notification_ack_button(notice),
+        ]),
       ],
     ),
+  )
+}
+
+///|
+fn notification_action_button(notice : MiniTownNotification) -> @bunnia.Node {
+  notification_button(
+    notice,
+    label=notice.action_label,
+    message=notice.action_message,
+    action="open",
+  )
+}
+
+///|
+fn notification_ack_button(notice : MiniTownNotification) -> @bunnia.Node {
+  notification_button(
+    notice,
+    label="Ack",
+    message="ack-notification",
+    action="ack",
+  )
+}
+
+///|
+fn notification_button(
+  notice : MiniTownNotification,
+  label~ : String,
+  message~ : String,
+  action~ : String,
+) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.class_name("moontown-notice-action"),
+      @bunnia.data("notice-action", action),
+      @bunnia.data("notice-id", notice.id),
+      @bunnia.data("notice-kind", notice.kind),
+      @bunnia.data("target-ref", notice.target_ref),
+      @bunnia.data("building-id", notice.building_id),
+    ],
+    events=[@bunnia.tap(message)],
+    children=[@bunnia.text(label)],
   )
 }
 
@@ -2475,5 +2527,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
 }
