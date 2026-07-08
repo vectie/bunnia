@@ -1679,7 +1679,7 @@ fn page_definition_js(
 
 ///|
 fn backend_request_dispatch_js() -> String {
-  "function __bp(p,e,d){let h=0,b=e.p?p.data[e.p]||{}:{};['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef'].map(k=>d&&d[k]&&(h=b[k]=d[k]));return h?b:undefined}\n" +
+  "function __bp(p,e,d){let h=0,b=e.p?Object.assign({},p.data[e.p]||{}):{};['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef'].map(k=>d&&d[k]&&(b[k]=d[k],h=1));return h?b:undefined}\n" +
   "function __bunniaMaybeRequest(p,m,d){\n" +
   "  const id=__bunniaBackendEvents[m]\n" +
   "  if(!id)return\n" +

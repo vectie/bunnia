@@ -716,6 +716,9 @@ and private cross-user run mutations. The local backend now also exposes a
 sensitive routes, and moderator-only audit/backup routes, so DevTools can
 exercise health, abuse-control, and recovery behavior without adding frontend
 weight.
+Generated backend request dispatch now clones endpoint payload templates before
+overlaying row dataset fields such as `targetRef`, so Discover watch actions and
+retryable requests cannot mutate shared page data while building a request.
 
 ### R9: Style And Performance Hardening
 

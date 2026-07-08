@@ -766,7 +766,8 @@ test "moontown miniapp generates wechat project with backend hooks" {
       "['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef']",
     ),
   )
-  assert_true(project.page.js.contains("h=b[k]=d[k]"))
+  assert_true(project.page.js.contains("Object.assign({},p.data[e.p]||{})"))
+  assert_true(project.page.js.contains("b[k]=d[k],h=1"))
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",

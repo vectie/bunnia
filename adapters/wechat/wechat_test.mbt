@@ -87,7 +87,8 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
       "['runId','reviewId','decision','buildingId','bookId','agentId','targetUserId','noticeId','noticeKind','targetRef']",
     ),
   )
-  assert_true(js.contains("h=b[k]=d[k]"))
+  assert_true(js.contains("Object.assign({},p.data[e.p]||{})"))
+  assert_true(js.contains("b[k]=d[k],h=1"))
   assert_true(js.contains("e.k==='agent-operation-cancel'"))
   assert_true(js.contains("e.k==='agent-operation-retry'"))
   assert_true(
