@@ -567,7 +567,10 @@ action rather than a generic button. Discover filters now include the market
 object kinds used by the district cards: products, demands, events, and posts.
 The backend search contract now mirrors those filters: kind-scoped queries,
 placeable-only search, pinned-building exclusion, filter echo metadata, and
-result counts are returned from `/miniapp/discover/search`.
+result counts are returned from `/miniapp/discover/search`. Search responses are
+also windowed with limit, cursor, total, returned, `hasMore`, and `nextCursor`
+metadata so large public result sets do not force the mini-app to render or
+patch unbounded lists.
 Public discovery targets can now also be
 watched through the existing subscription route: the backend validates that
 watched buildings, books, agents, users, and listings including circles are

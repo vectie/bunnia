@@ -1752,11 +1752,17 @@ function actionMessageForBuilding(item) {
 function discoverSearchResult(state, viewer, query, body) {
   const filters = discoverSearchFilters(query, body);
   const items = discoverItems(state, viewer, filters);
+  const page = discoverPage(filters, items.length);
+  const windowedItems = items.slice(page.offset, page.offset + page.limit);
   return {
     query: filters.query,
     filters,
     counts: discoverCounts(items),
-    items,
+    page: {
+      ...page,
+      returned: windowedItems.length,
+    },
+    items: windowedItems,
   };
 }
 
@@ -1770,7 +1776,28 @@ function discoverSearchFilters(query, body) {
     filter: rawFilter || "all",
     placeableOnly,
     excludePinned: placeableOnly || boolParam(query.get("excludePinned") || body.excludePinned),
+    limit: numberParam(query.get("limit") || body.limit, 20, 1, 50),
+    cursor: numberParam(query.get("cursor") || body.cursor || body.offset, 0, 0, 1000000),
   };
+}
+
+function discoverPage(filters, total) {
+  const offset = Math.min(filters.cursor, total);
+  const nextOffset = offset + filters.limit;
+  const hasMore = nextOffset < total;
+  return {
+    limit: filters.limit,
+    offset,
+    total,
+    hasMore,
+    nextCursor: hasMore ? String(nextOffset) : "",
+  };
+}
+
+function numberParam(value, fallback, min, max) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.max(min, Math.min(max, Math.floor(parsed)));
 }
 
 function normalizeDiscoverKind(value) {
@@ -2928,6 +2955,16 @@ function smoke(options) {
   assert(!privateSearch.body.items.some((item) => item.targetRef === "book:book-shared-lab"), "shared private book hidden from public search");
   const userSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=chen"), headers: registeredHeaders, body: {} });
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
+  const firstPageSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("limit=2"), headers, body: {} });
+  assert(firstPageSearch.body.page.limit === 2, "discover page limit");
+  assert(firstPageSearch.body.page.returned === 2, "discover page returned");
+  assert(firstPageSearch.body.page.total > firstPageSearch.body.page.returned, "discover page total");
+  assert(firstPageSearch.body.page.hasMore === true, "discover page has more");
+  const secondPageSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams(`cursor=${firstPageSearch.body.page.nextCursor}&limit=2`), headers, body: {} });
+  assert(secondPageSearch.body.page.offset === 2, "discover next page offset");
+  assert(secondPageSearch.body.items[0].id !== firstPageSearch.body.items[0].id, "discover next page advances");
+  const clampedPageSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("limit=500"), headers, body: {} });
+  assert(clampedPageSearch.body.page.limit === 50, "discover page limit clamped");
   const productSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=product&filter=product"), headers, body: {} });
   assert(productSearch.body.filters.kind === "product", "product search filter echo");
   assert(productSearch.body.items.some((item) => item.kind === "product" && item.targetRef === "product:agent-publishing-kit"), "public product search");
