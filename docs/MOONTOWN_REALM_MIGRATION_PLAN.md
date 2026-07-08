@@ -718,9 +718,12 @@ and `/miniapp/moderation/*` routes. Local hide/takedown decisions now require
 backend-owned moderator trust before mutating building or book visibility, while
 appeals require the affected building owner and keep visibility restricted until
 review. The local backend now uses opaque sessions with expiry and logout
-revocation, giving the production login path a safer contract to replace with
-real WeChat identity. It also exposes `/miniapp/health`, rate-limits sensitive
-local routes such as dev login, public reports, and appeals, and provides
+revocation, and it has a backend-only `/miniapp/auth/wechat-login` contract that
+requires server-side WeChat app configuration, binds users through a server-only
+provider identity hash, and returns only opaque session/profile data. This gives
+the production login path a safer contract to replace with the real WeChat code
+exchange. It also exposes `/miniapp/health`, rate-limits sensitive local routes
+such as dev login, WeChat login, public reports, and appeals, and provides
 moderator-only audit/backup/ops/readiness endpoints, moderator list/grant/revoke
 routes, retention prune route, a local startup/interval retention scheduler, an
 external monitoring incident report route, moderator-only incident review/resolve
@@ -731,15 +734,16 @@ reviewer identity configuration without returning secret values. Backend startup
 can now apply `MINIAPP_ADMIN_REVIEWER_IDS` into trusted moderator identities and
 ready reviewer profiles, while still leaving manual grant/revoke available for
 local tests. Backups exclude live session and rate-limit buckets, ops reports
-reviewer config source, retention targets, scheduled-retention metadata,
-monitoring incidents, monitoring checks, state counts, and status distributions,
-moderator management keeps reviewer trust backend-owned, abuse holds can stop
-actor or target mutations without frontend bundle growth, and manual or
-scheduled pruning removes expired sessions, expired rate-limit buckets, and
-out-of-retention audit events. That makes abuse-control, recovery, reviewer
-identity, retention, monitoring, and deployment-readiness behavior testable
-before production infrastructure exists. Production still needs real WeChat-bound
-login identity, platform-managed retention scheduling, a real external monitoring
+identity binding counts, reviewer config source, retention targets,
+scheduled-retention metadata, monitoring incidents, monitoring checks, state
+counts, and status distributions, moderator management keeps reviewer trust
+backend-owned, abuse holds can stop actor or target mutations without frontend
+bundle growth, and manual or scheduled pruning removes expired sessions, expired
+rate-limit buckets, and out-of-retention audit events. That makes
+abuse-control, recovery, login identity binding, reviewer identity, retention,
+monitoring, and deployment-readiness behavior testable before production
+infrastructure exists. Production still needs the real WeChat code-to-openid
+exchange, platform-managed retention scheduling, a real external monitoring
 provider, and production-grade abuse signals after local flows are coherent.
 
 ## Migration Order

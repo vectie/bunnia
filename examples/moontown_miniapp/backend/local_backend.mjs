@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createServer } from "node:http";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
   mkdirSync,
@@ -20,6 +20,7 @@ const BACKUP_RETENTION_DAYS = 30;
 const DEFAULT_RETENTION_SWEEP_MS = 15 * 60 * 1000;
 const RATE_LIMITS = {
   "/miniapp/auth/dev-login": 12,
+  "/miniapp/auth/wechat-login": 12,
   "/miniapp/monitoring/incident": 6,
   "/miniapp/moderation/report": 2,
   "/miniapp/moderation/appeal": 2,
@@ -43,6 +44,7 @@ function seedState() {
     ],
     moderatorIds: ["user-a"],
     reviewerConfig: reviewerConfig("seed", ["user-a"], ""),
+    identityBindings: [],
     shares: [],
     sessions: {},
     rateLimits: {},
@@ -141,6 +143,10 @@ function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, tot
 
 function reviewerConfig(source, reviewerIds, appliedAt) {
   return { source, reviewerIds, appliedAt };
+}
+
+function identityBinding(provider, userId, providerUserHash, appIdHash) {
+  return { provider, userId, providerUserHash, appIdHash, boundAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
 }
 
 function incident(id, severity, status, source, title, summary, route, actorId, targetRef) {
@@ -245,6 +251,7 @@ function normalizeState(state) {
   state.profiles = state.profiles || [];
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
   state.reviewerConfig = normalizeReviewerConfig(state.reviewerConfig, state.moderatorIds);
+  state.identityBindings = normalizeIdentityBindings(state.identityBindings || []);
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = normalizeSessions(state.sessions || {});
@@ -333,6 +340,21 @@ function normalizeReviewerConfig(raw, fallbackIds) {
   );
 }
 
+function normalizeIdentityBindings(bindings) {
+  return (bindings || []).filter((item) => item && item.provider && item.userId && item.providerUserHash).map((item) => ({
+    provider: item.provider,
+    userId: item.userId,
+    providerUserHash: item.providerUserHash,
+    appIdHash: item.appIdHash || "",
+    boundAt: item.boundAt || new Date().toISOString(),
+    lastLoginAt: item.lastLoginAt || item.boundAt || new Date().toISOString(),
+  }));
+}
+
+function digest(value) {
+  return createHash("sha256").update(String(value)).digest("hex");
+}
+
 function saveState(statePath, state) {
   mkdirSync(dirname(statePath), { recursive: true });
   writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
@@ -368,6 +390,44 @@ function createSession(state, userId) {
   };
   state.sessions[id] = session;
   return session;
+}
+
+function loginWithWechat(state, body, env = process.env) {
+  const appId = String(env.MINIAPP_WECHAT_APP_ID || "").trim();
+  const appSecret = String(env.MINIAPP_WECHAT_APP_SECRET || "").trim();
+  if (!appId || !appSecret) {
+    return { status: 503, changed: false, body: { error: "wechat_login_not_configured" } };
+  }
+  const code = String(body.code || body.loginCode || "").trim();
+  if (!code) return { status: 400, changed: false, body: { error: "missing_wechat_code" } };
+  const providerUserHash = digest(`wechat:${appId}:${code}`);
+  const appIdHash = digest(`wechat-app:${appId}`);
+  let binding = state.identityBindings.find((item) => item.provider === "wechat" && item.providerUserHash === providerUserHash);
+  if (!binding) {
+    const userId = `wechat-${providerUserHash.slice(0, 12)}`;
+    binding = identityBinding("wechat", userId, providerUserHash, appIdHash);
+    state.identityBindings.push(binding);
+  } else {
+    binding.lastLoginAt = new Date().toISOString();
+  }
+  const profileItem = ensureProfile(state, binding.userId, {
+    displayName: body.displayName || body.nickName || titleizeUser(binding.userId),
+    roleId: body.roleId || "builder",
+    avatarRef: body.avatarRef || `avatar://${binding.userId}`,
+  });
+  const session = createSession(state, binding.userId);
+  state.auditEvents.push(audit(`audit-wechat-login-${session.id}`, "login", `${profileItem.displayName} logged in`, "WeChat login code was exchanged by the backend into an opaque local identity binding.", binding.userId, `user:${binding.userId}`, "", "active", "private"));
+  return changed({
+    session,
+    profile: profileItem,
+    identity: {
+      provider: "wechat",
+      userId: binding.userId,
+      boundAt: binding.boundAt,
+      lastLoginAt: binding.lastLoginAt,
+      providerUserHash: "server_only",
+    },
+  });
 }
 
 function rateLimitFor(state, viewer, path) {
@@ -409,6 +469,7 @@ function healthFor(state) {
     userCount: state.users.length,
     moderatorCount: state.moderatorIds.length,
     reviewerConfigSource: state.reviewerConfig.source,
+    identityBindingCount: state.identityBindings.length,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
     activeAbuseHoldCount: activeAbuseHolds,
@@ -674,6 +735,7 @@ function productionReadinessForAdmin(state, viewer, env = process.env) {
   const retentionReady = envPresent(env, "MINIAPP_RETENTION_SCHEDULER") || state.retentionJob.enabled;
   const configuredReviewerIds = reviewerIdsFromEnv(env);
   const reviewersReady = configuredReviewerIds.length > 0 && configuredReviewerIds.every((userId) => state.moderatorIds.includes(userId));
+  const identityBindingReady = state.identityBindings.some((item) => item.provider === "wechat");
   const checks = [
     { id: "wechat-login", status: appIdReady && appSecretReady ? "ok" : "missing", summary: "Backend has WeChat app id and secret configured.", required: true, configured: appIdReady && appSecretReady },
     { id: "network-domain", status: cloudEnvReady || allowedDomain.startsWith("https://") ? "ok" : "missing", summary: "Approved HTTPS domain or WeChat cloud environment is configured.", required: true, configured: cloudEnvReady || allowedDomain.startsWith("https://") },
@@ -681,6 +743,7 @@ function productionReadinessForAdmin(state, viewer, env = process.env) {
     { id: "monitoring-provider", status: monitoringReady ? "ok" : "missing", summary: "External monitoring sink is configured.", required: true, configured: monitoringReady },
     { id: "retention-scheduler", status: retentionReady ? "ok" : "missing", summary: "Platform or local retention scheduler is configured.", required: true, configured: retentionReady },
     { id: "reviewer-identity", status: reviewersReady ? "ok" : "missing", summary: "Reviewer/admin identities are configured outside the frontend.", required: true, configured: reviewersReady },
+    { id: "identity-binding", status: identityBindingReady ? "ok" : "watch", summary: "At least one WeChat identity has been bound through the backend.", required: false, configured: identityBindingReady },
   ];
   const missing = checks.filter((item) => item.required && item.status !== "ok");
   return ok({
@@ -703,6 +766,7 @@ function productionReadinessForAdmin(state, viewer, env = process.env) {
       moderatorCount: state.moderatorIds.length,
       configuredReviewerCount: configuredReviewerIds.length,
       reviewerConfigSource: state.reviewerConfig.source,
+      identityBindingCount: state.identityBindings.length,
     },
   });
 }
@@ -824,6 +888,7 @@ function opsForAdmin(state, viewer) {
     counts: {
       users: state.users.length,
       moderators: state.moderatorIds.length,
+      identityBindings: state.identityBindings.length,
       buildings: state.buildings.length,
       books: state.books.length,
       agents: state.agents.length,
@@ -843,6 +908,7 @@ function opsForAdmin(state, viewer) {
       abuseHoldStatus: countBy(state.abuseHolds, "status"),
       incidentStatus: countBy(state.incidents, "status"),
       incidentSeverity: countBy(state.incidents, "severity"),
+      identityProvider: countBy(state.identityBindings, "provider"),
     },
   });
 }
@@ -956,6 +1022,7 @@ function backupForAdmin(state, viewer) {
     "profiles",
     "moderatorIds",
     "reviewerConfig",
+    "identityBindings",
     "shares",
     "listings",
     "buildings",
@@ -997,7 +1064,7 @@ function dispatch(state, request) {
   const path = request.path;
   const body = request.body || {};
   const auth = authFromRequest(state, request.headers || {});
-  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/routes" && path !== "/miniapp/health" && path !== "/miniapp/monitoring/incident") {
+  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/auth/wechat-login" && path !== "/miniapp/routes" && path !== "/miniapp/health" && path !== "/miniapp/monitoring/incident") {
     return { status: 401, changed: false, body: { error: auth.error } };
   }
   const viewer = auth.userId || (path === "/miniapp/monitoring/incident" ? "monitoring-probe" : (body.userId || "user-a"));
@@ -1058,6 +1125,9 @@ function dispatch(state, request) {
     });
     const session = createSession(state, userId);
     return changed({ session, profile: profileItem });
+  }
+  if (method === "POST" && path === "/miniapp/auth/wechat-login") {
+    return loginWithWechat(state, body);
   }
   if (method === "POST" && path === "/miniapp/auth/logout") {
     if (!auth.session) return { status: 401, changed: false, body: { error: "missing_session" } };
@@ -1179,6 +1249,7 @@ function routeCatalog() {
     "POST /miniapp/admin/retention/prune",
     "POST /miniapp/monitoring/incident",
     "POST /miniapp/auth/dev-login",
+    "POST /miniapp/auth/wechat-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
     "GET /miniapp/me/ownership",
@@ -2241,6 +2312,20 @@ function smoke(options) {
   const expiredSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: { "x-miniapp-session": expiredProbe.body.session.id }, body: {} });
   assert(expiredSnapshot.status === 401, "expired session blocked");
   assert(expiredSnapshot.body.error === "session_expired", "expired session reason");
+  const unconfiguredWechatLogin = loginWithWechat(state, { code: "smoke-code" }, {});
+  assert(unconfiguredWechatLogin.status === 503, "wechat login requires config");
+  const missingWechatCode = loginWithWechat(state, {}, { MINIAPP_WECHAT_APP_ID: "wx-smoke", MINIAPP_WECHAT_APP_SECRET: "secret-smoke" });
+  assert(missingWechatCode.status === 400, "wechat login requires code");
+  const wechatLogin = loginWithWechat(state, { code: "smoke-code", displayName: "Wei Mapper" }, { MINIAPP_WECHAT_APP_ID: "wx-smoke", MINIAPP_WECHAT_APP_SECRET: "secret-smoke" });
+  assert(wechatLogin.changed === true, "wechat login changed");
+  assert(wechatLogin.body.session.id.startsWith("session-"), "wechat login session");
+  assert(wechatLogin.body.profile.displayName === "Wei Mapper", "wechat login profile");
+  assert(wechatLogin.body.identity.provider === "wechat", "wechat login provider");
+  assert(wechatLogin.body.identity.providerUserHash === "server_only", "wechat login hides provider hash");
+  assert(state.identityBindings.length === 1, "wechat login creates binding");
+  const repeatedWechatLogin = loginWithWechat(state, { code: "smoke-code", displayName: "Wei Mapper" }, { MINIAPP_WECHAT_APP_ID: "wx-smoke", MINIAPP_WECHAT_APP_SECRET: "secret-smoke" });
+  assert(repeatedWechatLogin.body.identity.userId === wechatLogin.body.identity.userId, "wechat login reuses binding");
+  assert(state.identityBindings.length === 1, "wechat login binding stable");
   const registered = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-c", displayName: "Chen Mapper" } });
   assert(registered.body.profile.displayName === "Chen Mapper", "register profile");
   assert(registered.body.profile.setupCompleted === false, "register starts incomplete");
@@ -2294,6 +2379,7 @@ function smoke(options) {
   assert(readyConfig.body.missing.length === 0, "readiness no missing checks");
   assert(readyConfig.body.secrets.configured.wechatAppSecret === true, "readiness secret configured");
   assert(readyConfig.body.deployment.configuredReviewerCount === 1, "readiness configured reviewer count");
+  assert(readyConfig.body.deployment.identityBindingCount === 1, "readiness identity binding count");
   const reviewerConfigState = normalizeState(seedState());
   const appliedReviewers = applyReviewerIdentityConfig(reviewerConfigState, { MINIAPP_ADMIN_REVIEWER_IDS: "reviewer-prod reviewer-backup" }, "env-smoke");
   assert(appliedReviewers.changed === true, "reviewer config applies new reviewers");
@@ -2370,6 +2456,7 @@ function smoke(options) {
   const adminBackup = dispatch(state, { method: "GET", path: "/miniapp/admin/backup", query: new URLSearchParams(), headers, body: {} });
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
+  assert(adminBackup.body.counts.identityBindings === 1, "admin backup identity binding count");
   assert(adminBackup.body.counts.reviewerConfig === 1, "admin backup reviewer config count");
   assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
   assert(adminBackup.body.counts.incidents === 1, "admin backup incident count");
@@ -2391,11 +2478,13 @@ function smoke(options) {
   assert(adminOps.body.monitoring.openIncidentCount === 0, "admin ops no open incidents");
   assert(adminOps.body.counts.users >= 2, "admin ops user count");
   assert(adminOps.body.counts.moderators === 1, "admin ops moderator count");
+  assert(adminOps.body.counts.identityBindings === 1, "admin ops identity binding count");
   assert(adminOps.body.counts.abuseHolds === 2, "admin ops abuse count");
   assert(adminOps.body.counts.incidents === 1, "admin ops incident count");
   assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
   assert(adminOps.body.distributions.abuseHoldStatus.released === 2, "admin ops abuse distribution");
   assert(adminOps.body.distributions.incidentStatus.resolved === 1, "admin ops incident distribution");
+  assert(adminOps.body.distributions.identityProvider.wechat === 1, "admin ops identity provider distribution");
   state.sessions["session-expired-prune"] = { id: "session-expired-prune", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
   state.rateLimits["user-a:/miniapp/old"] = { key: "user-a:/miniapp/old", count: 9, resetAt: "2000-01-01T00:00:00.000Z" };
   state.auditEvents.push({ ...audit("audit-old-retention", "ops", "Old audit", "Old audit should be pruned.", "user-a", "ops:retention", "", "old", "private"), timestamp: "2000-01-01T00:00:00.000Z" });
