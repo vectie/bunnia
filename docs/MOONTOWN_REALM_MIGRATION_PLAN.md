@@ -570,7 +570,10 @@ placeable-only search, pinned-building exclusion, filter echo metadata, and
 result counts are returned from `/miniapp/discover/search`. Search responses are
 also windowed with limit, cursor, total, returned, `hasMore`, and `nextCursor`
 metadata so large public result sets do not force the mini-app to render or
-patch unbounded lists.
+patch unbounded lists. Backend-bound Discover filter chips now update the
+search payload (`kind`, `filter`, `placeableOnly`, and cursor reset) as well as
+local display state, so WeChat DevTools exercises the same bounded search route
+that production will use while cosmetic filters stay cheap.
 Public discovery targets can now also be
 watched through the existing subscription route: the backend validates that
 watched buildings, books, agents, users, and listings including circles are
@@ -683,6 +686,10 @@ without pushing every visible thread and notice through one snapshot update. The
 generated Messages tab now exposes that route as a compact Center Sync tile with
 its own backend status, payload key, response key, and tap action, keeping the
 mail-board UI aligned with the same bounded sync model as Discover and My.
+Backend-bound notification channel chips now update the message-center query
+channel and reset the cursor at the same time as local channel state, so unread,
+review, and agent-run windows can exercise the backend contract while lower-risk
+local channels remain lightweight.
 
 ### R7: My Ownership Workbench
 
@@ -726,7 +733,11 @@ now mirrors the UI workbench shape: `/miniapp/me/ownership` accepts kind,
 visibility, status, text query, limit, and cursor inputs, returns filter echo,
 filtered counts, all-counts, and page metadata, and only sends a bounded window
 of ownership rows by default. This keeps My scalable for large accounts without
-turning ownership filtering into fragile frontend-only state.
+turning ownership filtering into fragile frontend-only state. Backend-bound
+ownership filter chips now update the ownership sync payload
+(`kind`, `visibility`, and cursor reset) as well as local workbench state, so
+drafts, placements, and books exercise the same backend-owned windowing
+contract while the remaining chips stay available for cheap local exploration.
 
 ### R8: Local Backend Loop
 

@@ -630,7 +630,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(project.page_count, 5)
-  assert_true(project.report.event_patch_operation_count <= 144)
+  assert_true(project.report.event_patch_operation_count <= 160)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(has_file(project.files, "pages/moontown/home.wxml"))
@@ -665,12 +665,22 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-filter-building\":[{k:\"set\",p:\"discover.filter\",v:\"building\"}]",
+      "\"discover-filter-building\":[{k:\"set\",p:\"discover.filter\",v:\"building\"}",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"}]",
+      "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"placeable\",\"kind\":\"building\",\"placeableOnly\":true,\"cursor\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"product\",\"kind\":\"product\",\"placeableOnly\":false,\"cursor\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"}",
     ),
   )
   assert_true(
@@ -693,7 +703,22 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"notification-channel-agent\":[{k:\"set\",p:\"messages.channel\",v:\"agent\"}]",
+      "\"notification-channel-agent\":[{k:\"set\",p:\"messages.channel\",v:\"agent\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.data.js").contains(
+      "p:\"messageCenterQuery\",v:{\"channel\":\"agent-run\",\"limit\":30,\"cursor\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.data.js").contains(
+      "\"notification-channel-unread\":[{k:\"set\",p:\"messages.channel\",v:\"unread\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.data.js").contains(
+      "p:\"messageCenterQuery\",v:{\"channel\":\"unread\",\"limit\":30,\"cursor\":0}",
     ),
   )
   assert_true(
@@ -708,12 +733,27 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"ownership-filter-books\":[{k:\"set\",p:\"ownership.filter\",v:\"books\"}]",
+      "\"ownership-filter-books\":[{k:\"set\",p:\"ownership.filter\",v:\"books\"}",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"ownership-filter-placements\":[]",
+      "p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"book\",\"visibility\":\"all\",\"cursor\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"ownership-filter-placements\":[{k:\"set\",p:\"ownership.filter\",v:\"placements\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"placement\",\"visibility\":\"all\",\"cursor\":0}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"all\",\"visibility\":\"private_draft\",\"cursor\":0}",
     ),
   )
   assert_true(
