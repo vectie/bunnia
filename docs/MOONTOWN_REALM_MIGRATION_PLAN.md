@@ -752,7 +752,11 @@ Current status: continuous after each slice.
 The WeChat adapter now keeps repeated-row keys inside the render plan for
 unkeyed/duplicate diagnostics, but omits `data-bunnia-key` from production WXML.
 That reclaims markup budget for Moontown's mature app surfaces without weakening
-list identity checks.
+list identity checks. The Moontown runtime also no longer patches unused local
+`lifecycle.lastAction`, `town.last*BuildingId`, or `moderation.last*` state for
+backend-owned actions. Those events still submit to the local backend and keep
+empty patches for event coverage, but WeChat patch pressure dropped from the
+budget edge to 144/160 operations, leaving room for the next feature slice.
 
 ### R10: Production Backend Readiness
 

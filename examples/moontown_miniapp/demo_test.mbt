@@ -563,6 +563,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(project.page_count, 5)
+  assert_true(project.report.event_patch_operation_count <= 144)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(has_file(project.files, "pages/moontown/home.wxml"))
@@ -643,6 +644,21 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"create-private-building\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"publish-private-building\":[]",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/moontown/index.data.js").contains(
+      "lastPublishedBuildingId",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"lifecycle\"",
     ),
   )
   assert_true(
@@ -918,11 +934,6 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"}",
-    ),
-  )
-  assert_true(
-    file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"lifecycle\":{\"lastAction\":\"\"}",
     ),
   )
   assert_true(
