@@ -433,6 +433,50 @@ function opsForAdmin(state, viewer) {
   });
 }
 
+function retentionCutoffMs() {
+  return Date.now() - AUDIT_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+}
+
+function retentionPruneForAdmin(state, viewer, body) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const dryRun = Boolean(body.dryRun);
+  const now = Date.now();
+  const auditCutoff = retentionCutoffMs();
+  const expiredSessionIds = Object.values(state.sessions)
+    .filter((session) => Date.parse(session.expiresAt) <= now)
+    .map((session) => session.id);
+  const expiredRateLimitKeys = Object.entries(state.rateLimits)
+    .filter(([, bucket]) => Date.parse(bucket.resetAt) <= now)
+    .map(([key]) => key);
+  const retainedAuditEvents = state.auditEvents.filter((item) => {
+    const timestamp = Date.parse(item.timestamp);
+    return !Number.isFinite(timestamp) || timestamp >= auditCutoff;
+  });
+  const removed = {
+    expiredSessions: expiredSessionIds.length,
+    expiredRateLimitBuckets: expiredRateLimitKeys.length,
+    expiredAuditEvents: state.auditEvents.length - retainedAuditEvents.length,
+  };
+  if (!dryRun) {
+    for (const id of expiredSessionIds) delete state.sessions[id];
+    for (const key of expiredRateLimitKeys) delete state.rateLimits[key];
+    state.auditEvents = retainedAuditEvents;
+  }
+  return {
+    status: 200,
+    changed: !dryRun && (removed.expiredSessions > 0 || removed.expiredRateLimitBuckets > 0 || removed.expiredAuditEvents > 0),
+    body: {
+      dryRun,
+      retention: {
+        auditRetentionDays: AUDIT_RETENTION_DAYS,
+        auditCutoffAt: new Date(auditCutoff).toISOString(),
+      },
+      removed,
+    },
+  };
+}
+
 function backupForAdmin(state, viewer) {
   const denied = requireModerator(state, viewer);
   if (denied) return denied;
@@ -499,6 +543,9 @@ function dispatch(state, request) {
   }
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
+  }
+  if (method === "POST" && path === "/miniapp/admin/retention/prune") {
+    return retentionPruneForAdmin(state, viewer, body);
   }
   if (method === "POST" && path === "/miniapp/auth/dev-login") {
     const userId = body.userId || "user-a";
@@ -613,6 +660,7 @@ function routeCatalog() {
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
     "GET /miniapp/admin/ops",
+    "POST /miniapp/admin/retention/prune",
     "POST /miniapp/auth/dev-login",
     "POST /miniapp/auth/logout",
     "GET /miniapp/town/snapshot",
@@ -1692,6 +1740,8 @@ function smoke(options) {
   assert(deniedAudit.status === 403, "admin audit moderator only");
   const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedOps.status === 403, "admin ops moderator only");
+  const deniedPrune = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedPrune.status === 403, "admin retention prune moderator only");
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
@@ -1708,6 +1758,20 @@ function smoke(options) {
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
   assert(adminOps.body.counts.users >= 2, "admin ops user count");
   assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
+  state.sessions["session-expired-prune"] = { id: "session-expired-prune", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
+  state.rateLimits["user-a:/miniapp/old"] = { key: "user-a:/miniapp/old", count: 9, resetAt: "2000-01-01T00:00:00.000Z" };
+  state.auditEvents.push({ ...audit("audit-old-retention", "ops", "Old audit", "Old audit should be pruned.", "user-a", "ops:retention", "", "old", "private"), timestamp: "2000-01-01T00:00:00.000Z" });
+  const pruneDryRun = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers, body: { dryRun: true } });
+  assert(pruneDryRun.body.dryRun === true, "admin prune dry run");
+  assert(pruneDryRun.body.removed.expiredSessions >= 1, "admin prune dry expired session");
+  assert(pruneDryRun.body.removed.expiredRateLimitBuckets >= 1, "admin prune dry expired rate limit");
+  assert(pruneDryRun.body.removed.expiredAuditEvents >= 1, "admin prune dry old audit");
+  assert(Object.prototype.hasOwnProperty.call(state.sessions, "session-expired-prune"), "admin prune dry keeps session");
+  const pruned = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers, body: {} });
+  assert(pruned.changed === true, "admin prune changed");
+  assert(!Object.prototype.hasOwnProperty.call(state.sessions, "session-expired-prune"), "admin prune removes session");
+  assert(!Object.prototype.hasOwnProperty.call(state.rateLimits, "user-a:/miniapp/old"), "admin prune removes rate limit");
+  assert(!state.auditEvents.some((item) => item.id === "audit-old-retention"), "admin prune removes old audit");
   const sharedDraft = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "shared-lab", title: "Shared Lab" } });
   assert(sharedDraft.body.building.visibility === "private_draft", "create shared draft");
   const shared = dispatch(state, { method: "POST", path: "/miniapp/buildings/share", query: new URLSearchParams(), headers, body: { buildingId: "shared-lab", targetUserId: "user-b" } });

@@ -721,13 +721,14 @@ review. The local backend now uses opaque sessions with expiry and logout
 revocation, giving the production login path a safer contract to replace with
 real WeChat identity. It also exposes `/miniapp/health`, rate-limits sensitive
 local routes such as dev login, public reports, and appeals, and provides
-moderator-only audit/backup/ops endpoints. Backups exclude live session and
-rate-limit buckets, while ops reports retention targets, monitoring checks,
-state counts, and status distributions, so abuse-control, recovery, retention,
-and monitoring behavior are testable before production infrastructure exists.
-Production still needs real reviewer/admin identity, production-grade retention
-enforcement, external monitoring, and stronger abuse controls after local flows
-are coherent.
+moderator-only audit/backup/ops endpoints plus a retention prune route. Backups
+exclude live session and rate-limit buckets, ops reports retention targets,
+monitoring checks, state counts, and status distributions, and pruning removes
+expired sessions, expired rate-limit buckets, and out-of-retention audit events.
+That makes abuse-control, recovery, retention, and monitoring behavior testable
+before production infrastructure exists. Production still needs real
+reviewer/admin identity, scheduled retention enforcement, external monitoring,
+and stronger abuse controls after local flows are coherent.
 
 ## Migration Order
 
