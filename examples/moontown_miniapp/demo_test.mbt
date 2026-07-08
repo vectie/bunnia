@@ -150,6 +150,14 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
   assert_true(
     home.wxml.contains(
+      "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
+    ),
+  )
+  assert_true(
+    home.wxml.contains("data-bunnia-message=\"publish-private-building\""),
+  )
+  assert_true(
+    home.wxml.contains(
       "Last visible town stays rendered when snapshot loading fails.",
     ),
   )
@@ -344,6 +352,21 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"backendBaseUrl\":\"http://127.0.0.1:18191\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"backendStatus\":{}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "backendStatus.' + String(endpointId).replace",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "__bs(loading, endpointId, 'loading', '')",
     ),
   )
   assert_true(

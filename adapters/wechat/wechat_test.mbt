@@ -15,6 +15,8 @@ test "wechat request adapter records replayable request data" {
   assert_true(js.contains("endpoint.p ? page.data[endpoint.p]"))
   assert_true(js.contains("replayKey"))
   assert_true(js.contains("backend.' + endpointId + '.request"))
+  assert_true(js.contains("backendStatus.' + String(endpointId).replace"))
+  assert_true(js.contains("__bs(loading, endpointId, 'loading', '')"))
 }
 
 ///|
@@ -35,6 +37,8 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("message.indexOf('timeout')"))
   assert_true(js.contains("state'] = 'malformed'"))
   assert_true(js.contains("state'] = 'cancelled'"))
+  assert_true(js.contains("__bs(update, endpointId, 'ready', '')"))
+  assert_true(js.contains("__bs(update, endpointId, 'cancelled', '')"))
   assert_true(js.contains("__bunniaRetryRequest"))
   assert_true(js.contains("__bunniaCancelRequest"))
   assert_true(

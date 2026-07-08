@@ -1238,6 +1238,11 @@ Current evidence:
   mutation queue, and review-result states. The snapshot row explicitly marks
   stale-safe rendering, so backend failures do not silently disconnect the map
   from the last visible town state.
+- The WeChat backend adapter mirrors every request state into
+  `backendStatus.<safe_endpoint_id>` in addition to the replayable
+  `backend.<endpoint_id>` store. Home binds Backend Loop rows to those safe
+  keys and exposes compact Run controls, so DevTools request loading, ready,
+  failed, timeout, malformed, and cancelled states can be shown in tile UI.
 
 ## Phase 9: Real Backend And Deployment
 

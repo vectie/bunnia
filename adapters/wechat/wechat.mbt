@@ -511,6 +511,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  const loading = {}\n" +
   "  loading['backend.' + endpointId + '.state'] = 'loading'\n" +
   "  loading['backend.' + endpointId + '.error'] = ''\n" +
+  "  __bs(loading, endpointId, 'loading', '')\n" +
   "  const requestPayload = payload === undefined && endpoint.p ? page.data[endpoint.p] : (payload || {})\n" +
   "  loading['backend.' + endpointId + '.request'] = requestPayload\n" +
   "  loading['backend.' + endpointId + '.replayKey'] = endpointId + ':' + Date.now()\n" +
@@ -526,13 +527,16 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {\n" +
   "        update['backend.' + endpointId + '.state'] = 'failed'\n" +
   "        update['backend.' + endpointId + '.error'] = 'HTTP ' + res.statusCode\n" +
+  "        __bs(update, endpointId, 'failed', 'HTTP ' + res.statusCode)\n" +
   "      } else if (res.data === undefined || res.data === null) {\n" +
   "        update['backend.' + endpointId + '.state'] = 'malformed'\n" +
   "        update['backend.' + endpointId + '.error'] = 'empty response'\n" +
+  "        __bs(update, endpointId, 'malformed', 'empty response')\n" +
   "      } else {\n" +
   "        update['backend.' + endpointId + '.state'] = 'ready'\n" +
   "        update['backend.' + endpointId + '.response'] = res.data\n" +
   "        update['backend.' + endpointId + '.error'] = ''\n" +
+  "        __bs(update, endpointId, 'ready', '')\n" +
   "        if (endpoint.r) update[endpoint.r] = res.data\n" +
   "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
   "        if (sessionId && __bunniaBackend.s) update[__bunniaBackend.s] = sessionId\n" +
@@ -544,6 +548,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      const message = String(err.errMsg || err)\n" +
   "      update['backend.' + endpointId + '.state'] = message.indexOf('timeout') >= 0 ? 'timeout' : 'failed'\n" +
   "      update['backend.' + endpointId + '.error'] = message\n" +
+  "      __bs(update, endpointId, update['backend.' + endpointId + '.state'], message)\n" +
   "      page.setData(update)\n" +
   "    }\n" +
   "  })\n" +
@@ -558,10 +563,17 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  return data && data.session && data.session.id ? data.session.id : (data && data.sessionId ? data.sessionId : (data && data.id && data.kind === 'session' ? data.id : ''))\n" +
   "}\n" +
   "\n" +
+  "function __bs(update, endpointId, state, error) {\n" +
+  "  const p = 'backendStatus.' + String(endpointId).replace(/[^A-Za-z0-9_]/g, '_')\n" +
+  "  update[p + '.state'] = state\n" +
+  "  update[p + '.error'] = error || ''\n" +
+  "}\n" +
+  "\n" +
   "function __bunniaCancelRequest(page, endpointId) {\n" +
   "  const update = {}\n" +
   "  update['backend.' + endpointId + '.state'] = 'cancelled'\n" +
   "  update['backend.' + endpointId + '.error'] = ''\n" +
+  "  __bs(update, endpointId, 'cancelled', '')\n" +
   "  page.setData(update)\n" +
   "}\n" +
   "\n" +
