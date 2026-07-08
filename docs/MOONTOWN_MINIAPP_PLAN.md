@@ -3,6 +3,11 @@
 This document plans the Moontown-to-WeChat mini-app product slice that should
 dogfood Bunnia without mixing Moontown product semantics into the framework.
 
+For the clean Realm-centered migration order, see
+[`MOONTOWN_REALM_MIGRATION_PLAN.md`](MOONTOWN_REALM_MIGRATION_PLAN.md). That
+plan treats Realm as the existing Moontown map and focuses the remaining phases
+on mini-app maturity around the map.
+
 The goal is a multi-user Moontown client:
 
 - a full-screen town map as the primary surface
