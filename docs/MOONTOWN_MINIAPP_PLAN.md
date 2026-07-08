@@ -1223,9 +1223,15 @@ Current evidence:
   buildings, agents, books, and placeable buildings. Published building search
   results expose a "Place On Map" action while private and non-building results
   remain visible only through safe filtered discovery data.
+- Discover also maps the reference people and circle pages into Moontown-style
+  town spotlights and filters. People and circles are searchable discovery
+  objects with stable target refs, not a separate social-feed surface.
 - Messages now has tile-style channels for all, unread, agent-run, review, and
   system notifications. Notification projection uses the same visible-building
   boundary as the map, so private building notices do not leak across users.
+- Messages also maps the reference follow, interaction, and subscription pages
+  into compact tile buckets while preserving agent run/review notifications as
+  first-class communication events.
 - Messages now derives tile-style run actions from pure run state. Each run
   plaque can open its building, accept or reject reviewable output, and expose a
   retry affordance only when the run is failed, rejected, or cancelled.

@@ -70,6 +70,8 @@ pub fn demo_wechat_project() -> @wechat.WechatProject
 
 pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.WechatProject
 
+pub fn discovery_results_by_kind(MiniTownProjection, String) -> Array[MiniTownDiscoveryItem]
+
 pub fn filtered_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
 pub fn filtered_notifications(MiniTownProjection) -> Array[MiniTownNotification]

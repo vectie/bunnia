@@ -291,6 +291,13 @@ Current slice:
 - Building lifecycle controls carry `buildingId`, `bookId`, and target refs on
   the tap target, so place, share, publish, and archive requests stay scoped to
   the building plaque that triggered them.
+- Discover now translates the reference people and circle pages into compact
+  town spotlights and filters instead of a generic social feed. People and
+  circles remain searchable discovery objects with target refs for later
+  deep-links.
+- Messages now translates new follows, interactions, and system subscription
+  prompts into tile buckets, while keeping agent runs and reviews in the same
+  communication model.
 
 ## R7: My Ownership Workbench
 

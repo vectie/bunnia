@@ -101,6 +101,8 @@ fn moontown_wxss_source() -> String {
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
   ".moontown-presence-row .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
+  ".moontown-discovery-strip .bunnia-list-windowed, .moontown-message-buckets { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
+  ".moontown-discovery-chip, .moontown-message-bucket { flex: 0 0 152rpx; min-width: 0; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.68); box-sizing: border-box; }\n" +
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-run-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; padding: 8rpx 10rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.58); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
@@ -1272,6 +1274,8 @@ fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
 ///|
 fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let results = filtered_discovery_results(projection)
+  let people = discovery_results_by_kind(projection, "user")
+  let circles = discovery_results_by_kind(projection, "circle")
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
@@ -1287,6 +1291,8 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
       value=projection.search_query,
       input_message="discover-search",
     ),
+    discover_spotlight_section("Town People", people),
+    discover_spotlight_section("Town Circles", circles),
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-discovery-filters")],
       [
@@ -1305,6 +1311,43 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=discover_entry,
     ),
   ])
+}
+
+///|
+fn discover_spotlight_section(
+  title : String,
+  items : Array[MiniTownDiscoveryItem],
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-strip")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.text(title),
+    ]),
+    @bunnia.windowed_list(
+      items,
+      total_count=items.length(),
+      render=discover_spotlight_chip,
+    ),
+  ])
+}
+
+///|
+fn discover_spotlight_chip(item : MiniTownDiscoveryItem) -> @bunnia.Node {
+  @bunnia.keyed(
+    "discover-chip-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-discovery-chip"),
+        @bunnia.data("discovery-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.status),
+      ],
+    ),
+  )
 }
 
 ///|
@@ -1388,6 +1431,7 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "\{unread.length()} unread agent and town events; \{reviews.length()} review run; \{subscription.length()} subscription prompt.",
       ),
     ]),
+    message_bucket_row(projection),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-message-channels")], [
       @bunnia.windowed_list(
         projection.notification_channels,
@@ -1406,6 +1450,68 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=notification_entry,
     ),
   ])
+}
+
+///|
+fn message_bucket_row(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-message-buckets")], [
+    message_bucket_chip(
+      label="New Follows",
+      count=notification_kind_count(projection, "follow"),
+      channel_id="follow",
+      kind="follow",
+    ),
+    message_bucket_chip(
+      label="Interactions",
+      count=notification_kind_count(projection, "interaction"),
+      channel_id="interaction",
+      kind="interaction",
+    ),
+    message_bucket_chip(
+      label="System",
+      count=notification_kind_count(projection, "subscription"),
+      channel_id="system",
+      kind="subscription",
+    ),
+  ])
+}
+
+///|
+fn message_bucket_chip(
+  label~ : String,
+  count~ : Int,
+  channel_id~ : String,
+  kind~ : String,
+) -> @bunnia.Node {
+  @bunnia.node(
+    kind="view",
+    attrs=[
+      @bunnia.class_name("moontown-message-bucket"),
+      @bunnia.data("channel-id", channel_id),
+      @bunnia.data("channel-kind", kind),
+    ],
+    events=[@bunnia.event("tap", "notification-channel-\{channel_id}")],
+    children=[
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text(label),
+      ]),
+      @bunnia.text("\{count} notices"),
+    ],
+  )
+}
+
+///|
+fn notification_kind_count(
+  projection : MiniTownProjection,
+  kind : String,
+) -> Int {
+  let mut count = 0
+  for notice in visible_notifications(projection) {
+    if notice.kind == kind {
+      count += 1
+    }
+  }
+  count
 }
 
 ///|

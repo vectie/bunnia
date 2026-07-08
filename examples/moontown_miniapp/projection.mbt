@@ -1159,6 +1159,42 @@ fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
       status="stable",
     ),
     mini_town_discovery_item(
+      id="discover-user-deep-cultivator",
+      kind="user",
+      title="Deep Cultivator",
+      summary="Shares applied agent notes and building experiments.",
+      target_ref="user:user-deep-cultivator",
+      visibility="published",
+      status="stable",
+    ),
+    mini_town_discovery_item(
+      id="discover-user-gabriel",
+      kind="user",
+      title="Gabriel",
+      summary="Follows market buildings and agent run reports.",
+      target_ref="user:user-gabriel",
+      visibility="published",
+      status="stable",
+    ),
+    mini_town_discovery_item(
+      id="discover-circle-ai-camp",
+      kind="circle",
+      title="AI Exploration Camp",
+      summary="Public agent circle for AI walkers, demands, and product notes.",
+      target_ref="circle:ai-exploration-camp",
+      visibility="published",
+      status="running",
+    ),
+    mini_town_discovery_item(
+      id="discover-circle-enterprise-club",
+      kind="circle",
+      title="Enterprise Club",
+      summary="Small shared agent circle for builders validating real use cases.",
+      target_ref="circle:enterprise-club",
+      visibility="published",
+      status="shared",
+    ),
+    mini_town_discovery_item(
       id="discover-agent-policy",
       kind="agent",
       title="Policy Guide",
@@ -1210,6 +1246,8 @@ fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
 fn demo_discovery_filters() -> Array[MiniTownDiscoveryFilter] {
   [
     mini_town_discovery_filter(id="all", label="All", kind="all"),
+    mini_town_discovery_filter(id="user", label="People", kind="user"),
+    mini_town_discovery_filter(id="circle", label="Circles", kind="circle"),
     mini_town_discovery_filter(
       id="building",
       label="Buildings",
@@ -1447,6 +1485,26 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       action_message="open-notice-run",
     ),
     mini_town_notification(
+      id="notice-follow",
+      kind="follow",
+      title="Deep Cultivator followed your town",
+      body="A new AI walker is watching your public building updates.",
+      target_ref="user:user-deep-cultivator",
+      building_id="",
+      action_label="Open Walker",
+      action_message="open-notice-follow",
+    ),
+    mini_town_notification(
+      id="notice-interaction",
+      kind="interaction",
+      title="Enterprise Club replied",
+      body="The circle left feedback on your shared private building.",
+      target_ref="circle:enterprise-club",
+      building_id="team-studio",
+      action_label="Open Circle",
+      action_message="open-notice-interaction",
+    ),
+    mini_town_notification(
       id="notice-subscribe",
       kind="subscription",
       title="Subscribe to town signals",
@@ -1470,6 +1528,12 @@ fn demo_notification_channels() -> Array[MiniTownNotificationChannel] {
       label="Unread",
       kind="all",
       unread_only=true,
+    ),
+    mini_town_notification_channel(id="follow", label="Follows", kind="follow"),
+    mini_town_notification_channel(
+      id="interaction",
+      label="Interactions",
+      kind="interaction",
     ),
     mini_town_notification_channel(id="agent", label="Agents", kind="agent-run"),
     mini_town_notification_channel(id="review", label="Reviews", kind="review"),
@@ -2236,6 +2300,20 @@ pub fn filtered_discovery_results(
   let filter = selected_discovery_filter(projection)
   for item in unified_discovery_results(projection) {
     if mini_town_discovery_filter_match(filter, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn discovery_results_by_kind(
+  projection : MiniTownProjection,
+  kind : String,
+) -> Array[MiniTownDiscoveryItem] {
+  let output : Array[MiniTownDiscoveryItem] = []
+  for item in unified_discovery_results(projection) {
+    if item.kind == kind {
       output.push(item)
     }
   }
