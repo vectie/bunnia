@@ -279,8 +279,11 @@ Done when:
 - every row deep-links to a building, agent, run, book, district, or message
 - larger activity lists remain windowed and cheap to update
 
-Current status: started through tile-styled pulse panels and backend cache
-visibility.
+Current status: Home has tile-styled pulse panels, backend cache visibility,
+district shortcuts, and recent activity rows. Districts now carry explicit tab
+destinations for market, demand, event, guide, and credential surfaces, and
+activity rows route review/run work back to Messages while book/publish/place
+work routes to Discover.
 
 ### R4: Discover And Placement
 

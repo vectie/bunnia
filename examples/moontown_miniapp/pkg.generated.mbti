@@ -118,7 +118,7 @@ pub fn mini_town_discovery_filter(id~ : String, label~ : String, kind~ : String,
 
 pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
 
-pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, action_label~ : String, status~ : String) -> MiniTownDistrict
+pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, action_label~ : String, status~ : String, action_message? : String) -> MiniTownDistrict
 
 pub fn mini_town_guide_step(id~ : String, title~ : String, summary~ : String, tab_id~ : String, action_label~ : String, action_message~ : String, building_id~ : String, status~ : String, complete~ : Bool) -> MiniTownGuideStep
 
@@ -391,6 +391,7 @@ pub struct MiniTownDistrict {
   stat_label : String
   stat_value : String
   action_label : String
+  action_message : String
   status : String
 } derive(Eq, @debug.Debug)
 

@@ -1379,8 +1379,10 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
         @bunnia.data("district-id", district.id),
         @bunnia.data("feature-kind", district.feature_kind),
         @bunnia.data("building-id", district.building_id),
+        @bunnia.data("action-message", district_action_message(district)),
+        @bunnia.data("target-tab", district_target_tab(district)),
       ],
-      events=[@bunnia.event("tap", "select-\{district.building_id}")],
+      events=[@bunnia.event("tap", district_action_message(district))],
       children=[
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
           @bunnia.text(district.title),
@@ -1388,12 +1390,32 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
         @bunnia.text(district.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
           @bunnia.text(
-            "\{district.stat_value} \{district.stat_label} / \{district.action_label}",
+            "\{district.stat_value} \{district.stat_label} / \{district.action_label} / \{district_target_tab(district)}",
           ),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn district_action_message(district : MiniTownDistrict) -> String {
+  if district.action_message == "" {
+    "select-\{district.building_id}"
+  } else {
+    district.action_message
+  }
+}
+
+///|
+fn district_target_tab(district : MiniTownDistrict) -> String {
+  if district.action_message.has_prefix("tab-") {
+    district.action_message
+    .sub(start=4, end=district.action_message.length())
+    .to_owned()
+  } else {
+    "realm"
+  }
 }
 
 ///|
@@ -1587,19 +1609,51 @@ fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
         @bunnia.data("target-ref", item.target_ref),
         @bunnia.data("building-id", item.building_id),
         @bunnia.data("actor-id", item.actor_id),
+        @bunnia.data("action-message", activity_action_message(item)),
+        @bunnia.data("target-tab", activity_target_tab(item)),
       ],
-      events=[@bunnia.event("tap", "select-\{item.building_id}")],
+      events=[@bunnia.event("tap", activity_action_message(item))],
       children=[
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-          @bunnia.text("\{item.kind} / \{item.status}"),
+          @bunnia.text(
+            "\{item.kind} / \{item.status} / \{activity_target_tab(item)}",
+          ),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn activity_action_message(item : MiniTownActivityItem) -> String {
+  if item.target_ref.has_prefix("thread:") ||
+    item.target_ref.has_prefix("run:") ||
+    item.target_ref.has_prefix("review:") ||
+    item.kind == "run" ||
+    item.kind == "review" {
+    "tab-messages"
+  } else if item.target_ref.has_prefix("book:") ||
+    item.kind == "book" ||
+    item.kind == "publish" ||
+    item.kind == "place" {
+    "tab-discover"
+  } else {
+    "select-\{item.building_id}"
+  }
+}
+
+///|
+fn activity_target_tab(item : MiniTownActivityItem) -> String {
+  let message = activity_action_message(item)
+  if message.has_prefix("tab-") {
+    message.sub(start=4, end=message.length()).to_owned()
+  } else {
+    "realm"
+  }
 }
 
 ///|

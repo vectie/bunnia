@@ -181,6 +181,7 @@ pub struct MiniTownDistrict {
   stat_label : String
   stat_value : String
   action_label : String
+  action_message : String
   status : String
 } derive(Debug, Eq)
 
@@ -651,6 +652,7 @@ pub fn mini_town_district(
   stat_value~ : String,
   action_label~ : String,
   status~ : String,
+  action_message? : String = "",
 ) -> MiniTownDistrict {
   {
     id,
@@ -661,6 +663,7 @@ pub fn mini_town_district(
     stat_label,
     stat_value,
     action_label,
+    action_message,
     status,
   }
 }
@@ -1448,6 +1451,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_label="products",
       stat_value="20",
       action_label="Browse",
+      action_message="tab-discover",
       status="running",
     ),
     mini_town_district(
@@ -1459,6 +1463,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_label="demands",
       stat_value="34",
       action_label="Review",
+      action_message="tab-messages",
       status="review",
     ),
     mini_town_district(
@@ -1470,6 +1475,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_label="events",
       stat_value="6",
       action_label="Join",
+      action_message="tab-messages",
       status="shared",
     ),
     mini_town_district(
@@ -1481,6 +1487,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_label="guides",
       stat_value="4",
       action_label="Open",
+      action_message="tab-home",
       status="stable",
     ),
     mini_town_district(
@@ -1492,6 +1499,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       stat_label="checks",
       stat_value="8",
       action_label="Verify",
+      action_message="tab-my",
       status="stable",
     ),
   ]
