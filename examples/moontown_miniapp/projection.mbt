@@ -106,6 +106,18 @@ pub struct MiniTownDiscoveryItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownActivityItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  actor_id : String
+  target_ref : String
+  building_id : String
+  status : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownOwnershipStat {
   id : String
   label : String
@@ -145,6 +157,7 @@ pub struct MiniTownProjection {
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
+  activity_items : Array[MiniTownActivityItem]
 } derive(Debug, Eq)
 
 ///|
@@ -304,6 +317,20 @@ pub fn mini_town_discovery_item(
 }
 
 ///|
+pub fn mini_town_activity_item(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+  actor_id~ : String,
+  target_ref~ : String,
+  building_id~ : String,
+  status~ : String,
+) -> MiniTownActivityItem {
+  { id, kind, title, summary, actor_id, target_ref, building_id, status }
+}
+
+///|
 pub fn mini_town_ownership_stat(
   id~ : String,
   label~ : String,
@@ -398,7 +425,64 @@ pub fn demo_projection() -> MiniTownProjection {
     ],
     notifications: demo_notifications(),
     discovery_items: demo_discovery_items(),
+    activity_items: demo_activity_items(),
   }
+}
+
+///|
+fn demo_activity_items() -> Array[MiniTownActivityItem] {
+  [
+    mini_town_activity_item(
+      id="activity-review-policy",
+      kind="run",
+      title="Policy answer waiting for review",
+      summary="Policy Guide produced an answer that can enter book memory.",
+      actor_id="agent-policy-guide",
+      target_ref="thread-policy-hall",
+      building_id="policy-hall",
+      status="review",
+    ),
+    mini_town_activity_item(
+      id="activity-market-curator",
+      kind="agent",
+      title="Map Curator scanning published buildings",
+      summary="Market Square is refreshing placeable agent buildings.",
+      actor_id="agent-map-curator",
+      target_ref="agent:agent-map-curator",
+      building_id="market-square",
+      status="running",
+    ),
+    mini_town_activity_item(
+      id="activity-team-share",
+      kind="share",
+      title="Team Studio shared to the organization",
+      summary="Shared private planning is visible to members only.",
+      actor_id="user-a",
+      target_ref="building:team-studio",
+      building_id="team-studio",
+      status="shared",
+    ),
+    mini_town_activity_item(
+      id="activity-book-memory",
+      kind="book",
+      title="Knowledge House memory updated",
+      summary="Accepted building answers are backed by durable books.",
+      actor_id="system",
+      target_ref="book:knowledge-house",
+      building_id="knowledge-house",
+      status="stable",
+    ),
+    mini_town_activity_item(
+      id="activity-publish-agent-lab",
+      kind="publish",
+      title="Published Agent Lab is placeable",
+      summary="A public agent lab can now be placed by other users.",
+      actor_id="user-b",
+      target_ref="building:published-agent-lab",
+      building_id="published-agent-lab",
+      status="stable",
+    ),
+  ]
 }
 
 ///|
@@ -839,6 +923,60 @@ pub fn unified_discovery_results(
     }
   }
   output
+}
+
+///|
+pub fn town_activity_items(
+  projection : MiniTownProjection,
+) -> Array[MiniTownActivityItem] {
+  let output : Array[MiniTownActivityItem] = []
+  for item in projection.activity_items {
+    if mini_town_activity_visible_for(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn home_town_stats(
+  projection : MiniTownProjection,
+) -> Array[MiniTownOwnershipStat] {
+  [
+    mini_town_ownership_stat(
+      id="visible-buildings",
+      label="visible buildings",
+      value=visible_buildings(projection).length(),
+    ),
+    mini_town_ownership_stat(
+      id="agents",
+      label="active agents",
+      value=projection.agents.length(),
+    ),
+    mini_town_ownership_stat(
+      id="unread",
+      label="unread events",
+      value=unread_notifications(projection).length(),
+    ),
+    mini_town_ownership_stat(
+      id="pulse",
+      label="town pulse",
+      value=town_activity_items(projection).length(),
+    ),
+  ]
+}
+
+///|
+fn mini_town_activity_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownActivityItem,
+) -> Bool {
+  for building in visible_buildings(projection) {
+    if building.id == item.building_id {
+      return true
+    }
+  }
+  false
 }
 
 ///|

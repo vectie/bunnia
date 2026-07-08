@@ -107,6 +107,25 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!realm.wxml.contains("moontown-page-surface"))
   assert_true(realm.wxml.contains("data-map-surface=\"true\""))
 
+  let home = tab_page(projection, "home")
+  assert_true(home.wxml.contains("moontown-map-fullscreen"))
+  assert_true(home.wxml.contains("moontown-page-surface"))
+  assert_true(home.wxml.contains("data-active-tab=\"home\""))
+  assert_true(home.wxml.contains("Town Pulse"))
+  assert_true(
+    home.wxml.contains(
+      "Realm is the map; Home shows recent work around the same tile town.",
+    ),
+  )
+  assert_true(home.wxml.contains("data-home-stat=\"visible-buildings\""))
+  assert_true(home.wxml.contains("Recent Activity"))
+  assert_true(home.wxml.contains("Policy answer waiting for review"))
+  assert_true(home.wxml.contains("data-activity-kind=\"run\""))
+  assert_true(home.wxml.contains("data-target-ref=\"thread-policy-hall\""))
+  assert_true(home.wxml.contains("data-building-id=\"policy-hall\""))
+  assert_true(home.wxml.contains("Map Districts"))
+  assert_true(!home.wxml.contains("moontown-right-hud"))
+
   let discover = tab_page(projection, "discover")
   assert_true(discover.wxml.contains("moontown-map-fullscreen"))
   assert_true(discover.wxml.contains("moontown-page-surface"))
@@ -279,8 +298,11 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.districts.length(), 4)
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
+  assert_eq(projection.activity_items.length(), 5)
   assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(subscription_notifications(projection).length(), 1)
+  assert_eq(town_activity_items(projection).length(), 5)
+  assert_eq(home_town_stats(projection).length(), 4)
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(search_results(projection).length(), 1)

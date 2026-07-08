@@ -62,6 +62,10 @@ pub fn demo_wechat_project() -> @wechat.WechatProject
 
 pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.WechatProject
 
+pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
+
+pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
+
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
@@ -112,6 +116,8 @@ pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_tab(MiniTownProjection, String) -> MiniTownProjection
 
+pub fn town_activity_items(MiniTownProjection) -> Array[MiniTownActivityItem]
+
 pub fn unified_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
 pub fn unread_notifications(MiniTownProjection) -> Array[MiniTownNotification]
@@ -121,6 +127,17 @@ pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 // Errors
 
 // Types and methods
+pub struct MiniTownActivityItem {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  actor_id : String
+  target_ref : String
+  building_id : String
+  status : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownAgent {
   id : String
   name : String
@@ -236,6 +253,7 @@ pub struct MiniTownProjection {
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
+  activity_items : Array[MiniTownActivityItem]
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownRole {

@@ -746,7 +746,11 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
       create_drawer(projection),
     ])
   } else if projection.active_tab_id == "home" {
-    @bunnia.view([town_left_hud(projection), town_bottom_hud(projection)])
+    town_page_surface(projection, [
+      home_overview_panel(projection),
+      town_activity_panel(projection),
+      district_panel(projection),
+    ])
   } else {
     @bunnia.view([
       town_left_hud(projection),
@@ -926,6 +930,96 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
         @bunnia.text(district.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
           @bunnia.text("\{district.stat_value} \{district.stat_label}"),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn home_overview_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let stats = home_town_stats(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Town Pulse")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(
+        "Realm is the map; Home shows recent work around the same tile town.",
+      ),
+    ]),
+    @bunnia.windowed_list(
+      stats,
+      total_count=stats.length(),
+      render=home_stat_entry,
+    ),
+  ])
+}
+
+///|
+fn home_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
+  @bunnia.keyed(
+    "home-stat-\{stat.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-home-stat"),
+        @bunnia.data("home-stat", stat.id),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(stat.value.to_string()),
+        ]),
+        @bunnia.text(stat.label),
+      ],
+    ),
+  )
+}
+
+///|
+fn town_activity_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let activity = town_activity_items(projection)
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text("Recent Activity")],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(
+        "Agent runs, book memory, sharing, and publishing stay attached to map buildings.",
+      ),
+    ]),
+    @bunnia.windowed_list(
+      activity,
+      total_count=activity.length(),
+      render=activity_entry,
+    ),
+  ])
+}
+
+///|
+fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
+  @bunnia.keyed(
+    "activity-\{item.id}",
+    @bunnia.node(
+      kind="view",
+      attrs=[
+        @bunnia.class_name(
+          "moontown-activity-entry bunnia-status-\{item.status}",
+        ),
+        @bunnia.data("activity-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("building-id", item.building_id),
+        @bunnia.data("actor-id", item.actor_id),
+      ],
+      events=[@bunnia.event("tap", "select-\{item.building_id}")],
+      children=[
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{item.kind} / \{item.status}"),
         ]),
       ],
     ),
