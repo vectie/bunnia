@@ -18,6 +18,8 @@ pub fn accept_review(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn active_runs(MiniTownProjection) -> Array[MiniTownRun]
 
+pub fn archive_selected_building(MiniTownProjection) -> MiniTownProjection
+
 pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
 
 pub fn complete_profile_setup(MiniTownProjection) -> MiniTownProjection
@@ -72,6 +74,8 @@ pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, su
 
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
 
+pub fn mini_town_audit_event(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String, visibility~ : String, timestamp~ : String) -> MiniTownAuditEvent
+
 pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owner_id~ : String, visibility~ : String, summary~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, status~ : String) -> MiniTownBook
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
@@ -104,6 +108,8 @@ pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
 
 pub fn mini_town_view(MiniTownProjection) -> @core.Node
 
+pub fn owned_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
+
 pub fn owned_books(MiniTownProjection) -> Array[MiniTownBook]
 
 pub fn owned_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
@@ -114,7 +120,11 @@ pub fn ownership_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn pending_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 
+pub fn place_published_building(MiniTownProjection, String) -> MiniTownProjection
+
 pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
+
+pub fn publish_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn reject_review(MiniTownProjection, String) -> MiniTownProjection
 
@@ -128,9 +138,13 @@ pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 
 pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 
+pub fn selected_building_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
+
 pub fn selected_building_book(MiniTownProjection) -> MiniTownBook
 
 pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
+
+pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
@@ -143,6 +157,8 @@ pub fn town_activity_items(MiniTownProjection) -> Array[MiniTownActivityItem]
 pub fn unified_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
 pub fn unread_notifications(MiniTownProjection) -> Array[MiniTownNotification]
+
+pub fn visible_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
 pub fn visible_books(MiniTownProjection) -> Array[MiniTownBook]
 
@@ -171,6 +187,19 @@ pub struct MiniTownAgent {
   name : String
   building_id : String
   status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownAuditEvent {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  actor_id : String
+  target_ref : String
+  building_id : String
+  status : String
+  visibility : String
+  timestamp : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownBook {
@@ -297,6 +326,7 @@ pub struct MiniTownProjection {
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
   activity_items : Array[MiniTownActivityItem]
+  audit_events : Array[MiniTownAuditEvent]
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownReviewItem {

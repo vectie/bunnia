@@ -53,6 +53,10 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(
     page.wxml.contains("data-bunnia-message=\"reject-memory-review\""),
   )
+  assert_true(page.wxml.contains("Lifecycle"))
+  assert_true(page.wxml.contains("moontown-audit-entry"))
+  assert_true(page.wxml.contains("Policy answer entered review"))
+  assert_true(page.wxml.contains("data-audit-id=\"audit-policy-review\""))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
   assert_true(page.wxml.contains("moontown-create-drawer"))
@@ -202,6 +206,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
   assert_true(mine.wxml.contains("Identity Setup"))
   assert_true(mine.wxml.contains("My Town"))
+  assert_true(mine.wxml.contains("My Lifecycle"))
+  assert_true(mine.wxml.contains("Private Agent Lab drafted"))
+  assert_true(mine.wxml.contains("data-audit-kind=\"create\""))
   assert_true(mine.wxml.contains("ready: no"))
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
@@ -329,6 +336,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"lifecycle\":{\"lastAction\":\"\"}",
+    ),
+  )
+  assert_true(
     file_content(project.files, "pages/moontown/index.wxml").contains(
       "data-bunnia-message=\"dev-login\"",
     ),
@@ -354,6 +366,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(projection.activity_items.length(), 5)
+  assert_eq(projection.audit_events.length(), 4)
   assert_eq(projection.books.length(), 7)
   assert_eq(projection.runs.length(), 4)
   assert_eq(projection.reviews.length(), 1)
@@ -365,6 +378,9 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(review_runs(projection).length(), 1)
   assert_eq(pending_reviews(projection).length(), 1)
   assert_eq(selected_building_runs(projection).length(), 1)
+  assert_eq(visible_audit_events(projection).length(), 4)
+  assert_eq(selected_building_audit_events(projection).length(), 1)
+  assert_eq(owned_audit_events(projection).length(), 2)
   assert_eq(town_activity_items(projection).length(), 5)
   assert_eq(home_town_stats(projection).length(), 4)
   assert_eq(projection.buildings.length(), 10)
@@ -404,8 +420,23 @@ test "moontown miniapp projection supports mock user create search and agent flo
   )
   assert_eq(created.buildings.length(), 11)
   assert_eq(created.books.length(), 8)
+  assert_eq(created.audit_events.length(), 5)
   assert_eq(created.selected_building_id, "created-agent-lab")
   assert_eq(selected_building_book(created).id, "book-created-agent-lab")
+  assert_eq(selected_building_audit_events(created).length(), 1)
+  let shared = share_selected_building(created)
+  assert_eq(selected_building(shared).visibility, "shared_private")
+  assert_eq(selected_building_book(shared).visibility, "shared_private")
+  assert_eq(selected_building_audit_events(shared).length(), 2)
+  let published = publish_selected_building(shared)
+  assert_eq(selected_building(published).visibility, "published")
+  assert_eq(search_results(published).length(), 2)
+  let placed = place_published_building(published, "published-agent-lab")
+  assert_eq(placed.selected_building_id, "published-agent-lab")
+  assert_eq(selected_building_audit_events(placed).length(), 2)
+  let archived = archive_selected_building(published)
+  assert_eq(selected_building(archived).visibility, "archived")
+  assert_eq(visible_buildings(archived).length(), 9)
   let agent_created = create_agent_for_selected(
     created, "agent-created", "Created Agent",
   )

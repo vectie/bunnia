@@ -86,10 +86,10 @@ fn moontown_wxss() -> String {
   ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
   ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
+  ".moontown-onboarding-step, .moontown-role-entry, .moontown-district-entry, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
-  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-onboarding-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-book-entry text, .moontown-run-entry text, .moontown-review-entry text, .moontown-audit-entry text { display: block; color: #405244; font-size: 18rpx; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
   ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
@@ -199,6 +199,7 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
         "town.buildings", "{\"id\":\"created-agent-lab\",\"visibility\":\"private_draft\",\"ownerId\":\"user-a\"}",
       ),
       @bunnia.set_string("town.selectedBuildingId", "created-agent-lab"),
+      @bunnia.set_string("lifecycle.lastAction", "create"),
       @bunnia.set_scene_marker_status(
         "moontown-map", "private-agent-lab", "draft",
       ),
@@ -209,22 +210,26 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
       @bunnia.append_json(
         "town.placements", "{\"id\":\"placement-published-agent-lab\",\"buildingId\":\"published-agent-lab\"}",
       ),
+      @bunnia.set_string("lifecycle.lastAction", "place"),
       @bunnia.select_scene_marker("moontown-map", "published-agent-lab"),
     ]),
   )
   patches.push(
     @bunnia.wechat_event_patch("publish-private-building", [
       @bunnia.set_string("town.lastPublishedBuildingId", "created-agent-lab"),
+      @bunnia.set_string("lifecycle.lastAction", "publish"),
     ]),
   )
   patches.push(
     @bunnia.wechat_event_patch("share-private-building", [
       @bunnia.set_string("town.lastSharedBuildingId", "created-agent-lab"),
+      @bunnia.set_string("lifecycle.lastAction", "share"),
     ]),
   )
   patches.push(
     @bunnia.wechat_event_patch("archive-private-building", [
       @bunnia.set_string("town.lastArchivedBuildingId", "created-agent-lab"),
+      @bunnia.set_string("lifecycle.lastAction", "archive"),
     ]),
   )
   patches.push(
@@ -742,6 +747,7 @@ fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
 fn town_right_hud(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-right-hud")], [
     selected_building_drawer(projection),
+    lifecycle_panel(projection),
     review_queue_panel(projection),
     chat_drawer(projection),
   ])
@@ -765,6 +771,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
     town_page_surface(projection, [
       identity_setup_panel(projection),
       profile_panel(projection),
+      ownership_lifecycle_panel(projection),
       create_drawer(projection),
     ])
   } else if projection.active_tab_id == "home" {
@@ -1235,6 +1242,73 @@ fn review_entry(item : MiniTownReviewItem) -> @bunnia.Node {
 }
 
 ///|
+fn lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  lifecycle_panel_with_events(
+    "Lifecycle",
+    "Create, share, publish, place, archive, and review actions stay auditable.",
+    selected_building_audit_events(projection),
+  )
+}
+
+///|
+fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  lifecycle_panel_with_events(
+    "My Lifecycle",
+    "Owned drafts, shares, publishing, placements, and archives stay visible here.",
+    owned_audit_events(projection),
+  )
+}
+
+///|
+fn lifecycle_panel_with_events(
+  title : String,
+  note : String,
+  events : Array[MiniTownAuditEvent],
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-shell-panel-title")],
+      [@bunnia.text(title)],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+      @bunnia.text(note),
+    ]),
+    @bunnia.windowed_list(
+      events,
+      total_count=events.length(),
+      render=audit_entry,
+    ),
+  ])
+}
+
+///|
+fn audit_entry(item : MiniTownAuditEvent) -> @bunnia.Node {
+  @bunnia.keyed(
+    "audit-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-audit-entry bunnia-status-\{item.status}"),
+        @bunnia.data("audit-id", item.id),
+        @bunnia.data("audit-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("building-id", item.building_id),
+        @bunnia.data("actor-id", item.actor_id),
+        @bunnia.data("visibility", item.visibility),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text("\{item.kind} / \{item.visibility} / \{item.timestamp}"),
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
 fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
   @bunnia.keyed(
     "notice-\{notice.id}",
@@ -1645,5 +1719,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json() -> String {
-  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}}}"
+  "{\"backendBaseUrl\":\"\",\"bunniaSessionId\":\"\",\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
 }

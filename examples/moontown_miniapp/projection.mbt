@@ -161,6 +161,20 @@ pub struct MiniTownActivityItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownAuditEvent {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  actor_id : String
+  target_ref : String
+  building_id : String
+  status : String
+  visibility : String
+  timestamp : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownOwnershipStat {
   id : String
   label : String
@@ -204,6 +218,7 @@ pub struct MiniTownProjection {
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
   activity_items : Array[MiniTownActivityItem]
+  audit_events : Array[MiniTownAuditEvent]
 } derive(Debug, Eq)
 
 ///|
@@ -460,6 +475,33 @@ pub fn mini_town_activity_item(
 }
 
 ///|
+pub fn mini_town_audit_event(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+  actor_id~ : String,
+  target_ref~ : String,
+  building_id~ : String,
+  status~ : String,
+  visibility~ : String,
+  timestamp~ : String,
+) -> MiniTownAuditEvent {
+  {
+    id,
+    kind,
+    title,
+    summary,
+    actor_id,
+    target_ref,
+    building_id,
+    status,
+    visibility,
+    timestamp,
+  }
+}
+
+///|
 pub fn mini_town_ownership_stat(
   id~ : String,
   label~ : String,
@@ -558,7 +600,62 @@ pub fn demo_projection() -> MiniTownProjection {
     notifications: demo_notifications(),
     discovery_items: demo_discovery_items(),
     activity_items: demo_activity_items(),
+    audit_events: demo_audit_events(),
   }
+}
+
+///|
+fn demo_audit_events() -> Array[MiniTownAuditEvent] {
+  [
+    mini_town_audit_event(
+      id="audit-policy-review",
+      kind="review",
+      title="Policy answer entered review",
+      summary="Agent output is held until a reviewer accepts it into the book.",
+      actor_id="agent-policy-guide",
+      target_ref="run:run-policy-review",
+      building_id="policy-hall",
+      status="review",
+      visibility="published",
+      timestamp="2026-07-08T10:00:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-team-share",
+      kind="share",
+      title="Team Studio shared privately",
+      summary="Organization members can inspect this building before publication.",
+      actor_id="user-a",
+      target_ref="building:team-studio",
+      building_id="team-studio",
+      status="shared",
+      visibility="shared_private",
+      timestamp="2026-07-08T09:24:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-private-draft",
+      kind="create",
+      title="Private Agent Lab drafted",
+      summary="Private work stays owner-scoped until shared or published.",
+      actor_id="user-a",
+      target_ref="building:private-agent-lab",
+      building_id="private-agent-lab",
+      status="draft",
+      visibility="private_draft",
+      timestamp="2026-07-08T08:48:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-published-agent-lab",
+      kind="publish",
+      title="Published Agent Lab approved",
+      summary="This building is searchable and placeable from public town search.",
+      actor_id="user-b",
+      target_ref="building:published-agent-lab",
+      building_id="published-agent-lab",
+      status="stable",
+      visibility="published",
+      timestamp="2026-07-08T08:12:00Z",
+    ),
+  ]
 }
 
 ///|
@@ -1178,9 +1275,12 @@ fn mini_town_building_visible_for(
   projection : MiniTownProjection,
   building : MiniTownBuilding,
 ) -> Bool {
-  building.visibility == "published" ||
-  building.owner_id == projection.active_user_id ||
-  building.owner_id == projection.organization_id
+  building.visibility != "archived" &&
+  (
+    building.visibility == "published" ||
+    building.owner_id == projection.active_user_id ||
+    building.owner_id == projection.organization_id
+  )
 }
 
 ///|
@@ -1386,6 +1486,46 @@ pub fn town_activity_items(
 }
 
 ///|
+pub fn visible_audit_events(
+  projection : MiniTownProjection,
+) -> Array[MiniTownAuditEvent] {
+  let output : Array[MiniTownAuditEvent] = []
+  for item in projection.audit_events {
+    if mini_town_audit_visible_for(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn selected_building_audit_events(
+  projection : MiniTownProjection,
+) -> Array[MiniTownAuditEvent] {
+  let output : Array[MiniTownAuditEvent] = []
+  for item in visible_audit_events(projection) {
+    if item.building_id == projection.selected_building_id {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn owned_audit_events(
+  projection : MiniTownProjection,
+) -> Array[MiniTownAuditEvent] {
+  let output : Array[MiniTownAuditEvent] = []
+  for item in visible_audit_events(projection) {
+    if item.actor_id == projection.active_user_id ||
+      audit_event_attached_to_owned_building(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
 pub fn active_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
   let output : Array[MiniTownRun] = []
   for run in visible_runs(projection) {
@@ -1454,6 +1594,29 @@ fn mini_town_activity_visible_for(
   item : MiniTownActivityItem,
 ) -> Bool {
   for building in visible_buildings(projection) {
+    if building.id == item.building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn mini_town_audit_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownAuditEvent,
+) -> Bool {
+  item.visibility == "published" ||
+  item.actor_id == projection.active_user_id ||
+  (item.visibility == "shared_private" && projection.organization_id != "")
+}
+
+///|
+fn audit_event_attached_to_owned_building(
+  projection : MiniTownProjection,
+  item : MiniTownAuditEvent,
+) -> Bool {
+  for building in owned_buildings(projection) {
     if building.id == item.building_id {
       return true
     }
@@ -1594,7 +1757,196 @@ pub fn create_private_building(
     selected_building_id: id,
     buildings: projection.buildings + [created],
     books: projection.books + [book],
+    audit_events: projection.audit_events +
+    [
+      lifecycle_event(
+        id="audit-create-\{id}",
+        kind="create",
+        title="\{title} created",
+        summary="Private building and book were created for this user.",
+        actor_id=projection.active_user_id,
+        building_id=id,
+        status="draft",
+        visibility="private_draft",
+      ),
+    ],
   }
+}
+
+///|
+pub fn share_selected_building(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  update_selected_building_lifecycle(
+    projection,
+    visibility="shared_private",
+    status="shared",
+    kind="share",
+    title="\{building.title} shared",
+    summary="The building is visible to organization members before publication.",
+  )
+}
+
+///|
+pub fn publish_selected_building(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  update_selected_building_lifecycle(
+    projection,
+    visibility="published",
+    status="stable",
+    kind="publish",
+    title="\{building.title} published",
+    summary="The building is searchable and placeable from public discovery.",
+  )
+}
+
+///|
+pub fn archive_selected_building(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  update_selected_building_lifecycle(
+    projection,
+    visibility="archived",
+    status="archived",
+    kind="archive",
+    title="\{building.title} archived",
+    summary="The building is hidden from normal map and search surfaces.",
+  )
+}
+
+///|
+pub fn place_published_building(
+  projection : MiniTownProjection,
+  building_id : String,
+) -> MiniTownProjection {
+  let mut title = building_id
+  for building in projection.buildings {
+    if building.id == building_id {
+      title = building.title
+    }
+  }
+  {
+    ..projection,
+    selected_building_id: building_id,
+    audit_events: projection.audit_events +
+    [
+      lifecycle_event(
+        id="audit-place-\{building_id}",
+        kind="place",
+        title="\{title} placed",
+        summary="A public building was placed onto this user's map layer.",
+        actor_id=projection.active_user_id,
+        building_id~,
+        status="stable",
+        visibility="published",
+      ),
+    ],
+  }
+}
+
+///|
+fn update_selected_building_lifecycle(
+  projection : MiniTownProjection,
+  visibility~ : String,
+  status~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+) -> MiniTownProjection {
+  let selected_id = projection.selected_building_id
+  {
+    ..projection,
+    buildings: update_building_lifecycle(
+      projection.buildings,
+      selected_id,
+      visibility,
+      status,
+    ),
+    books: update_book_lifecycle(
+      projection.books,
+      selected_id,
+      visibility,
+      status,
+    ),
+    audit_events: projection.audit_events +
+    [
+      lifecycle_event(
+        id="audit-\{kind}-\{selected_id}",
+        kind~,
+        title~,
+        summary~,
+        actor_id=projection.active_user_id,
+        building_id=selected_id,
+        status~,
+        visibility~,
+      ),
+    ],
+  }
+}
+
+///|
+fn update_building_lifecycle(
+  buildings : Array[MiniTownBuilding],
+  building_id : String,
+  visibility : String,
+  status : String,
+) -> Array[MiniTownBuilding] {
+  let output : Array[MiniTownBuilding] = []
+  for building in buildings {
+    if building.id == building_id {
+      output.push({ ..building, visibility, status })
+    } else {
+      output.push(building)
+    }
+  }
+  output
+}
+
+///|
+fn update_book_lifecycle(
+  books : Array[MiniTownBook],
+  building_id : String,
+  visibility : String,
+  status : String,
+) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in books {
+    if book.building_id == building_id {
+      output.push({ ..book, visibility, status })
+    } else {
+      output.push(book)
+    }
+  }
+  output
+}
+
+///|
+fn lifecycle_event(
+  id~ : String,
+  kind~ : String,
+  title~ : String,
+  summary~ : String,
+  actor_id~ : String,
+  building_id~ : String,
+  status~ : String,
+  visibility~ : String,
+) -> MiniTownAuditEvent {
+  mini_town_audit_event(
+    id~,
+    kind~,
+    title~,
+    summary~,
+    actor_id~,
+    target_ref="building:\{building_id}",
+    building_id~,
+    status~,
+    visibility~,
+    timestamp="local-dev",
+  )
 }
 
 ///|
