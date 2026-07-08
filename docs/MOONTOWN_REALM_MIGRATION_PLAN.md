@@ -103,6 +103,32 @@ Every migrated function needs a tile-town home:
 | Ownership | inventory workbench, draft/published/archive tabs |
 | Backend state | sync plaque, stale badge, retry row |
 
+## Maturity Definition
+
+The app is mature when the map is no longer a demo scene but the stable board
+for a complete user workflow.
+
+That means a user can:
+
+- enter with a known account, profile, role, consent, and session state
+- understand what changed in town from Home without losing the map context
+- search public buildings, agents, books, products, demands, events, users, and
+  posts from Discover
+- open a building from the map, read its safe book summary, talk to its agents,
+  and understand its lifecycle state
+- create private work, share it, submit it, publish it, archive it, restore it,
+  or place public work onto their own map layer
+- follow agent messages, handoffs, tool results, review requests, failures, and
+  notifications from Messages
+- manage owned buildings, books, agents, placements, drafts, submissions,
+  published work, archives, and account readiness from My
+- recover from stale backend/cache/mutation state through visible retry rows
+  instead of silent failures
+
+Anything that does not help one of those jobs should wait. The mini-app should
+grow by deepening these workflows, not by adding more map modes or disconnected
+pages.
+
 ## Style Contract
 
 Every phase must preserve the current tile-gamified visual language.
@@ -228,6 +254,25 @@ markers, or render pressure.
 | R8 Local Backend Loop | feature | Exercise the mature product locally from WeChat DevTools. |
 | R9 Style And Performance Hardening | hardening | Keep the mature app fast, bounded, and visually coherent. |
 | R10 Production Backend Readiness | hardening | Prepare real WeChat users, storage, moderation, and operations. |
+
+## Phase Ownership
+
+Use this table to decide where new migration work belongs. If work does not fit
+one row, clarify the product object before implementing it.
+
+| Phase | Owns | Does not own |
+| --- | --- | --- |
+| R0 | map crispness, projected terrain, edge constraints, marker hit targets | new account, chat, search, or ownership features |
+| R1 | routes, navigation, shared tile shell, cross-page visual tokens | heavy product data or backend behavior |
+| R2 | user identity, setup, consent, session, role, permission gates | public discovery and long ownership lists |
+| R3 | Home pulse, activity, stats, district shortcuts, stale summaries | detailed object management |
+| R4 | public search, filters, reusable results, placement entry points | private drafts and account workbench |
+| R5 | building drawer, lifecycle, permissions, books, memory, audits | global chat timeline or generic social feed |
+| R6 | threads, messages, runs, tool results, handoff, review decisions, notices | becoming a second Realm or hiding building context |
+| R7 | owned objects, drafts, submissions, published work, archives, profile readiness | public marketplace ranking |
+| R8 | local backend persistence, two-user scenarios, DevTools loop, cache/retry states | production secrets or cloud operations |
+| R9 | visual coherence, render budgets, list windowing, setData pressure, asset checks | net-new feature scope |
+| R10 | production login, storage, moderation operations, audit retention, rate limits, monitoring | large UX redesigns before local flows are proven |
 
 Implementation priority:
 
