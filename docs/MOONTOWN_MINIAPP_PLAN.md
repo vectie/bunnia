@@ -116,6 +116,18 @@ Visual direction:
 - make agent status visible as map badges, message rows, and run plaques rather
   than separate chat-only screens
 
+Style alignment contract:
+
+- Every migrated function should look like it belongs to the same tile town.
+- Main actions should be represented as buildings, district doors, signposts,
+  stamps, badges, or compact panels before generic app cards.
+- Lists should feel like town ledgers, notice boards, inventories, or message
+  plaques, with small stable rows and clear state colors.
+- The app should not introduce a second visual language for profile, messages,
+  or discovery; those screens are UI layers over the same town world.
+- The map stays full-screen and spatial. Surrounding pages mature the product,
+  but they should still read as part of the map's gamified town interface.
+
 ## Reference Page Interpretation
 
 | Reference page | What it does | Moontown migration |
@@ -134,31 +146,298 @@ Visual direction:
 
 ## Migration Execution Order
 
-The migration should advance from the biggest user-facing gaps first. Realm/map
-work is the baseline, not a separate app phase, unless map clarity or touch
-constraints regress.
+The migration should advance from the biggest user-facing gaps first. Realm is
+already the map, so it is not a feature phase unless map clarity, asset quality,
+edge constraints, dragging, or pinch zoom regress. Product maturity comes from
+the rest of the app: onboarding, identity, Home, Discover, Messages, My,
+building lifecycle, books, and backend wiring.
 
-| Order | Phase | Type | Purpose | Primary output |
-| --- | --- | --- | --- | --- |
-| 0 | Realm Baseline | hardening | Keep the existing full-screen tile map crisp, bounded, draggable, pinchable, and recognizably Moontown. | Stable map route, asset pipeline, edge handling, building hit targets. |
-| 1 | Tile App Shell | feature | Turn the map demo into a real mini-app shell. | `Home`, `Discover`, `Realm`, `Messages`, `My` tabs with Realm returning to the same map. |
-| 2 | Onboarding And Identity | feature | Let first-time users enter the town, choose profile/role, and satisfy consent gates. | First-run guide, login/profile setup, profile readiness checks. |
-| 3 | Home Town Pulse | feature | Replace generic home/reference pages with a tile-styled town pulse around the map. | Activity stream, recent runs, building shortcuts, town stats, district entries. |
-| 4 | Discover And Placement | feature | Make published town content searchable and reusable. | Unified search, filters, public building results, "place on my map" flow. |
-| 5 | Messages And Agent Communication | feature | Treat agent events and human interactions as first-class communication. | Notifications, agent run updates, review requests, share/publish events, deep links. |
-| 6 | My Ownership Center | feature | Give users control over private work and published work. | Owned buildings/books/agents, drafts, submitted items, published items, archive state. |
-| 7 | Building Lifecycle And Books | feature | Connect visible buildings to durable Moontown memory and workflow state. | Create/share/publish/archive, book binding, permissions, audit trail. |
-| 8 | Tile Style And Performance Pass | hardening | Keep the mature app fast and visually coherent. | Visual audit, list windowing, asset budgets, setData/delta checks, DevTools validation. |
+| Order | Maturity phase | Type | Current status | Purpose | Primary output |
+| --- | --- | --- | --- | --- | --- |
+| M0 | Realm Map Baseline | hardening | keep green | Preserve the existing full-screen tile map as the Realm. | Crisp map asset, bounded drag/pinch, edge-safe viewport, building hit targets. |
+| M1 | Tile App Shell | feature | done in slice | Make the mini-app navigable without replacing the map. | `Home`, `Discover`, `Realm`, `Messages`, `My` tabs with Realm returning to the same map. |
+| M2 | Onboarding And Identity | feature | started | Let first-time users enter the town, choose profile/role, and satisfy consent gates. | First-run guide, login/profile setup, profile readiness checks. |
+| M3 | Home Town Pulse | feature | started | Turn reference home/community pages into tile-town activity around the map. | Activity stream, recent runs, building shortcuts, town stats, district entries. |
+| M4 | Discover And Placement | feature | started | Make published town content searchable and reusable. | Unified search, filters, public building results, "place on my map" flow. |
+| M5 | Messages And Agent Communication | feature | started | Treat agent events and human interactions as first-class communication. | Notification channels, agent run updates, review requests, share/publish events, deep links. |
+| M6 | My Ownership Center | feature | next | Give users control over private work and published work. | Owned buildings/books/agents, drafts, submitted items, published items, archive state. |
+| M7 | Building Lifecycle And Books | feature | next | Connect visible buildings to durable Moontown memory and workflow state. | Create/share/publish/archive, book binding, permissions, audit trail. |
+| M8 | Local Backend Loop | feature | next | Make the same flows usable from WeChat DevTools against this Mac. | Dev login, snapshot/search/create/share/publish/archive/chat/review endpoints. |
+| M9 | Tile Style And Performance Pass | hardening | continuous | Keep the mature app fast and visually coherent. | Visual audit, list windowing, asset budgets, setData/delta checks, DevTools validation. |
+| M10 | Production Backend Readiness | hardening | later | Move from local proof to real users. | WeChat login, HTTPS/cloud backend, storage, rate limits, monitoring, backups. |
 
 Near-term build order:
 
-1. Keep Phase 0 stable while changing other screens.
-2. Finish Phase 3 next because Home is currently the largest maturity gap after
-   shell, identity, discovery, messages, and ownership slices.
-3. Expand Phases 4-7 with real backend contracts once the local product shape is
-   coherent.
-4. Run Phase 8 after each feature slice, not only at the end, because the app is
+1. Keep M0 stable while changing other screens.
+2. Finish M6 next because ownership/profile is the largest remaining
+   maturity gap in the visible mini-app shell.
+3. Expand M7 so every visible building has clear book, memory, review,
+   publish, archive, and permission state.
+4. Wire M8 into WeChat DevTools once the local product shape is coherent.
+5. Run M9 after each feature slice, not only at the end, because the app is
    map-heavy and can become slow quickly.
+
+## Mature Mini-App Migration Plan
+
+This plan assumes Realm is complete enough to be the map. Each following phase
+adds product maturity around it while preserving the tile-gamified style.
+
+### M0: Protect The Realm Map
+
+Classification: hardening.
+
+Purpose: keep the map stable while the rest of the app grows.
+
+Tasks:
+
+- Keep the current Moontown map as the only Realm surface.
+- Preserve crisp raster assets, meaningful tile expansion, and edge-safe
+  viewport constraints.
+- Keep building markers and selected-building drawers data-driven.
+- Treat any map blur, black space, broken drag, broken pinch, or wrong
+  projection as a regression.
+
+Output:
+
+- A stable full-screen map route that other tabs can layer around.
+
+### M1: Tile App Shell
+
+Classification: feature.
+
+Purpose: make the map feel like a complete mini-app without replacing it.
+
+Tasks:
+
+- Keep bottom tabs for `Home`, `Discover`, `Realm`, `Messages`, and `My`.
+- Route `Realm` to the existing full-screen Moontown map.
+- Keep search, publish, selected building, chat, and create actions close to the
+  map.
+- Keep navigation chrome small enough that map touch quality remains primary.
+
+Tile style:
+
+- Tabs and action buttons should feel like town shortcuts and tool controls, not
+  a generic app frame.
+
+Output:
+
+- Users can move around the app while always understanding that Realm is the
+  map.
+
+### M2: Mature Entry And Identity
+
+Classification: feature.
+
+Purpose: make the app usable by real people instead of only demo users.
+
+Tasks:
+
+- Keep onboarding short and visual, using town/map scenes rather than generic
+  welcome pages.
+- Add register/login flow through dev login now and WeChat login later.
+- Store profile, role, consent, active workspace, and session state.
+- Gate public actions behind profile and consent readiness.
+
+Tile style:
+
+- Onboarding screens should feel like town signs or tutorial plaques.
+- Role/profile setup should feel like a registration kiosk, not a marketing
+  form.
+
+Output:
+
+- A user can enter the town, finish setup, and safely reach the map.
+
+### M3: Home As Town Pulse
+
+Classification: feature.
+
+Purpose: turn Home into the live town dashboard around the map.
+
+Tasks:
+
+- Show recent building activity, agent runs, review needs, published updates,
+  and shared work.
+- Keep product-market, demand-hall, event-calendar, guide, and OPC concepts as
+  districts or building entrances.
+- Add small stats for buildings, agents, runs, reviews, and public placements.
+- Keep all lists scoped/windowed.
+
+Tile style:
+
+- Home entries should look like notice boards, district signs, inventory rows,
+  and map plaques.
+- Avoid feed-card layouts that could belong to any generic social app.
+
+Output:
+
+- A user can understand what changed in town without leaving the tile-world
+  mental model.
+
+### M4: Discover And Public Placement
+
+Classification: feature.
+
+Purpose: make published things findable and reusable.
+
+Tasks:
+
+- Search buildings, users, agents, books, events, demands, products, and posts.
+- Filter by type, visibility, capability, owner, freshness, and placeable state.
+- Let users place allowed published buildings onto their own map layer.
+- Ensure private/shared content never leaks through public search.
+
+Tile style:
+
+- Search results should feel like a market board or catalog of places.
+- "Place on map" should feel like pinning a building into the town, not copying
+  unrelated content.
+
+Output:
+
+- Public buildings can spread across user maps while preserving one canonical
+  building identity.
+
+### M5: Messages And Agent Communication
+
+Classification: feature.
+
+Purpose: make humans, agents, runs, and reviews communicate through one model.
+
+Tasks:
+
+- Add channels for unread, agent runs, review requests, system notices, shares,
+  publish decisions, and failed actions.
+- Deep-link messages to buildings, agents, threads, runs, reviews, or profile
+  surfaces.
+- Keep long conversations paginated/windowed.
+- Keep WeChat subscription prompts behind platform adapters.
+
+Tile style:
+
+- Messages should look like town mail, request boards, run plaques, and review
+  seals.
+- Agent activity should also appear as map badges and building drawer state, not
+  only as chat bubbles.
+
+Output:
+
+- Agentic UI is first-class without making chat the entire app.
+
+### M6: My Ownership Center
+
+Classification: feature.
+
+Purpose: give each user a clear inventory of their work.
+
+Tasks:
+
+- Add tabs/filters for buildings, books, agents, drafts, shared work,
+  submitted items, published items, archived items, and activity.
+- Show action state for create, edit, share, submit, publish, archive, and
+  restore when available.
+- Keep account operations separate from public discovery.
+- Show ownership counts and warnings without exposing private book content.
+
+Tile style:
+
+- My should feel like an inventory/workbench, with stamps for private, shared,
+  submitted, published, and archived states.
+
+Output:
+
+- A user can find and manage every private or public object they own.
+
+### M7: Building Lifecycle And Books
+
+Classification: feature.
+
+Purpose: connect every visible building to durable Moontown state.
+
+Tasks:
+
+- Bind each building to a primary book and safe book summary.
+- Track request, review, accepted-memory, publication, and run ledgers.
+- Make create/share/publish/archive visible from building drawers and My.
+- Keep raw private book content server-side unless explicitly published.
+
+Tile style:
+
+- Building drawers should feel like opening a place in town: book shelf, agent
+  desk, review stamp, and action controls.
+
+Output:
+
+- Buildings become durable places with memory, permissions, and lifecycle.
+
+### M8: Local Backend Loop
+
+Classification: feature.
+
+Purpose: make the mature mini-app testable on this Mac through WeChat DevTools.
+
+Tasks:
+
+- Run dev login, snapshot, search, create, place, share, publish, archive, chat,
+  agent, run, and review APIs locally.
+- Persist local state for users, buildings, placements, agents, books, threads,
+  messages, runs, and audit events.
+- Keep sessions and secrets backend-only.
+- Point generated Bunnia requests at `http://127.0.0.1` during local testing.
+
+Tile style:
+
+- Backend-driven state changes should immediately update the same map markers,
+  plaques, badges, drawers, and inventories.
+
+Output:
+
+- The app can be exercised end-to-end locally before production deployment.
+
+### M9: Style And Performance Hardening
+
+Classification: hardening.
+
+Purpose: keep the mature app fast, clear, and visually aligned.
+
+Tasks:
+
+- Audit every migrated surface against the tile-gamified design language.
+- Enforce first-screen data, render pressure, repeated-list, agent, scene, and
+  backend budgets.
+- Validate map pan/zoom and tab/panel interactions in WeChat DevTools.
+- Replace any generic cards, blurred visuals, or oversized panels that weaken
+  the town style.
+
+Output:
+
+- A mature mini-app that still feels like Moontown and stays within mini-app
+  constraints.
+
+### M10: Production Backend Readiness
+
+Classification: hardening.
+
+Purpose: make the local proof safe for real WeChat users.
+
+Tasks:
+
+- Replace dev login with real WeChat login on an approved backend.
+- Move durable state to production storage with backups and monitoring.
+- Keep app secrets, local filesystem access, daemon control, and privileged
+  runtime calls out of the mini-app bundle.
+- Add rate limits, abuse controls, audit retention, and operational alerts.
+
+Tile style:
+
+- Production data should continue to drive the same map markers, drawers,
+  ledgers, notice boards, and ownership inventory.
+
+Output:
+
+- The same tile-gamified product can graduate from local DevTools testing to
+  real users.
 
 ## Phase-By-Phase Reference Migration
 
