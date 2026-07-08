@@ -104,7 +104,7 @@ pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, stat
 
 pub fn mini_town_audit_event(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String, visibility~ : String, timestamp~ : String) -> MiniTownAuditEvent
 
-pub fn mini_town_backend_cache_state(id~ : String, label~ : String, source~ : String, state~ : String, summary~ : String, target_ref~ : String) -> MiniTownBackendCacheState
+pub fn mini_town_backend_cache_state(id~ : String, label~ : String, source~ : String, state~ : String, summary~ : String, target_ref~ : String, action_label? : String, action_message? : String) -> MiniTownBackendCacheState
 
 pub fn mini_town_backend_step(id~ : String, label~ : String, endpoint_id~ : String, http_method~ : String, path~ : String, summary~ : String, status~ : String) -> MiniTownBackendStep
 
@@ -313,6 +313,8 @@ pub struct MiniTownBackendCacheState {
   state : String
   summary : String
   target_ref : String
+  action_label : String
+  action_message : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownBackendStep {

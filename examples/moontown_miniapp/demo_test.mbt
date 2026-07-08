@@ -203,6 +203,16 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(home.wxml.contains("data-backend-cache=\"snapshot\""))
   assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
+  assert_true(home.wxml.contains("data-action-message=\"load-town-snapshot\""))
+  assert_true(home.wxml.contains("Reload / realm"))
+  assert_true(home.wxml.contains("data-action-message=\"dev-login\""))
+  assert_true(home.wxml.contains("Login / my"))
+  assert_true(
+    home.wxml.contains("data-action-message=\"load-ownership-snapshot\""),
+  )
+  assert_true(home.wxml.contains("Sync / my"))
+  assert_true(home.wxml.contains("data-action-message=\"tab-messages\""))
+  assert_true(home.wxml.contains("Review / messages"))
   assert_true(
     home.wxml.contains(
       "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
@@ -212,9 +222,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     home.wxml.contains("data-bunnia-message=\"publish-private-building\""),
   )
   assert_true(
-    home.wxml.contains(
-      "Last visible town stays rendered when snapshot loading fails.",
-    ),
+    home.wxml.contains("Stale town remains visible on reload failure."),
   )
   assert_true(
     home.wxml.contains(
@@ -881,9 +889,20 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.backend_cache_states.length(), 5)
   assert_eq(projection.backend_cache_states[1].id, "snapshot")
   assert_eq(projection.backend_cache_states[1].state, "stale-safe")
+  assert_eq(projection.backend_cache_states[1].action_label, "Reload")
+  assert_eq(
+    projection.backend_cache_states[1].action_message,
+    "load-town-snapshot",
+  )
   assert_eq(projection.backend_cache_states[2].id, "ownership")
   assert_eq(projection.backend_cache_states[2].state, "idle")
+  assert_eq(
+    projection.backend_cache_states[2].action_message,
+    "load-ownership-snapshot",
+  )
   assert_eq(projection.backend_cache_states[3].source, "request-log")
+  assert_eq(projection.backend_cache_states[3].action_message, "tab-my")
+  assert_eq(projection.backend_cache_states[4].action_message, "tab-messages")
   assert_true(!profile_ready_to_publish(projection))
   let gates = setup_gates(projection)
   assert_eq(gates.length(), 6)

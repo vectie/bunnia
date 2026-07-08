@@ -1534,25 +1534,44 @@ fn backend_status_key(endpoint_id : String) -> String {
 fn backend_cache_entry(item : MiniTownBackendCacheState) -> @bunnia.Node {
   @bunnia.keyed(
     "backend-cache-\{item.id}",
-    @bunnia.view_with_attrs(
-      [
+    @bunnia.node(
+      kind="view",
+      attrs=[
         @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.state}"),
         @bunnia.data("backend-cache", item.id),
         @bunnia.data("cache-state", item.state),
-        @bunnia.data("cache-source", item.source),
-        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("action-message", item.action_message),
       ],
-      [
+      events=[@bunnia.event("tap", item.action_message)],
+      children=[
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
           @bunnia.text(item.label),
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
-          @bunnia.text("\{item.source} / \{item.state} / \{item.target_ref}"),
+          @bunnia.text(
+            "\{item.action_label} / \{backend_cache_target_tab(item)}",
+          ),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn backend_cache_target_tab(item : MiniTownBackendCacheState) -> String {
+  if item.action_message.has_prefix("tab-") {
+    item.action_message
+    .sub(start=4, end=item.action_message.length())
+    .to_owned()
+  } else if item.action_message == "load-ownership-snapshot" ||
+    item.action_message == "dev-login" {
+    "my"
+  } else if item.action_message == "load-town-snapshot" {
+    "realm"
+  } else {
+    "home"
+  }
 }
 
 ///|
@@ -2651,6 +2670,8 @@ fn ownership_cache_state(
     state="idle",
     summary="My can reload owned buildings, books, agents, placements, and alerts.",
     target_ref="backend:load-ownership-snapshot",
+    action_label="Sync",
+    action_message="load-ownership-snapshot",
   )
 }
 

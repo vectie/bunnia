@@ -55,6 +55,20 @@ The main migration target is now the mature product around Realm, not Realm
 itself. Treat the existing map as a stable game board and migrate the remaining
 reference/product functions into small, useful systems around it.
 
+In other words, Realm is the board. The rest of the mini-app is the product:
+who the user is, what buildings they own, what can be searched, what agents are
+doing, what needs review, what can be published, and what should be recovered
+when local or production backend state is stale.
+
+From this point forward, a migration phase should not ask "how do we rebuild
+Realm?" It should ask:
+
+- what mature app function is missing around the existing map?
+- what durable product object owns that function?
+- what tile-town surface should display it?
+- what backend state, empty state, stale state, and retry state does it need?
+- how does the user return from that function to the same map?
+
 Do migrate:
 
 - entry, registration, login, consent, and profile readiness
@@ -106,6 +120,24 @@ Every phase must preserve the current tile-gamified visual language.
 - Show agent state in map badges, building drawers, message rows, run plaques,
   and review notices.
 
+Style alignment rules for migrated pages:
+
+1. A page copied from reference design becomes a town function, not a visual
+   clone.
+2. A generic card becomes a plaque, ledger row, workbench item, district gate,
+   market row, shelf item, mail row, run plaque, or building drawer section.
+3. A generic action button becomes a stamp, route sign, place action, retry row,
+   publish badge, review decision, or workbench command.
+4. A generic list becomes a windowed town board with stable item keys and clear
+   lifecycle badges.
+5. A chat view stays attached to a building, agent, book, run, or review, so it
+   does not become detached social UI.
+6. A search result should explain whether it can be opened, placed, followed,
+   requested, reviewed, or only previewed.
+
+The result should feel like a mature tile game interface, not a normal mobile
+SaaS shell with map wallpaper.
+
 ## Functional Migration Map
 
 Translate reference functionality by job, not by page shape.
@@ -139,6 +171,38 @@ Do not migrate them as a one-to-one page clone.
 
 This gives every migrated function a durable home while keeping Realm as the map
 instead of expanding it into a catch-all screen.
+
+## Rest-Functionality Migration Matrix
+
+The migration backlog should be tracked by product function, not by screenshot
+page. This keeps the app concise and prevents the map from becoming a dumping
+ground.
+
+| Function | Start surface | Main data | Tile-gamified UI | Return path |
+| --- | --- | --- | --- | --- |
+| Entry and setup | signpost gate, My | session, profile, consent, role | town passport, setup stamps | enter Realm |
+| Home pulse | Home | activity, stats, notices, stale state | notice board, ledger, district doors | open linked building/message/search |
+| Public discovery | Discover | public buildings, users, agents, books, events, demands, posts | market board, filter plaques, placeable rows | place/open on Realm |
+| Building detail | map marker, Home, Discover, My | building, lifecycle, placement, permissions | anchored drawer, lifecycle stamps | close drawer to map |
+| Books and memory | building drawer, My | primary book, shelves, summaries, reviews | ledger shelf, review badge | return to building |
+| Agent communication | Messages, building drawer | threads, messages, runs, tool results | mail board, run plaques, tool-result cards | return to building/run |
+| Publication review | Messages, My | submission, review, audit, moderation | review notice, accept/reject stamps | publish to Discover/Realm |
+| Ownership | My | owned buildings, books, agents, placements, archives | inventory shelf, workbench filters | open relevant object |
+| Backend recovery | Home, My, Messages | cache, mutation queue, sync result | sync plaque, stale badge, retry row | route to source surface |
+| Production readiness | hidden/admin/backend | login, storage, audit, moderation, monitoring | reviewer/workbench tools where needed | keep user app stable |
+
+Highest leverage order:
+
+1. Identity and backend state first, because every other mature feature depends
+   on knowing who can see or change an object.
+2. Building lifecycle and ownership next, because buildings are the durable
+   places on the map.
+3. Books, agents, messages, and review together, because agent work only becomes
+   useful when it can be discussed, accepted, retried, and stored.
+4. Public discovery and placement should stay connected to the same building
+   model, not become separate content feeds.
+5. Production hardening starts only after the local loop proves these flows in
+   WeChat DevTools.
 
 ## Phase Summary
 
@@ -175,6 +239,15 @@ Implementation priority:
    largest architectural step in that phase first.
 5. End every phase with a style check: the result must still look like the same
    tile-gamified town.
+
+Current direction:
+
+- Do not spend a feature phase on a new Realm.
+- Keep R0 as a continuous map-quality gate.
+- Spend feature slices on the app systems that make the map useful: identity,
+  Home, Discover, buildings, books, agents, messages, My, and backend recovery.
+- In each slice, migrate the largest product boundary first, then the compact
+  tile UI needed to exercise it.
 
 ## Phase-By-Phase Migration Plan
 
@@ -471,7 +544,10 @@ agent-to-agent work transfer on this Mac. Tool-result acknowledgement is also
 local-backend backed, so tool artifacts can move from pending to acknowledged
 state and survive DevTools reloads. The local backend also seeds durable market
 listings for products, demands, events, and posts, so existing DevTools state can
-exercise non-building discovery without resetting the local database.
+exercise non-building discovery without resetting the local database. Backend
+cache states now expose explicit recovery actions, so session, snapshot,
+ownership, mutation, and review state can route users to login, reload, sync,
+My, or Messages instead of sitting as passive stale badges.
 
 ### R9: Style And Performance Hardening
 
