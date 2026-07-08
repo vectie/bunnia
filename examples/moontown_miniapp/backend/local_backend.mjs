@@ -1239,7 +1239,7 @@ function dispatch(state, request) {
     return ok(ownershipFor(state, viewer));
   }
   if (method === "GET" && path === "/miniapp/discover/search") {
-    return ok({ query: request.query.get("query") || body.query || "", items: discoverItems(state, viewer, request.query.get("query") || body.query || "") });
+    return ok(discoverSearchResult(state, viewer, request.query, body));
   }
   if (method === "POST" && path === "/miniapp/discover/action") {
     return submitDiscoveryAction(state, viewer, body);
@@ -1749,8 +1749,48 @@ function actionMessageForBuilding(item) {
   return `select-${item.id}`;
 }
 
-function discoverItems(state, viewer, query) {
-  const needle = String(query || "").toLowerCase();
+function discoverSearchResult(state, viewer, query, body) {
+  const filters = discoverSearchFilters(query, body);
+  const items = discoverItems(state, viewer, filters);
+  return {
+    query: filters.query,
+    filters,
+    counts: discoverCounts(items),
+    items,
+  };
+}
+
+function discoverSearchFilters(query, body) {
+  const rawFilter = String(query.get("filter") || query.get("kind") || body.filter || body.kind || "all").trim();
+  const placeableOnly = rawFilter === "placeable" || boolParam(query.get("placeableOnly") || body.placeableOnly);
+  const kind = placeableOnly ? "building" : normalizeDiscoverKind(rawFilter);
+  return {
+    query: String(query.get("query") || body.query || "").trim(),
+    kind,
+    filter: rawFilter || "all",
+    placeableOnly,
+    excludePinned: placeableOnly || boolParam(query.get("excludePinned") || body.excludePinned),
+  };
+}
+
+function normalizeDiscoverKind(value) {
+  const kind = String(value || "all").trim();
+  if (!kind || kind === "all") return "all";
+  return kind;
+}
+
+function boolParam(value) {
+  return value === true || value === "true" || value === "1" || value === "yes";
+}
+
+function discoverCounts(items) {
+  const counts = {};
+  for (const item of items) counts[item.kind] = (counts[item.kind] || 0) + 1;
+  return counts;
+}
+
+function discoverItems(state, viewer, filters) {
+  const needle = String(filters.query || "").toLowerCase();
   const buildings = publicDiscoverBuildings(state, viewer);
   const buildingIds = new Set(buildings.map((item) => item.id));
   const items = [
@@ -1828,7 +1868,24 @@ function discoverItems(state, viewer, query) {
         status: item.status,
       })),
   ];
-  return items.filter((item) => discoverMatch(item, needle));
+  return items.filter((item) => discoverMatch(item, needle) && discoverFilterMatch(state, viewer, item, filters));
+}
+
+function discoverFilterMatch(state, viewer, item, filters) {
+  if (filters.kind !== "all" && item.kind !== filters.kind) return false;
+  if (filters.placeableOnly && !isDiscoverItemPlaceable(state, viewer, item)) return false;
+  if (filters.excludePinned && item.kind === "building" && isBuildingPinnedByViewer(state, viewer, item.targetRef)) return false;
+  return true;
+}
+
+function isDiscoverItemPlaceable(state, viewer, item) {
+  return item.kind === "building" && item.visibility === "published" && !isBuildingPinnedByViewer(state, viewer, item.targetRef);
+}
+
+function isBuildingPinnedByViewer(state, viewer, targetRef) {
+  if (!targetRef.startsWith("building:")) return false;
+  const buildingId = targetRef.slice("building:".length);
+  return state.placements.some((item) => item.ownerId === viewer && item.buildingId === buildingId && item.status === "pinned");
 }
 
 function publicDiscoverBuildings(state, viewer) {
@@ -2871,12 +2928,20 @@ function smoke(options) {
   assert(!privateSearch.body.items.some((item) => item.targetRef === "book:book-shared-lab"), "shared private book hidden from public search");
   const userSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=chen"), headers: registeredHeaders, body: {} });
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
-  const productSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=product"), headers, body: {} });
+  const productSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=product&filter=product"), headers, body: {} });
+  assert(productSearch.body.filters.kind === "product", "product search filter echo");
   assert(productSearch.body.items.some((item) => item.kind === "product" && item.targetRef === "product:agent-publishing-kit"), "public product search");
-  const circleSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=circle"), headers, body: {} });
+  assert(!productSearch.body.items.some((item) => item.kind !== "product"), "product search kind scoped");
+  assert(productSearch.body.counts.product >= 1, "product search counts");
+  const circleSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=circle&kind=circle"), headers, body: {} });
+  assert(circleSearch.body.filters.kind === "circle", "circle search filter echo");
   assert(circleSearch.body.items.some((item) => item.kind === "circle" && item.targetRef === "circle:ai-exploration-camp"), "public circle search");
   const postSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=field"), headers, body: {} });
   assert(postSearch.body.items.some((item) => item.kind === "post" && item.targetRef === "post:published-agent-lab"), "public post search");
+  const placeableSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("filter=placeable"), headers, body: {} });
+  assert(placeableSearch.body.filters.placeableOnly === true, "placeable filter echo");
+  assert(placeableSearch.body.items.some((item) => item.targetRef === "building:published-agent-lab"), "placeable search includes unpinned public building");
+  assert(!placeableSearch.body.items.some((item) => item.targetRef === "building:policy-hall"), "placeable search excludes pinned building");
   const productAction = dispatch(state, { method: "POST", path: "/miniapp/discover/action", query: new URLSearchParams(), headers, body: { discoveryAction: "open", discoveryKind: "product", discoveryId: "product-agent-publishing-kit", targetRef: "product:agent-publishing-kit" } });
   assert(productAction.body.action.targetRef === "product:agent-publishing-kit", "product action target");
   assert(productAction.body.action.action === "open", "product action open");
@@ -2960,6 +3025,8 @@ function smoke(options) {
   assert(reviewSearch.body.items.some((item) => item.kind === "demand"), "review demand search");
   const placed = dispatch(state, { method: "POST", path: "/miniapp/buildings/place", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab" } });
   assert(placed.body.placement.buildingId === "published-agent-lab", "place building");
+  const placeableAfterPin = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("filter=placeable"), headers, body: {} });
+  assert(!placeableAfterPin.body.items.some((item) => item.targetRef === "building:published-agent-lab"), "placeable search excludes newly pinned building");
   const asked = dispatch(state, { method: "POST", path: "/miniapp/buildings/query", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "smoke?" } });
   assert(asked.body.review.status === "pending", "query review");
   const sent = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "hello policy hall" } });

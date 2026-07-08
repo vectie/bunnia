@@ -565,6 +565,9 @@ now carry the target layer, source, and map coordinates, and already pinned
 buildings drop out of the placeable filter so placement remains a real map-layer
 action rather than a generic button. Discover filters now include the market
 object kinds used by the district cards: products, demands, events, and posts.
+The backend search contract now mirrors those filters: kind-scoped queries,
+placeable-only search, pinned-building exclusion, filter echo metadata, and
+result counts are returned from `/miniapp/discover/search`.
 Public discovery targets can now also be
 watched through the existing subscription route: the backend validates that
 watched buildings, books, agents, users, and listings including circles are
