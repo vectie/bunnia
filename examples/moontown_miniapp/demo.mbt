@@ -609,6 +609,13 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "load-town-snapshot", "/miniapp/town/snapshot", "townSnapshot",
       ),
       @bunnia.generic_endpoint(
+        "load-ownership-snapshot",
+        "/miniapp/me/ownership",
+        @bunnia.http_get(),
+        payload_key="ownershipQuery",
+        response_key="ownershipSnapshot",
+      ),
+      @bunnia.generic_endpoint(
         "dev-login",
         "/miniapp/auth/dev-login",
         @bunnia.http_post(),
@@ -2334,6 +2341,7 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ]),
     profile_identity_card(projection),
     profile_credential_plaque(projection),
+    ownership_sync_plaque(projection),
     @bunnia.windowed_list(
       alerts,
       total_count=alerts.length(),
@@ -2367,6 +2375,79 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=ownership_item_entry,
     ),
   ])
+}
+
+///|
+fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
+  let step = ownership_backend_step(projection)
+  let cache = ownership_cache_state(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.data("backend-step", step.id),
+      @bunnia.data("backend-endpoint", step.endpoint_id),
+      @bunnia.data("backend-method", step.http_method),
+      @bunnia.data("backend-path", step.path),
+      @bunnia.data("backend-cache", cache.id),
+      @bunnia.data("target-ref", cache.target_ref),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text("Ownership Sync"),
+      ]),
+      @bunnia.text(step.summary),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "\{cache.label}: \{cache.state} / \{step.http_method} \{step.path}",
+        ),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "runtime: {{backendStatus.\{backend_status_key(step.endpoint_id)}.state || 'idle'}}",
+        ),
+      ]),
+      @bunnia.button("Sync Ownership", step.endpoint_id),
+    ],
+  )
+}
+
+///|
+fn ownership_backend_step(
+  projection : MiniTownProjection,
+) -> MiniTownBackendStep {
+  for step in projection.backend_steps {
+    if step.id == "ownership" {
+      return step
+    }
+  }
+  mini_town_backend_step(
+    id="ownership",
+    label="Sync Ownership",
+    endpoint_id="load-ownership-snapshot",
+    http_method="GET",
+    path="/miniapp/me/ownership",
+    summary="Pull owned buildings, books, agents, placements, and alerts for My.",
+    status="ready",
+  )
+}
+
+///|
+fn ownership_cache_state(
+  projection : MiniTownProjection,
+) -> MiniTownBackendCacheState {
+  for cache in projection.backend_cache_states {
+    if cache.id == "ownership" {
+      return cache
+    }
+  }
+  mini_town_backend_cache_state(
+    id="ownership",
+    label="Ownership Snapshot",
+    source="cache",
+    state="idle",
+    summary="My can reload owned buildings, books, agents, placements, and alerts.",
+    target_ref="backend:load-ownership-snapshot",
+  )
 }
 
 ///|
@@ -2947,5 +3028,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json_for_tab(tab_id : String) -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"placementDraft\":{\"buildingId\":\"policy-hall\",\"x\":42,\"y\":24},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"lifecycle\":{\"lastAction\":\"\"}}"
 }

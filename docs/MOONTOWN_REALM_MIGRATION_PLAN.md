@@ -332,7 +332,10 @@ Done when:
 - WeChat DevTools can exercise the full product loop on this Mac
 
 Current status: Home exposes a tile-style Backend Loop panel for dev login,
-snapshot load, publish, building query, and cache state visibility.
+snapshot load, publish, building query, and cache state visibility. My also
+exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
+buildings, books, agents, placements, and workbench alerts can be exercised
+locally.
 
 ### R9: Style And Performance Hardening
 

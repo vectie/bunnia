@@ -404,6 +404,15 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
+  assert_true(mine.wxml.contains("Ownership Sync"))
+  assert_true(mine.wxml.contains("data-backend-step=\"ownership\""))
+  assert_true(
+    mine.wxml.contains("data-backend-endpoint=\"load-ownership-snapshot\""),
+  )
+  assert_true(mine.wxml.contains("data-backend-path=\"/miniapp/me/ownership\""))
+  assert_true(
+    mine.wxml.contains("data-bunnia-message=\"load-ownership-snapshot\""),
+  )
   assert_true(mine.wxml.contains("moontown-workbench-alert"))
   assert_true(mine.wxml.contains("data-workbench-alert=\"profile-setup\""))
   assert_true(
@@ -542,6 +551,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/me/ownership",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/discover/search",
     ),
   )
@@ -632,6 +646,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"ownershipQuery\":{\"includeAlerts\":true}",
     ),
   )
   assert_true(
@@ -738,18 +757,22 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.profile.display_name, "Ada Builder")
   assert_eq(projection.roles.length(), 5)
   assert_eq(local_backend_base_url(), "http://127.0.0.1:18191")
-  assert_eq(projection.backend_steps.length(), 8)
+  assert_eq(projection.backend_steps.length(), 9)
   assert_eq(projection.backend_steps[0].endpoint_id, "dev-login")
   assert_eq(projection.backend_steps[1].path, "/miniapp/town/snapshot")
-  assert_eq(projection.backend_steps[2].status, "guarded")
-  assert_eq(projection.backend_steps[4].endpoint_id, "cancel-run")
-  assert_eq(projection.backend_steps[5].endpoint_id, "retry-run")
-  assert_eq(projection.backend_steps[6].endpoint_id, "ack-notification")
-  assert_eq(projection.backend_steps[7].endpoint_id, "request-subscription")
-  assert_eq(projection.backend_cache_states.length(), 4)
+  assert_eq(projection.backend_steps[2].endpoint_id, "load-ownership-snapshot")
+  assert_eq(projection.backend_steps[2].path, "/miniapp/me/ownership")
+  assert_eq(projection.backend_steps[3].status, "guarded")
+  assert_eq(projection.backend_steps[5].endpoint_id, "cancel-run")
+  assert_eq(projection.backend_steps[6].endpoint_id, "retry-run")
+  assert_eq(projection.backend_steps[7].endpoint_id, "ack-notification")
+  assert_eq(projection.backend_steps[8].endpoint_id, "request-subscription")
+  assert_eq(projection.backend_cache_states.length(), 5)
   assert_eq(projection.backend_cache_states[1].id, "snapshot")
   assert_eq(projection.backend_cache_states[1].state, "stale-safe")
-  assert_eq(projection.backend_cache_states[2].source, "request-log")
+  assert_eq(projection.backend_cache_states[2].id, "ownership")
+  assert_eq(projection.backend_cache_states[2].state, "idle")
+  assert_eq(projection.backend_cache_states[3].source, "request-log")
   assert_true(!profile_ready_to_publish(projection))
   let gates = setup_gates(projection)
   assert_eq(gates.length(), 6)
@@ -1032,10 +1055,10 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 17)
+  assert_eq(backend.endpoint_count, 18)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
-  assert_eq(effects.effect_count, 17)
+  assert_eq(effects.effect_count, 18)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

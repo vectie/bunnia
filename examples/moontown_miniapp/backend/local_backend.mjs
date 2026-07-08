@@ -167,6 +167,9 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/town/snapshot") {
     return ok(snapshotFor(state, viewer));
   }
+  if (method === "GET" && path === "/miniapp/me/ownership") {
+    return ok(ownershipFor(state, viewer));
+  }
   if (method === "GET" && path === "/miniapp/discover/search") {
     return ok({ query: request.query.get("query") || body.query || "", items: discoverItems(state, viewer, request.query.get("query") || body.query || "") });
   }
@@ -231,6 +234,7 @@ function routeCatalog() {
   return [
     "POST /miniapp/auth/dev-login",
     "GET /miniapp/town/snapshot",
+    "GET /miniapp/me/ownership",
     "GET /miniapp/discover/search",
     "POST /miniapp/me/profile",
     "POST /miniapp/buildings",
@@ -282,6 +286,59 @@ function snapshotFor(state, viewer) {
     notifications: state.notifications,
     auditEvents: state.auditEvents.filter((item) => item.visibility === "published" || item.actorId === viewer),
   };
+}
+
+function ownershipFor(state, viewer) {
+  const profile = profileFor(state, viewer);
+  const buildings = state.buildings.filter((item) => item.ownerId === viewer || item.ownerId === "org-a");
+  const placements = visiblePlacements(state, viewer);
+  const buildingIds = new Set(buildings.map((item) => item.id));
+  const books = state.books.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || buildingIds.has(item.buildingId));
+  const agents = state.agents.filter((item) => buildingIds.has(item.buildingId));
+  const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
+  const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
+  const stats = [
+    { id: "buildings", label: "Buildings", value: buildings.length },
+    { id: "placements", label: "Placed", value: placements.length },
+    { id: "drafts", label: "Drafts", value: buildings.filter((item) => item.visibility === "private_draft").length },
+    { id: "published", label: "Published", value: buildings.filter((item) => item.visibility === "published").length },
+    { id: "books", label: "Books", value: books.length },
+    { id: "agents", label: "Agents", value: agents.length },
+  ];
+  const items = [
+    ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility))),
+    ...placements.map((item) => {
+      const buildingItem = state.buildings.find((building) => building.id === item.buildingId);
+      const title = buildingItem ? buildingItem.title : item.buildingId;
+      return ownedItem("placement", item.id, title, `${item.layer} map pin from ${item.source}.`, `placement:${item.id}`, item.layer, item.status, "Open");
+    }),
+    ...books.map((item) => ownedItem("book", item.id, item.title, item.summary, `book:${item.id}`, item.visibility, item.status, "Review")),
+    ...agents.map((item) => ownedItem("agent", item.id, item.name, `Agent attached to ${item.buildingId}.`, `agent:${item.id}`, "owned", item.status, "Open")),
+  ];
+  const alerts = [];
+  if (!profile.setupCompleted || !profile.consentAccepted) {
+    alerts.push({ id: "profile-setup", severity: "high", title: "Town passport incomplete", summary: "Finish identity setup before publishing.", targetRef: "profile:setup", action: "save-profile", status: "blocked" });
+  }
+  const blockedDrafts = buildings.filter((item) => item.visibility === "private_draft").length;
+  if (blockedDrafts > 0) {
+    alerts.push({ id: "blocked-publication", severity: "medium", title: `${blockedDrafts} draft blocked from town`, summary: "Publish requires profile, consent, and review readiness.", targetRef: "building:drafts", action: "ownership-filter-drafts", status: "blocked" });
+  }
+  if (retryableRuns.length > 0) {
+    alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
+  }
+  return { viewer, profile, stats, items, alerts, reviews };
+}
+
+function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel) {
+  return { id, kind, title, summary, targetRef, visibility, status, actionLabel };
+}
+
+function actionForVisibility(visibility) {
+  if (visibility === "private_draft") return "Publish";
+  if (visibility === "shared_private") return "Review";
+  if (visibility === "published") return "Place";
+  if (visibility === "archived") return "Restore";
+  return "Open";
 }
 
 function discoverItems(state, viewer, query) {
@@ -433,6 +490,9 @@ function smoke(options) {
   assert(accepted.body.review.status === "accepted", "accept review");
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
+  const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
+  assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
+  assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");

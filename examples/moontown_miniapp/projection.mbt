@@ -1604,6 +1604,15 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       status="ready",
     ),
     mini_town_backend_step(
+      id="ownership",
+      label="Sync Ownership",
+      endpoint_id="load-ownership-snapshot",
+      http_method="GET",
+      path="/miniapp/me/ownership",
+      summary="Pull owned buildings, books, agents, placements, and alerts for My.",
+      status="ready",
+    ),
+    mini_town_backend_step(
       id="publish",
       label="Publish",
       endpoint_id="publish-private-building",
@@ -1678,6 +1687,14 @@ fn demo_backend_cache_states() -> Array[MiniTownBackendCacheState] {
       state="stale-safe",
       summary="Last visible town stays rendered when snapshot loading fails.",
       target_ref="backend:load-town-snapshot",
+    ),
+    mini_town_backend_cache_state(
+      id="ownership",
+      label="Ownership Snapshot",
+      source="cache",
+      state="idle",
+      summary="My can reload owned buildings, books, agents, placements, and alerts.",
+      target_ref="backend:load-ownership-snapshot",
     ),
     mini_town_backend_cache_state(
       id="mutations",
