@@ -721,21 +721,24 @@ review. The local backend now uses opaque sessions with expiry and logout
 revocation, giving the production login path a safer contract to replace with
 real WeChat identity. It also exposes `/miniapp/health`, rate-limits sensitive
 local routes such as dev login, public reports, and appeals, and provides
-moderator-only audit/backup/ops endpoints, moderator list/grant/revoke routes,
-retention prune route, a local startup/interval retention scheduler, an external
-monitoring incident report route, moderator-only incident review/resolve routes,
-and moderator-only abuse hold/release routes for users and buildings. Backups
-exclude live session and rate-limit buckets, ops reports retention targets,
+moderator-only audit/backup/ops/readiness endpoints, moderator list/grant/revoke
+routes, retention prune route, a local startup/interval retention scheduler, an
+external monitoring incident report route, moderator-only incident review/resolve
+routes, and moderator-only abuse hold/release routes for users and buildings.
+The readiness route checks backend-only WeChat app credentials, approved HTTPS or
+cloud deployment, production storage, monitoring sink, retention scheduler, and
+reviewer identity configuration without returning secret values. Backups exclude
+live session and rate-limit buckets, ops reports retention targets,
 scheduled-retention metadata, monitoring incidents, monitoring checks, state
 counts, and status distributions, moderator management keeps reviewer trust
 backend-owned, abuse holds can stop actor or target mutations without frontend
 bundle growth, and manual or scheduled pruning removes expired sessions, expired
 rate-limit buckets, and out-of-retention audit events. That makes
-abuse-control, recovery, reviewer identity, retention, and monitoring behavior
-testable before production infrastructure exists. Production still needs real
-WeChat-bound reviewer/admin identity, platform-managed retention scheduling, a
-real external monitoring provider, and production-grade abuse signals after
-local flows are coherent.
+abuse-control, recovery, reviewer identity, retention, monitoring, and
+deployment-readiness behavior testable before production infrastructure exists.
+Production still needs real WeChat-bound login/reviewer identity,
+platform-managed retention scheduling, a real external monitoring provider, and
+production-grade abuse signals after local flows are coherent.
 
 ## Migration Order
 

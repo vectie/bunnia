@@ -597,6 +597,53 @@ function countBy(items, field) {
   return output;
 }
 
+function envPresent(env, key) {
+  return Boolean(String(env[key] || "").trim());
+}
+
+function productionReadinessForAdmin(state, viewer, env = process.env) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const appIdReady = envPresent(env, "MINIAPP_WECHAT_APP_ID");
+  const appSecretReady = envPresent(env, "MINIAPP_WECHAT_APP_SECRET");
+  const allowedDomain = String(env.MINIAPP_ALLOWED_DOMAIN || "").trim();
+  const cloudEnvReady = envPresent(env, "WECHAT_CLOUD_ENV_ID");
+  const storageMode = String(env.MINIAPP_STORAGE_MODE || "").trim();
+  const storageReady = ["cloud", "database"].includes(storageMode) && (envPresent(env, "MINIAPP_OBJECT_STORAGE_BUCKET") || storageMode === "database");
+  const monitoringReady = envPresent(env, "MINIAPP_MONITORING_WEBHOOK");
+  const retentionReady = envPresent(env, "MINIAPP_RETENTION_SCHEDULER") || state.retentionJob.enabled;
+  const reviewersReady = envPresent(env, "MINIAPP_ADMIN_REVIEWER_IDS") && state.moderatorIds.length > 0;
+  const checks = [
+    { id: "wechat-login", status: appIdReady && appSecretReady ? "ok" : "missing", summary: "Backend has WeChat app id and secret configured.", required: true, configured: appIdReady && appSecretReady },
+    { id: "network-domain", status: cloudEnvReady || allowedDomain.startsWith("https://") ? "ok" : "missing", summary: "Approved HTTPS domain or WeChat cloud environment is configured.", required: true, configured: cloudEnvReady || allowedDomain.startsWith("https://") },
+    { id: "storage", status: storageReady ? "ok" : "missing", summary: "Production database/object storage target is configured.", required: true, configured: storageReady },
+    { id: "monitoring-provider", status: monitoringReady ? "ok" : "missing", summary: "External monitoring sink is configured.", required: true, configured: monitoringReady },
+    { id: "retention-scheduler", status: retentionReady ? "ok" : "missing", summary: "Platform or local retention scheduler is configured.", required: true, configured: retentionReady },
+    { id: "reviewer-identity", status: reviewersReady ? "ok" : "missing", summary: "Reviewer/admin identities are configured outside the frontend.", required: true, configured: reviewersReady },
+  ];
+  const missing = checks.filter((item) => item.required && item.status !== "ok");
+  return ok({
+    status: missing.length === 0 ? "ready" : "blocked",
+    generatedAt: new Date().toISOString(),
+    checks,
+    missing: missing.map((item) => item.id),
+    secrets: {
+      exposedToFrontend: false,
+      configured: {
+        wechatAppId: appIdReady,
+        wechatAppSecret: appSecretReady,
+        monitoringWebhook: monitoringReady,
+      },
+    },
+    deployment: {
+      allowedDomainConfigured: allowedDomain.startsWith("https://"),
+      wechatCloudConfigured: cloudEnvReady,
+      storageMode: storageMode || "unset",
+      moderatorCount: state.moderatorIds.length,
+    },
+  });
+}
+
 function normalizeIncidentSeverity(value) {
   const severity = String(value || "warning").toLowerCase();
   if (["info", "warning", "critical"].includes(severity)) return severity;
@@ -907,6 +954,9 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
   }
+  if (method === "GET" && path === "/miniapp/admin/readiness") {
+    return productionReadinessForAdmin(state, viewer);
+  }
   if (method === "GET" && path === "/miniapp/admin/incidents") {
     return incidentsForAdmin(state, viewer, request.query);
   }
@@ -1052,6 +1102,7 @@ function routeCatalog() {
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
     "GET /miniapp/admin/ops",
+    "GET /miniapp/admin/readiness",
     "GET /miniapp/admin/incidents",
     "POST /miniapp/admin/incidents/resolve",
     "GET /miniapp/admin/abuse",
@@ -2146,6 +2197,8 @@ function smoke(options) {
   assert(deniedAudit.status === 403, "admin audit moderator only");
   const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedOps.status === 403, "admin ops moderator only");
+  const deniedReadiness = dispatch(state, { method: "GET", path: "/miniapp/admin/readiness", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedReadiness.status === 403, "admin readiness moderator only");
   const deniedIncidents = dispatch(state, { method: "GET", path: "/miniapp/admin/incidents", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedIncidents.status === 403, "admin incidents moderator only");
   const deniedAbuse = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams(), headers: bobHeaders, body: {} });
@@ -2157,6 +2210,23 @@ function smoke(options) {
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
+  const blockedReadiness = productionReadinessForAdmin(state, "user-a", {});
+  assert(blockedReadiness.body.status === "blocked", "readiness blocked without config");
+  assert(blockedReadiness.body.missing.some((item) => item === "wechat-login"), "readiness missing wechat");
+  assert(blockedReadiness.body.secrets.exposedToFrontend === false, "readiness secrets not exposed");
+  const readyConfig = productionReadinessForAdmin(state, "user-a", {
+    MINIAPP_WECHAT_APP_ID: "wx-smoke",
+    MINIAPP_WECHAT_APP_SECRET: "secret-smoke",
+    MINIAPP_ALLOWED_DOMAIN: "https://miniapp.example.com",
+    MINIAPP_STORAGE_MODE: "cloud",
+    MINIAPP_OBJECT_STORAGE_BUCKET: "moontown-smoke",
+    MINIAPP_MONITORING_WEBHOOK: "https://monitoring.example.com/hook",
+    MINIAPP_RETENTION_SCHEDULER: "wechat-cloud-timer",
+    MINIAPP_ADMIN_REVIEWER_IDS: "user-a",
+  });
+  assert(readyConfig.body.status === "ready", "readiness ready with config");
+  assert(readyConfig.body.missing.length === 0, "readiness no missing checks");
+  assert(readyConfig.body.secrets.configured.wechatAppSecret === true, "readiness secret configured");
   const reportedIncident = dispatch(state, { method: "POST", path: "/miniapp/monitoring/incident", query: new URLSearchParams(), headers: {}, body: { severity: "critical", source: "smoke-probe", title: "Smoke probe failed", summary: "Synthetic monitor reported a failed backend check.", route: "/miniapp/health" } });
   assert(reportedIncident.changed === true, "monitoring incident changed");
   assert(reportedIncident.body.incident.actorId === "monitoring-probe", "monitoring incident actor");
