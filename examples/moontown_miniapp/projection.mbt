@@ -161,6 +161,14 @@ pub struct MiniTownDiscoveryItem {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownDiscoveryFilter {
+  id : String
+  label : String
+  kind : String
+  placeable_only : Bool
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownActivityItem {
   id : String
   kind : String
@@ -215,6 +223,7 @@ pub struct MiniTownProjection {
   role_id : String
   selected_building_id : String
   search_query : String
+  active_discovery_filter_id : String
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -230,6 +239,7 @@ pub struct MiniTownProjection {
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
+  discovery_filters : Array[MiniTownDiscoveryFilter]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Debug, Eq)
@@ -498,6 +508,16 @@ pub fn mini_town_discovery_item(
 }
 
 ///|
+pub fn mini_town_discovery_filter(
+  id~ : String,
+  label~ : String,
+  kind~ : String,
+  placeable_only? : Bool = false,
+) -> MiniTownDiscoveryFilter {
+  { id, label, kind, placeable_only }
+}
+
+///|
 pub fn mini_town_activity_item(
   id~ : String,
   kind~ : String,
@@ -572,6 +592,7 @@ pub fn demo_projection() -> MiniTownProjection {
     role_id: "builder",
     selected_building_id: "policy-hall",
     search_query: "agent",
+    active_discovery_filter_id: "all",
     users: [
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
@@ -637,6 +658,7 @@ pub fn demo_projection() -> MiniTownProjection {
     reviews: demo_reviews(),
     notifications: demo_notifications(),
     discovery_items: demo_discovery_items(),
+    discovery_filters: demo_discovery_filters(),
     activity_items: demo_activity_items(),
     audit_events: demo_audit_events(),
   }
@@ -962,6 +984,26 @@ fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
       target_ref="post:published-agent-lab",
       visibility="published",
       status="stable",
+    ),
+  ]
+}
+
+///|
+fn demo_discovery_filters() -> Array[MiniTownDiscoveryFilter] {
+  [
+    mini_town_discovery_filter(id="all", label="All", kind="all"),
+    mini_town_discovery_filter(
+      id="building",
+      label="Buildings",
+      kind="building",
+    ),
+    mini_town_discovery_filter(id="agent", label="Agents", kind="agent"),
+    mini_town_discovery_filter(id="book", label="Books", kind="book"),
+    mini_town_discovery_filter(
+      id="placeable",
+      label="Placeable",
+      kind="building",
+      placeable_only=true,
     ),
   ]
 }
@@ -1568,6 +1610,43 @@ pub fn unified_discovery_results(
 }
 
 ///|
+pub fn filtered_discovery_results(
+  projection : MiniTownProjection,
+) -> Array[MiniTownDiscoveryItem] {
+  let output : Array[MiniTownDiscoveryItem] = []
+  let filter = selected_discovery_filter(projection)
+  for item in unified_discovery_results(projection) {
+    if mini_town_discovery_filter_match(filter, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn selected_discovery_filter(
+  projection : MiniTownProjection,
+) -> MiniTownDiscoveryFilter {
+  for item in projection.discovery_filters {
+    if item.id == projection.active_discovery_filter_id {
+      return item
+    }
+  }
+  mini_town_discovery_filter(id="all", label="All", kind="all")
+}
+
+///|
+fn mini_town_discovery_filter_match(
+  filter : MiniTownDiscoveryFilter,
+  item : MiniTownDiscoveryItem,
+) -> Bool {
+  let kind_match = filter.kind == "all" || filter.kind == item.kind
+  let placeable_match = !filter.placeable_only ||
+    (item.kind == "building" && item.visibility == "published")
+  kind_match && placeable_match
+}
+
+///|
 pub fn town_activity_items(
   projection : MiniTownProjection,
 ) -> Array[MiniTownActivityItem] {
@@ -1806,6 +1885,14 @@ pub fn switch_tab(
   tab_id : String,
 ) -> MiniTownProjection {
   { ..projection, active_tab_id: tab_id }
+}
+
+///|
+pub fn switch_discovery_filter(
+  projection : MiniTownProjection,
+  filter_id : String,
+) -> MiniTownProjection {
+  { ..projection, active_discovery_filter_id: filter_id }
 }
 
 ///|

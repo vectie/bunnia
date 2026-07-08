@@ -176,6 +176,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(discover.wxml.contains("moontown-discover-entry"))
   assert_true(discover.wxml.contains("discover-search"))
+  assert_true(discover.wxml.contains("moontown-discovery-filter active"))
+  assert_true(discover.wxml.contains("data-filter-id=\"placeable\""))
+  assert_true(discover.wxml.contains("data-filter-kind=\"building\""))
+  assert_true(discover.wxml.contains("Published Agent Lab"))
+  assert_true(discover.wxml.contains("data-discovery-kind=\"building\""))
+  assert_true(discover.wxml.contains("Place On Map"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(
@@ -328,6 +334,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"discover\":{\"filter\":\"all\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
     ),
   )
@@ -382,6 +393,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
+  assert_eq(projection.discovery_filters.length(), 5)
   assert_eq(projection.activity_items.length(), 5)
   assert_eq(projection.audit_events.length(), 4)
   assert_eq(projection.books.length(), 7)
@@ -408,7 +420,18 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(visible_books(projection).length(), 7)
   assert_eq(selected_building_book(projection).id, "book-policy-hall")
   assert_eq(search_results(projection).length(), 1)
-  assert_true(unified_discovery_results(projection).length() >= 5)
+  assert_true(unified_discovery_results(projection).length() >= 6)
+  assert_true(filtered_discovery_results(projection).length() >= 6)
+  let buildings_only = switch_discovery_filter(projection, "building")
+  assert_eq(selected_discovery_filter(buildings_only).id, "building")
+  assert_eq(filtered_discovery_results(buildings_only).length(), 1)
+  let placeable = switch_discovery_filter(projection, "placeable")
+  assert_eq(selected_discovery_filter(placeable).id, "placeable")
+  assert_eq(filtered_discovery_results(placeable).length(), 1)
+  assert_eq(
+    filtered_discovery_results(placeable)[0].target_ref,
+    "building:published-agent-lab",
+  )
   assert_eq(owned_buildings(projection).length(), 1)
   assert_eq(owned_books(projection).length(), 1)
   assert_eq(ownership_stats(projection).length(), 5)

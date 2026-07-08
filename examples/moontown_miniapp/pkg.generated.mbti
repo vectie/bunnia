@@ -70,6 +70,8 @@ pub fn demo_wechat_project() -> @wechat.WechatProject
 
 pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.WechatProject
 
+pub fn filtered_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
+
 pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
@@ -81,6 +83,8 @@ pub fn mini_town_audit_event(id~ : String, kind~ : String, title~ : String, summ
 pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owner_id~ : String, visibility~ : String, summary~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, status~ : String) -> MiniTownBook
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
+
+pub fn mini_town_discovery_filter(id~ : String, label~ : String, kind~ : String, placeable_only? : Bool) -> MiniTownDiscoveryFilter
 
 pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
 
@@ -148,9 +152,13 @@ pub fn selected_building_book(MiniTownProjection) -> MiniTownBook
 
 pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
 
+pub fn selected_discovery_filter(MiniTownProjection) -> MiniTownDiscoveryFilter
+
 pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
+
+pub fn switch_discovery_filter(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
 
@@ -230,6 +238,13 @@ pub struct MiniTownBuilding {
   y : Int
   status : String
   asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownDiscoveryFilter {
+  id : String
+  label : String
+  kind : String
+  placeable_only : Bool
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownDiscoveryItem {
@@ -326,6 +341,7 @@ pub struct MiniTownProjection {
   role_id : String
   selected_building_id : String
   search_query : String
+  active_discovery_filter_id : String
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -341,6 +357,7 @@ pub struct MiniTownProjection {
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
+  discovery_filters : Array[MiniTownDiscoveryFilter]
   activity_items : Array[MiniTownActivityItem]
   audit_events : Array[MiniTownAuditEvent]
 } derive(Eq, @debug.Debug)

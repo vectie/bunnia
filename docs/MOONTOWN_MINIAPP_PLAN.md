@@ -926,6 +926,10 @@ Current evidence:
   event calendar, city guide, and OPC hub are tile districts attached to real
   map buildings, with user/agent/building presence chips filtered by the same
   visibility rules as the map.
+- The same example now gives Discover tile-style filters for all results,
+  buildings, agents, books, and placeable buildings. Published building search
+  results expose a "Place On Map" action while private and non-building results
+  remain visible only through safe filtered discovery data.
 
 ## Phase 9: Real Backend And Deployment
 
