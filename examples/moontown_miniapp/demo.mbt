@@ -221,36 +221,8 @@ fn moontown_map_page_methods_js() -> String {
   "      const k=this.__mk(s)\n" +
   "      const vw=win.windowWidth/k\n" +
   "      const vh=win.windowHeight/k\n" +
-  "      const edge=(yy,i)=>{\n" +
-  "        const y=this.__cl(yy,0,840)\n" +
-  "        if(i===1)return y<160?this.__cl(278-y*2,0,278):(y<480?0:2*(y-480))\n" +
-  "        return y<540?this.__cl(279+y*2,279,1354):this.__cl(2474-y*2,793,1354)\n" +
-  "      }\n" +
-  "      const xRange=(sy)=>{\n" +
-  "        const top=sy\n" +
-  "        const bottom=sy+vh\n" +
-  "        let left=Math.max(edge(top,1),edge(bottom,1))\n" +
-  "        let right=Math.min(edge(top,2),edge(bottom,2))\n" +
-  "        for(let yy=Math.ceil(top/40)*40;yy<bottom;yy+=40){left=Math.max(left,edge(yy,1));right=Math.min(right,edge(yy,2))}\n" +
-  "        return [left,right-vw]\n" +
-  "      }\n" +
-  "      const key=[Math.round(vw),Math.round(vh)].join(':')\n" +
-  "      const cache=this.__myc||(this.__myc={})\n" +
-  "      let yRange=cache[key]\n" +
-  "      if(!yRange){\n" +
-  "        const end=840-vh\n" +
-  "        let first=null\n" +
-  "        let last=null\n" +
-  "        for(let sy=0;sy<=end;sy+=4){\n" +
-  "          const xr=xRange(sy)\n" +
-  "          if(xr[1]>=xr[0]){first=first==null?sy:first;last=sy}\n" +
-  "        }\n" +
-  "        const fallback=Math.max(0,end/2)\n" +
-  "        yRange=cache[key]=[first==null?fallback:first,last==null?fallback:last]\n" +
-  "      }\n" +
-  "      const sy=this.__cl(-Number(rawY||0)/k,yRange[0],yRange[1])\n" +
-  "      const xr=xRange(sy)\n" +
-  "      const sx=this.__cl(-Number(rawX||0)/k,xr[0],xr[1])\n" +
+  "      const sx=this.__cl(-Number(rawX||0)/k,0,Math.max(0,1400-vw))\n" +
+  "      const sy=this.__cl(-Number(rawY||0)/k,0,Math.max(0,880-vh))\n" +
   "      return {x:-sx*k,y:-sy*k}\n" +
   "    }\n" +
   "    const next=fit(x,y)\n" +
@@ -449,7 +421,7 @@ fn moontown_map_asset_source() -> String {
 
 ///|
 fn moontown_map_asset_bytes() -> Int {
-  1872 * 1024
+  2077418
 }
 
 ///|
