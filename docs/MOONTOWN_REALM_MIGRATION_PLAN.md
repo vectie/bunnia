@@ -763,6 +763,11 @@ list identity checks. The Moontown runtime also no longer patches unused local
 backend-owned actions. Those events still submit to the local backend and keep
 empty patches for event coverage, but WeChat patch pressure dropped from the
 budget edge to 144/160 operations, leaving room for the next feature slice.
+The Moontown example also now uses short internal layout classes for repeated
+panel, title, and metadata wrappers while keeping product-facing `data-*`
+contracts and event messages stable. This is a markup-budget hardening step:
+future reference-backed surfaces can be added without immediately crossing the
+WeChat WXML ceiling.
 
 ### R10: Production Backend Readiness
 

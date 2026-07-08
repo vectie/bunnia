@@ -193,14 +193,14 @@ fn moontown_wxss_source() -> String {
   ".moontown-subtitle { margin-top: 2rpx; font-size: 20rpx; font-weight: 500; color: #66705a; }\n" +
   ".moontown-user-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
   ".moontown-user-switcher text { color: #334538; font-size: 20rpx; }\n" +
-  ".moontown-user-switcher button, .moontown-building-drawer button, .moontown-search-drawer button, .moontown-create-drawer button, .moontown-chat-drawer button, .moontown-shell-panel button { min-height: 46rpx; margin: 0; padding: 0 14rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 46rpx; }\n" +
+  ".moontown-user-switcher button, .moontown-building-drawer button, .moontown-search-drawer button, .moontown-create-drawer button, .moontown-chat-drawer button, .mt-panel button { min-height: 46rpx; margin: 0; padding: 0 14rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 46rpx; }\n" +
   ".moontown-left-hud { position: absolute; z-index: 7; left: 22rpx; top: 126rpx; width: 338rpx; max-height: calc(100vh - 252rpx); display: flex; flex-direction: column; gap: 12rpx; overflow: hidden; }\n" +
   ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: 126rpx; bottom: 104rpx; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; }\n" +
   ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: hidden; }\n" +
   ".moontown-page-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n" +
-  ".moontown-shell-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
-  ".moontown-shell-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
-  ".moontown-shell-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
+  ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
+  ".mt-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
+  ".mt-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
   ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry, .bunnia-tool-result-card { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
   ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
@@ -211,8 +211,8 @@ fn moontown_wxss_source() -> String {
   ".moontown-profile-card, .moontown-credential-plaque { margin-top: 8rpx; padding: 12rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.66); box-sizing: border-box; }\n" +
   ".moontown-profile-actions, .moontown-profile-metrics { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-profile-metric { flex: 1 1 0; min-width: 0; padding: 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 18rpx; }\n" +
-  ".moontown-entry-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
-  ".moontown-entry-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
+  ".mt-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
+  ".mt-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
   ".moontown-district-actions { display: flex; gap: 8rpx; margin-top: 8rpx; }\n" +
   ".moontown-district-entry.tone-blue { border-color: rgba(49,130,206,0.44); background: rgba(231,243,255,0.72); }\n" +
@@ -1182,12 +1182,11 @@ fn town_left_hud(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn realm_entry_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("First Visit")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("First Visit"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "Realm is the map. Home and My hold setup, pulse, and inventory.",
       ),
@@ -1204,12 +1203,11 @@ fn realm_entry_panel(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn onboarding_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("First Visit")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("First Visit"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text("Tile-town onboarding before entering Realm."),
     ]),
     @bunnia.windowed_list(
@@ -1250,11 +1248,11 @@ fn guide_step_entry(step : MiniTownGuideStep) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", step.action_message)],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(step.title),
         ]),
         @bunnia.text(step.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{step.action_label} / \{step.status}"),
         ]),
       ],
@@ -1272,7 +1270,7 @@ fn onboarding_step_entry(step : MiniTownOnboardingStep) -> @bunnia.Node {
         @bunnia.data("building-id", step.building_id),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(step.title),
         ]),
         @bunnia.text(step.body),
@@ -1284,12 +1282,11 @@ fn onboarding_step_entry(step : MiniTownOnboardingStep) -> @bunnia.Node {
 ///|
 fn identity_setup_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let gates = setup_gates(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Identity Setup")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Identity Setup"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text("Choose a role and accept consent before publishing."),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-profile-status")], [
@@ -1297,7 +1294,7 @@ fn identity_setup_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "\{projection.profile.display_name} / \{projection.profile.role_id} / ready: \{if profile_ready_to_publish(projection) { "yes" } else { "no" }}",
       ),
     ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text(
         "runtime role: {{profile.roleId || 'builder'}} / consent: {{profile.consentAccepted || 'false'}} / saved: {{profile.setupCompleted || 'false'}}",
       ),
@@ -1328,7 +1325,7 @@ fn setup_gate_entry(item : MiniTownSetupGate) -> @bunnia.Node {
         @bunnia.data("complete", if item.complete { "true" } else { "false" }),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.label),
         ]),
         @bunnia.text(item.summary),
@@ -1351,7 +1348,7 @@ fn role_entry(role : MiniTownRole) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", "select-role-\{role.id}")],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(role.title),
         ]),
         @bunnia.text(role.summary),
@@ -1363,12 +1360,11 @@ fn role_entry(role : MiniTownRole) -> @bunnia.Node {
 ///|
 fn community_hub_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let presence = community_presence(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Community Hub")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Community Hub"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text("Reference feature pages become tile districts on the map."),
     ]),
     @bunnia.windowed_list(
@@ -1395,11 +1391,10 @@ fn community_hub_panel(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn district_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Map Districts")],
-    ),
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Map Districts"),
+    ]),
     @bunnia.windowed_list(
       projection.districts,
       total_count=projection.districts.length(),
@@ -1429,11 +1424,11 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", district_action_message(district))],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(district.title),
         ]),
         @bunnia.text(district.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{district.stat_value} \{district.stat_label} / \{district.action_label} / \{district_target_tab(district)}",
           ),
@@ -1496,7 +1491,7 @@ fn presence_chip(item : MiniTownPresence) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", "select-\{item.building_id}")],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.subtitle),
@@ -1508,12 +1503,11 @@ fn presence_chip(item : MiniTownPresence) -> @bunnia.Node {
 ///|
 fn home_overview_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let stats = home_town_stats(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Town Pulse")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Town Pulse"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "Realm is the map; Home shows recent work around the same tile town.",
       ),
@@ -1529,12 +1523,11 @@ fn home_overview_panel(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn backend_loop_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let steps = user_backend_steps(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Backend Loop")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Backend Loop"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text("DevTools target: \{local_backend_base_url()}"),
     ]),
     @bunnia.view_with_attrs(
@@ -1583,14 +1576,14 @@ fn backend_step_entry(item : MiniTownBackendStep) -> @bunnia.Node {
         @bunnia.data("backend-path", item.path),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.label),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{item.http_method} \{item.path} / \{item.status}"),
         ]),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "runtime: {{backendStatus.\{backend_status_key(item.endpoint_id)}.state || 'idle'}}",
           ),
@@ -1620,11 +1613,11 @@ fn backend_cache_entry(item : MiniTownBackendCacheState) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.label),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{item.action_label} / \{backend_cache_target_tab(item)}",
           ),
@@ -1660,7 +1653,7 @@ fn home_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
         @bunnia.data("home-stat", stat.id),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(stat.value.to_string()),
         ]),
         @bunnia.text(stat.label),
@@ -1672,12 +1665,11 @@ fn home_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
 ///|
 fn town_activity_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let activity = town_activity_items(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Recent Activity")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Recent Activity"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "Agent runs, book memory, sharing, and publishing stay attached to map buildings.",
       ),
@@ -1709,11 +1701,11 @@ fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", activity_action_message(item))],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{item.kind} / \{item.status} / \{activity_target_tab(item)}",
           ),
@@ -1757,15 +1749,14 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let people = discovery_results_by_kind(projection, "user")
   let circles = discovery_results_by_kind(projection, "circle")
   let market = market_discovery_results(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Discover")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Discover"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text("Search public town objects."),
     ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text("runtime filter: {{discover.filter || 'all'}}"),
     ]),
     @bunnia.input(
@@ -1800,7 +1791,7 @@ fn discover_spotlight_section(
   items : Array[MiniTownDiscoveryItem],
 ) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-strip")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
       @bunnia.text(title),
     ]),
     @bunnia.windowed_list(
@@ -1822,7 +1813,7 @@ fn discover_spotlight_chip(item : MiniTownDiscoveryItem) -> @bunnia.Node {
         @bunnia.data("target-ref", item.target_ref),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.status),
@@ -1875,11 +1866,11 @@ fn discover_entry(
         @bunnia.data("visibility", item.visibility),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{item.kind} / \{item.visibility}"),
         ]),
         discover_entry_action(projection, item),
@@ -2010,17 +2001,16 @@ fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let subscription = subscription_notifications(projection)
   let reviews = review_runs(projection)
   let notices = filtered_notifications(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Messages")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Messages"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "\{unread.length()} unread agent and town events; \{reviews.length()} review run; \{subscription.length()} subscription prompt.",
       ),
     ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text("runtime channel: {{messages.channel || 'all'}}"),
     ]),
     message_backend_state_row(),
@@ -2098,7 +2088,7 @@ fn message_backend_state_chip(
         @bunnia.data("backend-target", target_ref),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(label),
         ]),
         @bunnia.text(
@@ -2149,7 +2139,7 @@ fn message_bucket_chip(
     ],
     events=[@bunnia.event("tap", "notification-channel-\{channel_id}")],
     children=[
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text(label),
       ]),
       @bunnia.text("\{count} notices"),
@@ -2200,12 +2190,11 @@ fn notification_channel_chip(
 ///|
 fn run_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let runs = active_runs(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Agent Runs")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Agent Runs"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "Runs stay linked to buildings, books, threads, and review artifacts.",
       ),
@@ -2241,11 +2230,11 @@ fn run_queue_entry(run : MiniTownRun) -> @bunnia.Node {
         ),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(run.title),
         ]),
         @bunnia.text(run.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{run.status} / \{run.thread_id}"),
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
@@ -2310,11 +2299,11 @@ fn run_entry(run : MiniTownRun) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", "select-\{run.building_id}")],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(run.title),
         ]),
         @bunnia.text(run.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{run.status} / \{run.thread_id}"),
         ]),
       ],
@@ -2327,22 +2316,18 @@ fn tool_result_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let cards = tool_result_cards(projection)
   @bunnia.view_with_attrs(
     [
-      @bunnia.class_name("moontown-shell-panel moontown-tool-results"),
+      @bunnia.class_name("mt-panel moontown-tool-results"),
       @bunnia.data("tool-result-count", cards.length().to_string()),
     ],
     [
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-shell-panel-title")],
-        [@bunnia.text("Tool Results")],
-      ),
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-shell-panel-note")],
-        [
-          @bunnia.text(
-            "Tool artifacts stay attached to buildings, threads, and acknowledgements.",
-          ),
-        ],
-      ),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+        @bunnia.text("Tool Results"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
+        @bunnia.text(
+          "Tool artifacts stay attached to buildings, threads, and acknowledgements.",
+        ),
+      ]),
       @bunnia.windowed_tool_result_card_list(cards, total_count=cards.length()),
     ],
   )
@@ -2351,12 +2336,11 @@ fn tool_result_panel(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let reviews = pending_reviews(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Review Queue")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Review Queue"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "Accepted memory enters books; accepted publication enters town discovery.",
       ),
@@ -2384,11 +2368,11 @@ fn review_entry(item : MiniTownReviewItem) -> @bunnia.Node {
         @bunnia.data("reviewer-id", item.reviewer_id),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(review_meta_text(item)),
         ]),
         review_controls_entry(item),
@@ -2455,12 +2439,11 @@ fn review_decision_button(
 ///|
 fn moderation_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let cases = projection.moderation_cases
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("Moderation Desk")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("Moderation Desk"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "\{cases.length()} report case; hide or takedown stays audited.",
       ),
@@ -2486,7 +2469,7 @@ fn moderation_case_entry(item : MiniTownModerationCase) -> @bunnia.Node {
         @bunnia.data("reporter-id", item.reporter_id),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
@@ -2569,11 +2552,10 @@ fn lifecycle_panel_with_events(
   events : Array[MiniTownAuditEvent],
 ) -> @bunnia.Node {
   let children = [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text(title)],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text(title),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(note),
     ]),
   ]
@@ -2593,10 +2575,7 @@ fn lifecycle_panel_with_events(
       render=audit_entry,
     ),
   )
-  @bunnia.view_with_attrs(
-    [@bunnia.class_name("moontown-shell-panel")],
-    children,
-  )
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], children)
 }
 
 ///|
@@ -2614,7 +2593,7 @@ fn publication_step_entry(item : MiniTownPublicationStep) -> @bunnia.Node {
         @bunnia.data("blocked", if item.blocked { "true" } else { "false" }),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.label),
         ]),
         @bunnia.text(item.summary),
@@ -2638,11 +2617,11 @@ fn audit_entry(item : MiniTownAuditEvent) -> @bunnia.Node {
         @bunnia.data("visibility", item.visibility),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text("\{item.kind} / \{item.visibility} / \{item.timestamp}"),
         ]),
       ],
@@ -2671,7 +2650,7 @@ fn notification_entry(notice : MiniTownNotification) -> @bunnia.Node {
         ),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(notice.title),
         ]),
         @bunnia.text(notice.body),
@@ -2732,17 +2711,16 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let items = filtered_ownership_items(projection)
   let gates = setup_gates(projection)
   let alerts = workbench_alerts(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
-    @bunnia.view_with_attrs(
-      [@bunnia.class_name("moontown-shell-panel-title")],
-      [@bunnia.text("My Town")],
-    ),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+      @bunnia.text("My Town"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
         "role:\{projection.profile.role_id}; consent:\{if projection.profile.consent_accepted { "accepted" } else { "needed" }}; showing:\{selected_ownership_filter(projection).label}; items:\{items.length()}",
       ),
     ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text("own: {{ownership.filter || 'all'}}"),
     ]),
     profile_identity_card(projection),
@@ -2800,16 +2778,16 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.data("backend-readiness-path", readiness.path),
     ],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("Ops Desk"),
       ]),
       @bunnia.text(
         "Reviewer-only checks for health, incidents, retention, recovery, production readiness, and secrets.",
       ),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text("\{ops.http_method} \{ops.path} / \{ops.status}"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "ops: {{backendStatus.\{backend_status_key(ops.endpoint_id)}.state || 'idle'}} / ready: {{backendStatus.\{backend_status_key(readiness.endpoint_id)}.state || 'idle'}}",
         ),
@@ -2861,16 +2839,16 @@ fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.data("target-ref", cache.target_ref),
     ],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("Own Sync"),
       ]),
       @bunnia.text(step.summary),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "\{cache.label}: \{cache.state} / \{step.http_method} \{step.path}",
         ),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "runtime: {{backendStatus.\{backend_status_key(step.endpoint_id)}.state || 'idle'}}",
         ),
@@ -2938,11 +2916,11 @@ fn workbench_alert_entry(alert : MiniTownWorkbenchAlert) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", alert.action_message)],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(alert.title),
         ]),
         @bunnia.text(alert.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{alert.severity} / \{alert.action_label} / \{alert.status}",
           ),
@@ -2970,10 +2948,10 @@ fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
       ),
     ],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text(projection.profile.display_name),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "UID:\{projection.profile.user_id} / \{projection.profile.avatar_ref}",
         ),
@@ -3013,7 +2991,7 @@ fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn profile_metric_chip(label~ : String, value~ : Int) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-profile-metric")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
       @bunnia.text(value.to_string()),
     ]),
     @bunnia.text(label),
@@ -3033,11 +3011,11 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.data("public-passport-items", items.length().to_string()),
     ],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("Public Passport"),
       ]),
       @bunnia.text("Public-facing identity without private work."),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "\{projection.profile.role_id} / published \{published} / watches \{watches} / reviews \{reviews}",
         ),
@@ -3134,11 +3112,11 @@ fn public_passport_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{item.kind} / \{item.visibility} / \{item.action_label}",
           ),
@@ -3160,11 +3138,11 @@ fn profile_credential_plaque(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.data("status", district.status),
     ],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("OPC Credential"),
       ]),
       @bunnia.text("\{district.title}: \{district.summary}"),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "\{district.stat_value} \{district.stat_label} / \{district.status}",
         ),
@@ -3234,7 +3212,7 @@ fn ownership_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
         @bunnia.data("ownership-stat", stat.id),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(stat.label),
         ]),
         @bunnia.text(stat.value.to_string()),
@@ -3257,11 +3235,11 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{item.kind} / \{item.visibility} / \{item.action_label} / \{ownership_item_target_tab(item)}",
           ),
@@ -3395,7 +3373,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text(building.summary),
       @bunnia.text("visibility: \{building.visibility}"),
       moderation_safety_row(projection, building),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text("primary book: \{book.title}; shelf: \{shelf.length()}"),
       ]),
       @bunnia.windowed_list(
@@ -3444,11 +3422,11 @@ fn book_shelf_entry(item : MiniTownBookShelfItem) -> @bunnia.Node {
         @bunnia.data("visibility", item.visibility),
       ],
       [
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text("\{item.title}"),
         ]),
         @bunnia.text(item.safe_summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{item.role} / \{item.accepted_memory_count} memories / \{item.pending_review_count} reviews / \{item.status}",
           ),
@@ -3540,7 +3518,7 @@ fn chat_drawer(projection : MiniTownProjection) -> @bunnia.Node {
     ],
     [
       @bunnia.text("Agent: \{agent.name}"),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
           "thread-\{building.id} / runtime: {{backendStatus.send_building_message.state || 'idle'}}",
         ),
