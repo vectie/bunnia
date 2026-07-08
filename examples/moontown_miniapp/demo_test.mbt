@@ -24,6 +24,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-tabbar"))
   assert_true(page.wxml.contains("data-map-surface=\"true\""))
   assert_true(page.wxml.contains("First Visit"))
+  assert_true(page.wxml.contains("Identity Setup"))
+  assert_true(page.wxml.contains("Town Builder"))
+  assert_true(page.wxml.contains("Accept Consent"))
   assert_true(page.wxml.contains("Realm is the map"))
   assert_true(page.wxml.contains("Map Districts"))
   assert_true(page.wxml.contains("Product Market"))
@@ -59,6 +62,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"tab-realm\""))
   assert_true(page.js.contains("\"complete-onboarding\""))
+  assert_true(page.js.contains("\"select-role-builder\""))
+  assert_true(page.js.contains("\"accept-profile-consent\""))
+  assert_true(page.js.contains("\"save-profile\""))
   assert_true(page.js.contains("\"switch-user-a\""))
   assert_true(page.js.contains("\"switch-user-b\""))
   assert_true(page.js.contains("\"dev-login\""))
@@ -88,7 +94,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
   assert_true(page.plan.scene_asset_count == 2)
-  assert_true(page.plan.windowed_list_count >= 4)
+  assert_true(page.plan.windowed_list_count >= 5)
 }
 
 ///|
@@ -121,7 +127,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 
   let mine = tab_page(projection, "my")
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
+  assert_true(mine.wxml.contains("Identity Setup"))
   assert_true(mine.wxml.contains("My Town"))
+  assert_true(mine.wxml.contains("ready: no"))
   assert_true(mine.wxml.contains("moontown-owned-entry"))
   assert_true(mine.wxml.contains("moontown-create-drawer"))
 }
@@ -151,6 +159,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/query",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/me/profile",
     ),
   )
   assert_true(
@@ -188,6 +201,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
     ),
   )
@@ -221,6 +239,9 @@ test "moontown miniapp generates wechat project with backend hooks" {
 test "moontown miniapp projection supports mock user create search and agent flows" {
   let projection = demo_projection()
   assert_eq(projection.users.length(), 2)
+  assert_eq(projection.profile.display_name, "Ada Builder")
+  assert_eq(projection.roles.length(), 5)
+  assert_true(!profile_ready_to_publish(projection))
   assert_eq(projection.tabs.length(), 5)
   assert_eq(projection.active_tab_id, "realm")
   assert_true(projection.tabs[2].map_surface)
@@ -236,6 +257,12 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(tabbed.active_tab_id, "discover")
   let onboarded = complete_onboarding(projection)
   assert_true(onboarded.onboarding_completed)
+  let profiled = complete_profile_setup(
+    accept_profile_consent(select_role(projection, "explorer")),
+  )
+  assert_eq(profiled.profile.role_id, "explorer")
+  assert_true(profiled.profile.consent_accepted)
+  assert_true(profile_ready_to_publish(profiled))
   let switched = switch_mock_user(projection, "user-b")
   assert_eq(switched.active_user_id, "user-b")
   assert_true(visible_buildings(switched).length() >= 8)
@@ -269,8 +296,8 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 10)
-  assert_eq(effects.effect_count, 10)
+  assert_eq(backend.endpoint_count, 11)
+  assert_eq(effects.effect_count, 11)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

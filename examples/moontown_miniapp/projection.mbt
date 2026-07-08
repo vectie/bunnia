@@ -5,6 +5,24 @@ pub struct MiniTownUser {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownProfile {
+  user_id : String
+  display_name : String
+  role_id : String
+  avatar_ref : String
+  consent_accepted : Bool
+  setup_completed : Bool
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownRole {
+  id : String
+  title : String
+  summary : String
+  building_id : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownBuilding {
   id : String
   title : String
@@ -83,6 +101,8 @@ pub struct MiniTownProjection {
   selected_building_id : String
   search_query : String
   users : Array[MiniTownUser]
+  profile : MiniTownProfile
+  roles : Array[MiniTownRole]
   tabs : Array[MiniTownTab]
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
@@ -95,6 +115,35 @@ pub struct MiniTownProjection {
 ///|
 pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser {
   { id, name }
+}
+
+///|
+pub fn mini_town_profile(
+  user_id~ : String,
+  display_name~ : String,
+  role_id~ : String,
+  avatar_ref~ : String,
+  consent_accepted? : Bool = false,
+  setup_completed? : Bool = false,
+) -> MiniTownProfile {
+  {
+    user_id,
+    display_name,
+    role_id,
+    avatar_ref,
+    consent_accepted,
+    setup_completed,
+  }
+}
+
+///|
+pub fn mini_town_role(
+  id~ : String,
+  title~ : String,
+  summary~ : String,
+  building_id~ : String,
+) -> MiniTownRole {
+  { id, title, summary, building_id }
 }
 
 ///|
@@ -206,6 +255,15 @@ pub fn demo_projection() -> MiniTownProjection {
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
     ],
+    profile: mini_town_profile(
+      user_id="user-a",
+      display_name="Ada Builder",
+      role_id="builder",
+      avatar_ref="avatar://ada",
+      consent_accepted=false,
+      setup_completed=false,
+    ),
+    roles: demo_roles(),
     tabs: demo_tabs(),
     onboarding_steps: demo_onboarding_steps(),
     districts: demo_districts(),
@@ -254,6 +312,42 @@ pub fn demo_projection() -> MiniTownProjection {
     ],
     notifications: demo_notifications(),
   }
+}
+
+///|
+fn demo_roles() -> Array[MiniTownRole] {
+  [
+    mini_town_role(
+      id="builder",
+      title="Town Builder",
+      summary="Create buildings, agents, and private workspaces.",
+      building_id="private-agent-lab",
+    ),
+    mini_town_role(
+      id="creator",
+      title="Creative Operator",
+      summary="Publish useful products, prompts, and agent experiences.",
+      building_id="market-square",
+    ),
+    mini_town_role(
+      id="explorer",
+      title="Knowledge Explorer",
+      summary="Search public buildings and learn from shared books.",
+      building_id="knowledge-house",
+    ),
+    mini_town_role(
+      id="practitioner",
+      title="AI Practitioner",
+      summary="Route real demands through reviewable agent workflows.",
+      building_id="review-council",
+    ),
+    mini_town_role(
+      id="wanderer",
+      title="Town Wanderer",
+      summary="Browse the town before committing to a public role.",
+      building_id="gateway",
+    ),
+  ]
 }
 
 ///|
@@ -590,6 +684,35 @@ pub fn complete_onboarding(
   projection : MiniTownProjection,
 ) -> MiniTownProjection {
   { ..projection, onboarding_completed: true }
+}
+
+///|
+pub fn select_role(
+  projection : MiniTownProjection,
+  role_id : String,
+) -> MiniTownProjection {
+  { ..projection, role_id, profile: { ..projection.profile, role_id, } }
+}
+
+///|
+pub fn accept_profile_consent(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  { ..projection, profile: { ..projection.profile, consent_accepted: true } }
+}
+
+///|
+pub fn complete_profile_setup(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  { ..projection, profile: { ..projection.profile, setup_completed: true } }
+}
+
+///|
+pub fn profile_ready_to_publish(projection : MiniTownProjection) -> Bool {
+  projection.profile.setup_completed &&
+  projection.profile.consent_accepted &&
+  projection.profile.role_id != ""
 }
 
 ///|

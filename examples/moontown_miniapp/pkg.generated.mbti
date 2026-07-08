@@ -12,7 +12,11 @@ import {
 }
 
 // Values
+pub fn accept_profile_consent(MiniTownProjection) -> MiniTownProjection
+
 pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
+
+pub fn complete_profile_setup(MiniTownProjection) -> MiniTownProjection
 
 pub fn create_agent_for_selected(MiniTownProjection, String, String) -> MiniTownProjection
 
@@ -70,6 +74,10 @@ pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, bod
 
 pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, building_id~ : String) -> MiniTownOnboardingStep
 
+pub fn mini_town_profile(user_id~ : String, display_name~ : String, role_id~ : String, avatar_ref~ : String, consent_accepted? : Bool, setup_completed? : Bool) -> MiniTownProfile
+
+pub fn mini_town_role(id~ : String, title~ : String, summary~ : String, building_id~ : String) -> MiniTownRole
+
 pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
 
 pub fn mini_town_user(id~ : String, name~ : String) -> MiniTownUser
@@ -78,7 +86,11 @@ pub fn mini_town_view(MiniTownProjection) -> @core.Node
 
 pub fn owned_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
 
+pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
+
 pub fn search_results(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn select_role(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 
@@ -150,6 +162,15 @@ pub struct MiniTownOnboardingStep {
   building_id : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownProfile {
+  user_id : String
+  display_name : String
+  role_id : String
+  avatar_ref : String
+  consent_accepted : Bool
+  setup_completed : Bool
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownProjection {
   id : String
   active_user_id : String
@@ -160,6 +181,8 @@ pub struct MiniTownProjection {
   selected_building_id : String
   search_query : String
   users : Array[MiniTownUser]
+  profile : MiniTownProfile
+  roles : Array[MiniTownRole]
   tabs : Array[MiniTownTab]
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
@@ -167,6 +190,13 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   notifications : Array[MiniTownNotification]
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownRole {
+  id : String
+  title : String
+  summary : String
+  building_id : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownTab {
