@@ -178,6 +178,8 @@ pub fn publish_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn reject_review(MiniTownProjection, String) -> MiniTownProjection
 
+pub fn restore_selected_building(MiniTownProjection) -> MiniTownProjection
+
 pub fn review_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn run_actions(MiniTownRun) -> Array[MiniTownRunAction]

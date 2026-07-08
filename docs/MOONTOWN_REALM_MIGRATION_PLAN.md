@@ -255,7 +255,9 @@ Done when:
 - public surfaces expose summaries, not private ledgers
 
 Current status: lifecycle pipeline and data-derived book shelf are implemented
-in the Moontown mini-app slice.
+in the Moontown mini-app slice. Archive and restore are both wired as explicit
+lifecycle operations, so owned archived work can return to the private draft
+workbench.
 
 ### R6: Messages And Agent Communication
 
@@ -318,7 +320,7 @@ Purpose: test the mature product locally before production.
 Build:
 
 - local dev login, snapshot, search, create, place, share, publish, archive,
-  chat, agent, run, review, and ownership APIs
+  restore, chat, agent, run, review, and ownership APIs
 - local persistence for users, profiles, buildings, placements, books, agents,
   threads, messages, runs, reviews, and audit events
 - WeChat DevTools target at `http://127.0.0.1:18191`

@@ -220,6 +220,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/buildings/archive") {
     return changeBuildingVisibility(state, viewer, body.buildingId, "archived", "archived", "archive", "archive");
   }
+  if (method === "POST" && path === "/miniapp/buildings/restore") {
+    return changeBuildingVisibility(state, viewer, body.buildingId, "private_draft", "draft", "restore", "draft");
+  }
   if (method === "POST" && path === "/miniapp/buildings/query") {
     return askBuilding(state, viewer, body);
   }
@@ -271,6 +274,7 @@ function routeCatalog() {
     "POST /miniapp/buildings/share",
     "POST /miniapp/buildings/publish",
     "POST /miniapp/buildings/archive",
+    "POST /miniapp/buildings/restore",
     "POST /miniapp/buildings/query",
     "POST /miniapp/runs/cancel",
     "POST /miniapp/runs/retry",
@@ -608,6 +612,11 @@ function smoke(options) {
   assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
+  dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  const archived = dispatch(state, { method: "POST", path: "/miniapp/buildings/archive", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  assert(archived.body.building.visibility === "archived", "archive building");
+  const restored = dispatch(state, { method: "POST", path: "/miniapp/buildings/restore", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
+  assert(restored.body.building.visibility === "private_draft", "restore building");
   dispatch(state, { method: "POST", path: "/miniapp/buildings/publish", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab" } });
   const search = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=smoke"), headers, body: {} });
   assert(search.body.items.some((item) => item.targetRef === "building:smoke-lab"), "published search");

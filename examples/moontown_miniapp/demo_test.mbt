@@ -133,6 +133,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("\"share-private-building\""))
   assert_true(page.js.contains("\"publish-private-building\""))
   assert_true(page.js.contains("\"archive-private-building\""))
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"restore-archived-building\""),
+  )
   assert_true(page.plan.scene_count == 1)
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
@@ -581,6 +584,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/buildings/restore",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/reviews/accept",
     ),
   )
@@ -701,6 +709,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"}",
     ),
   )
   assert_true(
@@ -959,7 +972,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(ready_gates[4].complete)
   assert_true(ready_gates[5].complete)
   let default_actions = selected_building_lifecycle_actions(projection)
-  assert_eq(default_actions.length(), 5)
+  assert_eq(default_actions.length(), 6)
   assert_eq(default_actions[0].id, "ask")
   assert_true(default_actions[0].allowed)
   assert_eq(default_actions[0].book_id, "book-policy-hall")
@@ -1029,7 +1042,15 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(visible_buildings(archived).length(), 9)
   let archived_steps = publication_steps(archived)
   assert_true(archived_steps[4].current)
-  assert_true(archived_steps[4].blocked)
+  assert_true(!archived_steps[4].blocked)
+  let archived_actions = selected_building_lifecycle_actions(archived)
+  assert_eq(archived_actions[5].id, "restore")
+  assert_true(archived_actions[5].allowed)
+  let restored = restore_selected_building(archived)
+  assert_eq(selected_building(restored).visibility, "private_draft")
+  assert_eq(selected_building_book(restored).visibility, "private_draft")
+  assert_eq(selected_building(restored).status, "draft")
+  assert_eq(selected_building_audit_events(restored).length(), 5)
   let agent_created = create_agent_for_selected(
     created, "agent-created", "Created Agent",
   )
@@ -1055,10 +1076,10 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 18)
+  assert_eq(backend.endpoint_count, 19)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
-  assert_eq(effects.effect_count, 18)
+  assert_eq(effects.effect_count, 19)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

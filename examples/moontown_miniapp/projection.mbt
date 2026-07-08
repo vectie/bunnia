@@ -2138,6 +2138,22 @@ pub fn selected_building_lifecycle_actions(
         "blocked"
       },
     ),
+    mini_town_lifecycle_action(
+      id="restore",
+      label="Restore",
+      message="restore-archived-building",
+      target_ref="building:\{building.id}",
+      book_id=book.id,
+      allowed=building.owner_id == projection.active_user_id &&
+        building.visibility == "archived",
+      reason=lifecycle_restore_reason(projection, building),
+      status=if building.owner_id == projection.active_user_id &&
+        building.visibility == "archived" {
+        "ready"
+      } else {
+        "blocked"
+      },
+    ),
   ]
 }
 
@@ -2211,13 +2227,14 @@ pub fn publication_steps(
       id="archive",
       label="Archive",
       summary=if building.visibility == "archived" {
-        "Hidden from normal map and discovery surfaces."
+        "Hidden from normal map and discovery surfaces; owner can restore to draft."
       } else {
         lifecycle_archive_reason(projection, building)
       },
       current=building.visibility == "archived",
       complete=building.visibility == "archived",
-      blocked=building.visibility == "archived",
+      blocked=building.visibility == "archived" &&
+        !is_owned_by_active_user(projection, building),
     ),
   ]
 }
@@ -2289,6 +2306,20 @@ fn lifecycle_archive_reason(
     "already archived"
   } else {
     "owner action"
+  }
+}
+
+///|
+fn lifecycle_restore_reason(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id != projection.active_user_id {
+    "owner only"
+  } else if building.visibility == "archived" {
+    "restore to draft"
+  } else {
+    "not archived"
   }
 }
 
@@ -2941,6 +2972,21 @@ pub fn archive_selected_building(
     kind="archive",
     title="\{building.title} archived",
     summary="The building is hidden from normal map and search surfaces.",
+  )
+}
+
+///|
+pub fn restore_selected_building(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  let building = selected_building(projection)
+  update_selected_building_lifecycle(
+    projection,
+    visibility="private_draft",
+    status="draft",
+    kind="restore",
+    title="\{building.title} restored",
+    summary="The archived building returned to the private draft workbench.",
   )
 }
 
