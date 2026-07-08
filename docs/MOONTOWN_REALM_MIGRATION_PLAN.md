@@ -440,7 +440,10 @@ explicit viewer permissions for profile readiness, creation, submission,
 publishing, placement, report, moderation, and review state, so mini-app
 surfaces do not need to infer capability from raw role strings. The local
 backend enforces profile readiness for building creation, sharing, submission,
-publication, and placement.
+publication, and placement. My now also exposes a compact Public Passport shelf
+for the visitor-facing profile summary: profile readiness, published places,
+watched town links, and review signals are visible as tile ledger rows without
+copying the reference profile page into a detached social surface.
 
 ### R3: Home Town Pulse
 
@@ -635,7 +638,10 @@ projection now also treats watches as first-class ownership objects: a watched
 public building is counted in the profile plaque, filterable from My, and routed
 back to Realm without becoming a detached social feed. The same watch model is
 ready for public people, books, agents, and listings as the mini-app gets a
-larger dynamic-result event payload.
+larger dynamic-result event payload. The Public Passport shelf gives My a
+reference-profile migration target while staying tile-native: public summary
+rows expose what visitors can understand about the identity, and all actions
+return to setup, Discover, Realm, or Messages.
 
 ### R8: Local Backend Loop
 

@@ -2746,6 +2746,7 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.text("own: {{ownership.filter || 'all'}}"),
     ]),
     profile_identity_card(projection),
+    public_passport_panel(projection),
     profile_credential_plaque(projection),
     ownership_sync_plaque(projection),
     operations_desk_panel(projection),
@@ -3017,6 +3018,134 @@ fn profile_metric_chip(label~ : String, value~ : Int) -> @bunnia.Node {
     ]),
     @bunnia.text(label),
   ])
+}
+
+///|
+fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let items = public_passport_items(projection)
+  let published = ownership_stat_value(ownership_stats(projection), "published")
+  let watches = visible_watches(projection).length()
+  let reviews = pending_reviews(projection).length()
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.data("public-passport", projection.profile.user_id),
+      @bunnia.data("public-passport-items", items.length().to_string()),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+        @bunnia.text("Public Passport"),
+      ]),
+      @bunnia.text("Public-facing identity without private work."),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+        @bunnia.text(
+          "\{projection.profile.role_id} / published \{published} / watches \{watches} / reviews \{reviews}",
+        ),
+      ]),
+      @bunnia.windowed_list(
+        items,
+        total_count=items.length(),
+        render=public_passport_entry,
+      ),
+    ],
+  )
+}
+
+///|
+fn public_passport_items(
+  projection : MiniTownProjection,
+) -> Array[MiniTownOwnershipItem] {
+  let stats = ownership_stats(projection)
+  let published = ownership_stat_value(stats, "published")
+  let watches = visible_watches(projection)
+  let reviews = pending_reviews(projection)
+  let profile_ready = profile_ready_to_publish(projection)
+  [
+    mini_town_ownership_item(
+      id="passport-profile",
+      kind="profile",
+      title=if profile_ready { "Profile ready" } else { "Profile incomplete" },
+      summary=if profile_ready {
+        "Role, consent, and saved profile can publish."
+      } else {
+        "Finish role, consent, and profile setup."
+      },
+      target_ref="profile:\{projection.profile.user_id}",
+      visibility="public",
+      status=if profile_ready { "ready" } else { "blocked" },
+      action_label="Save",
+      action_message="save-profile",
+    ),
+    mini_town_ownership_item(
+      id="passport-published",
+      kind="building",
+      title="\{published} published place",
+      summary="Public buildings can be discovered and placed.",
+      target_ref="building:published",
+      visibility="public",
+      status=if published > 0 { "ready" } else { "empty" },
+      action_label="Discover",
+      action_message="tab-discover",
+    ),
+    mini_town_ownership_item(
+      id="passport-watches",
+      kind="watch",
+      title="\{watches.length()} watched town link",
+      summary="Watched places stay attached to Realm.",
+      target_ref=if watches.length() > 0 {
+        watches[0].target_ref
+      } else {
+        "watch:none"
+      },
+      visibility="public",
+      status=if watches.length() > 0 { "watching" } else { "empty" },
+      action_label=if watches.length() > 0 { "Open" } else { "Discover" },
+      action_message=if watches.length() > 0 {
+        watches[0].action_message
+      } else {
+        "tab-discover"
+      },
+    ),
+    mini_town_ownership_item(
+      id="passport-reviews",
+      kind="review",
+      title="\{reviews.length()} review signal",
+      summary="Review requests show accountable agent work.",
+      target_ref="review:pending",
+      visibility="public",
+      status=if reviews.length() > 0 { "review" } else { "clear" },
+      action_label="Messages",
+      action_message="tab-messages",
+    ),
+  ]
+}
+
+///|
+fn public_passport_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
+  @bunnia.keyed(
+    "public-passport-\{item.id}",
+    @bunnia.node(
+      kind="view",
+      attrs=[
+        @bunnia.class_name("moontown-owned-entry bunnia-status-\{item.status}"),
+        @bunnia.data("public-passport-item", item.id),
+        @bunnia.data("ownership-kind", item.kind),
+        @bunnia.data("target-ref", item.target_ref),
+      ],
+      events=[@bunnia.event("tap", item.action_message)],
+      children=[
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
+          @bunnia.text(
+            "\{item.kind} / \{item.visibility} / \{item.action_label}",
+          ),
+        ]),
+      ],
+    ),
+  )
 }
 
 ///|

@@ -485,6 +485,34 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("Followers"))
   assert_true(mine.wxml.contains("Published"))
   assert_true(mine.wxml.contains("data-bunnia-message=\"save-profile\""))
+  assert_true(mine.wxml.contains("Public Passport"))
+  assert_true(mine.wxml.contains("data-public-passport=\"user-a\""))
+  assert_true(mine.wxml.contains("data-public-passport-items=\"4\""))
+  assert_true(
+    mine.wxml.contains("Public-facing identity without private work."),
+  )
+  assert_true(
+    mine.wxml.contains("builder / published 0 / watches 1 / reviews 1"),
+  )
+  assert_true(
+    mine.wxml.contains("data-public-passport-item=\"passport-profile\""),
+  )
+  assert_true(
+    mine.wxml.contains("data-public-passport-item=\"passport-published\""),
+  )
+  assert_true(
+    mine.wxml.contains("data-public-passport-item=\"passport-watches\""),
+  )
+  assert_true(
+    mine.wxml.contains("data-public-passport-item=\"passport-reviews\""),
+  )
+  assert_true(mine.wxml.contains("Profile incomplete"))
+  assert_true(mine.wxml.contains("0 published place"))
+  assert_true(mine.wxml.contains("1 watched town link"))
+  assert_true(mine.wxml.contains("1 review signal"))
+  assert_true(mine.wxml.contains("data-target-ref=\"review:pending\""))
+  assert_true(mine.wxml.contains("data-bunnia-message=\"tab-discover\""))
+  assert_true(mine.wxml.contains("data-bunnia-message=\"tab-messages\""))
   assert_true(mine.wxml.contains("moontown-credential-plaque"))
   assert_true(mine.wxml.contains("OPC Credential"))
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
