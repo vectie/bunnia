@@ -1565,7 +1565,7 @@ fn project_page_js_with_backend(
     name,
     plan,
     "__bunniaInitialData",
-    "    __bunniaMaybeRequest(this, message)\n",
+    "    __bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})\n",
     runtime.page_methods_js,
   )
 }
@@ -1642,18 +1642,16 @@ fn page_definition_js(
 
 ///|
 fn backend_request_dispatch_js() -> String {
-  "function __bunniaMaybeRequest(page, message) {\n" +
-  "  const endpointId = __bunniaBackendEvents[message]\n" +
-  "  if (!endpointId) return\n" +
-  "  const endpoint = __bunniaBackend.e[endpointId]\n" +
-  "  if (!endpoint) return\n" +
-  "  if (endpoint.k === 'agent-operation-cancel') {\n" +
-  "    return __bunniaRequest(page, endpointId)\n" +
-  "  }\n" +
-  "  if (endpoint.k === 'agent-operation-retry') {\n" +
-  "    return __bunniaRetryRequest(page, endpointId)\n" +
-  "  }\n" +
-  "  return __bunniaRequest(page, endpointId)\n" +
+  "function __bp(p,e,d){if(!(d&&d.runId))return;const b=e.p?p.data[e.p]||{}:{};b.runId=d.runId;return b}\n" +
+  "function __bunniaMaybeRequest(p,m,d){\n" +
+  "  const id=__bunniaBackendEvents[m]\n" +
+  "  if(!id)return\n" +
+  "  const e=__bunniaBackend.e[id]\n" +
+  "  if(!e)return\n" +
+  "  const pl=__bp(p,e,d)\n" +
+  "  if(e.k==='agent-operation-cancel')return __bunniaRequest(p,id,pl)\n" +
+  "  if(e.k==='agent-operation-retry')return pl?__bunniaRequest(p,id,pl):__bunniaRetryRequest(p,id)\n" +
+  "  return __bunniaRequest(p,id)\n" +
   "}\n"
 }
 

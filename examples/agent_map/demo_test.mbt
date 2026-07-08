@@ -127,11 +127,12 @@ test "agent map demo generates a mini-program file set" {
     project.page.js.contains("\"retry-agent-run\":\"retry-agent-run\""),
   )
   assert_true(
-    project.page.js.contains("endpoint.k === 'agent-operation-cancel'"),
+    project.page.js.contains(
+      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+    ),
   )
-  assert_true(
-    project.page.js.contains("endpoint.k === 'agent-operation-retry'"),
-  )
+  assert_true(project.page.js.contains("e.k==='agent-operation-cancel'"))
+  assert_true(project.page.js.contains("e.k==='agent-operation-retry'"))
   assert_true(!project.page.js.contains("\"send-agent-message\""))
   assert_true(!project.page.js.contains("\"stream-route-status\""))
   assert_true(!project.page.js.contains("\"review-route\""))
@@ -140,7 +141,11 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].backend_review_count, 0)
   assert_eq(project.manifest.pages[0].backend_cancel_count, 1)
   assert_eq(project.manifest.pages[0].backend_retry_count, 1)
-  assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
+  assert_true(
+    project.page.js.contains(
+      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+    ),
+  )
   assert_true(project.page.js.contains("__bunniaEventPatches"))
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))

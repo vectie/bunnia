@@ -77,10 +77,17 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   )
   let js = project.page.js
   let backend_js = file_content(project.files, "bunnia.backend.js")
-  assert_true(js.contains("return __bunniaRequest(page, endpointId)"))
-  assert_true(js.contains("__bunniaRetryRequest(page, endpointId)"))
-  assert_true(js.contains("endpoint.k === 'agent-operation-cancel'"))
-  assert_true(js.contains("endpoint.k === 'agent-operation-retry'"))
+  assert_true(
+    js.contains(
+      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+    ),
+  )
+  assert_true(js.contains("b.runId=d.runId;return b"))
+  assert_true(js.contains("e.k==='agent-operation-cancel'"))
+  assert_true(js.contains("e.k==='agent-operation-retry'"))
+  assert_true(
+    js.contains("pl?__bunniaRequest(p,id,pl):__bunniaRetryRequest(p,id)"),
+  )
   assert_true(backend_js.contains("k:\"agent-operation-cancel\""))
   assert_true(backend_js.contains("k:\"agent-operation-retry\""))
 }
@@ -239,8 +246,12 @@ test "wechat projects can package backend request adapter" {
   assert_true(project.page.js.contains("require('../../bunnia.backend.js')"))
   assert_true(project.page.js.contains("\"send-message\":\"send-message\""))
   assert_true(!project.page.js.contains("\"load-status\""))
-  assert_true(project.page.js.contains("__bunniaMaybeRequest(this, message)"))
-  assert_true(project.page.js.contains("__bunniaRequest(page, endpointId)"))
+  assert_true(
+    project.page.js.contains(
+      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+    ),
+  )
+  assert_true(project.page.js.contains("__bunniaRequest(p,id)"))
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
       "const __bunniaBackend = {b:\"backendBaseUrl\"",

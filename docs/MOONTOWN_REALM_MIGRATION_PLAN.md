@@ -283,6 +283,9 @@ Current slice:
   (`cancel-run`, `retry-run`) while the run id stays attached as UI
   data. That keeps Messages portable across WeChat, Alipay, and TikTok-style
   adapters without generating one endpoint per run.
+- The WeChat event bridge forwards tapped row data into agent run operations,
+  so a visible run plaque can cancel or retry the intended run rather than only
+  triggering a global endpoint.
 
 ## R7: My Ownership Workbench
 

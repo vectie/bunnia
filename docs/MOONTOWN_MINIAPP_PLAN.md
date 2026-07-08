@@ -1233,6 +1233,9 @@ Current evidence:
   `cancel-run` and `retry-run` endpoints, and the Home Backend Loop
   exposes both as tile rows for WeChat DevTools. Messages buttons carry the run
   id as data while using those stable endpoint messages.
+- The WeChat adapter forwards the tapped row dataset into agent run operations,
+  merging `runId` into cancel/retry payloads while leaving ordinary backend
+  buttons on their declared payload keys.
 - My now has tile-style ownership filters for all, drafts, published items,
   books, and agents. The filtered inventory keeps private buildings, books, and
   attached agents in one workbench while preserving the same owner-scoped

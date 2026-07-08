@@ -413,6 +413,14 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
+    project.page.js.contains(
+      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+    ),
+  )
+  assert_true(
+    project.page.js.contains("b.runId=d.runId;return b"),
+  )
+  assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",
     ),
