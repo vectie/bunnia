@@ -259,6 +259,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/agents") {
     return createAgent(state, viewer, body);
   }
+  if (method === "POST" && path === "/miniapp/agents/handoff") {
+    return handoffAgent(state, viewer, body);
+  }
   return { status: 404, changed: false, body: { error: "not_found", path, method } };
 }
 
@@ -293,6 +296,7 @@ function routeCatalog() {
     "POST /miniapp/messages/ack",
     "POST /miniapp/messages/subscribe",
     "POST /miniapp/agents",
+    "POST /miniapp/agents/handoff",
   ];
 }
 
@@ -716,6 +720,58 @@ function createAgent(state, viewer, body) {
   return changed({ agent, message, building });
 }
 
+function handoffAgent(state, viewer, body) {
+  const buildingId = body.buildingId || "policy-hall";
+  const building = visibleBuildings(state, viewer).find((item) => item.id === buildingId);
+  if (!building) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
+  const fromAgentId = body.fromAgentId || "agent-policy-guide";
+  const toAgentId = body.toAgentId || body.targetAgentId || "agent-builder";
+  const fromAgent = state.agents.find((item) => item.id === fromAgentId);
+  const toAgent = state.agents.find((item) => item.id === toAgentId);
+  if (!fromAgent) return { status: 404, changed: false, body: { error: "missing_from_agent", agentId: fromAgentId } };
+  if (!toAgent) return { status: 404, changed: false, body: { error: "missing_to_agent", agentId: toAgentId } };
+  const toBuilding = visibleBuildings(state, viewer).find((item) => item.id === toAgent.buildingId);
+  if (!toBuilding) return { status: 403, changed: false, body: { error: "target_agent_not_visible", agentId: toAgentId } };
+  const book = firstBookForBuilding(state, buildingId) || { id: `book-${buildingId}` };
+  const summary = String(body.summary || body.body || `Continue work from ${fromAgent.name}.`).trim();
+  const runId = `run-handoff-${state.nextRun++}`;
+  const threadId = body.threadId || `thread-${buildingId}`;
+  const message = {
+    id: `msg-handoff-${state.nextMessage++}`,
+    actorId: fromAgent.id,
+    threadId,
+    text: `${fromAgent.name} handed work to ${toAgent.name}: ${summary}`,
+    status: "running",
+  };
+  const run = {
+    id: runId,
+    agentId: toAgent.id,
+    buildingId,
+    bookId: book.id,
+    threadId,
+    title: `${toAgent.name} handoff`,
+    summary,
+    status: "running",
+    reviewRequired: true,
+    artifactRef: `handoff://${fromAgent.id}/${toAgent.id}/${buildingId}`,
+  };
+  const notification = {
+    id: `notice-handoff-${runId}`,
+    kind: "handoff",
+    title: "Agent handoff started",
+    body: `${fromAgent.name} moved work to ${toAgent.name} inside ${building.title}.`,
+    targetRef: `run:${runId}`,
+    buildingId,
+    unread: true,
+  };
+  toAgent.status = "running";
+  state.messages.push(message);
+  state.runs.push(run);
+  state.notifications.push(notification);
+  state.auditEvents.push(audit(`audit-handoff-${runId}`, "handoff", `${fromAgent.name} handed off work`, `${toAgent.name} received work in ${building.title}.`, fromAgent.id, `run:${runId}`, buildingId, "running", building.visibility));
+  return changed({ message, run, notification, fromAgent, toAgent, building });
+}
+
 function changeRunStatus(state, runId, status) {
   const run = state.runs.find((item) => item.id === runId) || state.runs[state.runs.length - 1];
   if (!run) return { status: 404, changed: false, body: { error: "missing_run", runId } };
@@ -862,6 +918,12 @@ function smoke(options) {
   const createdAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(createdAgent.body.agent.buildingId === "smoke-lab", "create agent building");
   assert(createdAgent.body.message.threadId === "thread-smoke-lab", "create agent message");
+  const helperAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke-helper", displayName: "Smoke Helper", buildingId: "smoke-lab" } });
+  assert(helperAgent.body.agent.buildingId === "smoke-lab", "create helper agent");
+  const handoff = dispatch(state, { method: "POST", path: "/miniapp/agents/handoff", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", fromAgentId: "agent-smoke", toAgentId: "agent-smoke-helper", summary: "Prepare the next publish pass." } });
+  assert(handoff.body.run.agentId === "agent-smoke-helper", "handoff target agent");
+  assert(handoff.body.message.threadId === "thread-smoke-lab", "handoff thread");
+  assert(handoff.body.notification.kind === "handoff", "handoff notification");
   const duplicateAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(duplicateAgent.status === 409, "duplicate agent blocked");
   const publicAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-public-denied", displayName: "Denied Agent", buildingId: "published-agent-lab" } });
@@ -903,9 +965,12 @@ function smoke(options) {
   const snapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers, body: {} });
   assert(snapshot.body.placements.length >= 2, "snapshot placements");
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
+  assert(snapshot.body.runs.some((item) => item.id === handoff.body.run.id), "snapshot handoff run");
+  assert(snapshot.body.notifications.some((item) => item.id === handoff.body.notification.id), "snapshot handoff notice");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab"), "ownership building");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke"), "ownership agent");
+  assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke-helper"), "ownership helper agent");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   saveState(statePath, state);
   rmSync(statePath);

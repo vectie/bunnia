@@ -86,6 +86,8 @@ pub fn filtered_ownership_items(MiniTownProjection) -> Array[MiniTownOwnershipIt
 
 pub fn guide_steps(MiniTownProjection) -> Array[MiniTownGuideStep]
 
+pub fn handoff_selected_building_agent(MiniTownProjection, String, String, String) -> MiniTownProjection
+
 pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn local_backend_base_url() -> String

@@ -376,7 +376,9 @@ flow so user messages can be persisted against the selected map building. The
 review queue now covers both book-memory reviews and publication reviews, so
 agent output and building publication share one decision surface. Creating an
 agent now attaches it to a building thread with an audit event, so agents are
-durable town workers rather than standalone form output.
+durable town workers rather than standalone form output. Agent handoff is now a
+first-class communication path: one agent can pass work to another through a
+building thread, producing a run, message, notification, and audit event.
 
 ### R7: My Ownership Workbench
 
@@ -448,7 +450,10 @@ backend loop has a review state instead of direct draft-to-public publishing.
 The local review endpoints now accept or reject publication reviews as well as
 book-memory reviews, matching the mini-app queue. Local agent creation now
 validates building ownership, rejects duplicates, persists the agent, writes a
-thread message, and returns it through snapshot and ownership APIs.
+thread message, and returns it through snapshot and ownership APIs. Local agent
+handoff now persists a building-thread message, reviewable run, notification,
+audit event, and updated target-agent status, so WeChat DevTools can exercise
+agent-to-agent work transfer on this Mac.
 
 ### R9: Style And Performance Hardening
 

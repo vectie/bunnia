@@ -754,6 +754,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move follow-up planning into the builder queue.\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"}",
     ),
   )
@@ -811,7 +816,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.profile.display_name, "Ada Builder")
   assert_eq(projection.roles.length(), 5)
   assert_eq(local_backend_base_url(), "http://127.0.0.1:18191")
-  assert_eq(projection.backend_steps.length(), 9)
+  assert_eq(projection.backend_steps.length(), 10)
   assert_eq(projection.backend_steps[0].endpoint_id, "dev-login")
   assert_eq(projection.backend_steps[1].path, "/miniapp/town/snapshot")
   assert_eq(projection.backend_steps[2].endpoint_id, "load-ownership-snapshot")
@@ -821,6 +826,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.backend_steps[6].endpoint_id, "retry-run")
   assert_eq(projection.backend_steps[7].endpoint_id, "ack-notification")
   assert_eq(projection.backend_steps[8].endpoint_id, "request-subscription")
+  assert_eq(projection.backend_steps[9].endpoint_id, "handoff-agent-work")
   assert_eq(projection.backend_cache_states.length(), 5)
   assert_eq(projection.backend_cache_states[1].id, "snapshot")
   assert_eq(projection.backend_cache_states[1].state, "stale-safe")
@@ -1165,6 +1171,28 @@ test "moontown miniapp projection supports mock user create search and agent flo
     filtered_ownership_items(agent_owned)[1].target_ref,
     "agent:agent-created",
   )
+  let handed_off = handoff_selected_building_agent(
+    projection, "agent-policy-guide", "agent-builder", "Move follow-up planning into the builder queue.",
+  )
+  assert_eq(selected_building_messages(handed_off).length(), 3)
+  assert_eq(
+    selected_building_messages(handed_off)[2].text,
+    "Policy Guide handed work to Builder: Move follow-up planning into the builder queue.",
+  )
+  assert_eq(
+    selected_building_messages(handed_off)[2].actor_id,
+    "agent-policy-guide",
+  )
+  assert_eq(active_runs(handed_off).length(), 4)
+  assert_eq(active_runs(handed_off)[3].agent_id, "agent-builder")
+  assert_eq(
+    active_runs(handed_off)[3].artifact_ref,
+    "handoff://agent-policy-guide/agent-builder/policy-hall",
+  )
+  assert_eq(visible_notifications(handed_off).length(), 8)
+  assert_eq(visible_notifications(handed_off)[7].kind, "handoff")
+  assert_eq(selected_building_audit_events(handed_off).length(), 2)
+  assert_eq(selected_building_audit_events(handed_off)[1].kind, "handoff")
 }
 
 ///|
@@ -1186,12 +1214,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 21)
-  assert_eq(backend.review_required_count, 13)
+  assert_eq(backend.endpoint_count, 22)
+  assert_eq(backend.review_required_count, 14)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 21)
+  assert_eq(effects.effect_count, 22)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)
