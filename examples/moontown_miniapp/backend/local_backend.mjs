@@ -1236,7 +1236,7 @@ function dispatch(state, request) {
     return ok(snapshotFor(state, viewer));
   }
   if (method === "GET" && path === "/miniapp/me/ownership") {
-    return ok(ownershipFor(state, viewer));
+    return ok(ownershipFor(state, viewer, request.query, body));
   }
   if (method === "GET" && path === "/miniapp/discover/search") {
     return ok(discoverSearchResult(state, viewer, request.query, body));
@@ -1585,7 +1585,7 @@ function syncThreadsForBuilding(state, building) {
   }
 }
 
-function ownershipFor(state, viewer) {
+function ownershipFor(state, viewer, query = new URLSearchParams(), body = {}) {
   const profile = profileFor(state, viewer);
   const permissions = permissionsFor(state, viewer, profile);
   const buildings = state.buildings.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || (item.visibility === "shared_private" && isBuildingSharedWith(state, item.id, viewer)));
@@ -1627,6 +1627,10 @@ function ownershipFor(state, viewer) {
       .map((item) => ownedItem("watch", item.id, targetTitleForRef(state, item.targetRef), "Public town updates are watched.", item.targetRef, "watching", item.status, "Open", actionMessageForTargetRef(item.targetRef))),
     ...discoveryActions.map((item) => ownedItem("discovery-action", item.id, item.title, `${item.kind} discovery ${item.action}.`, item.targetRef, item.kind, item.status, actionLabelForDiscoveryAction(item.action), actionMessageForTargetRef(item.targetRef))),
   ];
+  const filters = ownershipFilters(query, body);
+  const filteredItems = items.filter((item) => ownershipItemMatches(item, filters));
+  const page = discoverPage(filters, filteredItems.length);
+  const windowedItems = filteredItems.slice(page.offset, page.offset + page.limit);
   const alerts = [];
   if (!profile.setupCompleted || !profile.consentAccepted) {
     alerts.push({ id: "profile-setup", severity: "high", title: "Town passport incomplete", summary: "Finish identity setup before publishing.", targetRef: "profile:setup", action: "save-profile", status: "blocked" });
@@ -1645,7 +1649,14 @@ function ownershipFor(state, viewer) {
     permissions,
     relationships,
     stats,
-    items,
+    filters,
+    counts: ownershipCounts(filteredItems),
+    allCounts: ownershipCounts(items),
+    page: {
+      ...page,
+      returned: windowedItems.length,
+    },
+    items: windowedItems,
     alerts,
     reviews,
     shares,
@@ -1656,6 +1667,49 @@ function ownershipFor(state, viewer) {
     subscriptions,
     discoveryActions,
   };
+}
+
+function ownershipFilters(query, body) {
+  return {
+    query: String(query.get("query") || body.query || "").trim(),
+    kind: normalizeOwnershipValue(query.get("kind") || query.get("filter") || body.kind || body.filter || "all"),
+    visibility: normalizeOwnershipValue(query.get("visibility") || body.visibility || "all"),
+    status: normalizeOwnershipValue(query.get("status") || body.status || "all"),
+    limit: numberParam(query.get("limit") || body.limit, 50, 1, 50),
+    cursor: numberParam(query.get("cursor") || body.cursor || body.offset, 0, 0, 1000000),
+  };
+}
+
+function normalizeOwnershipValue(value) {
+  const normalized = String(value || "all").trim();
+  if (!normalized || normalized === "all") return "all";
+  if (normalized === "drafts") return "private_draft";
+  if (normalized === "published") return "published";
+  if (normalized === "placements") return "placement";
+  if (normalized === "books") return "book";
+  if (normalized === "agents") return "agent";
+  if (normalized === "watches") return "watch";
+  return normalized;
+}
+
+function ownershipItemMatches(item, filters) {
+  if (filters.kind !== "all" && item.kind !== filters.kind && item.visibility !== filters.kind) return false;
+  if (filters.visibility !== "all" && item.visibility !== filters.visibility) return false;
+  if (filters.status !== "all" && item.status !== filters.status) return false;
+  if (!filters.query) return true;
+  const needle = filters.query.toLowerCase();
+  return [item.id, item.kind, item.title, item.summary, item.targetRef, item.visibility, item.status]
+    .some((value) => String(value || "").toLowerCase().includes(needle));
+}
+
+function ownershipCounts(items) {
+  const counts = {};
+  for (const item of items) {
+    counts[item.kind] = (counts[item.kind] || 0) + 1;
+    counts[item.visibility] = (counts[item.visibility] || 0) + 1;
+    counts[item.status] = (counts[item.status] || 0) + 1;
+  }
+  return counts;
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
@@ -3168,6 +3222,26 @@ function smoke(options) {
   assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "building:policy-hall"), "ownership watch item");
   assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "circle:ai-exploration-camp"), "ownership circle watch item");
   assert(ownership.body.items.some((item) => item.kind === "discovery-action" && item.targetRef === "product:agent-publishing-kit" && item.actionLabel === "Open"), "ownership discovery item");
+  assert(ownership.body.page.limit === 50, "ownership default page limit");
+  assert(ownership.body.page.returned === ownership.body.items.length, "ownership returned count");
+  assert(ownership.body.allCounts.building >= 1, "ownership all counts building");
+  const ownershipAgents = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams("kind=agent&limit=1"), headers, body: {} });
+  assert(ownershipAgents.body.filters.kind === "agent", "ownership agent filter");
+  assert(ownershipAgents.body.page.limit === 1, "ownership agent page limit");
+  assert(ownershipAgents.body.page.returned === 1, "ownership agent page returned");
+  assert(ownershipAgents.body.page.total >= 2, "ownership agent page total");
+  assert(ownershipAgents.body.items.every((item) => item.kind === "agent"), "ownership agent page kinds");
+  assert(ownershipAgents.body.counts.agent >= 2, "ownership agent filtered count");
+  const ownershipNextAgents = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(`kind=agent&limit=1&cursor=${ownershipAgents.body.page.nextCursor}`), headers, body: {} });
+  assert(ownershipNextAgents.body.page.offset === 1, "ownership next agent offset");
+  assert(ownershipNextAgents.body.items[0].id !== ownershipAgents.body.items[0].id, "ownership next agent item");
+  const ownershipDrafts = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams("visibility=private_draft"), headers, body: {} });
+  assert(ownershipDrafts.body.filters.visibility === "private_draft", "ownership draft visibility filter");
+  assert(ownershipDrafts.body.items.length >= 1, "ownership draft items");
+  assert(ownershipDrafts.body.items.every((item) => item.visibility === "private_draft"), "ownership draft visibility");
+  const ownershipQuery = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams("query=helper"), headers, body: {} });
+  assert(ownershipQuery.body.filters.query === "helper", "ownership query echo");
+  assert(ownershipQuery.body.items.some((item) => item.targetRef === "agent:agent-smoke-helper"), "ownership query result");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");

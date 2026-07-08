@@ -712,7 +712,12 @@ ready for public people, books, agents, and listings as the mini-app gets a
 larger dynamic-result event payload. The Public Passport shelf gives My a
 reference-profile migration target while staying tile-native: public summary
 rows expose what visitors can understand about the identity, and all actions
-return to setup, Discover, Realm, or Messages.
+return to setup, Discover, Realm, or Messages. The local ownership sync contract
+now mirrors the UI workbench shape: `/miniapp/me/ownership` accepts kind,
+visibility, status, text query, limit, and cursor inputs, returns filter echo,
+filtered counts, all-counts, and page metadata, and only sends a bounded window
+of ownership rows by default. This keeps My scalable for large accounts without
+turning ownership filtering into fragile frontend-only state.
 
 ### R8: Local Backend Loop
 
@@ -744,7 +749,8 @@ Current status: Home exposes a tile-style Backend Loop panel for dev login,
 snapshot load, publish, building query, and cache state visibility. My also
 exposes an Ownership Sync plaque backed by `/miniapp/me/ownership`, so owned
 buildings, books, agents, placements, and workbench alerts can be exercised
-locally. Dev login and profile save now update durable local user/profile state
+locally through filtered, cursor-windowed sync results. Dev login and profile
+save now update durable local user/profile state
 instead of returning a throwaway profile object. Dev sessions are now opaque,
 expiring, and revocable through `/miniapp/auth/logout`, so local two-user
 testing exercises session failure instead of relying on predictable tokens.
