@@ -921,6 +921,11 @@ Current evidence:
   controls plus seeded request payloads, including share, publish, and archive, so the
   generated project can call the local backend through dev login before
   snapshot/search/chat/create/share/publish/archive actions.
+- Bunnia `examples/moontown_miniapp` also maps the reference community/home
+  concepts into a compact Home `Community Hub`: product market, demand hall,
+  event calendar, city guide, and OPC hub are tile districts attached to real
+  map buildings, with user/agent/building presence chips filtered by the same
+  visibility rules as the map.
 
 ## Phase 9: Real Backend And Deployment
 

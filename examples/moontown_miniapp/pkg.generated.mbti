@@ -20,6 +20,8 @@ pub fn active_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn archive_selected_building(MiniTownProjection) -> MiniTownProjection
 
+pub fn community_presence(MiniTownProjection) -> Array[MiniTownPresence]
+
 pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
 
 pub fn complete_profile_setup(MiniTownProjection) -> MiniTownProjection
@@ -82,7 +84,7 @@ pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibil
 
 pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
 
-pub fn mini_town_district(id~ : String, title~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, status~ : String) -> MiniTownDistrict
+pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String, building_id~ : String, summary~ : String, stat_label~ : String, stat_value~ : String, action_label~ : String, status~ : String) -> MiniTownDistrict
 
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
@@ -93,6 +95,8 @@ pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, 
 pub fn mini_town_ownership_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String, action_label~ : String) -> MiniTownOwnershipItem
 
 pub fn mini_town_ownership_stat(id~ : String, label~ : String, value~ : Int) -> MiniTownOwnershipStat
+
+pub fn mini_town_presence(id~ : String, title~ : String, subtitle~ : String, actor_kind~ : String, building_id~ : String, status~ : String) -> MiniTownPresence
 
 pub fn mini_town_profile(user_id~ : String, display_name~ : String, role_id~ : String, avatar_ref~ : String, consent_accepted? : Bool, setup_completed? : Bool) -> MiniTownProfile
 
@@ -241,10 +245,12 @@ pub struct MiniTownDiscoveryItem {
 pub struct MiniTownDistrict {
   id : String
   title : String
+  feature_kind : String
   building_id : String
   summary : String
   stat_label : String
   stat_value : String
+  action_label : String
   status : String
 } derive(Eq, @debug.Debug)
 
@@ -293,6 +299,15 @@ pub struct MiniTownOwnershipStat {
   value : Int
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownPresence {
+  id : String
+  title : String
+  subtitle : String
+  actor_kind : String
+  building_id : String
+  status : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownProfile {
   user_id : String
   display_name : String
@@ -317,6 +332,7 @@ pub struct MiniTownProjection {
   tabs : Array[MiniTownTab]
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
+  presence : Array[MiniTownPresence]
   buildings : Array[MiniTownBuilding]
   books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]

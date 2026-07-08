@@ -28,8 +28,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Town Builder"))
   assert_true(page.wxml.contains("Accept Consent"))
   assert_true(page.wxml.contains("Realm is the map"))
-  assert_true(page.wxml.contains("Map Districts"))
-  assert_true(page.wxml.contains("Product Market"))
+  assert_true(!page.wxml.contains("Product Market"))
   assert_true(page.wxml.contains("Discover"))
   assert_true(page.wxml.contains("Messages"))
   assert_true(!page.wxml.contains("My Town"))
@@ -129,6 +128,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(realm.wxml.contains("moontown-right-hud"))
   assert_true(!realm.wxml.contains("moontown-page-surface"))
   assert_true(realm.wxml.contains("data-map-surface=\"true\""))
+  assert_true(!realm.wxml.contains("Map Districts"))
+  assert_true(!realm.wxml.contains("Community Hub"))
 
   let home = tab_page(projection, "home")
   assert_true(home.wxml.contains("moontown-map-fullscreen"))
@@ -141,12 +142,27 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     ),
   )
   assert_true(home.wxml.contains("data-home-stat=\"visible-buildings\""))
+  assert_true(home.wxml.contains("Community Hub"))
+  assert_true(
+    home.wxml.contains(
+      "Reference feature pages become tile districts on the map.",
+    ),
+  )
+  assert_true(home.wxml.contains("data-feature-kind=\"market\""))
+  assert_true(home.wxml.contains("data-feature-kind=\"credential\""))
+  assert_true(home.wxml.contains("OPC Hub"))
+  assert_true(home.wxml.contains("8 checks / Verify"))
+  assert_true(home.wxml.contains("moontown-presence-chip"))
+  assert_true(home.wxml.contains("data-presence-id=\"presence-policy-guide\""))
+  assert_true(home.wxml.contains("data-actor-kind=\"agent\""))
+  assert_true(home.wxml.contains("Search Town"))
+  assert_true(home.wxml.contains("Publish Draft"))
   assert_true(home.wxml.contains("Recent Activity"))
   assert_true(home.wxml.contains("Policy answer waiting for review"))
   assert_true(home.wxml.contains("data-activity-kind=\"run\""))
   assert_true(home.wxml.contains("data-target-ref=\"thread-policy-hall\""))
   assert_true(home.wxml.contains("data-building-id=\"policy-hall\""))
-  assert_true(home.wxml.contains("Map Districts"))
+  assert_true(!home.wxml.contains("Map Districts"))
   assert_true(!home.wxml.contains("moontown-right-hud"))
 
   let discover = tab_page(projection, "discover")
@@ -362,7 +378,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.active_tab_id, "realm")
   assert_true(projection.tabs[2].map_surface)
   assert_eq(projection.onboarding_steps.length(), 4)
-  assert_eq(projection.districts.length(), 4)
+  assert_eq(projection.districts.length(), 5)
+  assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 4)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(projection.activity_items.length(), 5)
@@ -383,6 +400,9 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(owned_audit_events(projection).length(), 2)
   assert_eq(town_activity_items(projection).length(), 5)
   assert_eq(home_town_stats(projection).length(), 4)
+  assert_eq(community_presence(projection).length(), 4)
+  assert_eq(projection.districts[4].feature_kind, "credential")
+  assert_eq(projection.districts[4].action_label, "Verify")
   assert_eq(projection.buildings.length(), 10)
   assert_eq(visible_buildings(projection).length(), 9)
   assert_eq(visible_books(projection).length(), 7)
@@ -415,6 +435,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   let switched = switch_mock_user(projection, "user-b")
   assert_eq(switched.active_user_id, "user-b")
   assert_true(visible_buildings(switched).length() >= 8)
+  assert_eq(community_presence(switched).length(), 3)
   let created = create_private_building(
     projection, "created-agent-lab", "Created Agent Lab",
   )

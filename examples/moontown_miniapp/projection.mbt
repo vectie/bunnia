@@ -116,10 +116,22 @@ pub struct MiniTownOnboardingStep {
 pub struct MiniTownDistrict {
   id : String
   title : String
+  feature_kind : String
   building_id : String
   summary : String
   stat_label : String
   stat_value : String
+  action_label : String
+  status : String
+} derive(Debug, Eq)
+
+///|
+pub struct MiniTownPresence {
+  id : String
+  title : String
+  subtitle : String
+  actor_kind : String
+  building_id : String
   status : String
 } derive(Debug, Eq)
 
@@ -209,6 +221,7 @@ pub struct MiniTownProjection {
   tabs : Array[MiniTownTab]
   onboarding_steps : Array[MiniTownOnboardingStep]
   districts : Array[MiniTownDistrict]
+  presence : Array[MiniTownPresence]
   buildings : Array[MiniTownBuilding]
   books : Array[MiniTownBook]
   agents : Array[MiniTownAgent]
@@ -411,13 +424,37 @@ pub fn mini_town_onboarding_step(
 pub fn mini_town_district(
   id~ : String,
   title~ : String,
+  feature_kind~ : String,
   building_id~ : String,
   summary~ : String,
   stat_label~ : String,
   stat_value~ : String,
+  action_label~ : String,
   status~ : String,
 ) -> MiniTownDistrict {
-  { id, title, building_id, summary, stat_label, stat_value, status }
+  {
+    id,
+    title,
+    feature_kind,
+    building_id,
+    summary,
+    stat_label,
+    stat_value,
+    action_label,
+    status,
+  }
+}
+
+///|
+pub fn mini_town_presence(
+  id~ : String,
+  title~ : String,
+  subtitle~ : String,
+  actor_kind~ : String,
+  building_id~ : String,
+  status~ : String,
+) -> MiniTownPresence {
+  { id, title, subtitle, actor_kind, building_id, status }
 }
 
 ///|
@@ -551,6 +588,7 @@ pub fn demo_projection() -> MiniTownProjection {
     tabs: demo_tabs(),
     onboarding_steps: demo_onboarding_steps(),
     districts: demo_districts(),
+    presence: demo_presence(),
     buildings: demo_buildings(),
     books: demo_books(),
     agents: [
@@ -1011,38 +1049,95 @@ fn demo_districts() -> Array[MiniTownDistrict] {
     mini_town_district(
       id="product-market",
       title="Product Market",
+      feature_kind="market",
       building_id="market-square",
       summary="Published building and product showcase.",
       stat_label="products",
       stat_value="20",
+      action_label="Browse",
       status="running",
     ),
     mini_town_district(
       id="demand-hall",
       title="Demand Hall",
+      feature_kind="demand",
       building_id="review-council",
       summary="Requests, reviews, and agent jobs.",
       stat_label="demands",
       stat_value="34",
+      action_label="Review",
       status="review",
     ),
     mini_town_district(
       id="event-calendar",
       title="Event Calendar",
+      feature_kind="event",
       building_id="team-studio",
       summary="Team and public town activities.",
       stat_label="events",
       stat_value="6",
+      action_label="Join",
       status="shared",
     ),
     mini_town_district(
       id="city-guide",
       title="City Guide",
+      feature_kind="guide",
       building_id="gateway",
       summary="Search, onboarding, and safe routing.",
       stat_label="guides",
       stat_value="4",
+      action_label="Open",
       status="stable",
+    ),
+    mini_town_district(
+      id="opc-hub",
+      title="OPC Hub",
+      feature_kind="credential",
+      building_id="policy-hall",
+      summary="Registration, policy, and public trust checks.",
+      stat_label="checks",
+      stat_value="8",
+      action_label="Verify",
+      status="stable",
+    ),
+  ]
+}
+
+///|
+fn demo_presence() -> Array[MiniTownPresence] {
+  [
+    mini_town_presence(
+      id="presence-ada",
+      title="Ada Builder",
+      subtitle="publishing a private lab",
+      actor_kind="user",
+      building_id="private-agent-lab",
+      status="draft",
+    ),
+    mini_town_presence(
+      id="presence-policy-guide",
+      title="Policy Guide",
+      subtitle="reviewing public memory",
+      actor_kind="agent",
+      building_id="policy-hall",
+      status="review",
+    ),
+    mini_town_presence(
+      id="presence-map-curator",
+      title="Map Curator",
+      subtitle="placing market signals",
+      actor_kind="agent",
+      building_id="market-square",
+      status="running",
+    ),
+    mini_town_presence(
+      id="presence-team-studio",
+      title="Team Studio",
+      subtitle="shared with org members",
+      actor_kind="building",
+      building_id="team-studio",
+      status="shared",
     ),
   ]
 }
@@ -1586,6 +1681,32 @@ pub fn home_town_stats(
       value=town_activity_items(projection).length(),
     ),
   ]
+}
+
+///|
+pub fn community_presence(
+  projection : MiniTownProjection,
+) -> Array[MiniTownPresence] {
+  let output : Array[MiniTownPresence] = []
+  for item in projection.presence {
+    if mini_town_presence_visible_for(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+fn mini_town_presence_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownPresence,
+) -> Bool {
+  for building in visible_buildings(projection) {
+    if building.id == item.building_id {
+      return true
+    }
+  }
+  false
 }
 
 ///|
