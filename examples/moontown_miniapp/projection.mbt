@@ -150,6 +150,14 @@ pub struct MiniTownNotification {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownNotificationChannel {
+  id : String
+  label : String
+  kind : String
+  unread_only : Bool
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownDiscoveryItem {
   id : String
   kind : String
@@ -224,6 +232,7 @@ pub struct MiniTownProjection {
   selected_building_id : String
   search_query : String
   active_discovery_filter_id : String
+  active_notification_channel_id : String
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -238,6 +247,7 @@ pub struct MiniTownProjection {
   runs : Array[MiniTownRun]
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
+  notification_channels : Array[MiniTownNotificationChannel]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   activity_items : Array[MiniTownActivityItem]
@@ -495,6 +505,16 @@ pub fn mini_town_notification(
 }
 
 ///|
+pub fn mini_town_notification_channel(
+  id~ : String,
+  label~ : String,
+  kind~ : String,
+  unread_only? : Bool = false,
+) -> MiniTownNotificationChannel {
+  { id, label, kind, unread_only }
+}
+
+///|
 pub fn mini_town_discovery_item(
   id~ : String,
   kind~ : String,
@@ -593,6 +613,7 @@ pub fn demo_projection() -> MiniTownProjection {
     selected_building_id: "policy-hall",
     search_query: "agent",
     active_discovery_filter_id: "all",
+    active_notification_channel_id: "all",
     users: [
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
@@ -657,6 +678,7 @@ pub fn demo_projection() -> MiniTownProjection {
     runs: demo_runs(),
     reviews: demo_reviews(),
     notifications: demo_notifications(),
+    notification_channels: demo_notification_channels(),
     discovery_items: demo_discovery_items(),
     discovery_filters: demo_discovery_filters(),
     activity_items: demo_activity_items(),
@@ -1219,6 +1241,16 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       unread=false,
     ),
     mini_town_notification(
+      id="notice-run",
+      kind="agent-run",
+      title="Agent run completed",
+      body="Market placement scan finished with a placeable building suggestion.",
+      target_ref="run-market-scan",
+      building_id="market-square",
+      action_label="Open Run",
+      action_message="open-notice-run",
+    ),
+    mini_town_notification(
       id="notice-subscribe",
       kind="subscription",
       title="Subscribe to town signals",
@@ -1229,6 +1261,26 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       action_message="request-subscription",
       requires_subscription=true,
       unread=false,
+    ),
+  ]
+}
+
+///|
+fn demo_notification_channels() -> Array[MiniTownNotificationChannel] {
+  [
+    mini_town_notification_channel(id="all", label="All", kind="all"),
+    mini_town_notification_channel(
+      id="unread",
+      label="Unread",
+      kind="all",
+      unread_only=true,
+    ),
+    mini_town_notification_channel(id="agent", label="Agents", kind="agent-run"),
+    mini_town_notification_channel(id="review", label="Reviews", kind="review"),
+    mini_town_notification_channel(
+      id="system",
+      label="System",
+      kind="subscription",
     ),
   ]
 }
@@ -1896,6 +1948,14 @@ pub fn switch_discovery_filter(
 }
 
 ///|
+pub fn switch_notification_channel(
+  projection : MiniTownProjection,
+  channel_id : String,
+) -> MiniTownProjection {
+  { ..projection, active_notification_channel_id: channel_id }
+}
+
+///|
 pub fn complete_onboarding(
   projection : MiniTownProjection,
 ) -> MiniTownProjection {
@@ -2425,7 +2485,7 @@ pub fn unread_notifications(
   projection : MiniTownProjection,
 ) -> Array[MiniTownNotification] {
   let output : Array[MiniTownNotification] = []
-  for notice in projection.notifications {
+  for notice in visible_notifications(projection) {
     if notice.unread {
       output.push(notice)
     }
@@ -2438,10 +2498,75 @@ pub fn subscription_notifications(
   projection : MiniTownProjection,
 ) -> Array[MiniTownNotification] {
   let output : Array[MiniTownNotification] = []
-  for notice in projection.notifications {
+  for notice in visible_notifications(projection) {
     if notice.requires_subscription {
       output.push(notice)
     }
   }
   output
+}
+
+///|
+pub fn visible_notifications(
+  projection : MiniTownProjection,
+) -> Array[MiniTownNotification] {
+  let output : Array[MiniTownNotification] = []
+  for notice in projection.notifications {
+    if mini_town_notification_visible_for(projection, notice) {
+      output.push(notice)
+    }
+  }
+  output
+}
+
+///|
+pub fn filtered_notifications(
+  projection : MiniTownProjection,
+) -> Array[MiniTownNotification] {
+  let channel = selected_notification_channel(projection)
+  let output : Array[MiniTownNotification] = []
+  for notice in visible_notifications(projection) {
+    if mini_town_notification_channel_match(channel, notice) {
+      output.push(notice)
+    }
+  }
+  output
+}
+
+///|
+pub fn selected_notification_channel(
+  projection : MiniTownProjection,
+) -> MiniTownNotificationChannel {
+  for item in projection.notification_channels {
+    if item.id == projection.active_notification_channel_id {
+      return item
+    }
+  }
+  mini_town_notification_channel(id="all", label="All", kind="all")
+}
+
+///|
+fn mini_town_notification_channel_match(
+  channel : MiniTownNotificationChannel,
+  notice : MiniTownNotification,
+) -> Bool {
+  let kind_match = channel.kind == "all" || channel.kind == notice.kind
+  let unread_match = !channel.unread_only || notice.unread
+  kind_match && unread_match
+}
+
+///|
+fn mini_town_notification_visible_for(
+  projection : MiniTownProjection,
+  notice : MiniTownNotification,
+) -> Bool {
+  if notice.building_id == "" {
+    return true
+  }
+  for building in visible_buildings(projection) {
+    if building.id == notice.building_id {
+      return true
+    }
+  }
+  false
 }

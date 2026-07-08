@@ -930,6 +930,9 @@ Current evidence:
   buildings, agents, books, and placeable buildings. Published building search
   results expose a "Place On Map" action while private and non-building results
   remain visible only through safe filtered discovery data.
+- Messages now has tile-style channels for all, unread, agent-run, review, and
+  system notifications. Notification projection uses the same visible-building
+  boundary as the map, so private building notices do not leak across users.
 
 ## Phase 9: Real Backend And Deployment
 

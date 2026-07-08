@@ -72,6 +72,8 @@ pub fn demo_wechat_project_with_render_budget(@core.RenderBudget) -> @wechat.Wec
 
 pub fn filtered_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
+pub fn filtered_notifications(MiniTownProjection) -> Array[MiniTownNotification]
+
 pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
@@ -93,6 +95,8 @@ pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String,
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
 pub fn mini_town_notification(id~ : String, kind~ : String, title~ : String, body~ : String, target_ref~ : String, building_id? : String, action_label? : String, action_message? : String, requires_subscription? : Bool, unread? : Bool) -> MiniTownNotification
+
+pub fn mini_town_notification_channel(id~ : String, label~ : String, kind~ : String, unread_only? : Bool) -> MiniTownNotificationChannel
 
 pub fn mini_town_onboarding_step(id~ : String, title~ : String, body~ : String, building_id~ : String) -> MiniTownOnboardingStep
 
@@ -154,6 +158,8 @@ pub fn selected_building_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn selected_discovery_filter(MiniTownProjection) -> MiniTownDiscoveryFilter
 
+pub fn selected_notification_channel(MiniTownProjection) -> MiniTownNotificationChannel
+
 pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotification]
@@ -161,6 +167,8 @@ pub fn subscription_notifications(MiniTownProjection) -> Array[MiniTownNotificat
 pub fn switch_discovery_filter(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_mock_user(MiniTownProjection, String) -> MiniTownProjection
+
+pub fn switch_notification_channel(MiniTownProjection, String) -> MiniTownProjection
 
 pub fn switch_tab(MiniTownProjection, String) -> MiniTownProjection
 
@@ -175,6 +183,8 @@ pub fn visible_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 pub fn visible_books(MiniTownProjection) -> Array[MiniTownBook]
 
 pub fn visible_buildings(MiniTownProjection) -> Array[MiniTownBuilding]
+
+pub fn visible_notifications(MiniTownProjection) -> Array[MiniTownNotification]
 
 pub fn visible_reviews(MiniTownProjection) -> Array[MiniTownReviewItem]
 
@@ -290,6 +300,13 @@ pub struct MiniTownNotification {
   unread : Bool
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownNotificationChannel {
+  id : String
+  label : String
+  kind : String
+  unread_only : Bool
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownOnboardingStep {
   id : String
   title : String
@@ -342,6 +359,7 @@ pub struct MiniTownProjection {
   selected_building_id : String
   search_query : String
   active_discovery_filter_id : String
+  active_notification_channel_id : String
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -356,6 +374,7 @@ pub struct MiniTownProjection {
   runs : Array[MiniTownRun]
   reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
+  notification_channels : Array[MiniTownNotificationChannel]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
   activity_items : Array[MiniTownActivityItem]

@@ -195,7 +195,12 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
+  assert_true(messages.wxml.contains("moontown-message-channel active"))
+  assert_true(messages.wxml.contains("data-channel-id=\"agent\""))
+  assert_true(messages.wxml.contains("data-channel-kind=\"agent-run\""))
   assert_true(messages.wxml.contains("Memory review needed"))
+  assert_true(messages.wxml.contains("Agent run completed"))
+  assert_true(messages.wxml.contains("data-notice-kind=\"agent-run\""))
   assert_true(messages.wxml.contains("Agent Runs"))
   assert_true(
     messages.wxml.contains(
@@ -339,6 +344,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"messages\":{\"channel\":\"all\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"shell\":{\"activeTab\":\"realm\",\"onboardingCompleted\":\"false\"}",
     ),
   )
@@ -391,7 +401,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.onboarding_steps.length(), 4)
   assert_eq(projection.districts.length(), 5)
   assert_eq(projection.presence.length(), 4)
-  assert_eq(projection.notifications.length(), 4)
+  assert_eq(projection.notifications.length(), 5)
+  assert_eq(projection.notification_channels.length(), 5)
   assert_eq(projection.discovery_items.length(), 6)
   assert_eq(projection.discovery_filters.length(), 5)
   assert_eq(projection.activity_items.length(), 5)
@@ -399,8 +410,14 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.books.length(), 7)
   assert_eq(projection.runs.length(), 4)
   assert_eq(projection.reviews.length(), 1)
-  assert_eq(unread_notifications(projection).length(), 2)
+  assert_eq(unread_notifications(projection).length(), 3)
   assert_eq(subscription_notifications(projection).length(), 1)
+  assert_eq(visible_notifications(projection).length(), 5)
+  assert_eq(filtered_notifications(projection).length(), 5)
+  let agent_notices = switch_notification_channel(projection, "agent")
+  assert_eq(selected_notification_channel(agent_notices).id, "agent")
+  assert_eq(filtered_notifications(agent_notices).length(), 1)
+  assert_eq(filtered_notifications(agent_notices)[0].kind, "agent-run")
   assert_eq(visible_runs(projection).length(), 4)
   assert_eq(visible_reviews(projection).length(), 1)
   assert_eq(active_runs(projection).length(), 3)
@@ -459,6 +476,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(switched.active_user_id, "user-b")
   assert_true(visible_buildings(switched).length() >= 8)
   assert_eq(community_presence(switched).length(), 3)
+  assert_eq(visible_notifications(switched).length(), 4)
+  assert_eq(unread_notifications(switched).length(), 2)
   let created = create_private_building(
     projection, "created-agent-lab", "Created Agent Lab",
   )
