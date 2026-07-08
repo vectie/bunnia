@@ -306,10 +306,12 @@ Done when:
 - private drafts and shared-private content stay hidden
 - search stays responsive with large fixtures
 
-Current status: Discover has tile-style filters and non-generic people/circle
-spotlights. The local backend search now returns public buildings, users,
-agents, books, review demands, and run events while keeping private and
-shared-private work out of public results.
+Current status: Discover has tile-style filters plus non-generic people,
+circle, and market spotlights. The local backend search now returns public
+buildings, users, agents, books, products, review demands, run events, and
+public posts while keeping private and shared-private work out of public
+results. This keeps the realm as the map and moves the remaining maturity work
+into the market-board/search surface.
 
 ### R5: Building Lifecycle And Books
 
@@ -458,7 +460,9 @@ handoff now persists a building-thread message, reviewable run, notification,
 audit event, and updated target-agent status, so WeChat DevTools can exercise
 agent-to-agent work transfer on this Mac. Tool-result acknowledgement is also
 local-backend backed, so tool artifacts can move from pending to acknowledged
-state and survive DevTools reloads.
+state and survive DevTools reloads. The local backend also seeds durable market
+listings for products, demands, events, and posts, so existing DevTools state can
+exercise non-building discovery without resetting the local database.
 
 ### R9: Style And Performance Hardening
 

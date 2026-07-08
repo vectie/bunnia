@@ -96,6 +96,8 @@ pub fn home_town_stats(MiniTownProjection) -> Array[MiniTownOwnershipStat]
 
 pub fn local_backend_base_url() -> String
 
+pub fn market_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
+
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
 
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent

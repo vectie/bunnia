@@ -1308,10 +1308,19 @@ fn demo_discovery_items() -> Array[MiniTownDiscoveryItem] {
       status="review",
     ),
     mini_town_discovery_item(
+      id="discover-product-agent-kit",
+      kind="product",
+      title="Agent Publishing Kit",
+      summary="Reusable workflow kit for publishing reviewed agent buildings.",
+      target_ref="product:agent-publishing-kit",
+      visibility="published",
+      status="stable",
+    ),
+    mini_town_discovery_item(
       id="discover-event-studio",
       kind="event",
       title="Team Studio Session",
-      summary="Shared organization session for map and book planning.",
+      summary="Shared organization agent session for map and book planning.",
       target_ref="event:team-studio",
       visibility="shared_private",
       status="shared",
@@ -2645,6 +2654,22 @@ pub fn discovery_results_by_kind(
   let output : Array[MiniTownDiscoveryItem] = []
   for item in unified_discovery_results(projection) {
     if item.kind == kind {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
+pub fn market_discovery_results(
+  projection : MiniTownProjection,
+) -> Array[MiniTownDiscoveryItem] {
+  let output : Array[MiniTownDiscoveryItem] = []
+  for item in unified_discovery_results(projection) {
+    if item.kind == "product" ||
+      item.kind == "demand" ||
+      item.kind == "event" ||
+      item.kind == "post" {
       output.push(item)
     }
   }

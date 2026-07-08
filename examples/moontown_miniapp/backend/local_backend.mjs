@@ -28,6 +28,7 @@ function seedState() {
     ],
     shares: [],
     sessions: {},
+    listings: defaultListings(),
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
       building("private-agent-lab", "Private Agent Lab", "agent_lab", "private_draft", "user-a", "Draft agent creation space visible only to Ada.", ["agent", "private", "draft"], 432, 513, "draft"),
@@ -96,6 +97,19 @@ function shareGrant(id, buildingId, ownerId, targetUserId, scope, status) {
   return { id, buildingId, ownerId, targetUserId, scope, status };
 }
 
+function listing(id, kind, title, summary, targetRef, visibility, status) {
+  return { id, kind, title, summary, targetRef, visibility, status };
+}
+
+function defaultListings() {
+  return [
+    listing("product-agent-publishing-kit", "product", "Agent Publishing Kit", "Reusable workflow kit for publishing reviewed agent buildings.", "product:agent-publishing-kit", "published", "stable"),
+    listing("demand-review-council", "demand", "Review Demand", "Human approval needed before agent output becomes memory.", "demand:review-council", "published", "review"),
+    listing("event-team-studio", "event", "Team Studio Session", "Shared organization agent session for map and book planning.", "event:team-studio", "published", "shared"),
+    listing("post-agent-lab-field-note", "post", "Agent Lab Field Note", "A public note about placing published agent buildings.", "post:published-agent-lab", "published", "stable"),
+  ];
+}
+
 function audit(id, kind, title, summary, actorId, targetRef, buildingId, status, visibility) {
   return { id, kind, title, summary, actorId, targetRef, buildingId, status, visibility, timestamp: new Date().toISOString() };
 }
@@ -154,6 +168,7 @@ function normalizeState(state) {
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.shares = state.shares || [];
+  state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = state.sessions || {};
   state.messages = state.messages || [];
   state.runs = state.runs || [];
@@ -513,6 +528,17 @@ function discoverItems(state, viewer, query) {
         title: item.title,
         summary: item.summary,
         targetRef: `book:${item.id}`,
+        visibility: item.visibility,
+        status: item.status,
+      })),
+    ...state.listings
+      .filter((item) => item.visibility === "published")
+      .map((item) => ({
+        id: item.id,
+        kind: item.kind,
+        title: item.title,
+        summary: item.summary,
+        targetRef: item.targetRef,
         visibility: item.visibility,
         status: item.status,
       })),
@@ -938,6 +964,10 @@ function smoke(options) {
   assert(!privateSearch.body.items.some((item) => item.targetRef === "book:book-shared-lab"), "shared private book hidden from public search");
   const userSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=chen"), headers: registeredHeaders, body: {} });
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
+  const productSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=product"), headers, body: {} });
+  assert(productSearch.body.items.some((item) => item.kind === "product" && item.targetRef === "product:agent-publishing-kit"), "public product search");
+  const postSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=field"), headers, body: {} });
+  assert(postSearch.body.items.some((item) => item.kind === "post" && item.targetRef === "post:published-agent-lab"), "public post search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
   assert(created.body.building.visibility === "private_draft", "create draft");
   const createdAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });

@@ -251,7 +251,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
   assert_true(
     discover.wxml.contains(
-      "Search buildings, users, agents, books, events, demands, and posts.",
+      "Search buildings, users, agents, books, products, events, demands, and posts.",
     ),
   )
   assert_true(
@@ -260,9 +260,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("moontown-discover-entry"))
   assert_true(discover.wxml.contains("Town People"))
   assert_true(discover.wxml.contains("Town Circles"))
+  assert_true(discover.wxml.contains("Town Market"))
   assert_true(discover.wxml.contains("moontown-discovery-chip"))
   assert_true(discover.wxml.contains("Deep Cultivator"))
   assert_true(discover.wxml.contains("AI Exploration Camp"))
+  assert_true(discover.wxml.contains("Agent Publishing Kit"))
+  assert_true(discover.wxml.contains("data-discovery-kind=\"product\""))
+  assert_true(
+    discover.wxml.contains("data-target-ref=\"product:agent-publishing-kit\""),
+  )
+  assert_true(discover.wxml.contains("Team Studio Session"))
+  assert_true(discover.wxml.contains("data-discovery-kind=\"event\""))
   assert_true(discover.wxml.contains("discover-search"))
   assert_true(discover.wxml.contains("moontown-discovery-filter active"))
   assert_true(discover.wxml.contains("data-filter-id=\"user\""))
@@ -884,7 +892,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 7)
   assert_eq(projection.notification_channels.length(), 7)
-  assert_eq(projection.discovery_items.length(), 10)
+  assert_eq(projection.discovery_items.length(), 11)
   assert_eq(projection.discovery_filters.length(), 7)
   assert_eq(projection.activity_items.length(), 5)
   assert_eq(projection.audit_events.length(), 4)
@@ -963,6 +971,11 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_true(filtered_discovery_results(projection).length() >= 6)
   assert_eq(discovery_results_by_kind(projection, "user").length(), 3)
   assert_eq(discovery_results_by_kind(projection, "circle").length(), 2)
+  assert_eq(discovery_results_by_kind(projection, "product").length(), 1)
+  assert_eq(discovery_results_by_kind(projection, "demand").length(), 1)
+  assert_eq(discovery_results_by_kind(projection, "event").length(), 1)
+  assert_eq(discovery_results_by_kind(projection, "post").length(), 1)
+  assert_eq(market_discovery_results(projection).length(), 4)
   let people = switch_discovery_filter(projection, "user")
   assert_eq(selected_discovery_filter(people).id, "user")
   assert_eq(filtered_discovery_results(people).length(), 3)

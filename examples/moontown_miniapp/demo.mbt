@@ -1607,6 +1607,7 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let results = filtered_discovery_results(projection)
   let people = discovery_results_by_kind(projection, "user")
   let circles = discovery_results_by_kind(projection, "circle")
+  let market = market_discovery_results(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel")], [
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-shell-panel-title")],
@@ -1614,7 +1615,7 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-panel-note")], [
       @bunnia.text(
-        "Search buildings, users, agents, books, events, demands, and posts.",
+        "Search buildings, users, agents, books, products, events, demands, and posts.",
       ),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-entry-meta")], [
@@ -1627,6 +1628,7 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     discover_spotlight_section("Town People", people),
     discover_spotlight_section("Town Circles", circles),
+    discover_spotlight_section("Town Market", market),
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-discovery-filters")],
       [
