@@ -352,6 +352,20 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Subscribe Sync"))
   assert_true(messages.wxml.contains("Tool Ack"))
   assert_true(
+    messages.wxml.contains("data-backend-endpoint=\"load-message-center\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-backend-path=\"/miniapp/messages/center\""),
+  )
+  assert_true(
+    messages.wxml.contains(
+      "{{backendStatus.load_message_center.state || 'idle'}}",
+    ),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"load-message-center\""),
+  )
+  assert_true(
     messages.wxml.contains("data-backend-endpoint=\"ack-notification\""),
   )
   assert_true(
@@ -761,6 +775,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/messages/center",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/messages/subscribe",
     ),
   )
@@ -902,6 +921,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"ownershipQuery\":{\"includeAlerts\":true}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"messageCenterQuery\":{\"channel\":\"all\",\"limit\":30}",
     ),
   )
   assert_true(
@@ -1073,23 +1097,25 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.profile.display_name, "Ada Builder")
   assert_eq(projection.roles.length(), 5)
   assert_eq(local_backend_base_url(), "http://127.0.0.1:18191")
-  assert_eq(projection.backend_steps.length(), 13)
+  assert_eq(projection.backend_steps.length(), 14)
   assert_eq(projection.backend_steps[0].endpoint_id, "dev-login")
   assert_eq(projection.backend_steps[1].path, "/miniapp/town/snapshot")
   assert_eq(projection.backend_steps[2].endpoint_id, "load-ownership-snapshot")
   assert_eq(projection.backend_steps[2].path, "/miniapp/me/ownership")
-  assert_eq(projection.backend_steps[3].status, "guarded")
-  assert_eq(projection.backend_steps[5].endpoint_id, "cancel-run")
-  assert_eq(projection.backend_steps[6].endpoint_id, "retry-run")
-  assert_eq(projection.backend_steps[7].endpoint_id, "ack-notification")
-  assert_eq(projection.backend_steps[8].endpoint_id, "request-subscription")
-  assert_eq(projection.backend_steps[9].endpoint_id, "discover-action")
-  assert_eq(projection.backend_steps[9].path, "/miniapp/discover/action")
-  assert_eq(projection.backend_steps[10].endpoint_id, "handoff-agent-work")
-  assert_eq(projection.backend_steps[11].endpoint_id, "load-admin-ops")
-  assert_eq(projection.backend_steps[11].path, "/miniapp/admin/ops")
-  assert_eq(projection.backend_steps[12].endpoint_id, "load-admin-readiness")
-  assert_eq(projection.backend_steps[12].path, "/miniapp/admin/readiness")
+  assert_eq(projection.backend_steps[3].endpoint_id, "load-message-center")
+  assert_eq(projection.backend_steps[3].path, "/miniapp/messages/center")
+  assert_eq(projection.backend_steps[4].status, "guarded")
+  assert_eq(projection.backend_steps[6].endpoint_id, "cancel-run")
+  assert_eq(projection.backend_steps[7].endpoint_id, "retry-run")
+  assert_eq(projection.backend_steps[8].endpoint_id, "ack-notification")
+  assert_eq(projection.backend_steps[9].endpoint_id, "request-subscription")
+  assert_eq(projection.backend_steps[10].endpoint_id, "discover-action")
+  assert_eq(projection.backend_steps[10].path, "/miniapp/discover/action")
+  assert_eq(projection.backend_steps[11].endpoint_id, "handoff-agent-work")
+  assert_eq(projection.backend_steps[12].endpoint_id, "load-admin-ops")
+  assert_eq(projection.backend_steps[12].path, "/miniapp/admin/ops")
+  assert_eq(projection.backend_steps[13].endpoint_id, "load-admin-readiness")
+  assert_eq(projection.backend_steps[13].path, "/miniapp/admin/readiness")
   assert_eq(projection.backend_cache_states.length(), 5)
   assert_eq(projection.backend_cache_states[1].id, "snapshot")
   assert_eq(projection.backend_cache_states[1].state, "stale-safe")
@@ -1598,12 +1624,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(tool_result.missing_ack_count, 0)
   assert_eq(tool_result.artifact_ref_count, 2)
   assert_eq(tool_result.diagnostics.length(), 0)
-  assert_eq(backend.endpoint_count, 31)
+  assert_eq(backend.endpoint_count, 32)
   assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 31)
+  assert_eq(effects.effect_count, 32)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

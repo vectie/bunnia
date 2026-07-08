@@ -679,7 +679,10 @@ the endpoint normalizes notifications, reviews, runs, tool results, threads,
 and messages into one tile mail stream with channel, status, building, thread,
 text query, limit, and cursor filters. It returns filter echo, all-counts,
 filtered counts, and page metadata, so Messages can grow around agent work
-without pushing every visible thread and notice through one snapshot update.
+without pushing every visible thread and notice through one snapshot update. The
+generated Messages tab now exposes that route as a compact Center Sync tile with
+its own backend status, payload key, response key, and tap action, keeping the
+mail-board UI aligned with the same bounded sync model as Discover and My.
 
 ### R7: My Ownership Workbench
 
@@ -775,7 +778,9 @@ can see them while uninvited users and public search cannot. Message send is
 also persisted locally through `/miniapp/messages/send`, and snapshots now
 return durable visible threads plus messages attached to those threads. The
 local backend also exposes `/miniapp/messages/center` for filtered,
-cursor-windowed message, notice, review, run, tool-result, and thread sync.
+cursor-windowed message, notice, review, run, tool-result, and thread sync, and
+the generated mini-app now carries a `messageCenterQuery` payload plus a
+`load-message-center` backend endpoint to exercise it from WeChat DevTools.
 Discover search now exercises multi-kind public results instead of a building-only route. Local
 building publication now goes through `/miniapp/buildings/submit` before
 `/miniapp/buildings/publish`, so the backend loop has a review state instead of

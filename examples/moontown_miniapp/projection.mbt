@@ -1854,6 +1854,15 @@ fn demo_backend_steps() -> Array[MiniTownBackendStep] {
       status="ready",
     ),
     mini_town_backend_step(
+      id="message-center",
+      label="Sync Messages",
+      endpoint_id="load-message-center",
+      http_method="GET",
+      path="/miniapp/messages/center",
+      summary="Pull a filtered, cursor-windowed mail stream for Messages.",
+      status="ready",
+    ),
+    mini_town_backend_step(
       id="publish",
       label="Publish",
       endpoint_id="publish-private-building",
