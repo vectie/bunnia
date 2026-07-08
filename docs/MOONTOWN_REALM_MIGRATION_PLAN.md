@@ -798,7 +798,11 @@ moderator-only audit/backup/recovery/ops/readiness endpoints, moderator
 list/grant/revoke routes, retention prune route, a local startup/interval
 retention scheduler, an external monitoring incident report route, moderator-only
 incident review/resolve routes, and moderator-only abuse hold/release routes for
-users and buildings.
+users and buildings. My now exposes these production-readiness hooks as a
+compact Ops Desk plaque with separate Ops Check and Readiness actions, so
+reviewers can exercise health, incidents, retention, recovery, deployment
+readiness, and secret-safety checks from the tile workbench instead of a hidden
+placeholder button.
 The readiness route checks backend-only WeChat app credentials, approved HTTPS or
 cloud deployment, production storage, monitoring sink, retention scheduler, and
 reviewer identity configuration without returning secret values. Backend startup
