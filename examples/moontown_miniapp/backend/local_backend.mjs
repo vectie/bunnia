@@ -42,6 +42,7 @@ function seedState() {
       profile("user-b", "Bo Curator", "explorer", "avatar://bo", true, true),
     ],
     moderatorIds: ["user-a"],
+    reviewerConfig: reviewerConfig("seed", ["user-a"], ""),
     shares: [],
     sessions: {},
     rateLimits: {},
@@ -136,6 +137,10 @@ function subscription(id, userId, targetRef, noticeId, status) {
 
 function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns) {
   return { enabled, intervalMs, lastRunAt, lastMode, lastRemoved, totalRuns };
+}
+
+function reviewerConfig(source, reviewerIds, appliedAt) {
+  return { source, reviewerIds, appliedAt };
 }
 
 function incident(id, severity, status, source, title, summary, route, actorId, targetRef) {
@@ -239,6 +244,7 @@ function normalizeState(state) {
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
+  state.reviewerConfig = normalizeReviewerConfig(state.reviewerConfig, state.moderatorIds);
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = normalizeSessions(state.sessions || {});
@@ -306,6 +312,24 @@ function normalizeRetentionJob(raw) {
       expiredAuditEvents: Number(removed.expiredAuditEvents || 0),
     },
     Number(raw && raw.totalRuns ? raw.totalRuns : 0),
+  );
+}
+
+function reviewerIdsFromEnv(env = process.env) {
+  return Array.from(new Set(String(env.MINIAPP_ADMIN_REVIEWER_IDS || "")
+    .split(/[,\s]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)));
+}
+
+function normalizeReviewerConfig(raw, fallbackIds) {
+  const reviewerIds = raw && Array.isArray(raw.reviewerIds) && raw.reviewerIds.length > 0
+    ? Array.from(new Set(raw.reviewerIds.filter(Boolean)))
+    : Array.from(new Set(fallbackIds || []));
+  return reviewerConfig(
+    raw && raw.source ? raw.source : "state",
+    reviewerIds,
+    raw && raw.appliedAt ? raw.appliedAt : "",
   );
 }
 
@@ -384,6 +408,7 @@ function healthFor(state) {
     routeCount: routeCatalog().length,
     userCount: state.users.length,
     moderatorCount: state.moderatorIds.length,
+    reviewerConfigSource: state.reviewerConfig.source,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
     activeAbuseHoldCount: activeAbuseHolds,
@@ -414,7 +439,42 @@ function moderatorsForAdmin(state, viewer) {
       profileReady: Boolean(profile && profile.setupCompleted && profile.consentAccepted),
     };
   });
-  return ok({ items, count: items.length });
+  return ok({ items, count: items.length, reviewerConfig: state.reviewerConfig });
+}
+
+function ensureReviewerIdentity(state, userId) {
+  let user = state.users.find((item) => item.id === userId);
+  if (!user) {
+    user = { id: userId, name: titleizeUser(userId), roleId: "reviewer" };
+    state.users.push(user);
+  }
+  let profileItem = state.profiles.find((item) => item.userId === userId);
+  if (!profileItem) {
+    profileItem = profile(userId, user.name, user.roleId || "reviewer", `avatar://${userId}`, true, true);
+    state.profiles.push(profileItem);
+  }
+  profileItem.consentAccepted = true;
+  profileItem.setupCompleted = true;
+  profileItem.roleId = profileItem.roleId || "reviewer";
+  user.name = profileItem.displayName || user.name;
+  user.roleId = profileItem.roleId;
+}
+
+function applyReviewerIdentityConfig(state, env = process.env, source = "env") {
+  const reviewerIds = reviewerIdsFromEnv(env);
+  if (reviewerIds.length === 0) return { changed: false, reviewerIds: state.reviewerConfig.reviewerIds, source: state.reviewerConfig.source };
+  const before = state.moderatorIds.join(",");
+  for (const userId of reviewerIds) {
+    ensureReviewerIdentity(state, userId);
+    if (!state.moderatorIds.includes(userId)) state.moderatorIds.push(userId);
+  }
+  state.moderatorIds = Array.from(new Set(state.moderatorIds));
+  state.reviewerConfig = reviewerConfig(source, reviewerIds, new Date().toISOString());
+  const changedState = before !== state.moderatorIds.join(",");
+  if (changedState) {
+    state.auditEvents.push(audit("audit-reviewer-config", "reviewer-config", "Reviewer identity config applied", "Backend reviewer/admin IDs were applied from server configuration.", "system", "reviewer-config", "", "active", "private"));
+  }
+  return { changed: changedState, reviewerIds, source };
 }
 
 function changeModeratorForAdmin(state, viewer, body, action) {
@@ -612,7 +672,8 @@ function productionReadinessForAdmin(state, viewer, env = process.env) {
   const storageReady = ["cloud", "database"].includes(storageMode) && (envPresent(env, "MINIAPP_OBJECT_STORAGE_BUCKET") || storageMode === "database");
   const monitoringReady = envPresent(env, "MINIAPP_MONITORING_WEBHOOK");
   const retentionReady = envPresent(env, "MINIAPP_RETENTION_SCHEDULER") || state.retentionJob.enabled;
-  const reviewersReady = envPresent(env, "MINIAPP_ADMIN_REVIEWER_IDS") && state.moderatorIds.length > 0;
+  const configuredReviewerIds = reviewerIdsFromEnv(env);
+  const reviewersReady = configuredReviewerIds.length > 0 && configuredReviewerIds.every((userId) => state.moderatorIds.includes(userId));
   const checks = [
     { id: "wechat-login", status: appIdReady && appSecretReady ? "ok" : "missing", summary: "Backend has WeChat app id and secret configured.", required: true, configured: appIdReady && appSecretReady },
     { id: "network-domain", status: cloudEnvReady || allowedDomain.startsWith("https://") ? "ok" : "missing", summary: "Approved HTTPS domain or WeChat cloud environment is configured.", required: true, configured: cloudEnvReady || allowedDomain.startsWith("https://") },
@@ -640,6 +701,8 @@ function productionReadinessForAdmin(state, viewer, env = process.env) {
       wechatCloudConfigured: cloudEnvReady,
       storageMode: storageMode || "unset",
       moderatorCount: state.moderatorIds.length,
+      configuredReviewerCount: configuredReviewerIds.length,
+      reviewerConfigSource: state.reviewerConfig.source,
     },
   });
 }
@@ -746,6 +809,7 @@ function opsForAdmin(state, viewer) {
       schedulerLastRemoved: state.retentionJob.lastRemoved,
       schedulerTotalRuns: state.retentionJob.totalRuns,
     },
+    reviewerConfig: state.reviewerConfig,
     monitoring: {
       checks,
       activeSessionCount: activeSessions.length,
@@ -891,6 +955,7 @@ function backupForAdmin(state, viewer) {
     "users",
     "profiles",
     "moderatorIds",
+    "reviewerConfig",
     "shares",
     "listings",
     "buildings",
@@ -2114,6 +2179,7 @@ function rejectPublication(state, viewer, building, review) {
 
 async function serve(options) {
   const state = loadState(options.statePath, options.resetState);
+  applyReviewerIdentityConfig(state, process.env, "env");
   configureRetentionScheduler(state, options);
   if (options.retentionScheduler) runAndSaveRetentionSweep(state, options.statePath, "startup", options);
   else saveState(options.statePath, state);
@@ -2227,6 +2293,23 @@ function smoke(options) {
   assert(readyConfig.body.status === "ready", "readiness ready with config");
   assert(readyConfig.body.missing.length === 0, "readiness no missing checks");
   assert(readyConfig.body.secrets.configured.wechatAppSecret === true, "readiness secret configured");
+  assert(readyConfig.body.deployment.configuredReviewerCount === 1, "readiness configured reviewer count");
+  const reviewerConfigState = normalizeState(seedState());
+  const appliedReviewers = applyReviewerIdentityConfig(reviewerConfigState, { MINIAPP_ADMIN_REVIEWER_IDS: "reviewer-prod reviewer-backup" }, "env-smoke");
+  assert(appliedReviewers.changed === true, "reviewer config applies new reviewers");
+  assert(reviewerConfigState.moderatorIds.includes("reviewer-prod"), "reviewer config grants moderator");
+  assert(reviewerConfigState.profiles.some((item) => item.userId === "reviewer-backup" && item.setupCompleted === true), "reviewer config creates ready profile");
+  const configuredReadiness = productionReadinessForAdmin(reviewerConfigState, "user-a", {
+    MINIAPP_WECHAT_APP_ID: "wx-smoke",
+    MINIAPP_WECHAT_APP_SECRET: "secret-smoke",
+    MINIAPP_ALLOWED_DOMAIN: "https://miniapp.example.com",
+    MINIAPP_STORAGE_MODE: "database",
+    MINIAPP_MONITORING_WEBHOOK: "https://monitoring.example.com/hook",
+    MINIAPP_RETENTION_SCHEDULER: "wechat-cloud-timer",
+    MINIAPP_ADMIN_REVIEWER_IDS: "reviewer-prod reviewer-backup",
+  });
+  assert(configuredReadiness.body.status === "ready", "configured reviewer readiness ready");
+  assert(configuredReadiness.body.deployment.configuredReviewerCount === 2, "configured reviewer readiness count");
   const reportedIncident = dispatch(state, { method: "POST", path: "/miniapp/monitoring/incident", query: new URLSearchParams(), headers: {}, body: { severity: "critical", source: "smoke-probe", title: "Smoke probe failed", summary: "Synthetic monitor reported a failed backend check.", route: "/miniapp/health" } });
   assert(reportedIncident.changed === true, "monitoring incident changed");
   assert(reportedIncident.body.incident.actorId === "monitoring-probe", "monitoring incident actor");
@@ -2287,6 +2370,7 @@ function smoke(options) {
   const adminBackup = dispatch(state, { method: "GET", path: "/miniapp/admin/backup", query: new URLSearchParams(), headers, body: {} });
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
+  assert(adminBackup.body.counts.reviewerConfig === 1, "admin backup reviewer config count");
   assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
   assert(adminBackup.body.counts.incidents === 1, "admin backup incident count");
   assert(adminBackup.body.counts.retentionJob === 1, "admin backup retention job count");
@@ -2296,6 +2380,7 @@ function smoke(options) {
   assert(adminOps.body.retention.auditRetentionDays === AUDIT_RETENTION_DAYS, "admin ops audit retention");
   assert(adminOps.body.retention.backupRetentionDays === BACKUP_RETENTION_DAYS, "admin ops backup retention");
   assert(adminOps.body.retention.sessionTtlHours === 12, "admin ops session ttl");
+  assert(adminOps.body.reviewerConfig.source === "seed", "admin ops reviewer config source");
   assert(adminOps.body.retention.schedulerEnabled === false, "admin ops scheduler starts disabled in smoke");
   assert(adminOps.body.retention.schedulerTotalRuns === 0, "admin ops scheduler starts unused");
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");

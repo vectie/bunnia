@@ -727,18 +727,20 @@ external monitoring incident report route, moderator-only incident review/resolv
 routes, and moderator-only abuse hold/release routes for users and buildings.
 The readiness route checks backend-only WeChat app credentials, approved HTTPS or
 cloud deployment, production storage, monitoring sink, retention scheduler, and
-reviewer identity configuration without returning secret values. Backups exclude
-live session and rate-limit buckets, ops reports retention targets,
-scheduled-retention metadata, monitoring incidents, monitoring checks, state
-counts, and status distributions, moderator management keeps reviewer trust
-backend-owned, abuse holds can stop actor or target mutations without frontend
-bundle growth, and manual or scheduled pruning removes expired sessions, expired
-rate-limit buckets, and out-of-retention audit events. That makes
-abuse-control, recovery, reviewer identity, retention, monitoring, and
-deployment-readiness behavior testable before production infrastructure exists.
-Production still needs real WeChat-bound login/reviewer identity,
-platform-managed retention scheduling, a real external monitoring provider, and
-production-grade abuse signals after local flows are coherent.
+reviewer identity configuration without returning secret values. Backend startup
+can now apply `MINIAPP_ADMIN_REVIEWER_IDS` into trusted moderator identities and
+ready reviewer profiles, while still leaving manual grant/revoke available for
+local tests. Backups exclude live session and rate-limit buckets, ops reports
+reviewer config source, retention targets, scheduled-retention metadata,
+monitoring incidents, monitoring checks, state counts, and status distributions,
+moderator management keeps reviewer trust backend-owned, abuse holds can stop
+actor or target mutations without frontend bundle growth, and manual or
+scheduled pruning removes expired sessions, expired rate-limit buckets, and
+out-of-retention audit events. That makes abuse-control, recovery, reviewer
+identity, retention, monitoring, and deployment-readiness behavior testable
+before production infrastructure exists. Production still needs real WeChat-bound
+login identity, platform-managed retention scheduling, a real external monitoring
+provider, and production-grade abuse signals after local flows are coherent.
 
 ## Migration Order
 
