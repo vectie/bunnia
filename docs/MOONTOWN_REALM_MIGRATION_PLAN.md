@@ -495,21 +495,21 @@ Done when:
 - private drafts and shared-private content stay hidden
 - search stays responsive with large fixtures
 
-Current status: Discover has tile-style filters plus non-generic people,
-circle, and market spotlights. The local backend search now returns public
-buildings, users, agents, books, products, review demands, run events, and
-public posts while keeping private and shared-private work out of public
-results. This keeps the realm as the map and moves the remaining maturity work
-into the market-board/search surface. Placeable discovery rows now carry the
-target layer, source, and map coordinates, and already pinned buildings drop out
-of the placeable filter so placement remains a real map-layer action rather
-than a generic button. Public discovery targets can now also be watched through
-the existing subscription route: the backend validates that watched buildings,
-books, agents, users, and listings are public/visible, persists viewer-scoped
-watch state, and returns those watches through My ownership stats and rows.
-Discover now exposes this as a compact Watch stamp on public result rows,
-reusing the same backend route and carrying each row's target reference instead
-of creating a separate social-follow page.
+Current status: the realm remains just the full-screen map. Discover carries
+the surrounding maturity work with tile-style filters plus non-generic people,
+circle, and market spotlights that match the current gamified visual language.
+The local backend search now returns public buildings, users, agents, books,
+circles, products, review demands, run events, and public posts while keeping
+private and shared-private work out of public results. Placeable discovery rows
+now carry the target layer, source, and map coordinates, and already pinned
+buildings drop out of the placeable filter so placement remains a real map-layer
+action rather than a generic button. Public discovery targets can now also be
+watched through the existing subscription route: the backend validates that
+watched buildings, books, agents, users, and listings including circles are
+public/visible, persists viewer-scoped watch state, and returns those watches
+through My ownership stats and rows. Discover now exposes this as a compact
+Watch stamp on public result rows, reusing the same backend route and carrying
+each row's target reference instead of creating a separate social-follow page.
 
 ### R5: Building Lifecycle And Books
 

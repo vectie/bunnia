@@ -204,6 +204,8 @@ function listing(id, kind, title, summary, targetRef, visibility, status) {
 
 function defaultListings() {
   return [
+    listing("circle-ai-exploration-camp", "circle", "AI Exploration Camp", "Public agent circle for AI walkers, demands, and product notes.", "circle:ai-exploration-camp", "published", "running"),
+    listing("circle-enterprise-club", "circle", "Enterprise Club", "Small shared agent circle for builders validating real use cases.", "circle:enterprise-club", "published", "shared"),
     listing("product-agent-publishing-kit", "product", "Agent Publishing Kit", "Reusable workflow kit for publishing reviewed agent buildings.", "product:agent-publishing-kit", "published", "stable"),
     listing("demand-review-council", "demand", "Review Demand", "Human approval needed before agent output becomes memory.", "demand:review-council", "published", "review"),
     listing("event-team-studio", "event", "Team Studio Session", "Shared organization agent session for map and book planning.", "event:team-studio", "published", "shared"),
@@ -2703,6 +2705,8 @@ function smoke(options) {
   assert(userSearch.body.items.some((item) => item.kind === "user" && item.targetRef === "user:user-c"), "public user search");
   const productSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=product"), headers, body: {} });
   assert(productSearch.body.items.some((item) => item.kind === "product" && item.targetRef === "product:agent-publishing-kit"), "public product search");
+  const circleSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=circle"), headers, body: {} });
+  assert(circleSearch.body.items.some((item) => item.kind === "circle" && item.targetRef === "circle:ai-exploration-camp"), "public circle search");
   const postSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=field"), headers, body: {} });
   assert(postSearch.body.items.some((item) => item.kind === "post" && item.targetRef === "post:published-agent-lab"), "public post search");
   const created = dispatch(state, { method: "POST", path: "/miniapp/buildings", query: new URLSearchParams(), headers, body: { id: "smoke-lab", title: "Smoke Lab" } });
@@ -2785,6 +2789,8 @@ function smoke(options) {
   assert(watched.body.subscription.status === "watching", "public building watch");
   const watchedAgain = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "building:policy-hall" } });
   assert(watchedAgain.body.subscription.id === watched.body.subscription.id, "watch idempotent");
+  const circleWatched = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "circle:ai-exploration-camp" } });
+  assert(circleWatched.body.subscription.status === "watching", "public circle watch");
   const deniedWatch = dispatch(state, { method: "POST", path: "/miniapp/messages/subscribe", query: new URLSearchParams(), headers, body: { targetRef: "building:private-agent-lab" } });
   assert(deniedWatch.status === 403, "private watch blocked");
   const bobAfterAck = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: bobHeaders, body: {} });
@@ -2831,6 +2837,7 @@ function smoke(options) {
   assert(snapshot.body.notificationStates.some((item) => item.noticeId === "notice-review" && item.state === "acknowledged"), "snapshot notification state");
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "subscription:wechat" && item.status === "requested"), "snapshot subscription");
   assert(snapshot.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "snapshot public watch");
+  assert(snapshot.body.subscriptions.some((item) => item.targetRef === "circle:ai-exploration-camp" && item.status === "watching"), "snapshot public circle watch");
   assert(snapshot.body.threads.some((item) => item.id === "thread-policy-hall"), "snapshot policy thread");
   assert(snapshot.body.threads.some((item) => item.id === "thread-smoke-lab" && item.visibility === "published"), "snapshot published thread");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
@@ -2850,6 +2857,7 @@ function smoke(options) {
   assert(ownership.body.notificationStates.some((item) => item.noticeId === "notice-subscribe"), "ownership notification state");
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "subscription:wechat"), "ownership subscription");
   assert(ownership.body.subscriptions.some((item) => item.targetRef === "building:policy-hall" && item.status === "watching"), "ownership public watch");
+  assert(ownership.body.subscriptions.some((item) => item.targetRef === "circle:ai-exploration-camp" && item.status === "watching"), "ownership public circle watch");
   assert(ownership.body.threads.some((item) => item.id === "thread-smoke-lab"), "ownership thread");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
@@ -2861,8 +2869,9 @@ function smoke(options) {
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke" && item.actionMessage === "tab-messages"), "ownership agent action");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
   assert(ownership.body.stats.some((item) => item.id === "threads" && item.value >= 1), "ownership threads");
-  assert(ownership.body.stats.some((item) => item.id === "watches" && item.value === 1), "ownership watches");
+  assert(ownership.body.stats.some((item) => item.id === "watches" && item.value === 2), "ownership watches");
   assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "building:policy-hall"), "ownership watch item");
+  assert(ownership.body.items.some((item) => item.kind === "watch" && item.targetRef === "circle:ai-exploration-camp"), "ownership circle watch item");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");
