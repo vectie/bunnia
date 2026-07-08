@@ -741,6 +741,13 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         payload_key="moderationTakedown",
         response_key="moderationTakedownResult",
       ),
+      @bunnia.generic_endpoint(
+        "appeal-moderation-case",
+        "/miniapp/moderation/appeal",
+        @bunnia.http_post(),
+        payload_key="moderationAppeal",
+        response_key="moderationAppealResult",
+      ),
     ],
   )
 }
@@ -2445,6 +2452,7 @@ fn moderation_case_entry(item : MiniTownModerationCase) -> @bunnia.Node {
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
+          moderation_case_action_button(item),
           moderation_button(item, "Hide", "hide", "hide-public-building"),
           moderation_button(
             item, "Takedown", "takedown", "takedown-public-building",
@@ -2453,6 +2461,25 @@ fn moderation_case_entry(item : MiniTownModerationCase) -> @bunnia.Node {
       ],
     ),
   )
+}
+
+///|
+fn moderation_case_action_button(item : MiniTownModerationCase) -> @bunnia.Node {
+  moderation_button(
+    item,
+    item.action_label,
+    moderation_case_action_id(item),
+    item.action_message,
+  )
+}
+
+///|
+fn moderation_case_action_id(item : MiniTownModerationCase) -> String {
+  if item.action_message == "appeal-moderation-case" {
+    "appeal"
+  } else {
+    "review"
+  }
 }
 
 ///|
@@ -3430,5 +3457,5 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json_for_tab(tab_id : String) -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"buildingEditDraft\":{\"buildingId\":\"created-agent-lab\",\"title\":\"Edited Lab\",\"summary\":\"Edited.\",\"bookTitle\":\"Edited Book\",\"bookSummary\":\"Edited memory.\",\"tags\":[\"edited\"]},\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move follow-up planning into the builder queue.\"},\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"},\"moderationHide\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationTakedown\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"moderation\":{\"lastReport\":\"\",\"lastAction\":\"\"},\"lifecycle\":{\"lastAction\":\"\"}}"
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"discoverSearch\":{\"query\":\"agent\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"buildingEditDraft\":{\"buildingId\":\"created-agent-lab\",\"title\":\"Edited Lab\",\"summary\":\"Edited.\",\"bookTitle\":\"Edited Book\",\"bookSummary\":\"Edited memory.\",\"tags\":[\"edited\"]},\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can this building do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can this building help publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move work.\"},\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"},\"moderationHide\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationTakedown\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationAppeal\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"lastSharedBuildingId\":\"\",\"lastPublishedBuildingId\":\"\",\"lastArchivedBuildingId\":\"\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}},\"moderation\":{\"lastReport\":\"\",\"lastAction\":\"\"},\"lifecycle\":{\"lastAction\":\"\"}}"
 }

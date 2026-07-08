@@ -701,27 +701,31 @@ Build:
 - production database and object storage
 - session rotation, rate limits, abuse controls, moderation, audit retention,
   backups, health checks, monitoring, and error reporting
-- admin/reviewer tools for publication, reports, hide, and takedown
+- admin/reviewer tools for publication, reports, hide, takedown, and appeal
+  review
 
 Done when:
 
 - phone login works
 - approved network domains are configured
 - no frontend bundle leaks secrets or private raw books
-- published town content has review, report, hide, and takedown paths
+- published town content has review, report, hide, takedown, and owner appeal
+  paths
 
-Current status: first local report, hide, and takedown paths are implemented
-through the selected building Safety Desk, Messages Moderation Desk, and
-`/miniapp/moderation/*` routes. Local hide/takedown decisions now require
-backend-owned moderator trust before mutating building or book visibility. The
-local backend now uses opaque sessions with expiry and logout revocation, giving
-the production login path a safer contract to replace with real WeChat identity.
-It also exposes `/miniapp/health`, rate-limits sensitive local routes such as
-dev login and public reports, and provides moderator-only audit/backup endpoints
-that exclude live session and rate-limit buckets, so abuse-control and recovery
-behavior are testable before production infrastructure exists. Production still
-needs real reviewer/admin identity, appeals, retention, monitoring, and stronger
-abuse controls after local flows are coherent.
+Current status: first local report, hide, takedown, and owner appeal paths are
+implemented through the selected building Safety Desk, Messages Moderation Desk,
+and `/miniapp/moderation/*` routes. Local hide/takedown decisions now require
+backend-owned moderator trust before mutating building or book visibility, while
+appeals require the affected building owner and keep visibility restricted until
+review. The local backend now uses opaque sessions with expiry and logout
+revocation, giving the production login path a safer contract to replace with
+real WeChat identity. It also exposes `/miniapp/health`, rate-limits sensitive
+local routes such as dev login, public reports, and appeals, and provides
+moderator-only audit/backup endpoints that exclude live session and rate-limit
+buckets, so abuse-control and recovery behavior are testable before production
+infrastructure exists. Production still needs real reviewer/admin identity,
+retention, monitoring, and stronger abuse controls after local flows are
+coherent.
 
 ## Migration Order
 

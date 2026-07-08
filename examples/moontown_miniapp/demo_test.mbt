@@ -410,11 +410,15 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(messages.wxml.contains("data-moderation-action=\"hide\""))
   assert_true(messages.wxml.contains("data-moderation-action=\"takedown\""))
+  assert_true(messages.wxml.contains("data-moderation-action=\"appeal\""))
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"hide-public-building\""),
   )
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"takedown-public-building\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"appeal-moderation-case\""),
   )
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
@@ -672,6 +676,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/moderation/appeal",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )
@@ -801,6 +810,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"moderationAppeal\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"discoverSearch\":{\"query\":\"agent\"}",
     ),
   )
@@ -861,7 +875,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move follow-up planning into the builder queue.\"}",
+      "\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move work.\"}",
     ),
   )
   assert_true(
@@ -966,7 +980,7 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(selected_building_moderation_cases(projection).length(), 1)
   assert_eq(
     selected_building_moderation_cases(projection)[0].action_message,
-    "tab-messages",
+    "appeal-moderation-case",
   )
   assert_true(!profile_ready_to_publish(projection))
   let gates = setup_gates(projection)
@@ -1426,12 +1440,12 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(tool_result.missing_ack_count, 0)
   assert_eq(tool_result.artifact_ref_count, 2)
   assert_eq(tool_result.diagnostics.length(), 0)
-  assert_eq(backend.endpoint_count, 27)
+  assert_eq(backend.endpoint_count, 28)
   assert_eq(backend.review_required_count, 15)
   assert_eq(backend.cancel_count, 1)
   assert_eq(backend.retry_count, 1)
   assert_eq(backend.diagnostics.length(), 0)
-  assert_eq(effects.effect_count, 27)
+  assert_eq(effects.effect_count, 28)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

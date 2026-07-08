@@ -18,6 +18,7 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMITS = {
   "/miniapp/auth/dev-login": 12,
   "/miniapp/moderation/report": 2,
+  "/miniapp/moderation/appeal": 2,
 };
 
 function seedState() {
@@ -511,6 +512,9 @@ function dispatch(state, request) {
   if (method === "POST" && path === "/miniapp/moderation/takedown") {
     return decideModerationCase(state, viewer, body, "takedown");
   }
+  if (method === "POST" && path === "/miniapp/moderation/appeal") {
+    return appealModerationCase(state, viewer, body);
+  }
   if (method === "POST" && path === "/miniapp/agents") {
     return createAgent(state, viewer, body);
   }
@@ -559,6 +563,7 @@ function routeCatalog() {
     "POST /miniapp/moderation/report",
     "POST /miniapp/moderation/hide",
     "POST /miniapp/moderation/takedown",
+    "POST /miniapp/moderation/appeal",
     "POST /miniapp/agents",
     "POST /miniapp/agents/handoff",
   ];
@@ -1294,6 +1299,35 @@ function decideModerationCase(state, viewer, body, decision) {
   return changed({ case: moderationCase, building: item, state: status });
 }
 
+function appealModerationCase(state, viewer, body) {
+  const caseId = body.caseId || body.moderationCaseId || "";
+  const buildingId = body.buildingId || "";
+  const moderationCase = state.moderationCases.find((candidate) => candidate.id === caseId) ||
+    state.moderationCases.find((candidate) => candidate.buildingId === buildingId);
+  if (!moderationCase) return { status: 404, changed: false, body: { error: "missing_moderation_case", caseId, buildingId } };
+  const item = state.buildings.find((building) => building.id === moderationCase.buildingId);
+  if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId: moderationCase.buildingId } };
+  if (item.ownerId !== viewer) {
+    return { status: 403, changed: false, body: { error: "owner_only", caseId: moderationCase.id, buildingId: item.id } };
+  }
+  if (!["hidden", "removed", "appeal_requested"].includes(moderationCase.status)) {
+    return { status: 409, changed: false, body: { error: "appeal_not_ready", caseId: moderationCase.id, status: moderationCase.status } };
+  }
+  const reason = String(body.reason || "Owner appeal requested").trim();
+  moderationCase.status = "appeal_requested";
+  moderationCase.summary = reason;
+  moderationCase.actionLabel = "Review appeal";
+  moderationCase.actionMessage = "tab-messages";
+  item.status = "appeal";
+  syncThreadsForBuilding(state, item);
+  for (const memory of state.books) {
+    if (memory.buildingId === item.id) memory.status = "appeal";
+  }
+  state.notifications.push({ id: `notice-appeal-${moderationCase.id}`, kind: "moderation", title: "Moderation appeal requested", body: reason, targetRef: moderationCase.targetRef, buildingId: item.id, unread: true });
+  state.auditEvents.push(audit(`audit-appeal-${moderationCase.id}`, "appeal", `${item.title} appeal requested`, "Owner appealed a moderation decision; visibility stays restricted until review.", viewer, moderationCase.targetRef, item.id, "appeal", item.visibility));
+  return changed({ case: moderationCase, building: item, state: "appeal_requested" });
+}
+
 function acknowledgeToolResult(state, viewer, body) {
   const toolResultId = body.toolResultId || body.id || "tool-policy-summary";
   const item = state.toolResults.find((result) => result.id === toolResultId);
@@ -1707,6 +1741,14 @@ function smoke(options) {
   assert(!hiddenSearch.body.items.some((item) => item.targetRef === "building:published-agent-lab"), "hidden building removed from search");
   const takedown = dispatch(state, { method: "POST", path: "/miniapp/moderation/takedown", query: new URLSearchParams(), headers, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
   assert(takedown.body.building.visibility === "takedown", "takedown building");
+  const deniedAppeal = dispatch(state, { method: "POST", path: "/miniapp/moderation/appeal", query: new URLSearchParams(), headers: registeredHeaders, body: { caseId: report.body.case.id, buildingId: "published-agent-lab", reason: "not mine" } });
+  assert(deniedAppeal.status === 403, "appeal owner only");
+  assert(deniedAppeal.body.error === "owner_only", "appeal denial reason");
+  const appealed = dispatch(state, { method: "POST", path: "/miniapp/moderation/appeal", query: new URLSearchParams(), headers: bobHeaders, body: { caseId: report.body.case.id, buildingId: "published-agent-lab", reason: "owner appeal smoke" } });
+  assert(appealed.body.case.status === "appeal_requested", "appeal requested");
+  assert(appealed.body.case.actionLabel === "Review appeal", "appeal action label");
+  assert(appealed.body.building.visibility === "takedown", "appeal keeps restricted visibility");
+  assert(appealed.body.building.status === "appeal", "appeal building status");
   const toolAck = dispatch(state, { method: "POST", path: "/miniapp/tool-results/ack", query: new URLSearchParams(), headers, body: { toolResultId: "tool-policy-summary" } });
   assert(toolAck.body.toolResult.status === "done", "tool result acknowledged");
   const accepted = dispatch(state, { method: "POST", path: "/miniapp/reviews/accept", query: new URLSearchParams(), headers, body: { reviewId: asked.body.review.id } });
@@ -1732,7 +1774,7 @@ function smoke(options) {
   assert(snapshot.body.messages.some((item) => item.id === sent.body.message.id), "snapshot sent message");
   assert(snapshot.body.toolResults.some((item) => item.id === "tool-policy-summary" && item.status === "done"), "snapshot tool result ack");
   assert(snapshot.body.moderationCases.some((item) => item.id === report.body.case.id), "snapshot moderation case");
-  assert(snapshot.body.moderationCases.some((item) => item.status === "removed"), "snapshot takedown case");
+  assert(snapshot.body.moderationCases.some((item) => item.status === "appeal_requested"), "snapshot appeal case");
   assert(snapshot.body.runs.some((item) => item.id === handoff.body.run.id), "snapshot handoff run");
   assert(snapshot.body.notifications.some((item) => item.id === handoff.body.notification.id), "snapshot handoff notice");
   const ownership = dispatch(state, { method: "GET", path: "/miniapp/me/ownership", query: new URLSearchParams(), headers, body: {} });

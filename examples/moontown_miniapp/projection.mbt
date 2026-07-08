@@ -1004,8 +1004,10 @@ fn demo_moderation_cases() -> Array[MiniTownModerationCase] {
       reporter_id="user-a",
       target_ref="building:policy-hall",
       title="Policy Hall safety watch",
-      summary="Reports become review-council cases before hide or takedown.",
+      summary="Reports and appeals stay reviewed.",
       status="watch",
+      action_label="Appeal",
+      action_message="appeal-moderation-case",
     ),
   ]
 }
