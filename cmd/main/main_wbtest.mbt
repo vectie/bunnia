@@ -827,11 +827,11 @@ test "build example flag selects Moontown miniapp project" {
   )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(patches.patches.length(), 3)
-  assert_eq(report.diagnostics.length(), 0)
-  assert_eq(profile.effect_count, 11)
-  assert_eq(profile.backend_endpoint_count, 11)
+  assert_eq(report.diagnostics.length(), 2)
+  assert_eq(profile.effect_count, 13)
+  assert_eq(profile.backend_endpoint_count, 13)
   assert_eq(profile.backend_streaming_count, 0)
-  assert_eq(profile.backend_review_required_count, 7)
+  assert_eq(profile.backend_review_required_count, 9)
   assert_eq(profile.communication_count, 3)
   assert_eq(profile.communication_visible_count, 3)
   assert_eq(profile.communication_unresolved_review_count, 1)
@@ -857,7 +857,7 @@ test "build example flag selects Moontown miniapp project" {
   assert_true(inspection.max_scene_marker_count >= 5)
   assert_true(project.page.wxml.contains("moontown-map-fullscreen"))
   assert_true(project.page.js.contains("__bunniaEventPatches"))
-  assert_true(profile.summary.contains("backend_endpoints=11"))
+  assert_true(profile.summary.contains("backend_endpoints=13"))
   assert_true(profile.summary.contains("agent_deltas=2"))
   assert_true(profile.summary.contains("snapshot_deltas=3"))
   let gate = inspection_gate_for_test_with_profile(
@@ -875,7 +875,7 @@ test "build example flag selects Moontown miniapp project" {
     should_fail_build(
       true, project, report, patches, profile, profile_gate, gate, release,
     ),
-    false,
+    true,
   )
 }
 

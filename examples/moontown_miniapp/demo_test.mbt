@@ -44,6 +44,15 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(
     page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
   )
+  assert_true(page.wxml.contains("moontown-review-entry"))
+  assert_true(page.wxml.contains("Review policy answer"))
+  assert_true(page.wxml.contains("data-review-id=\"review-policy-memory\""))
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"accept-memory-review\""),
+  )
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"reject-memory-review\""),
+  )
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(page.wxml.contains("moontown-search-drawer"))
   assert_true(page.wxml.contains("moontown-create-drawer"))
@@ -170,6 +179,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Market placement scan"))
   assert_true(messages.wxml.contains("data-run-id=\"run-market-scan\""))
   assert_true(messages.wxml.contains("data-review-required=\"true\""))
+  assert_true(messages.wxml.contains("Review Queue"))
+  assert_true(
+    messages.wxml.contains(
+      "Accepted agent output becomes book memory; rejected output returns to the run.",
+    ),
+  )
+  assert_true(messages.wxml.contains("data-review-id=\"review-policy-memory\""))
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(
     messages.wxml.contains("data-action-message=\"open-notice-review\""),
@@ -251,6 +267,16 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/reviews/accept",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/reviews/reject",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "bunnia.backend.js").contains(
       "x-miniapp-session",
     ),
   )
@@ -298,6 +324,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"}",
+    ),
+  )
+  assert_true(
     file_content(project.files, "pages/moontown/index.wxml").contains(
       "data-bunnia-message=\"dev-login\"",
     ),
@@ -325,11 +356,14 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(projection.activity_items.length(), 5)
   assert_eq(projection.books.length(), 7)
   assert_eq(projection.runs.length(), 4)
+  assert_eq(projection.reviews.length(), 1)
   assert_eq(unread_notifications(projection).length(), 2)
   assert_eq(subscription_notifications(projection).length(), 1)
   assert_eq(visible_runs(projection).length(), 4)
+  assert_eq(visible_reviews(projection).length(), 1)
   assert_eq(active_runs(projection).length(), 3)
   assert_eq(review_runs(projection).length(), 1)
+  assert_eq(pending_reviews(projection).length(), 1)
   assert_eq(selected_building_runs(projection).length(), 1)
   assert_eq(town_activity_items(projection).length(), 5)
   assert_eq(home_town_stats(projection).length(), 4)
@@ -343,6 +377,15 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(owned_books(projection).length(), 1)
   assert_eq(ownership_stats(projection).length(), 5)
   assert_eq(ownership_items(projection).length(), 3)
+  let accepted = accept_review(projection, "review-policy-memory")
+  assert_eq(pending_reviews(accepted).length(), 0)
+  assert_eq(review_runs(accepted).length(), 0)
+  assert_eq(selected_building_book(accepted).accepted_memory_count, 13)
+  assert_eq(selected_building_book(accepted).pending_review_count, 0)
+  let rejected = reject_review(projection, "review-policy-memory")
+  assert_eq(pending_reviews(rejected).length(), 0)
+  assert_eq(review_runs(rejected).length(), 0)
+  assert_eq(selected_building_runs(rejected)[0].status, "rejected")
   let tabbed = switch_tab(projection, "discover")
   assert_eq(tabbed.active_tab_id, "discover")
   let onboarded = complete_onboarding(projection)
@@ -388,8 +431,8 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(agent.deltas.length(), 2)
   assert_eq(communication.total_count, 3)
   assert_eq(communication.unresolved_review_count, 1)
-  assert_eq(backend.endpoint_count, 11)
-  assert_eq(effects.effect_count, 11)
+  assert_eq(backend.endpoint_count, 13)
+  assert_eq(effects.effect_count, 13)
   assert_true(scene.marker_count >= 8)
   assert_eq(scene.region_count, 2)
   assert_true(!surface.fallback)

@@ -82,6 +82,22 @@ pub struct MiniTownRun {
 } derive(Debug, Eq)
 
 ///|
+pub struct MiniTownReviewItem {
+  id : String
+  run_id : String
+  building_id : String
+  book_id : String
+  title : String
+  summary : String
+  artifact_ref : String
+  reviewer_id : String
+  status : String
+  accepted_memory_delta : Int
+  accept_message : String
+  reject_message : String
+} derive(Debug, Eq)
+
+///|
 pub struct MiniTownTab {
   id : String
   label : String
@@ -184,6 +200,7 @@ pub struct MiniTownProjection {
   agents : Array[MiniTownAgent]
   messages : Array[MiniTownMessage]
   runs : Array[MiniTownRun]
+  reviews : Array[MiniTownReviewItem]
   notifications : Array[MiniTownNotification]
   discovery_items : Array[MiniTownDiscoveryItem]
   activity_items : Array[MiniTownActivityItem]
@@ -322,6 +339,37 @@ pub fn mini_town_run(
     status,
     review_required,
     artifact_ref,
+  }
+}
+
+///|
+pub fn mini_town_review_item(
+  id~ : String,
+  run_id~ : String,
+  building_id~ : String,
+  book_id~ : String,
+  title~ : String,
+  summary~ : String,
+  artifact_ref~ : String,
+  reviewer_id~ : String,
+  status~ : String,
+  accepted_memory_delta? : Int = 1,
+  accept_message? : String = "accept-memory-review",
+  reject_message? : String = "reject-memory-review",
+) -> MiniTownReviewItem {
+  {
+    id,
+    run_id,
+    building_id,
+    book_id,
+    title,
+    summary,
+    artifact_ref,
+    reviewer_id,
+    status,
+    accepted_memory_delta,
+    accept_message,
+    reject_message,
   }
 }
 
@@ -506,10 +554,31 @@ pub fn demo_projection() -> MiniTownProjection {
       ),
     ],
     runs: demo_runs(),
+    reviews: demo_reviews(),
     notifications: demo_notifications(),
     discovery_items: demo_discovery_items(),
     activity_items: demo_activity_items(),
   }
+}
+
+///|
+fn demo_reviews() -> Array[MiniTownReviewItem] {
+  [
+    mini_town_review_item(
+      id="review-policy-memory",
+      run_id="run-policy-review",
+      building_id="policy-hall",
+      book_id="book-policy-hall",
+      title="Review policy answer",
+      summary="Accept this answer into Policy Hall Book or reject it for more work.",
+      artifact_ref="artifact://book-policy-hall",
+      reviewer_id="user-a",
+      status="pending",
+      accepted_memory_delta=1,
+      accept_message="accept-memory-review",
+      reject_message="reject-memory-review",
+    ),
+  ]
 }
 
 ///|
@@ -1092,6 +1161,19 @@ pub fn visible_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
 }
 
 ///|
+pub fn visible_reviews(
+  projection : MiniTownProjection,
+) -> Array[MiniTownReviewItem] {
+  let output : Array[MiniTownReviewItem] = []
+  for item in projection.reviews {
+    if mini_town_review_visible_for(projection, item) {
+      output.push(item)
+    }
+  }
+  output
+}
+
+///|
 fn mini_town_building_visible_for(
   projection : MiniTownProjection,
   building : MiniTownBuilding,
@@ -1119,6 +1201,28 @@ fn mini_town_book_building_visible_for(
 ) -> Bool {
   for building in visible_buildings(projection) {
     if building.id == book.building_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn mini_town_review_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownReviewItem,
+) -> Bool {
+  item.reviewer_id == projection.active_user_id &&
+  mini_town_review_run_visible_for(projection, item)
+}
+
+///|
+fn mini_town_review_run_visible_for(
+  projection : MiniTownProjection,
+  item : MiniTownReviewItem,
+) -> Bool {
+  for run in visible_runs(projection) {
+    if run.id == item.run_id {
       return true
     }
   }
@@ -1298,6 +1402,19 @@ pub fn review_runs(projection : MiniTownProjection) -> Array[MiniTownRun] {
   for run in visible_runs(projection) {
     if run.review_required || run.status == "review" {
       output.push(run)
+    }
+  }
+  output
+}
+
+///|
+pub fn pending_reviews(
+  projection : MiniTownProjection,
+) -> Array[MiniTownReviewItem] {
+  let output : Array[MiniTownReviewItem] = []
+  for item in visible_reviews(projection) {
+    if item.status == "pending" {
+      output.push(item)
     }
   }
   output
@@ -1493,6 +1610,98 @@ pub fn create_agent_for_selected(
     status="idle",
   )
   { ..projection, agents: projection.agents + [agent] }
+}
+
+///|
+pub fn accept_review(
+  projection : MiniTownProjection,
+  review_id : String,
+) -> MiniTownProjection {
+  let mut delta = 0
+  let mut target_book_id = ""
+  let mut target_run_id = ""
+  let reviews : Array[MiniTownReviewItem] = []
+  for item in projection.reviews {
+    if item.id == review_id && item.status == "pending" {
+      delta = item.accepted_memory_delta
+      target_book_id = item.book_id
+      target_run_id = item.run_id
+      reviews.push({ ..item, status: "accepted" })
+    } else {
+      reviews.push(item)
+    }
+  }
+  {
+    ..projection,
+    reviews,
+    runs: update_run_status(projection.runs, target_run_id, "done"),
+    books: accept_book_memory(projection.books, target_book_id, delta),
+  }
+}
+
+///|
+pub fn reject_review(
+  projection : MiniTownProjection,
+  review_id : String,
+) -> MiniTownProjection {
+  let mut target_run_id = ""
+  let reviews : Array[MiniTownReviewItem] = []
+  for item in projection.reviews {
+    if item.id == review_id && item.status == "pending" {
+      target_run_id = item.run_id
+      reviews.push({ ..item, status: "rejected" })
+    } else {
+      reviews.push(item)
+    }
+  }
+  {
+    ..projection,
+    reviews,
+    runs: update_run_status(projection.runs, target_run_id, "rejected"),
+  }
+}
+
+///|
+fn update_run_status(
+  runs : Array[MiniTownRun],
+  run_id : String,
+  status : String,
+) -> Array[MiniTownRun] {
+  let output : Array[MiniTownRun] = []
+  for run in runs {
+    if run.id == run_id {
+      output.push({ ..run, status, review_required: false })
+    } else {
+      output.push(run)
+    }
+  }
+  output
+}
+
+///|
+fn accept_book_memory(
+  books : Array[MiniTownBook],
+  book_id : String,
+  delta : Int,
+) -> Array[MiniTownBook] {
+  let output : Array[MiniTownBook] = []
+  for book in books {
+    if book.id == book_id {
+      output.push({
+        ..book,
+        accepted_memory_count: book.accepted_memory_count + delta,
+        pending_review_count: if book.pending_review_count > 0 {
+          book.pending_review_count - 1
+        } else {
+          0
+        },
+        status: "stable",
+      })
+    } else {
+      output.push(book)
+    }
+  }
+  output
 }
 
 ///|
