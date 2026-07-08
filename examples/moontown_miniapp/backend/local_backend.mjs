@@ -29,6 +29,7 @@ function seedState() {
     nextMessage: 2,
     nextReview: 2,
     nextModeration: 2,
+    nextAbuse: 1,
     users: [
       { id: "user-a", name: "Ada Builder", roleId: "builder" },
       { id: "user-b", name: "Bo Curator", roleId: "explorer" },
@@ -41,6 +42,7 @@ function seedState() {
     shares: [],
     sessions: {},
     rateLimits: {},
+    abuseHolds: [],
     listings: defaultListings(),
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -208,6 +210,7 @@ function normalizeState(state) {
   state.nextMessage = state.nextMessage || 2;
   state.nextReview = state.nextReview || 2;
   state.nextModeration = state.nextModeration || 2;
+  state.nextAbuse = state.nextAbuse || 1;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
   state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? Array.from(new Set(state.moderatorIds)) : ["user-a"];
@@ -215,6 +218,7 @@ function normalizeState(state) {
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = normalizeSessions(state.sessions || {});
   state.rateLimits = normalizeRateLimits(state.rateLimits || {});
+  state.abuseHolds = state.abuseHolds || [];
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
@@ -329,6 +333,7 @@ function healthFor(state) {
   const sessions = Object.values(state.sessions);
   const activeSessions = sessions.filter((session) => !session.revokedAt && Date.parse(session.expiresAt) > now).length;
   const pendingModeration = state.moderationCases.filter((item) => item.status === "pending" || item.status === "watch").length;
+  const activeAbuseHolds = state.abuseHolds.filter((item) => item.status === "active").length;
   return {
     status: "ok",
     routeCount: routeCatalog().length,
@@ -336,6 +341,7 @@ function healthFor(state) {
     moderatorCount: state.moderatorIds.length,
     activeSessionCount: activeSessions,
     pendingModerationCount: pendingModeration,
+    activeAbuseHoldCount: activeAbuseHolds,
     auditEventCount: state.auditEvents.length,
     rateLimitBucketCount: Object.keys(state.rateLimits).length,
   };
@@ -394,6 +400,127 @@ function changeModeratorForAdmin(state, viewer, body, action) {
   };
 }
 
+function parseAbuseTarget(body) {
+  const explicit = String(body.targetRef || "").trim();
+  if (explicit) {
+    const parts = explicit.split(":");
+    if (parts.length === 2 && parts[0] && parts[1]) return { kind: parts[0], id: parts[1], targetRef: explicit };
+    return { kind: "", id: "", targetRef: explicit, error: "invalid_target_ref" };
+  }
+  const userId = String(body.targetUserId || body.userId || "").trim();
+  if (userId) return { kind: "user", id: userId, targetRef: `user:${userId}` };
+  const buildingId = String(body.buildingId || "").trim();
+  if (buildingId) return { kind: "building", id: buildingId, targetRef: `building:${buildingId}` };
+  return { kind: "", id: "", targetRef: "", error: "missing_target" };
+}
+
+function validateAbuseTarget(state, target) {
+  if (target.error) return { status: 400, changed: false, body: { error: target.error, targetRef: target.targetRef } };
+  if (target.kind === "user") {
+    if (state.users.some((item) => item.id === target.id)) return null;
+    return { status: 404, changed: false, body: { error: "missing_user", targetUserId: target.id } };
+  }
+  if (target.kind === "building") {
+    if (state.buildings.some((item) => item.id === target.id)) return null;
+    return { status: 404, changed: false, body: { error: "missing_building", buildingId: target.id } };
+  }
+  return { status: 400, changed: false, body: { error: "unsupported_abuse_target", targetRef: target.targetRef } };
+}
+
+function activeAbuseHold(state, targetRef) {
+  return state.abuseHolds.find((item) => item.targetRef === targetRef && item.status === "active");
+}
+
+function abuseForAdmin(state, viewer, query) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const status = query.get("status") || "";
+  const targetRef = query.get("targetRef") || "";
+  let items = state.abuseHolds;
+  if (status) items = items.filter((item) => item.status === status);
+  if (targetRef) items = items.filter((item) => item.targetRef === targetRef);
+  return ok({
+    items: items.slice().reverse(),
+    total: state.abuseHolds.length,
+    activeCount: state.abuseHolds.filter((item) => item.status === "active").length,
+    filters: { status, targetRef },
+  });
+}
+
+function changeAbuseHoldForAdmin(state, viewer, body, action) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const target = parseAbuseTarget(body);
+  const invalid = validateAbuseTarget(state, target);
+  if (invalid) return invalid;
+  const existing = activeAbuseHold(state, target.targetRef);
+  if (action === "hold") {
+    if (existing) return { status: 200, changed: false, body: { hold: existing, action, active: true } };
+    const hold = {
+      id: `abuse-${state.nextAbuse}`,
+      kind: target.kind,
+      targetRef: target.targetRef,
+      reason: String(body.reason || "Manual local abuse hold.").trim(),
+      status: "active",
+      actorId: viewer,
+      createdAt: new Date().toISOString(),
+      releasedAt: "",
+      releasedBy: "",
+    };
+    state.nextAbuse += 1;
+    state.abuseHolds.push(hold);
+    state.auditEvents.push(audit(`audit-abuse-hold-${hold.id}`, "abuse-hold", `${target.targetRef} held`, hold.reason, viewer, target.targetRef, target.kind === "building" ? target.id : "", "active", "private"));
+    return changed({ hold, action, active: true });
+  }
+  if (!existing) return { status: 404, changed: false, body: { error: "missing_active_abuse_hold", targetRef: target.targetRef } };
+  existing.status = "released";
+  existing.releasedAt = new Date().toISOString();
+  existing.releasedBy = viewer;
+  state.auditEvents.push(audit(`audit-abuse-release-${existing.id}`, "abuse-release", `${target.targetRef} released`, String(body.reason || "Manual local abuse hold released.").trim(), viewer, target.targetRef, target.kind === "building" ? target.id : "", "released", "private"));
+  return changed({ hold: existing, action, active: false });
+}
+
+function targetRefsForMutation(state, body) {
+  const refs = [];
+  const buildingId = String(body.buildingId || "").trim();
+  if (buildingId) refs.push(`building:${buildingId}`);
+  const runId = String(body.runId || "").trim();
+  if (runId) {
+    const run = state.runs.find((item) => item.id === runId);
+    if (run && run.buildingId) refs.push(`building:${run.buildingId}`);
+  }
+  const reviewId = String(body.reviewId || "").trim();
+  if (reviewId) {
+    const review = state.reviews.find((item) => item.id === reviewId);
+    if (review && review.buildingId) refs.push(`building:${review.buildingId}`);
+  }
+  return Array.from(new Set(refs));
+}
+
+function abuseHoldForMutation(state, viewer, method, path, body) {
+  if (method !== "POST") return null;
+  if (path.startsWith("/miniapp/admin/") || path === "/miniapp/auth/dev-login" || path === "/miniapp/auth/logout") return null;
+  const actorHold = activeAbuseHold(state, `user:${viewer}`);
+  if (actorHold) {
+    return {
+      status: 423,
+      changed: false,
+      body: { error: "actor_on_abuse_hold", holdId: actorHold.id, targetRef: actorHold.targetRef, path },
+    };
+  }
+  for (const targetRef of targetRefsForMutation(state, body)) {
+    const targetHold = activeAbuseHold(state, targetRef);
+    if (targetHold) {
+      return {
+        status: 423,
+        changed: false,
+        body: { error: "target_on_abuse_hold", holdId: targetHold.id, targetRef, path },
+      };
+    }
+  }
+  return null;
+}
+
 function auditForAdmin(state, viewer, query) {
   const denied = requireModerator(state, viewer);
   if (denied) return denied;
@@ -431,6 +558,7 @@ function opsForAdmin(state, viewer) {
   const pendingReviews = state.reviews.filter((item) => item.status === "pending");
   const activeModerationCases = state.moderationCases.filter((item) => ["pending", "watch", "appeal_requested"].includes(item.status));
   const activeRateLimits = Object.values(state.rateLimits).filter((item) => Date.parse(item.resetAt) > now);
+  const activeAbuseHolds = state.abuseHolds.filter((item) => item.status === "active");
   const auditTimes = state.auditEvents.map((item) => Date.parse(item.timestamp)).filter((item) => Number.isFinite(item));
   const oldestAuditAt = auditTimes.length > 0 ? new Date(Math.min(...auditTimes)).toISOString() : "";
   const newestAuditAt = auditTimes.length > 0 ? new Date(Math.max(...auditTimes)).toISOString() : "";
@@ -438,6 +566,7 @@ function opsForAdmin(state, viewer) {
     { id: "health", status: "ok", summary: "Local backend process responds." },
     { id: "sessions", status: expiredSessions.length > 0 ? "attention" : "ok", summary: `${activeSessions.length} active; ${expiredSessions.length} expired.` },
     { id: "rate-limits", status: activeRateLimits.length > 0 ? "watch" : "ok", summary: `${activeRateLimits.length} active bucket(s).` },
+    { id: "abuse-holds", status: activeAbuseHolds.length > 0 ? "attention" : "ok", summary: `${activeAbuseHolds.length} active abuse hold(s).` },
     { id: "moderation", status: activeModerationCases.length > 0 ? "attention" : "ok", summary: `${activeModerationCases.length} active moderation case(s).` },
     { id: "reviews", status: pendingReviews.length > 0 ? "attention" : "ok", summary: `${pendingReviews.length} pending review item(s).` },
     { id: "backup", status: "ok", summary: "Backup endpoint excludes live sessions and rate-limit buckets." },
@@ -459,6 +588,7 @@ function opsForAdmin(state, viewer) {
       activeSessionCount: activeSessions.length,
       expiredSessionCount: expiredSessions.length,
       activeRateLimitBucketCount: activeRateLimits.length,
+      activeAbuseHoldCount: activeAbuseHolds.length,
       pendingReviewCount: pendingReviews.length,
       activeModerationCaseCount: activeModerationCases.length,
     },
@@ -471,6 +601,7 @@ function opsForAdmin(state, viewer) {
       runs: state.runs.length,
       reviews: state.reviews.length,
       moderationCases: state.moderationCases.length,
+      abuseHolds: state.abuseHolds.length,
       auditEvents: state.auditEvents.length,
       notifications: state.notifications.length,
     },
@@ -479,6 +610,7 @@ function opsForAdmin(state, viewer) {
       runStatus: countBy(state.runs, "status"),
       reviewStatus: countBy(state.reviews, "status"),
       moderationStatus: countBy(state.moderationCases, "status"),
+      abuseHoldStatus: countBy(state.abuseHolds, "status"),
     },
   });
 }
@@ -547,6 +679,7 @@ function backupForAdmin(state, viewer) {
     "toolResults",
     "reviews",
     "moderationCases",
+    "abuseHolds",
     "notifications",
     "notificationStates",
     "subscriptions",
@@ -594,6 +727,15 @@ function dispatch(state, request) {
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
   }
+  if (method === "GET" && path === "/miniapp/admin/abuse") {
+    return abuseForAdmin(state, viewer, request.query);
+  }
+  if (method === "POST" && path === "/miniapp/admin/abuse/hold") {
+    return changeAbuseHoldForAdmin(state, viewer, body, "hold");
+  }
+  if (method === "POST" && path === "/miniapp/admin/abuse/release") {
+    return changeAbuseHoldForAdmin(state, viewer, body, "release");
+  }
   if (method === "GET" && path === "/miniapp/admin/moderators") {
     return moderatorsForAdmin(state, viewer);
   }
@@ -621,6 +763,8 @@ function dispatch(state, request) {
     auth.session.revokedAt = new Date().toISOString();
     return changed({ session: auth.session, state: "revoked" });
   }
+  const abuseHold = abuseHoldForMutation(state, viewer, method, path, body);
+  if (abuseHold) return abuseHold;
   if (method === "GET" && path === "/miniapp/town/snapshot") {
     return ok(snapshotFor(state, viewer));
   }
@@ -719,6 +863,9 @@ function routeCatalog() {
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
     "GET /miniapp/admin/ops",
+    "GET /miniapp/admin/abuse",
+    "POST /miniapp/admin/abuse/hold",
+    "POST /miniapp/admin/abuse/release",
     "GET /miniapp/admin/moderators",
     "POST /miniapp/admin/moderators/grant",
     "POST /miniapp/admin/moderators/revoke",
@@ -1802,6 +1949,8 @@ function smoke(options) {
   assert(deniedAudit.status === 403, "admin audit moderator only");
   const deniedOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedOps.status === 403, "admin ops moderator only");
+  const deniedAbuse = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedAbuse.status === 403, "admin abuse moderator only");
   const deniedModerators = dispatch(state, { method: "GET", path: "/miniapp/admin/moderators", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedModerators.status === 403, "admin moderators moderator only");
   const deniedPrune = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers: bobHeaders, body: {} });
@@ -1809,6 +1958,29 @@ function smoke(options) {
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
+  const adminAbuseStart = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams(), headers, body: {} });
+  assert(adminAbuseStart.body.activeCount === 0, "admin abuse starts empty");
+  const heldActor = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/hold", query: new URLSearchParams(), headers, body: { targetUserId: "user-b", reason: "smoke actor hold" } });
+  assert(heldActor.changed === true, "admin abuse user hold changed");
+  assert(heldActor.body.hold.targetRef === "user:user-b", "admin abuse user hold target");
+  const duplicateActorHold = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/hold", query: new URLSearchParams(), headers, body: { targetUserId: "user-b" } });
+  assert(duplicateActorHold.changed === false, "admin duplicate abuse hold stable");
+  const blockedActorSend = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers: bobHeaders, body: { buildingId: "policy-hall", body: "blocked actor smoke" } });
+  assert(blockedActorSend.status === 423, "abuse hold blocks actor mutation");
+  assert(blockedActorSend.body.error === "actor_on_abuse_hold", "abuse hold actor reason");
+  const releasedActor = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/release", query: new URLSearchParams(), headers, body: { targetUserId: "user-b", reason: "smoke actor released" } });
+  assert(releasedActor.changed === true, "admin abuse user release changed");
+  const releasedActorSend = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers: bobHeaders, body: { buildingId: "policy-hall", body: "released actor smoke" } });
+  assert(releasedActorSend.body.message.text === "released actor smoke", "released actor can mutate");
+  const heldBuilding = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/hold", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", reason: "smoke target hold" } });
+  assert(heldBuilding.body.hold.targetRef === "building:policy-hall", "admin abuse building hold target");
+  const blockedTargetQuery = dispatch(state, { method: "POST", path: "/miniapp/buildings/query", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "blocked target smoke" } });
+  assert(blockedTargetQuery.status === 423, "abuse hold blocks target mutation");
+  assert(blockedTargetQuery.body.error === "target_on_abuse_hold", "abuse hold target reason");
+  const activeAbuse = dispatch(state, { method: "GET", path: "/miniapp/admin/abuse", query: new URLSearchParams("status=active"), headers, body: {} });
+  assert(activeAbuse.body.activeCount === 1, "admin abuse active filter");
+  const releasedBuilding = dispatch(state, { method: "POST", path: "/miniapp/admin/abuse/release", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", reason: "smoke target released" } });
+  assert(releasedBuilding.body.active === false, "admin abuse building release");
   const adminModerators = dispatch(state, { method: "GET", path: "/miniapp/admin/moderators", query: new URLSearchParams(), headers, body: {} });
   assert(adminModerators.body.count === 1, "admin moderators count");
   assert(adminModerators.body.items.some((item) => item.userId === "user-a" && item.profileReady === true), "admin moderators list user-a");
@@ -1829,6 +2001,7 @@ function smoke(options) {
   const adminBackup = dispatch(state, { method: "GET", path: "/miniapp/admin/backup", query: new URLSearchParams(), headers, body: {} });
   assert(adminBackup.body.schemaVersion === 1, "admin backup schema");
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
+  assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
   assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
   assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
   const adminOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers, body: {} });
@@ -1837,9 +2010,13 @@ function smoke(options) {
   assert(adminOps.body.retention.sessionTtlHours === 12, "admin ops session ttl");
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
+  assert(adminOps.body.monitoring.checks.some((item) => item.id === "abuse-holds"), "admin ops abuse check");
+  assert(adminOps.body.monitoring.activeAbuseHoldCount === 0, "admin ops no active abuse holds");
   assert(adminOps.body.counts.users >= 2, "admin ops user count");
   assert(adminOps.body.counts.moderators === 1, "admin ops moderator count");
+  assert(adminOps.body.counts.abuseHolds === 2, "admin ops abuse count");
   assert(adminOps.body.distributions.buildingVisibility.published >= 1, "admin ops building distribution");
+  assert(adminOps.body.distributions.abuseHoldStatus.released === 2, "admin ops abuse distribution");
   state.sessions["session-expired-prune"] = { id: "session-expired-prune", userId: "user-a", issuedAt: "1999-01-01T00:00:00.000Z", expiresAt: "2000-01-01T00:00:00.000Z", revokedAt: "" };
   state.rateLimits["user-a:/miniapp/old"] = { key: "user-a:/miniapp/old", count: 9, resetAt: "2000-01-01T00:00:00.000Z" };
   state.auditEvents.push({ ...audit("audit-old-retention", "ops", "Old audit", "Old audit should be pruned.", "user-a", "ops:retention", "", "old", "private"), timestamp: "2000-01-01T00:00:00.000Z" });
