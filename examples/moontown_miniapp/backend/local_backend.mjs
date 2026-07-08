@@ -59,6 +59,11 @@ function seedState() {
       { id: "agent-policy-guide", name: "Policy Guide", buildingId: "policy-hall", status: "waiting-review" },
       { id: "agent-builder", name: "Builder", buildingId: "private-agent-lab", status: "idle" },
     ],
+    threads: [
+      thread("thread-policy-hall", "policy-hall", "Policy Hall Thread", "system", "published", "review"),
+      thread("thread-market-square", "market-square", "Market Square Thread", "system", "published", "running"),
+      thread("thread-private-agent-lab", "private-agent-lab", "Private Agent Lab Thread", "user-a", "private_draft", "draft"),
+    ],
     messages: [
       { id: "msg-welcome", actorId: "agent-policy-guide", threadId: "thread-policy-hall", text: "Policy Hall can answer public review questions.", status: "done" },
     ],
@@ -95,6 +100,10 @@ function book(id, buildingId, title, ownerId, visibility, summary, acceptedMemor
 
 function bookMemory(id, bookId, buildingId, title, safeSummary, authorId, reviewId, runId, visibility) {
   return { id, bookId, buildingId, title, safeSummary, authorId, reviewId, runId, visibility, status: "accepted", timestamp: new Date().toISOString() };
+}
+
+function thread(id, buildingId, title, ownerId, visibility, status) {
+  return { id, buildingId, title, ownerId, visibility, status, unreadCount: 0, updatedAt: new Date().toISOString() };
 }
 
 function placement(id, buildingId, ownerId, layer, x, y, status, source) {
@@ -187,6 +196,7 @@ function normalizeState(state) {
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
+  state.threads = state.threads && state.threads.length > 0 ? state.threads : deriveThreads(state);
   state.reviews = state.reviews || [];
   state.bookMemories = state.bookMemories || [];
   state.moderationCases = state.moderationCases || [];
@@ -439,11 +449,17 @@ function visibleBookMemories(state, books) {
   return state.bookMemories.filter((item) => visibleBookIds.has(item.bookId));
 }
 
+function visibleThreads(state, viewer) {
+  const visibleBuildingIds = new Set(visibleBuildings(state, viewer).map((item) => item.id));
+  return state.threads.filter((item) => visibleBuildingIds.has(item.buildingId));
+}
+
 function snapshotFor(state, viewer) {
   const buildings = visibleBuildings(state, viewer);
   const placements = visiblePlacements(state, viewer);
   const books = visibleBooks(state, viewer);
   const bookMemories = visibleBookMemories(state, books);
+  const threads = visibleThreads(state, viewer);
   const agents = state.agents.filter((item) => buildings.some((building) => building.id === item.buildingId));
   const profile = profileFor(state, viewer);
   return {
@@ -456,6 +472,7 @@ function snapshotFor(state, viewer) {
     placements,
     books,
     bookMemories,
+    threads,
     agents,
     runs: state.runs.filter((item) => buildings.some((building) => building.id === item.buildingId)),
     toolResults: state.toolResults.filter((item) => buildings.some((building) => building.id === item.buildingId)),
@@ -469,12 +486,62 @@ function snapshotFor(state, viewer) {
 }
 
 function visibleMessages(state, viewer) {
-  const visibleIds = new Set(visibleBuildings(state, viewer).map((item) => item.id));
-  return state.messages.filter((item) => visibleIds.has(buildingIdFromThread(item.threadId)));
+  const visibleThreadIds = new Set(visibleThreads(state, viewer).map((item) => item.id));
+  return state.messages.filter((item) => visibleThreadIds.has(item.threadId));
 }
 
 function buildingIdFromThread(threadId) {
   return String(threadId || "").replace(/^thread-/, "");
+}
+
+function deriveThreads(state) {
+  const threadsById = new Map();
+  const addThread = (threadId, buildingId, status = "stable") => {
+    const building = state.buildings.find((item) => item.id === buildingId);
+    if (!building || threadsById.has(threadId)) return;
+    threadsById.set(threadId, thread(threadId, buildingId, `${building.title} Thread`, building.ownerId, building.visibility, status));
+  };
+  for (const item of state.messages || []) addThread(item.threadId, buildingIdFromThread(item.threadId), item.status || "stable");
+  for (const item of state.runs || []) addThread(item.threadId, item.buildingId, item.status || "stable");
+  for (const item of state.toolResults || []) addThread(item.threadId, item.buildingId, item.status || "stable");
+  return Array.from(threadsById.values());
+}
+
+function ensureThread(state, building, threadId, status) {
+  let item = state.threads.find((candidate) => candidate.id === threadId);
+  if (!item) {
+    item = thread(threadId, building.id, `${building.title} Thread`, building.ownerId, building.visibility, status);
+    state.threads.push(item);
+  } else {
+    item.buildingId = building.id;
+    item.title = `${building.title} Thread`;
+    item.ownerId = building.ownerId;
+    item.visibility = building.visibility;
+    item.status = status || item.status;
+    item.updatedAt = new Date().toISOString();
+  }
+  return item;
+}
+
+function touchThread(state, threadId, status) {
+  const item = state.threads.find((candidate) => candidate.id === threadId);
+  if (item) {
+    item.status = status || item.status;
+    item.unreadCount += 1;
+    item.updatedAt = new Date().toISOString();
+  }
+  return item;
+}
+
+function syncThreadsForBuilding(state, building) {
+  for (const item of state.threads) {
+    if (item.buildingId === building.id) {
+      item.ownerId = building.ownerId;
+      item.visibility = building.visibility;
+      item.status = building.status;
+      item.updatedAt = new Date().toISOString();
+    }
+  }
 }
 
 function ownershipFor(state, viewer) {
@@ -486,6 +553,7 @@ function ownershipFor(state, viewer) {
   const books = state.books.filter((item) => item.ownerId === viewer || item.ownerId === "org-a" || buildingIds.has(item.buildingId));
   const bookMemories = visibleBookMemories(state, books);
   const agents = state.agents.filter((item) => buildingIds.has(item.buildingId));
+  const threads = state.threads.filter((item) => buildingIds.has(item.buildingId));
   const relationships = relationshipsFor(state, viewer, buildings, placements, books, agents);
   const reviews = state.reviews.filter((item) => item.reviewerId === viewer);
   const retryableRuns = state.runs.filter((item) => buildingIds.has(item.buildingId) && ["failed", "rejected", "cancelled"].includes(item.status));
@@ -496,6 +564,7 @@ function ownershipFor(state, viewer) {
     { id: "published", label: "Published", value: buildings.filter((item) => item.visibility === "published").length },
     { id: "books", label: "Books", value: books.length },
     { id: "agents", label: "Agents", value: agents.length },
+    { id: "threads", label: "Threads", value: threads.length },
   ];
   const items = [
     ...buildings.map((item) => ownedItem("building", item.id, item.title, item.summary, `building:${item.id}`, item.visibility, item.status, actionForVisibility(item.visibility), actionMessageForBuilding(item))),
@@ -506,6 +575,7 @@ function ownershipFor(state, viewer) {
     }),
     ...books.map((item) => ownedItem("book", item.id, item.title, item.summary, `book:${item.id}`, item.visibility, item.status, "Review", "tab-messages")),
     ...agents.map((item) => ownedItem("agent", item.id, item.name, `Agent attached to ${item.buildingId}.`, `agent:${item.id}`, "owned", item.status, "Chat", "tab-messages")),
+    ...threads.map((item) => ownedItem("thread", item.id, item.title, `Conversation attached to ${item.buildingId}.`, `thread:${item.id}`, item.visibility, item.status, "Open", "tab-messages")),
   ];
   const alerts = [];
   if (!profile.setupCompleted || !profile.consentAccepted) {
@@ -519,7 +589,7 @@ function ownershipFor(state, viewer) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
-  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares, bookMemories };
+  return { viewer, profile, permissions, relationships, stats, items, alerts, reviews, shares, bookMemories, threads };
 }
 
 function ownedItem(kind, id, title, summary, targetRef, visibility, status, actionLabel, actionMessage) {
@@ -748,6 +818,7 @@ function changeBuildingVisibility(state, viewer, buildingId, visibility, status,
   }
   item.visibility = visibility;
   item.status = status;
+  syncThreadsForBuilding(state, item);
   for (const memory of state.books) {
     if (memory.buildingId === buildingId) {
       memory.visibility = visibility;
@@ -770,6 +841,7 @@ function submitBuilding(state, viewer, buildingId) {
   }
   item.visibility = "submitted";
   item.status = "review";
+  syncThreadsForBuilding(state, item);
   const memory = firstBookForBuilding(state, buildingId);
   for (const bookItem of state.books) {
     if (bookItem.buildingId === buildingId) {
@@ -836,14 +908,16 @@ function askBuilding(state, viewer, body) {
   const messageId = `msg-local-${state.nextMessage++}`;
   const reviewId = `review-local-${state.nextReview++}`;
   const bookId = body.bookId || `book-${buildingId}`;
-  const run = { id: runId, agentId: "agent-policy-guide", buildingId, bookId, threadId: `thread-${buildingId}`, title: `${item.title} answer`, summary: body.body || "Local question", status: "review", reviewRequired: true, artifactRef: `artifact://${bookId}` };
+  const threadItem = ensureThread(state, item, body.threadId || `thread-${buildingId}`, "review");
+  const run = { id: runId, agentId: "agent-policy-guide", buildingId, bookId, threadId: threadItem.id, title: `${item.title} answer`, summary: body.body || "Local question", status: "review", reviewRequired: true, artifactRef: `artifact://${bookId}` };
   const message = { id: messageId, actorId: "agent-policy-guide", threadId: run.threadId, text: "Local answer recorded as a reviewable run.", status: "waiting-review" };
   const review = { id: reviewId, runId, buildingId, bookId, title: "Review local answer", summary: "Accept this local answer into building memory.", artifactRef: run.artifactRef, reviewerId: viewer, status: "pending", acceptedMemoryDelta: 1 };
   state.runs.push(run);
   state.messages.push(message);
   state.reviews.push(review);
+  touchThread(state, threadItem.id, "review");
   state.notifications.push({ id: `notice-${reviewId}`, kind: "review", title: "Review waiting", body: review.summary, targetRef: run.threadId, buildingId, unread: true });
-  return changed({ run, message, review });
+  return changed({ run, message, review, thread: threadItem });
 }
 
 function sendMessage(state, viewer, body) {
@@ -851,16 +925,18 @@ function sendMessage(state, viewer, body) {
   const item = visibleBuildings(state, viewer).find((building) => building.id === buildingId);
   if (!item) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId } };
   const text = String(body.body || body.text || "").trim() || `Message to ${item.title}`;
+  const threadItem = ensureThread(state, item, body.threadId || `thread-${buildingId}`, "running");
   const message = {
     id: `msg-local-${state.nextMessage++}`,
     actorId: viewer,
-    threadId: body.threadId || `thread-${buildingId}`,
+    threadId: threadItem.id,
     text,
     status: "running",
   };
   state.messages.push(message);
+  touchThread(state, threadItem.id, "running");
   state.auditEvents.push(audit(`audit-message-${message.id}`, "message", `${item.title} message sent`, "A user message was recorded in the building thread.", viewer, `message:${message.id}`, buildingId, "running", item.visibility));
-  return changed({ message, threadId: message.threadId, building: item });
+  return changed({ message, thread: threadItem, threadId: message.threadId, building: item });
 }
 
 function reportBuilding(state, viewer, body) {
@@ -909,6 +985,7 @@ function decideModerationCase(state, viewer, body, decision) {
   const status = decision === "takedown" ? "removed" : "hidden";
   item.visibility = visibility;
   item.status = status;
+  syncThreadsForBuilding(state, item);
   moderationCase.status = status;
   moderationCase.actionLabel = decision === "takedown" ? "Closed" : "Takedown";
   moderationCase.actionMessage = decision === "takedown" ? "tab-messages" : "takedown-public-building";
@@ -929,9 +1006,11 @@ function acknowledgeToolResult(state, viewer, body) {
   if (!item) return { status: 404, changed: false, body: { error: "missing_tool_result", toolResultId } };
   const building = visibleBuildings(state, viewer).find((entry) => entry.id === item.buildingId);
   if (!building) return { status: 403, changed: false, body: { error: "building_not_visible", buildingId: item.buildingId } };
+  const threadItem = ensureThread(state, building, item.threadId, "done");
   item.status = "done";
+  touchThread(state, threadItem.id, "done");
   state.auditEvents.push(audit(`audit-tool-ack-${toolResultId}`, "tool-result-ack", `${item.title} acknowledged`, "Tool result was reviewed and cleared from the pending agent queue.", viewer, `tool-result:${toolResultId}`, item.buildingId, "done", building.visibility));
-  return changed({ toolResult: item, building, state: "acknowledged" });
+  return changed({ toolResult: item, thread: threadItem, building, state: "acknowledged" });
 }
 
 function createAgent(state, viewer, body) {
@@ -947,17 +1026,19 @@ function createAgent(state, viewer, body) {
   }
   const name = body.displayName || body.name || "Created Agent";
   const agent = { id, name, buildingId, status: "idle" };
+  const threadItem = ensureThread(state, building, `thread-${buildingId}`, "done");
   const message = {
     id: `msg-agent-${state.nextMessage++}`,
     actorId: id,
-    threadId: `thread-${buildingId}`,
+    threadId: threadItem.id,
     text: `${name} is ready inside ${building.title}.`,
     status: "done",
   };
   state.agents.push(agent);
   state.messages.push(message);
+  touchThread(state, threadItem.id, "done");
   state.auditEvents.push(audit(`audit-agent-${id}`, "agent-create", `${name} created`, `Agent is attached to ${building.title} and can join building threads.`, viewer, `agent:${id}`, buildingId, "idle", building.visibility));
-  return changed({ agent, message, building });
+  return changed({ agent, message, thread: threadItem, building });
 }
 
 function handoffAgent(state, viewer, body) {
@@ -975,7 +1056,8 @@ function handoffAgent(state, viewer, body) {
   const book = firstBookForBuilding(state, buildingId) || { id: `book-${buildingId}` };
   const summary = String(body.summary || body.body || `Continue work from ${fromAgent.name}.`).trim();
   const runId = `run-handoff-${state.nextRun++}`;
-  const threadId = body.threadId || `thread-${buildingId}`;
+  const threadItem = ensureThread(state, building, body.threadId || `thread-${buildingId}`, "running");
+  const threadId = threadItem.id;
   const message = {
     id: `msg-handoff-${state.nextMessage++}`,
     actorId: fromAgent.id,
@@ -1007,9 +1089,10 @@ function handoffAgent(state, viewer, body) {
   toAgent.status = "running";
   state.messages.push(message);
   state.runs.push(run);
+  touchThread(state, threadId, "running");
   state.notifications.push(notification);
   state.auditEvents.push(audit(`audit-handoff-${runId}`, "handoff", `${fromAgent.name} handed off work`, `${toAgent.name} received work in ${building.title}.`, fromAgent.id, `run:${runId}`, buildingId, "running", building.visibility));
-  return changed({ message, run, notification, fromAgent, toAgent, building });
+  return changed({ message, run, thread: threadItem, notification, fromAgent, toAgent, building });
 }
 
 function changeRunStatus(state, runId, status) {
@@ -1017,6 +1100,7 @@ function changeRunStatus(state, runId, status) {
   if (!run) return { status: 404, changed: false, body: { error: "missing_run", runId } };
   run.status = status;
   if (status === "running") run.reviewRequired = false;
+  touchThread(state, run.threadId, status);
   return changed({ run });
 }
 
@@ -1040,6 +1124,7 @@ function decideReview(state, viewer, reviewId, decision) {
   if (run) {
     run.status = decision === "accepted" ? "done" : "rejected";
     run.reviewRequired = false;
+    touchThread(state, run.threadId, run.status);
   }
   const memory = state.books.find((item) => item.id === review.bookId);
   let acceptedMemory = null;
@@ -1086,6 +1171,7 @@ function acceptBookMemory(state, viewer, review, memory, building) {
 function acceptPublication(state, viewer, building, review) {
   building.visibility = "published";
   building.status = "stable";
+  syncThreadsForBuilding(state, building);
   for (const memory of state.books) {
     if (memory.buildingId === building.id) {
       memory.visibility = "published";
@@ -1100,6 +1186,7 @@ function acceptPublication(state, viewer, building, review) {
 function rejectPublication(state, viewer, building, review) {
   building.visibility = "private_draft";
   building.status = "draft";
+  syncThreadsForBuilding(state, building);
   for (const memory of state.books) {
     if (memory.buildingId === building.id) {
       memory.visibility = "private_draft";
@@ -1181,6 +1268,7 @@ function smoke(options) {
   const chenSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: registeredHeaders, body: {} });
   assert(!chenSnapshot.body.buildings.some((item) => item.id === "shared-lab"), "uninvited user cannot see shared building");
   assert(!hasRelationship(chenSnapshot.body.relationships, "building", "shared-lab", "shared"), "uninvited user has no shared relationship");
+  assert(!chenSnapshot.body.threads.some((item) => item.id === "thread-private-agent-lab"), "private thread hidden from uninvited user");
   assert(!chenSnapshot.body.messages.some((item) => item.threadId === "thread-private-agent-lab"), "private messages hidden from uninvited user");
   const privateSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=shared"), headers: bobHeaders, body: {} });
   assert(!privateSearch.body.items.some((item) => item.targetRef === "building:shared-lab"), "shared private hidden from public search");
@@ -1196,11 +1284,13 @@ function smoke(options) {
   const createdAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(createdAgent.body.agent.buildingId === "smoke-lab", "create agent building");
   assert(createdAgent.body.message.threadId === "thread-smoke-lab", "create agent message");
+  assert(createdAgent.body.thread.buildingId === "smoke-lab", "create agent thread");
   const helperAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke-helper", displayName: "Smoke Helper", buildingId: "smoke-lab" } });
   assert(helperAgent.body.agent.buildingId === "smoke-lab", "create helper agent");
   const handoff = dispatch(state, { method: "POST", path: "/miniapp/agents/handoff", query: new URLSearchParams(), headers, body: { buildingId: "smoke-lab", fromAgentId: "agent-smoke", toAgentId: "agent-smoke-helper", summary: "Prepare the next publish pass." } });
   assert(handoff.body.run.agentId === "agent-smoke-helper", "handoff target agent");
   assert(handoff.body.message.threadId === "thread-smoke-lab", "handoff thread");
+  assert(handoff.body.thread.status === "running", "handoff thread status");
   assert(handoff.body.notification.kind === "handoff", "handoff notification");
   const duplicateAgent = dispatch(state, { method: "POST", path: "/miniapp/agents", query: new URLSearchParams(), headers, body: { id: "agent-smoke", displayName: "Smoke Agent", buildingId: "smoke-lab" } });
   assert(duplicateAgent.status === 409, "duplicate agent blocked");
@@ -1237,6 +1327,7 @@ function smoke(options) {
   assert(asked.body.review.status === "pending", "query review");
   const sent = dispatch(state, { method: "POST", path: "/miniapp/messages/send", query: new URLSearchParams(), headers, body: { buildingId: "policy-hall", body: "hello policy hall" } });
   assert(sent.body.message.threadId === "thread-policy-hall", "send message thread");
+  assert(sent.body.thread.id === "thread-policy-hall", "send message durable thread");
   assert(sent.body.message.text === "hello policy hall", "send message text");
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
@@ -1263,6 +1354,8 @@ function smoke(options) {
   assert(snapshot.body.permissions.canModerate === true, "moderator snapshot permission");
   assert(snapshot.body.permissions.canReview === true, "reviewer snapshot permission");
   assert(snapshot.body.bookMemories.some((item) => item.id === accepted.body.memory.id && item.bookId === "book-policy-hall"), "snapshot accepted memory");
+  assert(snapshot.body.threads.some((item) => item.id === "thread-policy-hall"), "snapshot policy thread");
+  assert(snapshot.body.threads.some((item) => item.id === "thread-smoke-lab" && item.visibility === "published"), "snapshot published thread");
   assert(hasRelationship(snapshot.body.relationships, "building", "private-agent-lab", "owner"), "snapshot owner relationship");
   assert(hasRelationship(snapshot.body.relationships, "building", "team-studio", "team"), "snapshot team relationship");
   assert(hasRelationship(snapshot.body.relationships, "placement", "placement-user-a-policy-hall", "owner"), "snapshot placement relationship");
@@ -1277,6 +1370,7 @@ function smoke(options) {
   assert(ownership.body.permissions.canModerate === true, "ownership moderator permission");
   assert(ownership.body.permissions.profileReady === true, "ownership profile ready permission");
   assert(ownership.body.bookMemories.some((item) => item.id === ownedAccepted.body.memory.id), "ownership accepted memory");
+  assert(ownership.body.threads.some((item) => item.id === "thread-smoke-lab"), "ownership thread");
   assert(hasRelationship(ownership.body.relationships, "building", "smoke-lab", "owner"), "ownership building relationship");
   assert(hasRelationship(ownership.body.relationships, "book", "book-smoke-lab", "owner"), "ownership book relationship");
   assert(hasRelationship(ownership.body.relationships, "agent", "agent-smoke", "owner"), "ownership agent relationship");
@@ -1286,6 +1380,7 @@ function smoke(options) {
   assert(ownership.body.items.some((item) => item.targetRef === "building:smoke-lab" && item.actionMessage === "tab-discover"), "ownership building action");
   assert(ownership.body.items.some((item) => item.targetRef === "agent:agent-smoke" && item.actionMessage === "tab-messages"), "ownership agent action");
   assert(ownership.body.stats.some((item) => item.id === "books" && item.value >= 1), "ownership books");
+  assert(ownership.body.stats.some((item) => item.id === "threads" && item.value >= 1), "ownership threads");
   saveState(statePath, state);
   rmSync(statePath);
   console.log("moontown-miniapp-backend smoke ok");

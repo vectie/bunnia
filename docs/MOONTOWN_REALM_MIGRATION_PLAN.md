@@ -504,7 +504,11 @@ Done when:
 
 Current status: Messages has run plaques, review controls, notification sync,
 ack/subscription actions, scoped backend metadata, and a building-thread send
-flow so user messages can be persisted against the selected map building. The
+flow so user messages can be persisted against the selected map building.
+Building communication threads are now durable local backend objects exposed
+through snapshot and ownership payloads, and message, run, tool-result, agent,
+and handoff actions create or update those thread records instead of relying on
+implicit `thread-*` ids. The
 review queue now covers both book-memory reviews and publication reviews, so
 agent output and building publication share one decision surface. Creating an
 agent now attaches it to a building thread with an audit event, so agents are
@@ -586,9 +590,9 @@ books, and agents, so surfaces can distinguish owner, shared, team, system,
 public, and visible objects without copying backend visibility rules.
 Shared-private local buildings now use explicit share grants, so invited users
 can see them while uninvited users and public search cannot. Message send is
-also persisted locally through `/miniapp/messages/send`, and snapshots only
-return messages attached to buildings the viewer can see. Discover search now
-exercises multi-kind public results instead of a building-only route. Local
+also persisted locally through `/miniapp/messages/send`, and snapshots now
+return durable visible threads plus messages attached to those threads. Discover
+search now exercises multi-kind public results instead of a building-only route. Local
 building publication now goes through `/miniapp/buildings/submit` before
 `/miniapp/buildings/publish`, so the backend loop has a review state instead of
 direct draft-to-public publishing.
