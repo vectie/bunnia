@@ -598,7 +598,9 @@ reports now have a compact Safety Desk action in the map drawer plus a local
 and audit events so DevTools can exercise the first report path before
 production admin tools exist. The local backend also exposes hide and takedown
 decisions for moderation cases, so reported public buildings can leave public
-search while the case, notification, and audit trail remain inspectable.
+search while the case, notification, and audit trail remain inspectable. Those
+decisions are now backend-gated by local moderator trust, so normal logged-in
+users can report but cannot hide or takedown public buildings.
 
 ### R9: Style And Performance Hardening
 
@@ -649,9 +651,10 @@ Done when:
 
 Current status: first local report, hide, and takedown paths are implemented
 through the selected building Safety Desk, Messages Moderation Desk, and
-`/miniapp/moderation/*` routes. Production still needs real reviewer/admin
-identity, appeals, retention, rate limits, and abuse controls after local flows
-are coherent.
+`/miniapp/moderation/*` routes. Local hide/takedown decisions now require
+backend-owned moderator trust before mutating building or book visibility.
+Production still needs real reviewer/admin identity, appeals, retention, rate
+limits, and abuse controls after local flows are coherent.
 
 ## Migration Order
 

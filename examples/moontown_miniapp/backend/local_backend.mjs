@@ -27,6 +27,7 @@ function seedState() {
       profile("user-a", "Ada Builder", "builder", "avatar://ada", true, true),
       profile("user-b", "Bo Curator", "explorer", "avatar://bo", true, true),
     ],
+    moderatorIds: ["user-a"],
     shares: [],
     sessions: {},
     listings: defaultListings(),
@@ -172,6 +173,7 @@ function normalizeState(state) {
   state.nextModeration = state.nextModeration || 2;
   state.users = state.users || [];
   state.profiles = state.profiles || [];
+  state.moderatorIds = state.moderatorIds && state.moderatorIds.length > 0 ? state.moderatorIds : ["user-a"];
   state.shares = state.shares || [];
   state.listings = state.listings && state.listings.length > 0 ? state.listings : defaultListings();
   state.sessions = state.sessions || {};
@@ -409,6 +411,10 @@ function canSeeBuilding(state, item, viewer) {
 
 function isBuildingSharedWith(state, buildingId, viewer) {
   return state.shares.some((item) => item.buildingId === buildingId && item.targetUserId === viewer && item.status === "active");
+}
+
+function canModerate(state, viewer) {
+  return state.moderatorIds.includes(viewer);
 }
 
 function visiblePlacements(state, viewer) {
@@ -801,6 +807,9 @@ function decideModerationCase(state, viewer, body, decision) {
   if (!moderationCase) return { status: 404, changed: false, body: { error: "missing_moderation_case", caseId, buildingId } };
   const item = state.buildings.find((building) => building.id === moderationCase.buildingId);
   if (!item) return { status: 404, changed: false, body: { error: "missing_building", buildingId: moderationCase.buildingId } };
+  if (!canModerate(state, viewer)) {
+    return { status: 403, changed: false, body: { error: "moderator_only", caseId: moderationCase.id, buildingId: item.id } };
+  }
   const visibility = decision === "takedown" ? "takedown" : "hidden";
   const status = decision === "takedown" ? "removed" : "hidden";
   item.visibility = visibility;
@@ -1103,6 +1112,9 @@ function smoke(options) {
   const report = dispatch(state, { method: "POST", path: "/miniapp/moderation/report", query: new URLSearchParams(), headers, body: { buildingId: "published-agent-lab", reason: "smoke safety report" } });
   assert(report.body.case.status === "pending", "report pending");
   assert(report.body.case.targetRef === "building:published-agent-lab", "report target");
+  const deniedHide = dispatch(state, { method: "POST", path: "/miniapp/moderation/hide", query: new URLSearchParams(), headers: bobHeaders, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
+  assert(deniedHide.status === 403, "moderation reviewer only");
+  assert(deniedHide.body.error === "moderator_only", "moderation denial reason");
   const hidden = dispatch(state, { method: "POST", path: "/miniapp/moderation/hide", query: new URLSearchParams(), headers, body: { caseId: report.body.case.id, buildingId: "published-agent-lab" } });
   assert(hidden.body.building.visibility === "hidden", "hide building");
   const hiddenSearch = dispatch(state, { method: "GET", path: "/miniapp/discover/search", query: new URLSearchParams("query=published"), headers, body: {} });
