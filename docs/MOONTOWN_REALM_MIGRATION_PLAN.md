@@ -22,6 +22,33 @@ This is therefore a rest-functionality migration plan. The map remains the
 product's game board; the phases below add the mature app systems that make the
 board useful without changing the board into another product.
 
+## Working Interpretation
+
+For migration purposes, "Realm" means only the map layer we already have. It is
+the spatial canvas, visual identity, and placement surface. It is not the main
+remaining feature backlog.
+
+The remaining backlog is app maturity around that map:
+
+- identity: who entered town, what setup is complete, and what they can do
+- orientation: what changed in town and where the next useful action lives
+- discovery: which public buildings, books, agents, people, demands, products,
+  events, and posts can be found or placed
+- ownership: what the user owns, drafts, shares, submits, publishes, archives,
+  or restores
+- agent work: what agents are saying, doing, handing off, retrying, or asking a
+  human to review
+- durable memory: which books and accepted memories support each building
+- backend reality: what state is synced, stale, failed, rate-limited, held,
+  recoverable, or production-ready
+
+Every one of those jobs should appear in the current tile-gamified language.
+The migration should not introduce polished but foreign mobile pages. It should
+make the existing town feel more complete: signposts for entry, plaques for
+status, ledgers for activity, market boards for search, shelves for books,
+mail boards for communication, stamps for lifecycle, and workbenches for owned
+objects.
+
 ## Scope Decision
 
 The map already carries the Realm concept.
@@ -310,6 +337,22 @@ Rest-functionality phase intent:
 | R6 | Are agent and human interactions visible, retryable, and tied to context? |
 | R7 | Can users manage all private, shared, submitted, published, and archived work? |
 | R8 | Can the full loop run locally in WeChat DevTools with realistic state? |
+
+Phase migration outputs:
+
+| Phase | Migrates into Moontown | Main tile surface | Backend/data output |
+| --- | --- | --- | --- |
+| R0 | current Realm map only | full-screen tile map | projection-aware asset, markers, bounds, budgets |
+| R1 | navigation and reference page shell | tabs, signposts, route plaques | route metadata and generated page contracts |
+| R2 | entry/login/profile flows | town passport, setup stamps | session, profile, role, consent, permissions |
+| R3 | home/community overview | notice board, district doors, activity ledger | activity, stats, stale/retry summaries |
+| R4 | public square/search pages | market board, filters, placeable rows | search index, visibility, placement eligibility |
+| R5 | building/detail/memory flows | building drawer, book shelf, lifecycle stamps | buildings, books, memories, shares, audit |
+| R6 | chat/interaction/review flows | mail board, run plaques, review notices | threads, messages, runs, tool results, reviews |
+| R7 | profile/owned-content pages | inventory shelf, ownership workbench | owned objects, drafts, published work, archives |
+| R8 | local app/backend proof | sync plaques, retry rows, backend loop panels | local persistence, two-user state, smoke coverage |
+| R9 | visual/render hardening | tile-system audit across all pages | render, list, `setData`, asset, and snapshot budgets |
+| R10 | production backend readiness | admin/reviewer workbench where needed | WeChat login, storage, moderation, monitoring, recovery |
 
 ## Phase-By-Phase Migration Plan
 
@@ -724,27 +767,31 @@ provider identity hash, and returns only opaque session/profile data. This gives
 the production login path a safer contract to replace with the real WeChat code
 exchange. It also exposes `/miniapp/health`, rate-limits sensitive local routes
 such as dev login, WeChat login, public reports, and appeals, and provides
-moderator-only audit/backup/ops/readiness endpoints, moderator list/grant/revoke
-routes, retention prune route, a local startup/interval retention scheduler, an
-external monitoring incident report route, moderator-only incident review/resolve
-routes, and moderator-only abuse hold/release routes for users and buildings.
+moderator-only audit/backup/recovery/ops/readiness endpoints, moderator
+list/grant/revoke routes, retention prune route, a local startup/interval
+retention scheduler, an external monitoring incident report route, moderator-only
+incident review/resolve routes, and moderator-only abuse hold/release routes for
+users and buildings.
 The readiness route checks backend-only WeChat app credentials, approved HTTPS or
 cloud deployment, production storage, monitoring sink, retention scheduler, and
 reviewer identity configuration without returning secret values. Backend startup
 can now apply `MINIAPP_ADMIN_REVIEWER_IDS` into trusted moderator identities and
 ready reviewer profiles, while still leaving manual grant/revoke available for
-local tests. Backups exclude live session and rate-limit buckets, ops reports
-identity binding counts, reviewer config source, retention targets,
-scheduled-retention metadata, monitoring incidents, monitoring checks, state
-counts, and status distributions, moderator management keeps reviewer trust
-backend-owned, abuse holds can stop actor or target mutations without frontend
-bundle growth, and manual or scheduled pruning removes expired sessions, expired
-rate-limit buckets, and out-of-retention audit events. That makes
-abuse-control, recovery, login identity binding, reviewer identity, retention,
-monitoring, and deployment-readiness behavior testable before production
-infrastructure exists. Production still needs the real WeChat code-to-openid
-exchange, platform-managed retention scheduling, a real external monitoring
-provider, and production-grade abuse signals after local flows are coherent.
+local tests. Backups exclude live session and rate-limit buckets, and recovery
+verification checks backup schema, table counts, forbidden ephemeral state, and
+key relationships before any future restore mutation exists. Ops reports
+identity binding counts, reviewer config source, recovery-drill status,
+retention targets, scheduled-retention metadata, monitoring incidents,
+monitoring checks, state counts, and status distributions. Moderator management
+keeps reviewer trust backend-owned, abuse holds can stop actor or target
+mutations without frontend bundle growth, and manual or scheduled pruning
+removes expired sessions, expired rate-limit buckets, and out-of-retention audit
+events. That makes abuse-control, recovery, login identity binding, reviewer
+identity, retention, monitoring, and deployment-readiness behavior testable
+before production infrastructure exists. Production still needs the real WeChat
+code-to-openid exchange, platform-managed retention scheduling, a real external
+monitoring provider, real managed storage, production-grade abuse signals, and
+a controlled restore path after local flows are coherent.
 
 ## Migration Order
 

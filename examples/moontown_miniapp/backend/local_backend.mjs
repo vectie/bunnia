@@ -25,6 +25,34 @@ const RATE_LIMITS = {
   "/miniapp/moderation/report": 2,
   "/miniapp/moderation/appeal": 2,
 };
+const BACKUP_TABLES = [
+  "users",
+  "profiles",
+  "moderatorIds",
+  "reviewerConfig",
+  "identityBindings",
+  "shares",
+  "listings",
+  "buildings",
+  "placements",
+  "books",
+  "bookMemories",
+  "agents",
+  "threads",
+  "messages",
+  "runs",
+  "toolResults",
+  "reviews",
+  "moderationCases",
+  "abuseHolds",
+  "incidents",
+  "retentionJob",
+  "recoveryDrill",
+  "notifications",
+  "notificationStates",
+  "subscriptions",
+  "auditEvents",
+];
 
 function seedState() {
   return {
@@ -51,6 +79,7 @@ function seedState() {
     abuseHolds: [],
     incidents: [],
     retentionJob: retentionJob(false, DEFAULT_RETENTION_SWEEP_MS, "", "seed", { expiredSessions: 0, expiredRateLimitBuckets: 0, expiredAuditEvents: 0 }, 0),
+    recoveryDrill: recoveryDrill("", "not_run", [], 0),
     listings: defaultListings(),
     buildings: [
       building("policy-hall", "Policy Hall", "policy_hall", "published", "system", "Public policy answers and review routing.", ["policy", "review", "public"], 479, 388, "review"),
@@ -143,6 +172,10 @@ function retentionJob(enabled, intervalMs, lastRunAt, lastMode, lastRemoved, tot
 
 function reviewerConfig(source, reviewerIds, appliedAt) {
   return { source, reviewerIds, appliedAt };
+}
+
+function recoveryDrill(lastRunAt, status, diagnostics, totalRuns) {
+  return { lastRunAt, status, diagnostics, totalRuns };
 }
 
 function identityBinding(provider, userId, providerUserHash, appIdHash) {
@@ -259,6 +292,7 @@ function normalizeState(state) {
   state.abuseHolds = state.abuseHolds || [];
   state.incidents = state.incidents || [];
   state.retentionJob = normalizeRetentionJob(state.retentionJob);
+  state.recoveryDrill = normalizeRecoveryDrill(state.recoveryDrill);
   state.messages = state.messages || [];
   state.runs = state.runs || [];
   state.toolResults = state.toolResults || [];
@@ -318,6 +352,15 @@ function normalizeRetentionJob(raw) {
       expiredRateLimitBuckets: Number(removed.expiredRateLimitBuckets || 0),
       expiredAuditEvents: Number(removed.expiredAuditEvents || 0),
     },
+    Number(raw && raw.totalRuns ? raw.totalRuns : 0),
+  );
+}
+
+function normalizeRecoveryDrill(raw) {
+  return recoveryDrill(
+    raw && raw.lastRunAt ? raw.lastRunAt : "",
+    raw && raw.status ? raw.status : "not_run",
+    raw && Array.isArray(raw.diagnostics) ? raw.diagnostics : [],
     Number(raw && raw.totalRuns ? raw.totalRuns : 0),
   );
 }
@@ -477,6 +520,8 @@ function healthFor(state) {
     criticalIncidentCount: criticalIncidents,
     retentionSchedulerEnabled: state.retentionJob.enabled,
     retentionLastRunAt: state.retentionJob.lastRunAt,
+    recoveryStatus: state.recoveryDrill.status,
+    recoveryLastRunAt: state.recoveryDrill.lastRunAt,
     auditEventCount: state.auditEvents.length,
     rateLimitBucketCount: Object.keys(state.rateLimits).length,
   };
@@ -854,6 +899,7 @@ function opsForAdmin(state, viewer) {
     { id: "moderation", status: activeModerationCases.length > 0 ? "attention" : "ok", summary: `${activeModerationCases.length} active moderation case(s).` },
     { id: "reviews", status: pendingReviews.length > 0 ? "attention" : "ok", summary: `${pendingReviews.length} pending review item(s).` },
     { id: "backup", status: "ok", summary: "Backup endpoint excludes live sessions and rate-limit buckets." },
+    { id: "recovery", status: state.recoveryDrill.status === "failed" ? "attention" : (state.recoveryDrill.status === "ok" ? "ok" : "watch"), summary: `Last recovery verification: ${state.recoveryDrill.status}.` },
     { id: "retention", status: state.retentionJob.enabled && state.retentionJob.lastRunAt ? "ok" : "watch", summary: `${AUDIT_RETENTION_DAYS}d audit retention; last ${state.retentionJob.lastMode} run ${state.retentionJob.lastRunAt || "not yet"}.` },
   ];
   return ok({
@@ -874,6 +920,7 @@ function opsForAdmin(state, viewer) {
       schedulerTotalRuns: state.retentionJob.totalRuns,
     },
     reviewerConfig: state.reviewerConfig,
+    recovery: state.recoveryDrill,
     monitoring: {
       checks,
       activeSessionCount: activeSessions.length,
@@ -889,6 +936,7 @@ function opsForAdmin(state, viewer) {
       users: state.users.length,
       moderators: state.moderatorIds.length,
       identityBindings: state.identityBindings.length,
+      recoveryDrill: state.recoveryDrill.lastRunAt ? 1 : 0,
       buildings: state.buildings.length,
       books: state.books.length,
       agents: state.agents.length,
@@ -1014,49 +1062,80 @@ function startRetentionScheduler(state, options) {
   return timer;
 }
 
-function backupForAdmin(state, viewer) {
-  const denied = requireModerator(state, viewer);
-  if (denied) return denied;
-  const tables = [
-    "users",
-    "profiles",
-    "moderatorIds",
-    "reviewerConfig",
-    "identityBindings",
-    "shares",
-    "listings",
-    "buildings",
-    "placements",
-    "books",
-    "bookMemories",
-    "agents",
-    "threads",
-    "messages",
-    "runs",
-    "toolResults",
-    "reviews",
-    "moderationCases",
-    "abuseHolds",
-    "incidents",
-    "retentionJob",
-    "notifications",
-    "notificationStates",
-    "subscriptions",
-    "auditEvents",
-  ];
+function backupPayload(state) {
   const snapshot = {};
   const counts = {};
-  for (const key of tables) {
+  for (const key of BACKUP_TABLES) {
     snapshot[key] = state[key] || [];
     counts[key] = Array.isArray(snapshot[key]) ? snapshot[key].length : (snapshot[key] ? 1 : 0);
   }
-  return ok({
+  return {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     excludes: ["sessions", "rateLimits"],
     counts,
     state: snapshot,
-  });
+  };
+}
+
+function backupForAdmin(state, viewer) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  return ok(backupPayload(state));
+}
+
+function verifyBackupPayload(snapshot) {
+  const diagnostics = [];
+  const state = snapshot && snapshot.state ? snapshot.state : {};
+  if (!snapshot || snapshot.schemaVersion !== 1) diagnostics.push("schema_version");
+  if (!snapshot || !snapshot.counts) diagnostics.push("missing_counts");
+  if (!state || typeof state !== "object") diagnostics.push("missing_state");
+  if (state && (Object.prototype.hasOwnProperty.call(state, "sessions") || Object.prototype.hasOwnProperty.call(state, "rateLimits"))) {
+    diagnostics.push("ephemeral_state_present");
+  }
+  for (const key of BACKUP_TABLES) {
+    if (!Object.prototype.hasOwnProperty.call(state, key)) diagnostics.push(`missing_${key}`);
+    const value = state[key];
+    const actual = Array.isArray(value) ? value.length : (value ? 1 : 0);
+    const expected = snapshot && snapshot.counts ? snapshot.counts[key] : undefined;
+    if (expected !== undefined && expected !== actual) diagnostics.push(`count_${key}`);
+  }
+  const buildingIds = new Set((state.buildings || []).map((item) => item.id));
+  for (const item of state.books || []) {
+    if (item.buildingId && !buildingIds.has(item.buildingId)) diagnostics.push(`book_building_${item.id}`);
+  }
+  for (const item of state.placements || []) {
+    if (item.buildingId && !buildingIds.has(item.buildingId)) diagnostics.push(`placement_building_${item.id}`);
+  }
+  const userIds = new Set((state.users || []).map((item) => item.id));
+  for (const item of state.profiles || []) {
+    if (item.userId && !userIds.has(item.userId)) diagnostics.push(`profile_user_${item.userId}`);
+  }
+  return {
+    status: diagnostics.length === 0 ? "ok" : "failed",
+    diagnostics,
+    tableCount: BACKUP_TABLES.length,
+  };
+}
+
+function recoveryVerifyForAdmin(state, viewer, body) {
+  const denied = requireModerator(state, viewer);
+  if (denied) return denied;
+  const snapshot = body.backup || body.snapshot || backupPayload(state);
+  const result = verifyBackupPayload(snapshot);
+  const previous = normalizeRecoveryDrill(state.recoveryDrill);
+  state.recoveryDrill = recoveryDrill(new Date().toISOString(), result.status, result.diagnostics, previous.totalRuns + 1);
+  state.auditEvents.push(audit(`audit-recovery-verify-${state.recoveryDrill.totalRuns}`, "recovery-verify", "Recovery backup verification", `Backup verification ${result.status}.`, viewer, "backup:recovery", "", result.status, "private"));
+  return {
+    status: result.status === "ok" ? 200 : 409,
+    changed: true,
+    body: {
+      recovery: state.recoveryDrill,
+      verified: result.status === "ok",
+      diagnostics: result.diagnostics,
+      tableCount: result.tableCount,
+    },
+  };
 }
 
 function dispatch(state, request) {
@@ -1082,6 +1161,9 @@ function dispatch(state, request) {
   }
   if (method === "GET" && path === "/miniapp/admin/backup") {
     return backupForAdmin(state, viewer);
+  }
+  if (method === "POST" && path === "/miniapp/admin/recovery/verify") {
+    return recoveryVerifyForAdmin(state, viewer, body);
   }
   if (method === "GET" && path === "/miniapp/admin/ops") {
     return opsForAdmin(state, viewer);
@@ -1236,6 +1318,7 @@ function routeCatalog() {
     "GET /miniapp/health",
     "GET /miniapp/admin/audit",
     "GET /miniapp/admin/backup",
+    "POST /miniapp/admin/recovery/verify",
     "GET /miniapp/admin/ops",
     "GET /miniapp/admin/readiness",
     "GET /miniapp/admin/incidents",
@@ -2358,6 +2441,8 @@ function smoke(options) {
   assert(deniedModerators.status === 403, "admin moderators moderator only");
   const deniedPrune = dispatch(state, { method: "POST", path: "/miniapp/admin/retention/prune", query: new URLSearchParams(), headers: bobHeaders, body: {} });
   assert(deniedPrune.status === 403, "admin retention prune moderator only");
+  const deniedRecovery = dispatch(state, { method: "POST", path: "/miniapp/admin/recovery/verify", query: new URLSearchParams(), headers: bobHeaders, body: {} });
+  assert(deniedRecovery.status === 403, "admin recovery moderator only");
   const adminAudit = dispatch(state, { method: "GET", path: "/miniapp/admin/audit", query: new URLSearchParams("kind=review&limit=5"), headers, body: {} });
   assert(adminAudit.body.items.some((item) => item.kind === "review"), "admin audit filtered");
   assert(adminAudit.body.filters.kind === "review", "admin audit filter echo");
@@ -2458,20 +2543,34 @@ function smoke(options) {
   assert(adminBackup.body.counts.auditEvents >= 1, "admin backup audit count");
   assert(adminBackup.body.counts.identityBindings === 1, "admin backup identity binding count");
   assert(adminBackup.body.counts.reviewerConfig === 1, "admin backup reviewer config count");
+  assert(adminBackup.body.counts.recoveryDrill === 1, "admin backup recovery drill count");
   assert(adminBackup.body.counts.abuseHolds === 2, "admin backup abuse hold count");
   assert(adminBackup.body.counts.incidents === 1, "admin backup incident count");
   assert(adminBackup.body.counts.retentionJob === 1, "admin backup retention job count");
   assert(!Object.prototype.hasOwnProperty.call(adminBackup.body.state, "sessions"), "admin backup excludes sessions");
   assert(adminBackup.body.excludes.some((item) => item === "rateLimits"), "admin backup excludes rate limits");
+  const verifiedBackup = dispatch(state, { method: "POST", path: "/miniapp/admin/recovery/verify", query: new URLSearchParams(), headers, body: { backup: adminBackup.body } });
+  assert(verifiedBackup.body.verified === true, "admin recovery verifies backup");
+  assert(verifiedBackup.body.diagnostics.length === 0, "admin recovery clean diagnostics");
+  const recoveryHealth = dispatch(state, { method: "GET", path: "/miniapp/health", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(recoveryHealth.body.recoveryStatus === "ok", "health recovery ok");
+  const brokenBackup = { ...adminBackup.body, counts: { ...adminBackup.body.counts, users: 999 } };
+  const failedRecovery = dispatch(state, { method: "POST", path: "/miniapp/admin/recovery/verify", query: new URLSearchParams(), headers, body: { backup: brokenBackup } });
+  assert(failedRecovery.status === 409, "admin recovery rejects bad backup");
+  assert(failedRecovery.body.diagnostics.some((item) => item === "count_users"), "admin recovery count diagnostic");
+  const recoveredAgain = dispatch(state, { method: "POST", path: "/miniapp/admin/recovery/verify", query: new URLSearchParams(), headers, body: { backup: backupPayload(state) } });
+  assert(recoveredAgain.body.verified === true, "admin recovery returns ok");
   const adminOps = dispatch(state, { method: "GET", path: "/miniapp/admin/ops", query: new URLSearchParams(), headers, body: {} });
   assert(adminOps.body.retention.auditRetentionDays === AUDIT_RETENTION_DAYS, "admin ops audit retention");
   assert(adminOps.body.retention.backupRetentionDays === BACKUP_RETENTION_DAYS, "admin ops backup retention");
   assert(adminOps.body.retention.sessionTtlHours === 12, "admin ops session ttl");
   assert(adminOps.body.reviewerConfig.source === "seed", "admin ops reviewer config source");
+  assert(adminOps.body.recovery.status === "ok", "admin ops recovery status");
   assert(adminOps.body.retention.schedulerEnabled === false, "admin ops scheduler starts disabled in smoke");
   assert(adminOps.body.retention.schedulerTotalRuns === 0, "admin ops scheduler starts unused");
   assert(adminOps.body.monitoring.activeSessionCount >= 2, "admin ops active sessions");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "retention"), "admin ops retention check");
+  assert(adminOps.body.monitoring.checks.some((item) => item.id === "recovery"), "admin ops recovery check");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "abuse-holds"), "admin ops abuse check");
   assert(adminOps.body.monitoring.checks.some((item) => item.id === "incidents"), "admin ops incident check");
   assert(adminOps.body.monitoring.activeAbuseHoldCount === 0, "admin ops no active abuse holds");
