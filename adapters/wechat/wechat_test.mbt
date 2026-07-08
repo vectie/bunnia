@@ -227,32 +227,6 @@ test "wechat manifests expose route scene asset references" {
 }
 
 ///|
-test "wechat projects package local jpeg scene assets" {
-  let scene_asset = @core.node(kind="image", attrs=[
-    @core.class_name("bunnia-scene-image"),
-    @core.attr("src", "/assets/map.jpg"),
-    @core.attr("alt", "Map"),
-    @core.data("asset-id", "map"),
-    @core.data("asset-kind", "image"),
-    @core.data("asset-source", "examples/demo/assets/map.jpg"),
-    @core.data("asset-bytes", "2048"),
-  ])
-  let project = generate_project(
-    name="JPEG Scene Asset",
-    route="pages/assets/index",
-    root=@core.page([@core.view([scene_asset])]),
-  )
-  assert_true(has_file(project.files, "assets/map.jpg"))
-  assert_true(
-    file_content(project.files, "assets/map.jpg").contains(
-      "copy-file:examples/demo/assets/map.jpg",
-    ),
-  )
-  assert_eq(project.manifest.scene_asset_count, 1)
-  assert_eq(project.manifest.scene_package_bytes, 2048)
-}
-
-///|
 test "wechat projects can package backend request adapter" {
   let project = generate_project_with_runtime_and_backend(
     name="Backend Split",

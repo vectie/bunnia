@@ -40,7 +40,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxss.contains("transform-origin: 0 0"))
   assert_true(!page.wxss.contains(".moontown-map-backfill"))
   assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
-  assert_true(page.wxss.contains("width: 2800rpx; height: 2800rpx;"))
+  assert_true(page.wxss.contains("width: 2800rpx; height: 1760rpx;"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
   assert_true(page.wxss.contains(".moontown-bottom-hud"))
   assert_true(page.js.contains("__bunniaEventPatches"))
@@ -54,8 +54,10 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("__mc"))
   assert_true(page.js.contains("__mk"))
   assert_true(!page.js.contains("__er"))
-  assert_true(page.js.contains("Math.max(0,1400-vw)"))
-  assert_true(page.js.contains("Math.max(0,1400-vh)"))
+  assert_true(page.js.contains("this.__cl(278-y*2,0,278)"))
+  assert_true(page.js.contains("this.__cl(2474-y*2,793,1354)"))
+  assert_true(page.js.contains("const end=840-vh"))
+  assert_true(!page.js.contains("Math.max(0,1400-vw)"))
   assert_true(!page.js.contains("setTimeout"))
   assert_true(!page.js.contains("__moontownMapBounceTimer"))
   assert_true(!page.js.contains("padPx"))
@@ -81,11 +83,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(
-    has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.jpg"),
+    has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png"),
   )
   assert_true(
-    file_content(project.files, "assets/wenyu_reference_tilemap_iso_mobile.jpg").contains(
-      "copy-file:examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.jpg",
+    file_content(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png").contains(
+      "copy-file:examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.png",
     ),
   )
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))
