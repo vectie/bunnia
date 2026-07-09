@@ -214,6 +214,7 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=workbench_alert_entry,
     ),
     public_passport_panel(projection),
+    inventory_shelves_panel(projection),
     @bunnia.windowed_list(
       stats,
       total_count=stats.length(),

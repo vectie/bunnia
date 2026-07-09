@@ -61,7 +61,7 @@ fn moontown_wxss_source() -> String {
   ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); }\n" +
   ".mt-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".mt-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-discover-empty, .moontown-attention-row, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card { min-width: 0; margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.76); box-shadow: 0 2rpx 0 rgba(31,49,36,0.08); overflow: hidden; }\n" +
+  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-discover-empty, .moontown-attention-row, .moontown-inventory-shelf, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card { min-width: 0; margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.76); box-shadow: 0 2rpx 0 rgba(31,49,36,0.08); overflow: hidden; }\n" +
   ".bunnia-status-review, .bunnia-status-stale, .bunnia-status-waiting { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
   ".bunnia-status-stable, .bunnia-status-ready, .bunnia-status-published { border-color: rgba(72,187,120,0.48); background: rgba(228,243,216,0.76); }\n" +
   ".bunnia-status-running { border-color: rgba(49,130,206,0.44); background: rgba(217,237,247,0.78); }\n" +
@@ -86,6 +86,9 @@ fn moontown_wxss_source() -> String {
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
   ".moontown-guide-strip .bunnia-list-windowed, .moontown-discovery-strip .bunnia-list-windowed, .moontown-message-buckets { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-attention-rows .bunnia-list-windowed { display: flex; flex-direction: column; gap: 8rpx; margin-top: 8rpx; overflow: hidden; }\n" +
+  ".moontown-inventory-shelves { margin-top: 8rpx; }\n" +
+  ".moontown-inventory-shelves .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; margin-top: 8rpx; overflow: hidden; }\n" +
+  ".moontown-inventory-shelf { flex: 0 0 168rpx; min-width: 0; }\n" +
   ".moontown-guide-step { flex: 0 0 184rpx; min-width: 0; }\n" +
   ".moontown-discovery-chip, .moontown-message-bucket { flex: 0 0 152rpx; min-width: 0; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.78); overflow: hidden; }\n" +
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-run-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +

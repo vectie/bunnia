@@ -452,6 +452,9 @@ Acceptance checks:
 - Ordinary users see what is theirs and what needs action.
 - Reviewers can still reach ops checks deliberately.
 - Profile readiness is helpful, not a dump of permission state.
+- Current implementation note: My now has an explicit inventory shelf strip for
+  buildings, placements, drafts, submitted work, published work, archived work,
+  books, agents, and watched places before the detailed ownership list.
 
 Validation:
 

@@ -755,12 +755,15 @@ ownership filter chips now update the ownership sync payload
 (`kind`, `visibility`, and cursor reset) as well as local workbench state, so
 drafts, placements, and books exercise the same backend-owned windowing
 contract while the remaining chips stay available for cheap local exploration.
-The My workbench view code is now isolated in `my_workbench.mbt`: town passport,
-setup stamps, ownership shelves, public passport, publishing shelf, inventory
-refresh, and the reviewer-tools gate no longer live in the main demo route file.
-The top ordinary setup surface now reads as Town Passport instead of the generic
-Identity Setup label, and the ordinary-copy guard blocks that old label from
-returning to generated ordinary WXML.
+The My workbench view code is now isolated across focused My modules: town
+passport, setup stamps, public passport, publishing shelf, inventory refresh,
+and the reviewer-tools gate live in `my_workbench.mbt`, while the inventory
+shelf strip lives in `my_inventory_shelves.mbt`. That strip gives buildings,
+placements, drafts, submitted work, published work, archived work, books,
+agents, and watched places first-class action rows before the detailed
+ownership list. The top ordinary setup surface now reads as Town Passport
+instead of the generic Identity Setup label, and the ordinary-copy guard blocks
+that old label from returning to generated ordinary WXML.
 
 ### R8: Local Backend Loop
 
