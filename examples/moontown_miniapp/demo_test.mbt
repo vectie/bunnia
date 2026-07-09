@@ -463,6 +463,18 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!messages.wxml.contains("data-backend-path="))
   assert_true(messages.wxml.contains("Latest Messages"))
   assert_true(messages.wxml.contains("More"))
+  assert_true(messages.wxml.contains("moontown-attention-row"))
+  assert_true(messages.wxml.contains("Review waiting answer"))
+  assert_true(
+    messages.wxml.contains(
+      "Policy Hall needs a decision before memory is saved.",
+    ),
+  )
+  assert_true(messages.wxml.contains("Agent work in progress"))
+  assert_true(
+    messages.wxml.contains("Policy Hall is working from Policy Hall Book."),
+  )
+  assert_true(messages.wxml.contains("Town signals are available"))
   assert_true(messages.wxml.contains("Mark Read"))
   assert_true(messages.wxml.contains("Review Result"))
   assert_true(!messages.wxml.contains("Ack Sync"))

@@ -410,6 +410,10 @@ Acceptance checks:
 - Users can tell who needs them and what action is available.
 - Agent communication never feels like raw infrastructure.
 - Messages link back to building drawers or Realm when location matters.
+- Current implementation note: Messages now starts with explicit attention rows
+  for pending reviews, active agent work, recovery, and town signals; work,
+  result, review, notice, and shared context helpers live in focused message
+  modules instead of one monolithic surface file.
 
 Validation:
 

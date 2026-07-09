@@ -702,9 +702,11 @@ of ordinary WXML. Backend-bound notification channel chips now update the
 message-center query channel and reset the cursor at the same time as local
 channel state, so unread, review, and agent-run windows can exercise the
 backend contract while lower-risk local channels remain lightweight. The
-Attention Center, run plaques, agent-result cards, review queue, and notice rows
-now live in a dedicated `messages.mbt` module, and the ordinary-copy guard also
-blocks permission-style "shared private" wording from returning to Messages.
+Attention Center now starts with action rows that say which review, agent work,
+recovery, or signal prompt needs attention. Run plaques, agent-result cards,
+review queue, notice rows, and shared context helpers now live behind focused
+message modules, and the ordinary-copy guard still blocks permission-style
+"shared private" wording from returning to Messages.
 
 ### R7: My Ownership Workbench
 
