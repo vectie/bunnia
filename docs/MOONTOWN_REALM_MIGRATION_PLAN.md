@@ -539,7 +539,9 @@ activity rows route review/run work back to Messages while book/publish/place
 work routes to Discover. District cards now also carry Discover filter, query,
 and tone metadata, so product, demand, event, city-guide, and credential tiles
 can behave like the reference community-center cards without becoming separate
-mini-app roots.
+mini-app roots. Town Pulse behavior now lives in focused `home_pulse_*` files
+for row data, row derivation, panel rendering, and summary/count helpers behind
+the `home_pulse.mbt` boundary marker.
 
 ### R4: Discover And Placement
 

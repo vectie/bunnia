@@ -307,6 +307,9 @@ Current implementation note:
   Messages, Discover, or My with ordinary labels, while migration/reference copy
   and backend-loop details are guarded out of ordinary generated WXML. District
   shortcut buttons use typed destination actions instead of generic filter copy.
+  Town Pulse is now split into row data, row derivation, panel rendering, and
+  summary/count helpers so UX2 changes can evolve without reopening one Home
+  surface file.
 
 ## UX3: Discover Market Board Reframe
 
@@ -691,7 +694,9 @@ Acceptance checks:
   backend diagnostics, and the projection aggregate. App assembly, runtime
   patches, backend plans, scene adapters, shell/navigation, and Home panels are
   also split out of `demo.mbt`
-  so page-level product work can evolve without reopening a demo monolith. The
+  so page-level product work can evolve without reopening a demo monolith. Home
+  Pulse behavior is further split by row model, row derivation, panel rendering,
+  and summary/count helpers with a boundary check on `home_pulse.mbt`. The
   generated page, pressure-plan, and helper tests live in focused files,
   generated-project coverage is split by shell/files, route patches, backend
   request contracts, seeded data, and manifest/diagnostic checks, generated tab
