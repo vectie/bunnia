@@ -30,6 +30,7 @@ for rel in $ordinary_pages; do
     'Moderation Desk' \
     'Safety Desk' \
     'System Gateway' \
+    'Identity Setup' \
     'profile readiness' \
     'shared-private buildings' \
     'shared private' \

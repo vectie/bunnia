@@ -5,7 +5,7 @@ fn has_no_forbidden_ordinary_copy(wxml : String) -> Bool {
     label in [
       "Backend Loop", "DevTools target", "runtime filter", "runtime channel", "runtime role",
       "backendStatus.load_town_snapshot", "backendStatus.load_message_center", "Ack Sync",
-      "Tool Ack", "Ops Desk", "Own Sync", "Tool Results", "UID:user-a / avatar://ada",
+      "Tool Ack", "Ops Desk", "Own Sync", "Tool Results", "Identity Setup", "UID:user-a / avatar://ada",
       "GET /miniapp/town/snapshot / ready", "POST /miniapp/runs/cancel / guarded",
       "POST /miniapp/runs/retry / guarded", "POST /miniapp/messages/ack / ready",
       "POST /miniapp/messages/subscribe / platform", "Developer Diagnostics", "Endpoint id",
@@ -595,7 +595,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let mine = tab_page(projection, "my")
   assert_true(has_no_forbidden_ordinary_copy(mine.wxml))
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
-  assert_true(mine.wxml.contains("Identity Setup"))
+  assert_true(mine.wxml.contains("Town Passport"))
+  assert_true(!mine.wxml.contains("Identity Setup"))
   assert_true(
     !mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
   )
@@ -2042,8 +2043,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
         "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
-        "Receive run,", "profile readiness", "shared-private buildings", "shared private",
-        "shared privately",
+        "Receive run,", "Identity Setup", "profile readiness", "shared-private buildings",
+        "shared private", "shared privately",
       ] {
       if wxml.contains(raw) {
         return false
