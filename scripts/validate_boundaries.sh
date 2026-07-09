@@ -53,6 +53,8 @@ discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examp
 
 realm_map_files='examples/moontown_miniapp/realm_map_backdrop.mbt examples/moontown_miniapp/realm_map_markers.mbt examples/moontown_miniapp/realm_map_hud.mbt'
 
+object_context_files='examples/moontown_miniapp/object_context_model.mbt examples/moontown_miniapp/object_context_section.mbt examples/moontown_miniapp/object_context_cards.mbt examples/moontown_miniapp/object_context_helpers.mbt'
+
 message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/moontown_miniapp/message_buckets.mbt examples/moontown_miniapp/message_channels.mbt examples/moontown_miniapp/message_context.mbt examples/moontown_miniapp/message_notices.mbt examples/moontown_miniapp/message_results.mbt examples/moontown_miniapp/message_reviews.mbt examples/moontown_miniapp/message_work.mbt'
 
 reviewer_diagnostics_files='examples/moontown_miniapp/reviewer_diagnostics_operations.mbt examples/moontown_miniapp/reviewer_diagnostics_sections.mbt examples/moontown_miniapp/reviewer_diagnostics_moderation.mbt examples/moontown_miniapp/reviewer_diagnostics_developer.mbt examples/moontown_miniapp/reviewer_diagnostics_backend.mbt'
@@ -176,6 +178,13 @@ for required in $realm_map_files; do
   fi
 done
 
+for required in $object_context_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown object context file $required"
+    exit 1
+  fi
+done
+
 for required in $message_surface_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown Messages file $required"
@@ -286,6 +295,12 @@ if [ "$messages_lines" -gt 120 ]; then
   exit 1
 fi
 
+object_context_lines=$(wc -l < examples/moontown_miniapp/object_context.mbt | tr -d ' ')
+if [ "$object_context_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: object_context.mbt has $object_context_lines lines; keep communication context behavior in focused object_context_* files"
+  exit 1
+fi
+
 reviewer_diagnostics_lines=$(wc -l < examples/moontown_miniapp/reviewer_diagnostics.mbt | tr -d ' ')
 if [ "$reviewer_diagnostics_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: reviewer_diagnostics.mbt has $reviewer_diagnostics_lines lines; keep reviewer diagnostics behavior in focused reviewer_diagnostics_* files"
@@ -392,6 +407,14 @@ for focused_realm_map in $realm_map_files; do
   focused_lines=$(wc -l < "$focused_realm_map" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_realm_map has $focused_lines lines; split the Realm map concern further"
+    exit 1
+  fi
+done
+
+for focused_object_context in $object_context_files; do
+  focused_lines=$(wc -l < "$focused_object_context" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_object_context has $focused_lines lines; split the object context concern further"
     exit 1
   fi
 done

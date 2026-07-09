@@ -534,9 +534,12 @@ Acceptance checks:
 - Current implementation note: the selected-building drawer now uses focused
   object modules for memory, workers, lifecycle, and communication. Ordinary
   communication shows message/work/review context cards instead of audit-ledger
-  rows. Building action workflows are split by draft/profile editing,
-  publication lifecycle, building messages, and public placement so drawer work
-  can evolve one object concern at a time.
+  rows. Communication context is further split by card model, section assembly,
+  card derivation/rendering, and shared helpers so agent/thread/review context
+  can evolve without reopening the object-context boundary. Building action
+  workflows are split by draft/profile editing, publication lifecycle, building
+  messages, and public placement so drawer work can evolve one object concern
+  at a time.
 
 Validation:
 
@@ -710,10 +713,12 @@ Acceptance checks:
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
   Building actions are further split by draft/profile editing, publication
   lifecycle, communication, and placement so publish/manage/place flows can grow
-  without rebuilding the building action monolith. Reviewer diagnostics are split
-  by operations assembly, reviewer check sections, moderation rows, developer
-  contract diagnostics, and backend-step lookup so UX8 can harden the diagnostics
-  boundary without reopening a reviewer monolith.
+  without rebuilding the building action monolith. Object communication context
+  is split by card model, section assembly, card derivation/rendering, and
+  selected-context helpers so UX7 drawer communication stays compact. Reviewer
+  diagnostics are split by operations assembly, reviewer check sections,
+  moderation rows, developer contract diagnostics, and backend-step lookup so
+  UX8 can harden the diagnostics boundary without reopening a reviewer monolith.
   Lifecycle projection behavior is split by drawer action rows, publication
   stamps, and selected-agent lookup so UX7 drawer polish can change one object
   concern without reopening a lifecycle monolith. Visibility projection behavior
