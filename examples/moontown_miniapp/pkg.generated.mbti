@@ -24,6 +24,8 @@ pub fn archive_selected_building(MiniTownProjection) -> MiniTownProjection
 
 pub fn building_book_shelf(MiniTownProjection, String) -> Array[MiniTownBookShelfItem]
 
+pub fn close_reviewer_tools(MiniTownProjection) -> MiniTownProjection
+
 pub fn community_presence(MiniTownProjection) -> Array[MiniTownPresence]
 
 pub fn complete_onboarding(MiniTownProjection) -> MiniTownProjection
@@ -171,6 +173,8 @@ pub fn mini_town_view(MiniTownProjection) -> @core.Node
 pub fn mini_town_watch(id~ : String, user_id~ : String, target_ref~ : String, title~ : String, summary~ : String, status? : String, action_message? : String) -> MiniTownWatch
 
 pub fn mini_town_workbench_alert(id~ : String, title~ : String, summary~ : String, target_ref~ : String, severity~ : String, action_label~ : String, action_message~ : String, status~ : String) -> MiniTownWorkbenchAlert
+
+pub fn open_reviewer_tools(MiniTownProjection) -> MiniTownProjection
 
 pub fn owned_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
@@ -546,6 +550,7 @@ pub struct MiniTownProjection {
   active_discovery_filter_id : String
   active_notification_channel_id : String
   active_ownership_filter_id : String
+  reviewer_tools_open : Bool
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]

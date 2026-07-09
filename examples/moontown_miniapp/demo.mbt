@@ -72,7 +72,7 @@ fn demo_wechat_project_pages(
   render_budget : @bunnia.RenderBudget,
 ) -> Array[@bunnia.WechatProjectPage] {
   let pages : Array[@bunnia.WechatProjectPage] = []
-  for tab_id in ["realm", "home", "discover", "messages", "my"] {
+  for tab_id in ["realm", "home", "discover", "messages", "my", "reviewer"] {
     pages.push(demo_wechat_project_page_for_tab(tab_id, render_budget))
   }
   pages
@@ -86,13 +86,45 @@ fn demo_wechat_project_page_for_tab(
   let page = @bunnia.wechat_project_page(
     name=moontown_tab_page_name(tab_id),
     route=moontown_tab_route(tab_id),
-    root=mini_town_route_view(switch_tab(demo_projection(), tab_id)),
+    root=moontown_project_tab_root(tab_id),
     runtime=demo_runtime_for_tab(tab_id),
     render_budget~,
   )
   scoped_project_page_runtime(
-    @bunnia.wechat_project_page_with_wxss(page, moontown_wxss()),
+    @bunnia.wechat_project_page_with_wxss(page, moontown_wxss_for_tab(tab_id)),
   )
+}
+
+///|
+fn moontown_project_tab_root(tab_id : String) -> @bunnia.Node {
+  if tab_id == "reviewer" {
+    reviewer_route_view(
+      open_reviewer_tools(switch_tab(demo_projection(), "my")),
+    )
+  } else {
+    mini_town_route_view(switch_tab(demo_projection(), tab_id))
+  }
+}
+
+///|
+fn reviewer_route_view(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.page([
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-miniapp"),
+        @bunnia.data("reviewer-route", "true"),
+      ],
+      [
+        @bunnia.view_with_attrs(
+          [
+            @bunnia.class_name("moontown-page-surface"),
+            @bunnia.data("active-tab", "reviewer"),
+          ],
+          [operations_desk_panel(projection), reviewer_tools_back_button()],
+        ),
+      ],
+    ),
+  ])
 }
 
 ///|
@@ -145,6 +177,8 @@ fn moontown_tab_page_name(tab_id : String) -> String {
     "Moontown Messages"
   } else if tab_id == "my" {
     "Moontown My"
+  } else if tab_id == "reviewer" {
+    "Moontown Reviewer"
   } else {
     "Moontown Realm"
   }
@@ -160,6 +194,8 @@ fn moontown_tab_route(tab_id : String) -> String {
     "pages/moontown/messages"
   } else if tab_id == "my" {
     "pages/moontown/my"
+  } else if tab_id == "reviewer" {
+    "pages/moontown/reviewer"
   } else {
     "pages/moontown/index"
   }
@@ -171,13 +207,35 @@ fn moontown_wxss() -> String {
 }
 
 ///|
+fn moontown_wxss_for_tab(tab_id : String) -> String {
+  if tab_id == "reviewer" {
+    reviewer_wxss()
+  } else {
+    moontown_wxss()
+  }
+}
+
+///|
+fn reviewer_wxss() -> String {
+  minify_moontown_wxss(
+    ".moontown-miniapp { min-height: 100vh; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
+    ".moontown-page-surface { min-height: 100vh; padding: 24rpx; box-sizing: border-box; background: #f8f3df; }\n" +
+    ".moontown-credential-plaque { padding: 18rpx; border: 2rpx solid #8a6d3b; border-radius: 8rpx; background: #fffaf0; }\n" +
+    ".mt-title { margin-bottom: 8rpx; color: #243629; font-size: 30rpx; font-weight: 800; }\n" +
+    ".mt-meta { margin-top: 8rpx; color: #5f6d5f; font-size: 22rpx; }\n" +
+    ".moontown-community-actions { display: flex; gap: 10rpx; margin-top: 14rpx; flex-wrap: wrap; }\n" +
+    "button { min-height: 52rpx; padding: 0 18rpx; border: 1rpx solid #243629; border-radius: 6rpx; background: #243629; color: #fff8dc; font-size: 22rpx; }",
+  )
+}
+
+///|
 fn moontown_wxss_source() -> String {
   ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
   ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
   ".moontown-map-touch-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
   ".moontown-map-drag-content { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; transform-origin: 0 0; will-change: transform; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
-  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-shadow: 0 8rpx 18rpx rgba(0,0,0,0.26); box-sizing: border-box; }\n" +
+  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-sizing: border-box; }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-map-marker-kind { display: block; margin-top: 2rpx; color: #56604f; font-size: 15rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-thread-pin { position: absolute; right: -10rpx; top: -10rpx; min-width: 26rpx; height: 26rpx; border-radius: 999rpx; background: #203729; color: #fff8dc; font-size: 16rpx; line-height: 26rpx; text-align: center; border: 1rpx solid rgba(255,255,255,0.68); }\n" +
@@ -188,7 +246,7 @@ fn moontown_wxss_source() -> String {
   ".moontown-map-marker.bunnia-status-shared { border-color: #b7791f; background: rgba(245,229,188,0.92); }\n" +
   ".moontown-semantic-scene { position: absolute; left: 0; top: 0; width: 1rpx; height: 1rpx; opacity: 0; overflow: hidden; pointer-events: none; }\n" +
   ".moontown-semantic-scene .bunnia-scene { pointer-events: none; }\n" +
-  ".moontown-topbar { position: absolute; left: 24rpx; right: 24rpx; top: 24rpx; z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 14rpx 16rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.18); }\n" +
+  ".moontown-topbar { position: absolute; left: 24rpx; right: 24rpx; top: 24rpx; z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 14rpx 16rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); }\n" +
   ".moontown-title { font-size: 34rpx; font-weight: 800; color: #203222; }\n" +
   ".moontown-subtitle { margin-top: 2rpx; font-size: 20rpx; font-weight: 500; color: #66705a; }\n" +
   ".moontown-user-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
@@ -198,7 +256,7 @@ fn moontown_wxss_source() -> String {
   ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: 126rpx; bottom: 104rpx; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; }\n" +
   ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: hidden; }\n" +
   ".moontown-page-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n" +
-  ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
+  ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-sizing: border-box; }\n" +
   ".mt-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".mt-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
   ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-review-entry, .moontown-audit-entry, .bunnia-tool-result-card { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
@@ -232,7 +290,7 @@ fn moontown_wxss_source() -> String {
   ".moontown-tool-results .bunnia-tool-result-list-windowed { margin-top: 8rpx; max-height: 296rpx; overflow: hidden; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
-  ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-shadow: 0 10rpx 28rpx rgba(35, 47, 38, 0.16); box-sizing: border-box; }\n" +
+  ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-sizing: border-box; }\n" +
   ".moontown-building-drawer text:first-child, .moontown-chat-drawer > text:first-child { display: block; margin-bottom: 6rpx; color: #1f3327; font-size: 26rpx; font-weight: 800; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-search-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +
   ".moontown-building-drawer button { margin-top: 8rpx; margin-right: 6rpx; }\n" +
@@ -240,17 +298,17 @@ fn moontown_wxss_source() -> String {
   ".moontown-chat-drawer .bunnia-message { padding: 10rpx 12rpx; margin-bottom: 8rpx; background: rgba(255,255,255,0.78); font-size: 20rpx; }\n" +
   ".moontown-chat-drawer .bunnia-review { margin-top: 8rpx; padding: 10rpx; gap: 8rpx; background: rgba(255,255,255,0.68); }\n" +
   ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; bottom: 104rpx; display: grid; grid-template-columns: 1fr 220rpx 220rpx; gap: 12rpx; align-items: end; }\n" +
-  ".moontown-visibility-strip { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(37, 55, 43, 0.72); box-shadow: 0 10rpx 24rpx rgba(26, 39, 31, 0.18); }\n" +
+  ".moontown-visibility-strip { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(37, 55, 43, 0.72); }\n" +
   ".moontown-visibility-strip .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-visibility-chip { flex: 0 0 auto; max-width: 180rpx; padding: 8rpx 10rpx; border: 1rpx solid rgba(255,255,255,0.32); border-radius: 6rpx; background: rgba(255, 248, 220, 0.92); color: #27372b; font-size: 18rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-search-drawer input, .moontown-create-drawer input { min-height: 46rpx; margin-bottom: 8rpx; padding: 0 10rpx; border: 1rpx solid rgba(51, 65, 55, 0.22); border-radius: 6rpx; background: rgba(255,255,255,0.82); color: #26362b; font-size: 20rpx; box-sizing: border-box; }\n" +
   ".moontown-search-result { padding: 8rpx 0; border-top: 1rpx solid rgba(52, 65, 55, 0.16); }\n" +
   ".moontown-create-drawer form { display: block; margin-bottom: 8rpx; }\n" +
   ".moontown-create-drawer form:last-child { margin-bottom: 0; }\n" +
-  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: 18rpx; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.86); box-shadow: 0 12rpx 30rpx rgba(16, 28, 20, 0.28); }\n" +
+  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: 18rpx; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.86); }\n" +
   ".moontown-tab-button { min-height: 56rpx; padding: 0 6rpx; border: 1rpx solid rgba(255,248,220,0.3); border-radius: 6rpx; background: rgba(255,248,220,0.16); color: #fff8dc; font-size: 18rpx; line-height: 56rpx; }\n" +
   ".moontown-tab-button.active { background: #fff8dc; color: #243629; font-weight: 800; }\n" +
-  "@media (max-width: 520px) { .moontown-left-hud { left: 16rpx; top: 128rpx; width: 260rpx; max-height: 302rpx; } .moontown-page-surface { left: 16rpx; right: 16rpx; top: 128rpx; bottom: 102rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-right-hud { top: 128rpx; right: 16rpx; width: 276rpx; } .moontown-bottom-hud { grid-template-columns: 1fr; bottom: 102rpx; } .moontown-search-drawer, .moontown-create-drawer { display: none; } }"
+  "@media (max-width: 520px) { .moontown-page-surface { left: 16rpx; right: 16rpx; top: 128rpx; bottom: 102rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-search-drawer, .moontown-create-drawer { display: none; } }"
 }
 
 ///|
@@ -274,6 +332,9 @@ pub fn demo_runtime() -> @bunnia.WechatRuntime {
 
 ///|
 fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
+  if tab_id == "reviewer" {
+    return reviewer_runtime()
+  }
   let projection = demo_projection()
   let patches : Array[@bunnia.WechatEventPatch] = []
   patches.push(@bunnia.wechat_event_patch("load-town-snapshot", []))
@@ -356,6 +417,11 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
     ]),
   )
   patches.push(@bunnia.wechat_event_patch("update-private-building", []))
+  patches.push(
+    @bunnia.wechat_event_patch("open-reviewer-tools", [
+      @bunnia.set_string("reviewer.mode", "open"),
+    ]),
+  )
   patches.push(@bunnia.wechat_event_patch("publish-private-building", []))
   patches.push(@bunnia.wechat_event_patch("share-private-building", []))
   patches.push(@bunnia.wechat_event_patch("archive-private-building", []))
@@ -374,6 +440,22 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
     event_patches=patches,
     page_methods_js=moontown_map_page_methods_js(),
   )
+}
+
+///|
+fn reviewer_runtime() -> @bunnia.WechatRuntime {
+  @bunnia.wechat_runtime(initial_data_json=reviewer_initial_data_json(), event_patches=[
+    @bunnia.wechat_event_patch("load-admin-ops", []),
+    @bunnia.wechat_event_patch("load-admin-readiness", []),
+    @bunnia.wechat_event_patch("tab-my", [
+      @bunnia.set_string("shell.activeTab", "my"),
+    ]),
+  ])
+}
+
+///|
+fn reviewer_initial_data_json() -> String {
+  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"adminOpsQuery\":{},\"adminReadinessQuery\":{},\"reviewer\":{\"mode\":\"open\"},\"shell\":{\"activeTab\":\"reviewer\"}}"
 }
 
 ///|
@@ -2841,7 +2923,7 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
     public_passport_panel(projection),
     profile_credential_plaque(projection),
     ownership_sync_plaque(projection),
-    operations_desk_panel(projection),
+    reviewer_tools_panel(projection),
     @bunnia.windowed_list(
       alerts,
       total_count=alerts.length(),
@@ -2875,6 +2957,57 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       render=ownership_item_entry,
     ),
   ])
+}
+
+///|
+fn reviewer_tools_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  if projection.reviewer_tools_open {
+    operations_desk_panel(projection)
+  } else {
+    reviewer_tools_gate_panel()
+  }
+}
+
+///|
+fn reviewer_tools_gate_panel() -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.data("reviewer-tools-gate", "closed"),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Protected Workbench"),
+      ]),
+      @bunnia.text(
+        "Reviewer checks stay hidden until reviewer mode is opened deliberately.",
+      ),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-community-actions")],
+        [reviewer_tools_open_button()],
+      ),
+    ],
+  )
+}
+
+///|
+fn reviewer_tools_open_button() -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[@bunnia.data("bunnia-route", "pages/moontown/reviewer")],
+    events=[@bunnia.tap("open-reviewer-tools")],
+    children=[@bunnia.text("Open Reviewer Mode")],
+  )
+}
+
+///|
+fn reviewer_tools_back_button() -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[@bunnia.data("bunnia-route", "pages/moontown/my")],
+    events=[@bunnia.tap("tab-my")],
+    children=[@bunnia.text("Back to My")],
+  )
 }
 
 ///|
@@ -3791,5 +3924,13 @@ fn demo_scene_assets() -> Array[@bunnia.SceneAsset] {
 
 ///|
 fn demo_initial_data_json_for_tab(tab_id : String) -> String {
-  "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"messageCenterQuery\":{\"channel\":\"all\",\"limit\":30},\"adminOpsQuery\":{},\"adminReadinessQuery\":{},\"discoverSearch\":{\"query\":\"agent\"},\"discoverAction\":{\"discoveryId\":\"product-agent-publishing-kit\",\"discoveryKind\":\"product\",\"discoveryAction\":\"open\",\"targetRef\":\"product:agent-publishing-kit\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"buildingEditDraft\":{\"buildingId\":\"created-agent-lab\",\"title\":\"Edited Lab\",\"summary\":\"Edited.\",\"bookTitle\":\"Edited Book\",\"bookSummary\":\"Edited memory.\",\"tags\":[\"edited\"]},\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can it do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can it publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move.\"},\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"},\"moderationHide\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationTakedown\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationAppeal\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}}}"
+  let data = "{\"backendBaseUrl\":\"\{local_backend_base_url()}\",\"bunniaSessionId\":\"\",\"backendStatus\":{},\"login\":{\"userId\":\"user-a\"},\"profileDraft\":{\"displayName\":\"Ada Builder\",\"roleId\":\"builder\",\"consentAccepted\":false},\"ownershipQuery\":{\"includeAlerts\":true},\"messageCenterQuery\":{\"channel\":\"all\",\"limit\":30},\"adminOpsQuery\":{},\"adminReadinessQuery\":{},\"discoverSearch\":{\"query\":\"agent\"},\"discoverAction\":{\"discoveryId\":\"product-agent-publishing-kit\",\"discoveryKind\":\"product\",\"discoveryAction\":\"open\",\"targetRef\":\"product:agent-publishing-kit\"},\"discover\":{\"filter\":\"all\"},\"messages\":{\"channel\":\"all\"},\"ownership\":{\"filter\":\"all\"},\"reviewer\":{\"mode\":\"closed\"},\"buildingDraft\":{\"id\":\"created-agent-lab\",\"title\":\"Created Agent Lab\",\"tags\":[\"agent\",\"local\"]},\"buildingEditDraft\":{\"buildingId\":\"created-agent-lab\",\"title\":\"Edited Lab\",\"summary\":\"Edited.\",\"bookTitle\":\"Edited Book\",\"bookSummary\":\"Edited memory.\",\"tags\":[\"edited\"]},\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528},\"shareDraft\":{\"buildingId\":\"created-agent-lab\",\"targetUserId\":\"user-b\"},\"submitDraft\":{\"buildingId\":\"created-agent-lab\"},\"publishDraft\":{\"buildingId\":\"created-agent-lab\"},\"archiveDraft\":{\"buildingId\":\"created-agent-lab\"},\"restoreDraft\":{\"buildingId\":\"created-agent-lab\"},\"buildingQuestion\":{\"buildingId\":\"policy-hall\",\"body\":\"What can it do?\"},\"chatDraft\":{\"buildingId\":\"policy-hall\",\"body\":\"Can it publish an agent?\"},\"handoffDraft\":{\"buildingId\":\"policy-hall\",\"fromAgentId\":\"agent-policy-guide\",\"toAgentId\":\"agent-builder\",\"summary\":\"Move.\"},\"toolResultAck\":{\"toolResultId\":\"tool-policy-summary\",\"buildingId\":\"policy-hall\"},\"reviewDecision\":{\"reviewId\":\"review-policy-memory\",\"runId\":\"run-policy-review\",\"decision\":\"accept\"},\"notificationAck\":{\"noticeId\":\"notice-review\",\"noticeKind\":\"review\",\"targetRef\":\"thread-policy-hall\"},\"subscriptionRequest\":{\"noticeId\":\"notice-subscribe\",\"noticeKind\":\"subscription\",\"targetRef\":\"subscription:wechat\"},\"reportDraft\":{\"buildingId\":\"policy-hall\",\"reason\":\"Safety review request\"},\"moderationHide\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationTakedown\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"moderationAppeal\":{\"caseId\":\"mod-policy-hall\",\"buildingId\":\"policy-hall\"},\"agentDraft\":{\"id\":\"agent-created\",\"displayName\":\"Created Agent\",\"buildingId\":\"private-agent-lab\"},\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"},\"shell\":{\"activeTab\":\"\{tab_id}\",\"onboardingCompleted\":\"false\"},\"profile\":{\"roleId\":\"builder\",\"consentAccepted\":\"false\",\"setupCompleted\":\"false\"},\"session\":{\"activeUserId\":\"user-a\"},\"town\":{\"selectedBuildingId\":\"policy-hall\",\"buildings\":[{\"id\":\"policy-hall\",\"visibility\":\"published\"},{\"id\":\"private-agent-lab\",\"visibility\":\"private_draft\"},{\"id\":\"team-studio\",\"visibility\":\"shared_private\"}],\"placements\":[{\"id\":\"placement-user-a-policy-hall\",\"buildingId\":\"policy-hall\",\"layer\":\"personal\",\"status\":\"pinned\"}]},\"chat\":{\"messages\":[]},\"agents\":{\"items\":[]},\"runs\":{\"activeRunStatus\":\"idle\"},\"reviews\":{\"memoryReview\":\"pending\"},\"books\":{\"policyHall\":{\"status\":\"review\"}}}"
+  if tab_id == "reviewer" {
+    data.replace_all(
+      old="\"reviewer\":{\"mode\":\"closed\"}",
+      new="\"reviewer\":{\"mode\":\"open\"}",
+    )
+  } else {
+    data
+  }
 }

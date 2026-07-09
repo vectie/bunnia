@@ -1,4 +1,23 @@
 ///|
+fn has_no_forbidden_ordinary_copy(wxml : String) -> Bool {
+  let mut ok = true
+  for
+    label in [
+      "Backend Loop", "DevTools target", "runtime filter", "runtime channel", "runtime role",
+      "backendStatus.load_town_snapshot", "backendStatus.load_message_center", "Ack Sync",
+      "Tool Ack", "Ops Desk", "Own Sync", "Tool Results", "UID:user-a / avatar://ada",
+      "GET /miniapp/town/snapshot / ready", "POST /miniapp/runs/cancel / guarded",
+      "POST /miniapp/runs/retry / guarded", "POST /miniapp/messages/ack / ready",
+      "POST /miniapp/messages/subscribe / platform",
+    ] {
+    if wxml.contains(label) {
+      ok = false
+    }
+  }
+  ok
+}
+
+///|
 test "moontown miniapp generates full vertical slice page" {
   let page = demo_wechat_page()
   assert_true(page.wxml.contains("Moontown"))
@@ -180,6 +199,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!realm.wxml.contains("Community Hub"))
 
   let home = tab_page(projection, "home")
+  assert_true(has_no_forbidden_ordinary_copy(home.wxml))
   assert_true(home.wxml.contains("moontown-map-fullscreen"))
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
@@ -277,6 +297,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!home.wxml.contains("moontown-right-hud"))
 
   let discover = tab_page(projection, "discover")
+  assert_true(has_no_forbidden_ordinary_copy(discover.wxml))
   assert_true(discover.wxml.contains("moontown-map-fullscreen"))
   assert_true(discover.wxml.contains("moontown-page-surface"))
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
@@ -357,6 +378,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!discover.wxml.contains("moontown-right-hud"))
 
   let messages = tab_page(projection, "messages")
+  assert_true(has_no_forbidden_ordinary_copy(messages.wxml))
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
   assert_true(messages.wxml.contains("Mail Board"))
   assert_true(
@@ -506,6 +528,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!messages.wxml.contains("moontown-bottom-hud"))
 
   let mine = tab_page(projection, "my")
+  assert_true(has_no_forbidden_ordinary_copy(mine.wxml))
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
   assert_true(mine.wxml.contains("Identity Setup"))
   assert_true(
@@ -574,30 +597,49 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("data-bunnia-message=\"load-ownership-snapshot\""),
   )
-  assert_true(mine.wxml.contains("Reviewer Tools"))
+  assert_true(mine.wxml.contains("Protected Workbench"))
+  assert_true(mine.wxml.contains("data-reviewer-tools-gate=\"closed\""))
+  assert_true(mine.wxml.contains("Open Reviewer Mode"))
+  assert_true(!mine.wxml.contains("Reviewer Tools"))
   assert_true(!mine.wxml.contains("Ops Desk"))
-  assert_true(mine.wxml.contains("data-ops-desk=\"admin\""))
-  assert_true(mine.wxml.contains("data-backend-step=\"admin-ops\""))
-  assert_true(mine.wxml.contains("data-backend-endpoint=\"load-admin-ops\""))
+  assert_true(!mine.wxml.contains("data-ops-desk=\"admin\""))
+  assert_true(!mine.wxml.contains("data-backend-step=\"admin-ops\""))
+  assert_true(!mine.wxml.contains("data-backend-endpoint=\"load-admin-ops\""))
+  assert_true(!mine.wxml.contains("data-backend-path=\"/miniapp/admin/ops\""))
+
+  let reviewer_mine = tab_page(open_reviewer_tools(projection), "my")
+  assert_true(reviewer_mine.wxml.contains("Reviewer Tools"))
+  assert_true(!reviewer_mine.wxml.contains("Ops Desk"))
+  assert_true(reviewer_mine.wxml.contains("data-ops-desk=\"admin\""))
+  assert_true(reviewer_mine.wxml.contains("data-backend-step=\"admin-ops\""))
   assert_true(
-    mine.wxml.contains(
+    reviewer_mine.wxml.contains("data-backend-endpoint=\"load-admin-ops\""),
+  )
+  assert_true(
+    reviewer_mine.wxml.contains(
       "data-backend-readiness-endpoint=\"load-admin-readiness\"",
     ),
   )
-  assert_true(mine.wxml.contains("data-backend-path=\"/miniapp/admin/ops\""))
   assert_true(
-    mine.wxml.contains(
+    reviewer_mine.wxml.contains("data-backend-path=\"/miniapp/admin/ops\""),
+  )
+  assert_true(
+    reviewer_mine.wxml.contains(
       "data-backend-readiness-path=\"/miniapp/admin/readiness\"",
     ),
   )
-  assert_true(mine.wxml.contains("health, incidents, retention, recovery"))
-  assert_true(mine.wxml.contains("Check Town Safety"))
-  assert_true(mine.wxml.contains("Launch Checks"))
-  assert_true(!mine.wxml.contains("Ops Check"))
-  assert_true(!mine.wxml.contains("Readiness"))
-  assert_true(mine.wxml.contains("data-bunnia-message=\"load-admin-ops\""))
   assert_true(
-    mine.wxml.contains("data-bunnia-message=\"load-admin-readiness\""),
+    reviewer_mine.wxml.contains("health, incidents, retention, recovery"),
+  )
+  assert_true(reviewer_mine.wxml.contains("Check Town Safety"))
+  assert_true(reviewer_mine.wxml.contains("Launch Checks"))
+  assert_true(!reviewer_mine.wxml.contains("Ops Check"))
+  assert_true(!reviewer_mine.wxml.contains("Readiness"))
+  assert_true(
+    reviewer_mine.wxml.contains("data-bunnia-message=\"load-admin-ops\""),
+  )
+  assert_true(
+    reviewer_mine.wxml.contains("data-bunnia-message=\"load-admin-readiness\""),
   )
   assert_true(mine.wxml.contains("moontown-workbench-alert"))
   assert_true(mine.wxml.contains("data-workbench-alert=\"profile-setup\""))
@@ -660,7 +702,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_eq(project.route, "pages/moontown/index")
-  assert_eq(project.page_count, 5)
+  assert_eq(project.page_count, 6)
   assert_true(project.report.event_patch_operation_count <= 160)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
@@ -668,6 +710,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(has_file(project.files, "pages/moontown/discover.wxml"))
   assert_true(has_file(project.files, "pages/moontown/messages.wxml"))
   assert_true(has_file(project.files, "pages/moontown/my.wxml"))
+  assert_true(has_file(project.files, "pages/moontown/reviewer.wxml"))
   assert_true(
     has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png"),
   )
@@ -760,6 +803,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
       "\"accept-profile-consent\":[{k:\"set\",p:\"profile.consentAccepted\",v:\"true\"},{k:\"set\",p:\"profileDraft.consentAccepted\",v:true}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"open-reviewer-tools\":[{k:\"set\",p:\"reviewer.mode\",v:\"open\"}]",
     ),
   )
   assert_true(
@@ -1012,6 +1060,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"reviewer\":{\"mode\":\"closed\"}",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"messageCenterQuery\":{\"channel\":\"all\",\"limit\":30}",
     ),
   )
@@ -1170,6 +1223,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_eq(project.manifest.pages[2].route, "pages/moontown/discover")
   assert_eq(project.manifest.pages[3].route, "pages/moontown/messages")
   assert_eq(project.manifest.pages[4].route, "pages/moontown/my")
+  assert_eq(project.manifest.pages[5].route, "pages/moontown/reviewer")
   assert_true(project.manifest.pages[0].backend_event_count >= 3)
   assert_true(project.manifest.pages[3].backend_event_count >= 2)
   assert_true(project.manifest.pages[0].scene_marker_count >= 8)
@@ -1723,7 +1777,7 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_true(threads.total_link_count >= 8)
   assert_eq(assets.assets.length(), 2)
   assert_eq(quality.diagnostics.length(), 0)
-  assert_eq(inspection.route_count, 5)
+  assert_eq(inspection.route_count, 6)
   assert_true(inspection.max_update_payload_bytes > 0)
   assert_true(inspection.max_scene_marker_count >= 4)
 }

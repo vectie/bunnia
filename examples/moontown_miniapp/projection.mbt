@@ -353,6 +353,7 @@ pub struct MiniTownProjection {
   active_discovery_filter_id : String
   active_notification_channel_id : String
   active_ownership_filter_id : String
+  reviewer_tools_open : Bool
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -951,6 +952,7 @@ pub fn demo_projection() -> MiniTownProjection {
     active_discovery_filter_id: "all",
     active_notification_channel_id: "all",
     active_ownership_filter_id: "all",
+    reviewer_tools_open: false,
     users: [
       mini_town_user(id="user-a", name="Ada"),
       mini_town_user(id="user-b", name="Bo"),
@@ -3329,6 +3331,20 @@ pub fn profile_ready_to_publish(projection : MiniTownProjection) -> Bool {
   projection.profile.setup_completed &&
   projection.profile.consent_accepted &&
   projection.profile.role_id != ""
+}
+
+///|
+pub fn open_reviewer_tools(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  { ..projection, reviewer_tools_open: true }
+}
+
+///|
+pub fn close_reviewer_tools(
+  projection : MiniTownProjection,
+) -> MiniTownProjection {
+  { ..projection, reviewer_tools_open: false }
 }
 
 ///|
