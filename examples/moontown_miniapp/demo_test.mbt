@@ -2139,7 +2139,12 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("touch-action:manipulation") &&
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
-  wxss.contains("bottom:calc(104rpx+env(safe-area-inset-bottom))") &&
+  wxss.contains(
+    "bottom:calc(104rpx+env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto",
+  ) &&
+  wxss.contains("-webkit-overflow-scrolling:touch") &&
+  wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
+  wxss.contains("align-content:start;overflow:visible;padding-bottom:12rpx") &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
   wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
   wxss.contains(
