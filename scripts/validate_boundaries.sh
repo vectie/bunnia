@@ -35,7 +35,9 @@ action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moo
 
 building_action_files='examples/moontown_miniapp/projection_action_building_drafts.mbt examples/moontown_miniapp/projection_action_building_lifecycle.mbt examples/moontown_miniapp/projection_action_building_messages.mbt examples/moontown_miniapp/projection_action_building_placement.mbt'
 
-app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt'
+demo_plan_files='examples/moontown_miniapp/demo_patch_plans.mbt examples/moontown_miniapp/demo_agent_plans.mbt examples/moontown_miniapp/demo_backend_contract.mbt examples/moontown_miniapp/demo_backend_plans.mbt'
+
+app_shell_files="examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt $demo_plan_files examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt"
 
 home_pulse_files='examples/moontown_miniapp/home_pulse_model.mbt examples/moontown_miniapp/home_pulse_panel.mbt examples/moontown_miniapp/home_pulse_rows.mbt examples/moontown_miniapp/home_pulse_summaries.mbt'
 
@@ -144,6 +146,13 @@ done
 for required in $app_shell_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown app-shell boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $demo_plan_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown demo plan file $required"
     exit 1
   fi
 done
@@ -358,6 +367,12 @@ if [ "$demo_runtime_lines" -gt 80 ]; then
   exit 1
 fi
 
+demo_plans_lines=$(wc -l < examples/moontown_miniapp/demo_plans.mbt | tr -d ' ')
+if [ "$demo_plans_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: demo_plans.mbt has $demo_plans_lines lines; keep plan assembly in focused demo_*_plans files"
+  exit 1
+fi
+
 home_pulse_lines=$(wc -l < examples/moontown_miniapp/home_pulse.mbt | tr -d ' ')
 if [ "$home_pulse_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: home_pulse.mbt has $home_pulse_lines lines; keep Town Pulse behavior in focused home_pulse_* files"
@@ -546,6 +561,14 @@ for focused_app_shell in $app_shell_files; do
   focused_lines=$(wc -l < "$focused_app_shell" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_app_shell has $focused_lines lines; split the app-shell concern further"
+    exit 1
+  fi
+done
+
+for focused_demo_plan in $demo_plan_files; do
+  focused_lines=$(wc -l < "$focused_demo_plan" | tr -d ' ')
+  if [ "$focused_lines" -gt 180 ]; then
+    printf '%s\n' "boundary violation: $focused_demo_plan has $focused_lines lines; split the demo plan concern further"
     exit 1
   fi
 done

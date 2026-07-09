@@ -719,7 +719,10 @@ Acceptance checks:
   projection monolith. Runtime assembly is likewise split by shell/setup
   patches, filter-query patches, building/workflow patches, reviewer runtime,
   and map gesture methods so interaction work can evolve without reopening the
-  runtime monolith. Schema declarations are grouped by people, content,
+  runtime monolith. Demo pressure-plan assembly is split by patch/snapshot,
+  agent/communication/tool-result, backend contract, and backend/effect plan
+  files, with a boundary check keeping `demo_plans.mbt` as the plan marker.
+  Schema declarations are grouped by people, content,
   work/reviews, actions, shell, attention, discovery, activity, ownership,
   backend diagnostics, and the projection aggregate. App assembly, runtime
   patches, backend plans, scene adapters, shell/navigation, and Home panels are
