@@ -673,7 +673,8 @@ Acceptance checks:
   now live in focused files so UX10 coverage can grow by concern. Seeded
   projection data is further grouped by core projection assembly, reviews/runs,
   content/discovery, shell/districts, attention/inventory filters, backend
-  state, and places.
+  state, and places. Projection actions are grouped by setup/shell, building
+  lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
 
 Validation:
 

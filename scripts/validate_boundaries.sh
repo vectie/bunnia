@@ -23,6 +23,8 @@ projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moont
 
 seed_files='examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt examples/moontown_miniapp/projection_seed_shell.mbt examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt'
 
+action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt'
+
 app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt'
 
 moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
@@ -37,6 +39,13 @@ done
 for required in $seed_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown seeded-data file $required"
+    exit 1
+  fi
+done
+
+for required in $action_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown action workflow file $required"
     exit 1
   fi
 done
@@ -67,6 +76,12 @@ if [ "$seed_lines" -gt 80 ]; then
   exit 1
 fi
 
+actions_lines=$(wc -l < examples/moontown_miniapp/projection_actions.mbt | tr -d ' ')
+if [ "$actions_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_actions.mbt has $actions_lines lines; keep action behavior in focused workflow files"
+  exit 1
+fi
+
 demo_lines=$(wc -l < examples/moontown_miniapp/demo.mbt | tr -d ' ')
 if [ "$demo_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo.mbt has $demo_lines lines; keep app assembly in focused demo and town files"
@@ -91,6 +106,14 @@ for focused_seed in $seed_files; do
   focused_lines=$(wc -l < "$focused_seed" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_seed has $focused_lines lines; split the seeded-data concern further"
+    exit 1
+  fi
+done
+
+for focused_action in $action_files; do
+  focused_lines=$(wc -l < "$focused_action" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_action has $focused_lines lines; split the action workflow further"
     exit 1
   fi
 done
