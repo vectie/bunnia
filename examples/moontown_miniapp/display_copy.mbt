@@ -77,6 +77,20 @@ fn town_kind_label(kind : String) -> String {
     "Agent"
   } else if kind == "building" {
     "Place"
+  } else if kind == "policy_hall" {
+    "Policy hall"
+  } else if kind == "agent_lab" {
+    "Agent lab"
+  } else if kind == "project_studio" {
+    "Team studio"
+  } else if kind == "market_square" {
+    "Market"
+  } else if kind == "review_council" {
+    "Review hall"
+  } else if kind == "knowledge_house" {
+    "Knowledge house"
+  } else if kind == "system_gateway" {
+    "Gateway"
   } else if kind == "review" {
     "Review"
   } else if kind == "run" {
