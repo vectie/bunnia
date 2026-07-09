@@ -697,7 +697,10 @@ Acceptance checks:
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
   Lifecycle projection behavior is split by drawer action rows, publication
   stamps, and selected-agent lookup so UX7 drawer polish can change one object
-  concern without reopening a lifecycle monolith.
+  concern without reopening a lifecycle monolith. Visibility projection behavior
+  is split by access policy, visible collections, and selected-object context so
+  Realm, Discover, Messages, and My can share the same public/private boundary
+  without growing another visibility monolith.
 
 Validation:
 
