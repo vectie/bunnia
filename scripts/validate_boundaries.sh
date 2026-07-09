@@ -29,7 +29,7 @@ action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moo
 
 app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt'
 
-moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
+moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_tab_realm_home_test.mbt examples/moontown_miniapp/demo_tab_discover_test.mbt examples/moontown_miniapp/demo_tab_messages_test.mbt examples/moontown_miniapp/demo_tab_my_test.mbt examples/moontown_miniapp/demo_tab_reviewer_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
@@ -266,10 +266,16 @@ done
 
 for focused_test in $moontown_test_files; do
   focused_lines=$(wc -l < "$focused_test" | tr -d ' ')
-  if [ "$focused_lines" -gt 900 ]; then
+  if [ "$focused_lines" -gt 600 ]; then
     printf '%s\n' "boundary violation: $focused_test has $focused_lines lines; split the test concern further"
     exit 1
   fi
 done
+
+tabs_shell_lines=$(wc -l < examples/moontown_miniapp/demo_tabs_test.mbt | tr -d ' ')
+if [ "$tabs_shell_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: demo_tabs_test.mbt has $tabs_shell_lines lines; keep generated tab coverage in focused demo_tab_* files"
+  exit 1
+fi
 
 printf '%s\n' 'boundary=ok'
