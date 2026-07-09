@@ -187,6 +187,21 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxss.contains(".moontown-tabbar"))
   assert_true(page.wxss.contains(".moontown-tab-button.active"))
   assert_true(page.wxss.contains(".moontown-guide-step"))
+  assert_true(page.wxss.contains("env(safe-area-inset-top)"))
+  assert_true(page.wxss.contains("env(safe-area-inset-bottom)"))
+  assert_true(page.wxss.contains("button:active{opacity:0.82"))
+  assert_true(!page.wxss.contains("button:active{transform"))
+  assert_true(
+    page.wxss.contains("button[disabled],.bunnia-status-disabled{opacity:0.52"),
+  )
+  assert_true(page.wxss.contains("min-height:72rpx"))
+  assert_true(page.wxss.contains("overflow-wrap:anywhere"))
+  assert_true(page.wxss.contains("box-shadow:0 2rpx 0"))
+  assert_true(
+    page.wxss.contains(
+      ".bunnia-status-review,.bunnia-status-stale,.bunnia-status-waiting",
+    ),
+  )
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"tab-realm\""))
   assert_true(page.js.contains("\"complete-onboarding\""))

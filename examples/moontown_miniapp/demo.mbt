@@ -234,16 +234,17 @@ fn reviewer_wxss() -> String {
 
 ///|
 fn moontown_wxss_source() -> String {
-  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; }\n" +
+  ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #10150f; color: #16221a; font-size: 24rpx; line-height: 1.35; overflow-wrap: anywhere; word-break: break-word; }\n" +
+  "view, button, input { box-sizing: border-box; }\n" +
   ".moontown-map-fullscreen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background: #10150f; }\n" +
   ".moontown-map-touch-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #10150f; }\n" +
   ".moontown-map-drag-content { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; transform-origin: 0 0; will-change: transform; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
-  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; box-sizing: border-box; }\n" +
+  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 248, 220, 0.88); color: #1e2c21; }\n" +
   ".moontown-map-marker.selected { border-width: 3rpx; box-shadow: 0 0 0 4rpx rgba(255,248,220,0.36); }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-map-marker-kind { display: block; margin-top: 2rpx; color: #56604f; font-size: 15rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
-  ".moontown-thread-pin { position: absolute; right: -10rpx; top: -10rpx; min-width: 48rpx; height: 28rpx; padding: 0 8rpx; border-radius: 999rpx; background: #203729; color: #fff8dc; font-size: 15rpx; line-height: 28rpx; text-align: center; border: 1rpx solid rgba(255,255,255,0.68); box-sizing: border-box; }\n" +
+  ".moontown-thread-pin { position: absolute; right: -10rpx; top: -10rpx; min-width: 48rpx; height: 28rpx; padding: 0 8rpx; border-radius: 999rpx; background: #203729; color: #fff8dc; font-size: 15rpx; line-height: 28rpx; text-align: center; border: 1rpx solid rgba(255,255,255,0.68); }\n" +
   ".moontown-map-marker.bunnia-status-review { border-color: #d69e2e; background: rgba(255,244,207,0.92); }\n" +
   ".moontown-map-marker.bunnia-status-running { border-color: #3182ce; background: rgba(217,237,247,0.92); }\n" +
   ".moontown-map-marker.bunnia-status-stable { border-color: #48bb78; background: rgba(228,243,216,0.92); }\n" +
@@ -251,31 +252,37 @@ fn moontown_wxss_source() -> String {
   ".moontown-map-marker.bunnia-status-shared { border-color: #b7791f; background: rgba(245,229,188,0.92); }\n" +
   ".moontown-semantic-scene { position: absolute; left: 0; top: 0; width: 1rpx; height: 1rpx; opacity: 0; overflow: hidden; pointer-events: none; }\n" +
   ".moontown-semantic-scene .bunnia-scene { pointer-events: none; }\n" +
-  ".moontown-topbar { position: absolute; left: 24rpx; right: 24rpx; top: 24rpx; z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 14rpx 16rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); }\n" +
+  ".moontown-topbar { position: absolute; left: 24rpx; right: 24rpx; top: calc(24rpx + env(safe-area-inset-top)); z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 14rpx 16rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.9); }\n" +
   ".moontown-title { font-size: 34rpx; font-weight: 800; color: #203222; }\n" +
   ".moontown-subtitle { margin-top: 2rpx; font-size: 20rpx; font-weight: 500; color: #66705a; }\n" +
   ".moontown-user-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
   ".moontown-user-switcher text { color: #334538; font-size: 20rpx; }\n" +
-  ".moontown-user-switcher button, .moontown-building-drawer button, .moontown-create-drawer button, .moontown-chat-drawer button, .moontown-map-action-rail button, .mt-panel button { min-height: 46rpx; margin: 0; padding: 0 14rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 46rpx; }\n" +
-  ".moontown-left-hud { position: absolute; z-index: 7; left: 22rpx; top: 126rpx; width: 338rpx; max-height: calc(100vh - 252rpx); display: flex; flex-direction: column; gap: 12rpx; overflow: hidden; }\n" +
-  ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: 126rpx; bottom: 104rpx; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; }\n" +
+  "button { min-height: 72rpx; margin: 0; padding: 8rpx 16rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 28rpx; }\n" +
+  "button::after { border: 0; }\n" +
+  "button:active { opacity: 0.82; }\n" +
+  "button[disabled], .bunnia-status-disabled { opacity: 0.52; }\n" +
+  "button text { white-space: normal; }\n" +
+  ".moontown-left-hud { position: absolute; z-index: 7; left: 22rpx; top: calc(126rpx + env(safe-area-inset-top)); width: 338rpx; max-height: calc(100vh - 252rpx - env(safe-area-inset-top) - env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12rpx; overflow: hidden; }\n" +
+  ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: calc(126rpx + env(safe-area-inset-top)); bottom: calc(104rpx + env(safe-area-inset-bottom)); overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; }\n" +
   ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: hidden; }\n" +
   ".moontown-page-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n" +
-  ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); box-sizing: border-box; }\n" +
+  ".mt-panel { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.46); border-radius: 8rpx; background: rgba(252, 249, 226, 0.86); }\n" +
   ".mt-panel-title { display: block; color: #203222; font-size: 24rpx; font-weight: 800; }\n" +
   ".mt-panel-note { display: block; margin-top: 4rpx; color: #53624e; font-size: 18rpx; }\n" +
-  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card { margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.62); }\n" +
-  ".moontown-discover-entry.bunnia-status-review { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
-  ".moontown-discover-entry.bunnia-status-stable { border-color: rgba(72,187,120,0.48); }\n" +
-  ".moontown-workbench-alert.bunnia-status-blocked, .moontown-workbench-alert.bunnia-status-failed { border-color: rgba(198,68,56,0.58); background: rgba(255,232,224,0.78); }\n" +
-  ".moontown-workbench-alert.bunnia-status-review, .moontown-workbench-alert.bunnia-status-stale { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
-  ".moontown-guide-step text, .moontown-onboarding-step text, .moontown-setup-gate text, .moontown-publication-step text, .moontown-role-entry text, .moontown-district-entry text, .moontown-presence-chip text, .moontown-discover-entry text, .moontown-notice-entry text, .moontown-owned-entry text, .moontown-workbench-alert text, .moontown-book-entry text, .moontown-run-entry text, .moontown-object-message text, .moontown-lifecycle-stamp text, .moontown-review-entry text, .moontown-audit-entry text, .bunnia-tool-result-card text { display: block; color: #405244; font-size: 18rpx; }\n" +
+  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card { min-width: 0; margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.76); box-shadow: 0 2rpx 0 rgba(31,49,36,0.08); overflow: hidden; }\n" +
+  ".bunnia-status-review, .bunnia-status-stale, .bunnia-status-waiting { border-color: rgba(214,158,46,0.58); background: rgba(255,244,207,0.78); }\n" +
+  ".bunnia-status-stable, .bunnia-status-ready, .bunnia-status-published { border-color: rgba(72,187,120,0.48); background: rgba(228,243,216,0.76); }\n" +
+  ".bunnia-status-running { border-color: rgba(49,130,206,0.44); background: rgba(217,237,247,0.78); }\n" +
+  ".bunnia-status-blocked, .bunnia-status-failed { border-color: rgba(198,68,56,0.58); background: rgba(255,232,224,0.78); }\n" +
+  ".bunnia-status-draft { border-color: rgba(128,90,213,0.38); background: rgba(241,234,255,0.72); }\n" +
+  ".bunnia-status-shared { border-color: rgba(183,121,31,0.42); background: rgba(245,229,188,0.76); }\n" +
+  ".moontown-page-surface text, .moontown-left-hud text, .moontown-right-hud text, .moontown-bottom-hud text { display: block; color: #405244; font-size: 18rpx; line-height: 1.28; }\n" +
   ".moontown-profile-status { margin: 8rpx 0; padding: 8rpx 10rpx; border-radius: 6rpx; background: rgba(37,55,43,0.12); color: #334538; font-size: 18rpx; }\n" +
-  ".moontown-profile-card, .moontown-credential-plaque { margin-top: 8rpx; padding: 12rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.66); box-sizing: border-box; }\n" +
+  ".moontown-profile-card, .moontown-credential-plaque { margin-top: 8rpx; padding: 12rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.66); }\n" +
   ".moontown-profile-actions, .moontown-profile-metrics { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-profile-metric { flex: 1 1 0; min-width: 0; padding: 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 18rpx; }\n" +
-  ".mt-title { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
-  ".mt-meta { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
+  ".mt-title, .mt-title text { color: #1f3327 !important; font-size: 20rpx !important; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
+  ".mt-meta, .mt-meta text { margin-top: 2rpx; color: #6b745f !important; font-size: 16rpx !important; }\n" +
   ".moontown-community-actions { display: flex; gap: 8rpx; margin-top: 8rpx; flex-wrap: wrap; }\n" +
   ".moontown-district-actions { display: flex; gap: 8rpx; margin-top: 8rpx; }\n" +
   ".moontown-district-entry.tone-blue { border-color: rgba(49,130,206,0.44); background: rgba(231,243,255,0.72); }\n" +
@@ -287,43 +294,45 @@ fn moontown_wxss_source() -> String {
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
   ".moontown-guide-strip .bunnia-list-windowed, .moontown-discovery-strip .bunnia-list-windowed, .moontown-message-buckets { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-guide-step { flex: 0 0 184rpx; min-width: 0; }\n" +
-  ".moontown-discovery-chip, .moontown-message-bucket { flex: 0 0 152rpx; min-width: 0; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,255,255,0.68); box-sizing: border-box; }\n" +
+  ".moontown-discovery-chip, .moontown-message-bucket { flex: 0 0 152rpx; min-width: 0; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.78); overflow: hidden; }\n" +
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-run-actions { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
-  ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; padding: 8rpx 10rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.58); color: #334538; font-size: 18rpx; }\n" +
+  ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; min-height: 56rpx; padding: 10rpx 12rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,250,240,0.7); color: #334538; font-size: 18rpx; line-height: 28rpx; overflow: hidden; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
   ".moontown-run-action, .bunnia-tool-result-action { flex: 0 0 auto; }\n" +
   ".moontown-tool-results .bunnia-tool-result-list-windowed { margin-top: 8rpx; max-height: 296rpx; overflow: hidden; }\n" +
   ".moontown-discovery-badges { display: flex; gap: 6rpx; flex-wrap: wrap; margin-top: 6rpx; }\n" +
-  ".moontown-discovery-badge { padding: 4rpx 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 16rpx; }\n" +
+  ".moontown-discovery-badge { min-height: 32rpx; padding: 4rpx 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 16rpx; line-height: 24rpx; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
-  ".moontown-building-drawer, .moontown-chat-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-sizing: border-box; }\n" +
+  ".moontown-building-drawer, .moontown-chat-drawer, .moontown-create-drawer { min-width: 0; padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.9); overflow: hidden; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +
   ".moontown-building-drawer button { margin-top: 8rpx; margin-right: 6rpx; }\n" +
   ".moontown-chat-drawer .bunnia-message-feed-windowed { max-height: 170rpx; overflow: hidden; }\n" +
   ".moontown-chat-drawer .bunnia-message { padding: 10rpx 12rpx; margin-bottom: 8rpx; background: rgba(255,255,255,0.78); font-size: 20rpx; }\n" +
   ".moontown-chat-drawer .bunnia-review { margin-top: 8rpx; padding: 10rpx; gap: 8rpx; background: rgba(255,255,255,0.68); }\n" +
-  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; bottom: 104rpx; display: grid; grid-template-columns: minmax(0, 1fr) 332rpx; gap: 12rpx; align-items: end; }\n" +
-  ".moontown-map-state-strip, .moontown-map-action-rail { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(37, 55, 43, 0.72); box-sizing: border-box; }\n" +
+  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; bottom: calc(104rpx + env(safe-area-inset-bottom)); display: grid; grid-template-columns: minmax(0, 1fr) 332rpx; gap: 12rpx; align-items: end; }\n" +
+  ".moontown-map-state-strip, .moontown-map-action-rail { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(37, 55, 43, 0.72); }\n" +
   ".moontown-map-state-strip .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-map-state-chip { flex: 0 0 auto; max-width: 196rpx; padding: 8rpx 10rpx; border: 1rpx solid rgba(255,255,255,0.32); border-radius: 6rpx; background: rgba(255, 248, 220, 0.92); color: #27372b; font-size: 18rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-map-action-rail text { display: block; color: #fff8dc; font-size: 18rpx; }\n" +
   ".moontown-map-action-rail .mt-title { color: #fff8dc !important; }\n" +
   ".moontown-map-action-rail .mt-meta { color: rgba(255,248,220,0.78) !important; }\n" +
   ".moontown-map-actions { display: flex; gap: 8rpx; margin-top: 8rpx; overflow: hidden; }\n" +
-  ".moontown-create-drawer input { min-height: 46rpx; margin-bottom: 8rpx; padding: 0 10rpx; border: 1rpx solid rgba(51, 65, 55, 0.22); border-radius: 6rpx; background: rgba(255,255,255,0.82); color: #26362b; font-size: 20rpx; box-sizing: border-box; }\n" +
+  ".moontown-create-drawer input { min-height: 46rpx; margin-bottom: 8rpx; padding: 0 10rpx; border: 1rpx solid rgba(51, 65, 55, 0.22); border-radius: 6rpx; background: rgba(255,255,255,0.82); color: #26362b; font-size: 20rpx; }\n" +
   ".moontown-create-drawer form { display: block; margin-bottom: 8rpx; }\n" +
   ".moontown-create-drawer form:last-child { margin-bottom: 0; }\n" +
-  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: 18rpx; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.86); }\n" +
-  ".moontown-tab-button { min-height: 56rpx; padding: 0 6rpx; border: 1rpx solid rgba(255,248,220,0.3); border-radius: 6rpx; background: rgba(255,248,220,0.16); color: #fff8dc; font-size: 18rpx; line-height: 56rpx; }\n" +
+  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: calc(18rpx + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.88); }\n" +
+  ".moontown-tab-button { padding: 8rpx 6rpx; border: 1rpx solid rgba(255,248,220,0.3); border-radius: 6rpx; background: rgba(255,248,220,0.16); color: #fff8dc; font-size: 18rpx; line-height: 24rpx; overflow: hidden; }\n" +
   ".moontown-tab-button.active { background: #fff8dc; color: #243629; font-weight: 800; }\n" +
-  "@media (max-width: 520px) { .moontown-page-surface { left: 16rpx; right: 16rpx; top: 128rpx; bottom: 102rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-create-drawer { display: none; } .moontown-bottom-hud { grid-template-columns: 1fr; } .moontown-map-action-rail { display: none; } }"
+  "@media (max-width: 520px) { .moontown-page-surface { left: 16rpx; right: 16rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-create-drawer { display: none; } .moontown-bottom-hud { grid-template-columns: 1fr; } .moontown-map-action-rail { display: none; } }"
 }
 
 ///|
 fn minify_moontown_wxss(css : String) -> String {
   css
   .replace_all(old="\n", new="")
+  .replace_all(old=" + ", new="+")
+  .replace_all(old=" - ", new="-")
   .replace_all(old=" {", new="{")
   .replace_all(old="{ ", new="{")
   .replace_all(old="; ", new=";")
