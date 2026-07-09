@@ -657,6 +657,9 @@ latest message, agent work, and review need while audit-ledger rows stay out of
 the drawer. The book memory shelf is also split by public entry points, item
 model, shelf derivation, primary-book lookup, and safe summary copy so memory
 counters and review needs can evolve without reopening the drawer boundary.
+Agent worker drawer behavior is split by section assembly, row rendering,
+latest-run lookup, and role/meta copy so worker status and next actions can
+evolve without reopening the drawer boundary.
 Communication context is now further split into card model, section assembly,
 card derivation/rendering, and selected-context helpers behind the
 `object_context.mbt` boundary marker.
