@@ -1138,6 +1138,7 @@ fn project_has_render_diagnostics(project : @bunnia.WechatProject) -> Bool {
 
 ///|
 fn write_project(output_dir : String, project : @bunnia.WechatProject) -> Unit {
+  reset_project_output_dir(output_dir)
   for file in project.files {
     write_generated_file(join_path(output_dir, file.path), file.content)
   }
@@ -1165,6 +1166,7 @@ fn write_miniapp_project(
   output_dir : String,
   project : @bunnia.MiniappProject,
 ) -> Unit {
+  reset_project_output_dir(output_dir)
   for file in project.files {
     write_text_file(join_path(output_dir, file.path), file.content)
   }
@@ -1213,6 +1215,53 @@ fn join_path(left : String, right : String) -> String {
   } else {
     "\{left}/\{right}"
   }
+}
+
+///|
+fn reset_project_output_dir(output_dir : String) -> Unit {
+  if !generated_output_dir_is_safe(output_dir) {
+    println("unsafe_output_dir=\{output_dir}")
+    panic()
+  }
+  clean_generated_output_dir(output_dir)
+}
+
+///|
+fn generated_output_dir_is_safe(output_dir : String) -> Bool {
+  let path = trim_trailing_slashes(output_dir)
+  if path == "" || path == "." || path == "/" {
+    false
+  } else if output_dir_has_parent_traversal(path) {
+    false
+  } else if path == "_build" ||
+    path == "_build/bunnia" ||
+    path == "/tmp" ||
+    path == "/private/tmp" {
+    false
+  } else {
+    path.has_prefix("_build/") ||
+    path.has_prefix("/tmp/bunnia-") ||
+    path.has_prefix("/tmp/bunnia_") ||
+    path.has_prefix("/private/tmp/bunnia-") ||
+    path.has_prefix("/private/tmp/bunnia_")
+  }
+}
+
+///|
+fn trim_trailing_slashes(path : String) -> String {
+  if path.length() > 1 && path.has_suffix("/") {
+    trim_trailing_slashes(path.sub(start=0, end=path.length() - 1).to_owned())
+  } else {
+    path
+  }
+}
+
+///|
+fn output_dir_has_parent_traversal(path : String) -> Bool {
+  path == ".." ||
+  path.has_prefix("../") ||
+  path.has_suffix("/..") ||
+  path.contains("/../")
 }
 
 ///|
@@ -1323,6 +1372,21 @@ fn watch_generated_output(
   _output_dir : String,
   _strict : Bool,
 ) -> Unit {
+  panic()
+}
+
+///|
+#cfg(target="js")
+extern "js" fn clean_generated_output_dir(path : String) -> Unit =
+  #| function(path) {
+  #|   const fs = require("fs")
+  #|   fs.rmSync(path, { recursive: true, force: true })
+  #|   fs.mkdirSync(path, { recursive: true })
+  #| }
+
+///|
+#cfg(not(target="js"))
+fn clean_generated_output_dir(_path : String) -> Unit {
   panic()
 }
 

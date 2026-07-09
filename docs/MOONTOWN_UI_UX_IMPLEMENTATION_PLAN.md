@@ -656,7 +656,9 @@ Acceptance checks:
 - Current implementation note: UX10 guardrails now have test-local token helpers
   and focused display-label regression tests in
   `validation_guardrails_test.mbt`, plus a data-driven shell validator backed by
-  `scripts/moontown_guardrails/*.txt`.
+  `scripts/moontown_guardrails/*.txt`. The generator also resets safe build
+  output directories before writing, and the shell validator rejects stale
+  ordinary page WXSS plus missing 88rpx touch-target and safe-area tokens.
 
 Validation:
 

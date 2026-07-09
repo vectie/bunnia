@@ -26,6 +26,28 @@ test "build output dir accepts out flag" {
 }
 
 ///|
+test "generated output cleanup is restricted to build temp dirs" {
+  assert_true(
+    generated_output_dir_is_safe("_build/bunnia/wechat/moontown_miniapp"),
+  )
+  assert_true(
+    generated_output_dir_is_safe("_build/bunnia/wechat/moontown_miniapp/"),
+  )
+  assert_true(generated_output_dir_is_safe("/tmp/bunnia-demo"))
+  assert_true(generated_output_dir_is_safe("/tmp/bunnia_demo"))
+  assert_true(generated_output_dir_is_safe("/private/tmp/bunnia-demo"))
+  assert_true(!generated_output_dir_is_safe(""))
+  assert_true(!generated_output_dir_is_safe("."))
+  assert_true(!generated_output_dir_is_safe("/"))
+  assert_true(!generated_output_dir_is_safe("_build"))
+  assert_true(!generated_output_dir_is_safe("_build/bunnia"))
+  assert_true(!generated_output_dir_is_safe("/tmp"))
+  assert_true(!generated_output_dir_is_safe("/tmp/not-bunnia"))
+  assert_true(!generated_output_dir_is_safe("../_build/bunnia/wechat"))
+  assert_true(!generated_output_dir_is_safe("_build/../bad"))
+}
+
+///|
 test "build command and target parse explicitly" {
   let args = ["node", "main.js", "build", "--target", "wechat"]
   assert_eq(command_from_args(args), "build")

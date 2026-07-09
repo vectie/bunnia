@@ -8,6 +8,7 @@ ordinary_pages_file="$guardrail_dir/ordinary_wxml_paths.txt"
 visible_terms_file="$guardrail_dir/ordinary_visible_terms.txt"
 forbidden_tokens_file="$guardrail_dir/ordinary_forbidden_tokens.txt"
 reviewer_allowlist_file="$guardrail_dir/reviewer_allowlist_tokens.txt"
+touch_tokens_file="$guardrail_dir/touch_wxss_tokens.txt"
 failed=0
 
 require_file() {
@@ -28,6 +29,7 @@ require_file "$ordinary_pages_file"
 require_file "$visible_terms_file"
 require_file "$forbidden_tokens_file"
 require_file "$reviewer_allowlist_file"
+require_file "$touch_tokens_file"
 
 if [ "$failed" -ne 0 ]; then
   exit 1
@@ -80,6 +82,35 @@ else
     fi
   done < "$reviewer_allowlist_file"
 fi
+
+app_wxss="$project_dir/app.wxss"
+if [ ! -f "$app_wxss" ]; then
+  printf '%s\n' "missing app WXSS: $app_wxss"
+  failed=1
+else
+  while IFS= read -r token || [ -n "$token" ]; do
+    if skip_guardrail_line "$token"; then
+      continue
+    fi
+    if ! rg -n -F "$token" "$app_wxss" >/dev/null; then
+      printf '%s\n' "missing Moontown touch/style guard token '$token'"
+      failed=1
+    fi
+  done < "$touch_tokens_file"
+fi
+
+for stale_wxss in "$project_dir"/pages/moontown/*.wxss; do
+  if [ ! -e "$stale_wxss" ]; then
+    continue
+  fi
+  case "$stale_wxss" in
+    */reviewer.wxss) ;;
+    *)
+      printf '%s\n' "stale ordinary page WXSS: $stale_wxss"
+      failed=1
+      ;;
+  esac
+done
 
 if [ "$failed" -ne 0 ]; then
   exit 1

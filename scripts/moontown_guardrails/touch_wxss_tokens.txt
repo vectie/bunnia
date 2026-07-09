@@ -1,0 +1,11 @@
+# Required generated app.wxss tokens for Moontown touch targets and safe-area layout.
+button{min-width:88rpx;min-height:88rpx
+.mt-panel input{width:100%;min-height:88rpx
+.moontown-tab-button{min-height:88rpx
+.moontown-map-marker{position:absolute;z-index:3;min-width:112rpx;max-width:180rpx;min-height:88rpx
+.bunnia-review-button{min-height:88rpx
+.bunnia-scene-marker{position:absolute;transform:translate(-50%,-50%);min-width:120rpx;min-height:88rpx
+.bunnia-scene-thread{min-width:88rpx;min-height:88rpx
+bottom:calc(132rpx+env(safe-area-inset-bottom))
+top:calc(160rpx+env(safe-area-inset-top))
+touch-action:manipulation
