@@ -802,6 +802,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 ///|
 test "moontown miniapp generates wechat project with backend hooks" {
   let project = demo_wechat_project()
+  assert_true(has_no_forbidden_generated_ordinary_wxml(project.files))
+  assert_true(has_reviewer_diagnostics_allowlist(project.files))
+  assert_true(generated_contract_data_stays_out_of_ordinary_wxml(project.files))
   assert_true(
     backend_contract_contains(
       demo_backend_contract(),
@@ -1341,6 +1344,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(project.manifest.pages[3].backend_event_count >= 2)
   assert_true(project.manifest.pages[0].scene_marker_count >= 8)
   assert_true(project.manifest.pages[0].scene_region_count == 2)
+  assert_eq(project.manifest.diagnostic_count, 0)
   assert_true(project.manifest.summary.contains("app_files="))
 }
 
@@ -1892,8 +1896,20 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(assets.assets.length(), 2)
   assert_eq(quality.diagnostics.length(), 0)
   assert_eq(inspection.route_count, 6)
+  assert_eq(inspection.total_diagnostics, 0)
+  assert_true(inspection.max_first_screen_bytes <= 72000)
   assert_true(inspection.max_update_payload_bytes > 0)
+  assert_true(inspection.max_update_payload_bytes <= 4096)
+  assert_true(inspection.max_update_operation_count <= 64)
+  assert_true(inspection.max_unwindowed_list_child_count <= 64)
+  assert_eq(inspection.max_unkeyed_list_child_count, 0)
+  assert_eq(inspection.max_duplicate_list_key_count, 0)
+  assert_true(inspection.max_backend_event_count <= 64)
+  assert_true(inspection.max_backend_review_count <= 16)
   assert_true(inspection.max_scene_marker_count >= 4)
+  assert_eq(inspection.max_scene_asset_count, 2)
+  assert_eq(inspection.max_scene_remote_asset_count, 0)
+  assert_true(inspection.max_scene_package_bytes <= 2097152)
 }
 
 ///|
@@ -1905,6 +1921,87 @@ fn tab_page(
     "Moontown Miniapp",
     mini_town_view(switch_tab(projection, tab_id)),
   )
+}
+
+///|
+fn ordinary_wxml_paths() -> Array[String] {
+  [
+    "pages/moontown/index.wxml", "pages/moontown/home.wxml", "pages/moontown/discover.wxml",
+    "pages/moontown/messages.wxml", "pages/moontown/my.wxml",
+  ]
+}
+
+///|
+fn has_no_forbidden_generated_ordinary_wxml(
+  files : Array[@bunnia.WechatFile],
+) -> Bool {
+  for path in ordinary_wxml_paths() {
+    let wxml = file_content(files, path)
+    if wxml == "" || !has_no_forbidden_ordinary_copy(wxml) {
+      return false
+    }
+    for
+      raw in [
+        "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
+        "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-payload-key",
+        "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
+      ] {
+      if wxml.contains(raw) {
+        return false
+      }
+    }
+    for
+      label in [
+        "endpoint", "payload", "response_key", "cursor", "offset", "load-message-center",
+        "load-ownership-snapshot", "load-admin-ops", "load-admin-readiness",
+      ] {
+      if wxml.contains(">\{label}</text>") {
+        return false
+      }
+    }
+  }
+  true
+}
+
+///|
+fn has_reviewer_diagnostics_allowlist(
+  files : Array[@bunnia.WechatFile],
+) -> Bool {
+  let reviewer = file_content(files, "pages/moontown/reviewer.wxml")
+  reviewer.contains("data-reviewer-route=\"true\"") &&
+  reviewer.contains("Developer Diagnostics") &&
+  reviewer.contains("data-diagnostics-mode=\"reviewer\"") &&
+  reviewer.contains("data-http-path=\"/miniapp/admin/ops\"") &&
+  reviewer.contains("data-http-path=\"/miniapp/admin/readiness\"") &&
+  reviewer.contains("data-payload-key=\"adminOpsQuery\"") &&
+  reviewer.contains("data-response-key=\"adminReadinessResult\"")
+}
+
+///|
+fn generated_contract_data_stays_out_of_ordinary_wxml(
+  files : Array[@bunnia.WechatFile],
+) -> Bool {
+  let data_js = file_content(files, "pages/moontown/index.data.js")
+  let backend_js = file_content(files, "bunnia.backend.js")
+  if !data_js.contains("adminOpsQuery") ||
+    !data_js.contains("messageCenterQuery") ||
+    !backend_js.contains("/miniapp/admin/ops") ||
+    !backend_js.contains("/miniapp/messages/center") {
+    return false
+  }
+  for path in ordinary_wxml_paths() {
+    let wxml = file_content(files, path)
+    for
+      key in [
+        "adminOpsQuery", "adminReadinessQuery", "messageCenterQuery", "ownershipQuery",
+        "/miniapp/admin/ops", "/miniapp/messages/center", "/miniapp/me/ownership",
+      ] {
+      if wxml.contains(key) {
+        return false
+      }
+    }
+  }
+  true
 }
 
 ///|
