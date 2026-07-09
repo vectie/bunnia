@@ -463,7 +463,7 @@ fn add_setup_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   patches.push(
-    @bunnia.wechat_event_patch("dev-login", [
+    @bunnia.wechat_event_patch("enter-town", [
       @bunnia.set_string("session.activeUserId", "user-a"),
     ]),
   )
@@ -1281,10 +1281,8 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
   } else if projection.active_tab_id == "home" {
     town_page_surface(projection, [
       onboarding_panel(projection),
-      town_update_panel(projection),
-      home_overview_panel(projection),
+      home_pulse_panel(projection),
       community_hub_panel(projection),
-      town_activity_panel(projection),
     ])
   } else {
     @bunnia.view([
@@ -1659,194 +1657,138 @@ fn presence_chip(item : MiniTownPresence) -> @bunnia.Node {
 }
 
 ///|
-fn home_overview_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let stats = home_town_stats(projection)
+priv struct HomePulseRow {
+  id : String
+  title : String
+  summary : String
+  status : String
+  action_label : String
+  action_message : String
+  target_tab : String
+}
+
+///|
+fn home_pulse_row(
+  id~ : String,
+  title~ : String,
+  summary~ : String,
+  status~ : String,
+  action_label~ : String,
+  action_message~ : String,
+  target_tab~ : String,
+) -> HomePulseRow {
+  { id, title, summary, status, action_label, action_message, target_tab }
+}
+
+///|
+fn home_pulse_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let activity = town_activity_items(projection)
+  let attention = visible_reviews(projection).length() +
+    unread_notifications(projection).length()
+  let rows = home_pulse_rows(projection, activity)
   @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
       @bunnia.text("Town Pulse"),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
-        "Realm is the map; Home shows recent work around the same tile town.",
-      ),
-    ]),
-    @bunnia.windowed_list(
-      stats,
-      total_count=stats.length(),
-      render=home_stat_entry,
-    ),
-  ])
-}
-
-///|
-fn town_update_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let steps = user_backend_steps(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("Town Updates"),
-    ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-      @bunnia.text(
-        "Refresh stale town, message, and inventory rows from one notice board.",
+        "\{home_changed_places_count(activity)} places changed. \{attention} items need attention.",
       ),
     ]),
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-community-actions")],
       [
-        @bunnia.button("Enter Town", "dev-login"),
-        @bunnia.button("Refresh Town", "load-town-snapshot"),
+        @bunnia.button("Open", "tab-realm"),
+        @bunnia.button("Review", "tab-messages"),
+        @bunnia.button("More", "tab-discover"),
       ],
     ),
     @bunnia.windowed_list(
-      steps,
-      total_count=steps.length(),
-      render=backend_step_entry,
-    ),
-    @bunnia.windowed_list(
-      projection.backend_cache_states,
-      total_count=projection.backend_cache_states.length(),
-      render=backend_cache_entry,
+      rows,
+      total_count=rows.length(),
+      render=home_pulse_entry,
     ),
   ])
 }
 
 ///|
-fn user_backend_steps(
+fn home_pulse_rows(
   projection : MiniTownProjection,
-) -> Array[MiniTownBackendStep] {
-  let steps : Array[MiniTownBackendStep] = []
-  for step in projection.backend_steps {
-    if !step.id.has_prefix("admin-") {
-      steps.push(step)
-    }
-  }
-  steps
-}
-
-///|
-fn backend_step_entry(item : MiniTownBackendStep) -> @bunnia.Node {
-  @bunnia.keyed(
-    "backend-step-\{item.id}",
-    @bunnia.view_with_attrs(
-      [
-        @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.status}"),
-        @bunnia.data("backend-step", item.id),
-      ],
-      [
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(backend_step_user_title(item)),
-        ]),
-        @bunnia.text(backend_step_user_summary(item)),
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-          @bunnia.text(town_status_label(item.status)),
-        ]),
-        @bunnia.button(backend_step_user_title(item), item.endpoint_id),
-      ],
+  activity : Array[MiniTownActivityItem],
+) -> Array[HomePulseRow] {
+  let reviews = visible_reviews(projection)
+  let unread = unread_notifications(projection)
+  let market = market_discovery_results(projection)
+  let refresh_count = home_refresh_count(projection)
+  [
+    home_pulse_row(
+      id="changes",
+      title="\{home_changed_places_count(activity)} places changed",
+      summary=home_activity_summary(activity),
+      status="stable",
+      action_label="Open",
+      action_message="tab-realm",
+      target_tab="realm",
     ),
-  )
+    home_pulse_row(
+      id="attention",
+      title=if reviews.length() + unread.length() > 0 {
+        "Agent needs your decision"
+      } else {
+        "Messages are quiet"
+      },
+      summary=home_attention_summary(reviews, unread),
+      status=if reviews.length() + unread.length() > 0 {
+        "review"
+      } else {
+        "stable"
+      },
+      action_label="Review",
+      action_message="tab-messages",
+      target_tab="messages",
+    ),
+    home_pulse_row(
+      id="market",
+      title="Market has new public places",
+      summary="\{market.length()} public results are ready to open or place.",
+      status="stable",
+      action_label="More",
+      action_message="tab-discover",
+      target_tab="discover",
+    ),
+    home_pulse_row(
+      id="refresh",
+      title=if refresh_count > 0 {
+        "Some updates need refresh"
+      } else {
+        "Town is ready"
+      },
+      summary=if refresh_count > 0 {
+        "Needs refresh before the town can show the latest changes."
+      } else {
+        "Latest map, messages, and inventory are ready."
+      },
+      status=if refresh_count > 0 { "stale" } else { "stable" },
+      action_label=if refresh_count > 0 { "Try again" } else { "Open" },
+      action_message=if refresh_count > 0 { "tab-realm" } else { "tab-realm" },
+      target_tab="realm",
+    ),
+  ]
 }
 
 ///|
-fn backend_cache_entry(item : MiniTownBackendCacheState) -> @bunnia.Node {
+fn home_pulse_entry(item : HomePulseRow) -> @bunnia.Node {
   @bunnia.keyed(
-    "backend-cache-\{item.id}",
+    "home-pulse-\{item.id}",
     @bunnia.node(
       kind="view",
       attrs=[
-        @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.state}"),
-        @bunnia.data("backend-cache", item.id),
-        @bunnia.data("cache-state", item.state),
+        @bunnia.class_name("moontown-notice-entry bunnia-status-\{item.status}"),
+        @bunnia.data("home-pulse", item.id),
         @bunnia.data("action-message", item.action_message),
+        @bunnia.data("target-tab", item.target_tab),
       ],
       events=[@bunnia.event("tap", item.action_message)],
-      children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(cache_user_title(item)),
-        ]),
-        @bunnia.text(cache_user_summary(item)),
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-          @bunnia.text(
-            "\{cache_user_action_label(item)} - \{town_tab_label(backend_cache_target_tab(item))}",
-          ),
-        ]),
-      ],
-    ),
-  )
-}
-
-///|
-fn backend_cache_target_tab(item : MiniTownBackendCacheState) -> String {
-  if item.action_message.has_prefix("tab-") {
-    item.action_message
-    .sub(start=4, end=item.action_message.length())
-    .to_owned()
-  } else if item.action_message == "load-ownership-snapshot" ||
-    item.action_message == "dev-login" {
-    "my"
-  } else if item.action_message == "load-town-snapshot" {
-    "realm"
-  } else {
-    "home"
-  }
-}
-
-///|
-fn home_stat_entry(stat : MiniTownOwnershipStat) -> @bunnia.Node {
-  @bunnia.keyed(
-    "home-stat-\{stat.id}",
-    @bunnia.view_with_attrs(
-      [
-        @bunnia.class_name("moontown-home-stat"),
-        @bunnia.data("home-stat", stat.id),
-      ],
-      [
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(stat.value.to_string()),
-        ]),
-        @bunnia.text(stat.label),
-      ],
-    ),
-  )
-}
-
-///|
-fn town_activity_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let activity = town_activity_items(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("Recent Activity"),
-    ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-      @bunnia.text(
-        "Agent runs, book memory, sharing, and publishing stay attached to map buildings.",
-      ),
-    ]),
-    @bunnia.windowed_list(
-      activity,
-      total_count=activity.length(),
-      render=activity_entry,
-    ),
-  ])
-}
-
-///|
-fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
-  @bunnia.keyed(
-    "activity-\{item.id}",
-    @bunnia.node(
-      kind="view",
-      attrs=[
-        @bunnia.class_name(
-          "moontown-activity-entry bunnia-status-\{item.status}",
-        ),
-        @bunnia.data("activity-kind", item.kind),
-        @bunnia.data("target-ref", item.target_ref),
-        @bunnia.data("building-id", item.building_id),
-        @bunnia.data("actor-id", item.actor_id),
-        @bunnia.data("action-message", activity_action_message(item)),
-        @bunnia.data("target-tab", activity_target_tab(item)),
-      ],
-      events=[@bunnia.event("tap", activity_action_message(item))],
       children=[
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
@@ -1854,7 +1796,7 @@ fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
-            "\{town_kind_label(item.kind)} - \{town_status_label(item.status)} - \{town_tab_label(activity_target_tab(item))}",
+            "\{item.action_label} - \{town_tab_label(item.target_tab)}",
           ),
         ]),
       ],
@@ -1863,31 +1805,61 @@ fn activity_entry(item : MiniTownActivityItem) -> @bunnia.Node {
 }
 
 ///|
-fn activity_action_message(item : MiniTownActivityItem) -> String {
-  if item.target_ref.has_prefix("thread:") ||
-    item.target_ref.has_prefix("run:") ||
-    item.target_ref.has_prefix("review:") ||
-    item.kind == "run" ||
-    item.kind == "review" {
-    "tab-messages"
-  } else if item.target_ref.has_prefix("book:") ||
-    item.kind == "book" ||
-    item.kind == "publish" ||
-    item.kind == "place" {
-    "tab-discover"
+fn home_changed_places_count(activity : Array[MiniTownActivityItem]) -> Int {
+  let ids : Array[String] = []
+  for item in activity {
+    if !home_contains_id(ids, item.building_id) {
+      ids.push(item.building_id)
+      if ids.length() == 3 {
+        return 3
+      }
+    }
+  }
+  ids.length()
+}
+
+///|
+fn home_contains_id(ids : Array[String], id : String) -> Bool {
+  for item in ids {
+    if item == id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn home_activity_summary(activity : Array[MiniTownActivityItem]) -> String {
+  if activity.length() > 0 {
+    activity[0].title
   } else {
-    "select-\{item.building_id}"
+    "Open Realm to see what changed around the map."
   }
 }
 
 ///|
-fn activity_target_tab(item : MiniTownActivityItem) -> String {
-  let message = activity_action_message(item)
-  if message.has_prefix("tab-") {
-    message.sub(start=4, end=message.length()).to_owned()
+fn home_attention_summary(
+  reviews : Array[MiniTownReviewItem],
+  unread : Array[MiniTownNotification],
+) -> String {
+  if reviews.length() > 0 {
+    reviews[0].title
+  } else if unread.length() > 0 {
+    unread[0].title
   } else {
-    "realm"
+    "No agent handoff is waiting right now."
   }
+}
+
+///|
+fn home_refresh_count(projection : MiniTownProjection) -> Int {
+  let mut count = 0
+  for item in projection.backend_cache_states {
+    if item.state.has_prefix("stale") || item.state == "failed" {
+      count += 1
+    }
+  }
+  count
 }
 
 ///|
@@ -3597,8 +3569,8 @@ fn visibility_chip(building : MiniTownBuilding) -> @bunnia.Node {
 fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-user-switcher")], [
     @bunnia.text("Town member: \{projection.profile.display_name}"),
-    @bunnia.button("Login", "dev-login"),
-    @bunnia.button("Load", "load-town-snapshot"),
+    @bunnia.button("Enter", "enter-town"),
+    @bunnia.button("Realm", "tab-realm"),
     @bunnia.button("Ada", "switch-user-a"),
     @bunnia.button("Bo", "switch-user-b"),
   ])

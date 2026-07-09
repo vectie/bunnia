@@ -165,8 +165,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.js.contains("\"complete-onboarding\""))
   assert_true(page.js.contains("\"switch-user-a\""))
   assert_true(page.js.contains("\"switch-user-b\""))
-  assert_true(page.js.contains("\"dev-login\""))
-  assert_true(page.js.contains("\"load-town-snapshot\""))
+  assert_true(page.js.contains("\"enter-town\""))
   assert_true(page.js.contains("onMoontownMapTouchStart"))
   assert_true(page.js.contains("onMoontownMapTouchMove"))
   assert_true(page.js.contains("onMoontownMapTouchEnd"))
@@ -220,62 +219,39 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
   assert_true(home.wxml.contains("Town Pulse"))
-  assert_true(home.wxml.contains("Town Updates"))
-  assert_true(
-    home.wxml.contains("Refresh stale town, message, and inventory rows"),
-  )
+  assert_true(home.wxml.contains("data-home-pulse=\"changes\""))
+  assert_true(home.wxml.contains("3 places changed"))
+  assert_true(home.wxml.contains("Policy answer waiting for review"))
+  assert_true(home.wxml.contains("data-home-pulse=\"attention\""))
+  assert_true(home.wxml.contains("Agent needs your decision"))
+  assert_true(home.wxml.contains("Review policy answer"))
+  assert_true(home.wxml.contains("data-home-pulse=\"market\""))
+  assert_true(home.wxml.contains("Market has new public places"))
+  assert_true(home.wxml.contains("More - Discover"))
+  assert_true(home.wxml.contains("data-home-pulse=\"refresh\""))
+  assert_true(home.wxml.contains("Some updates need refresh"))
+  assert_true(home.wxml.contains("Try again - Realm"))
+  assert_true(!home.wxml.contains("data-action-message=\"refresh-town\""))
+  assert_true(home.wxml.contains("data-target-tab=\"realm\""))
+  assert_true(home.wxml.contains("data-target-tab=\"messages\""))
+  assert_true(home.wxml.contains("data-target-tab=\"discover\""))
+  assert_true(home.wxml.contains("data-bunnia-message=\"tab-realm\""))
+  assert_true(home.wxml.contains("data-bunnia-message=\"tab-messages\""))
+  assert_true(home.wxml.contains("data-bunnia-message=\"tab-discover\""))
+  assert_true(!home.wxml.contains("Town Updates"))
+  assert_true(!home.wxml.contains("Recent Activity"))
+  assert_true(!home.wxml.contains("Refresh stale town"))
+  assert_true(!home.wxml.contains("data-backend-step="))
+  assert_true(!home.wxml.contains("data-backend-cache="))
+  assert_true(!home.wxml.contains("data-cache-state="))
+  assert_true(!home.wxml.contains("load-town-snapshot"))
   assert_true(!home.wxml.contains("Backend Loop"))
   assert_true(!home.wxml.contains("DevTools target"))
-  assert_true(home.wxml.contains("data-backend-step=\"login\""))
-  assert_true(home.wxml.contains("data-bunnia-message=\"dev-login\""))
-  assert_true(home.wxml.contains("data-backend-step=\"snapshot\""))
-  assert_true(home.wxml.contains("Refresh Town"))
-  assert_true(!home.wxml.contains("GET /miniapp/town/snapshot / ready"))
-  assert_true(home.wxml.contains("data-backend-step=\"cancel-run\""))
-  assert_true(home.wxml.contains("Cancel Agent Work"))
-  assert_true(!home.wxml.contains("POST /miniapp/runs/cancel / guarded"))
-  assert_true(home.wxml.contains("data-backend-step=\"retry-run\""))
-  assert_true(home.wxml.contains("Try Again"))
-  assert_true(!home.wxml.contains("POST /miniapp/runs/retry / guarded"))
-  assert_true(home.wxml.contains("data-backend-step=\"ack-notification\""))
-  assert_true(home.wxml.contains("Mark Read"))
-  assert_true(!home.wxml.contains("POST /miniapp/messages/ack / ready"))
-  assert_true(home.wxml.contains("data-backend-step=\"request-subscription\""))
-  assert_true(home.wxml.contains("Watch Notices"))
-  assert_true(
-    !home.wxml.contains("POST /miniapp/messages/subscribe / platform"),
-  )
-  assert_true(home.wxml.contains("data-backend-cache=\"snapshot\""))
-  assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
-  assert_true(home.wxml.contains("data-action-message=\"load-town-snapshot\""))
-  assert_true(home.wxml.contains("Refresh Town - Realm"))
-  assert_true(home.wxml.contains("data-action-message=\"dev-login\""))
-  assert_true(home.wxml.contains("Enter Town - My"))
-  assert_true(
-    home.wxml.contains("data-action-message=\"load-ownership-snapshot\""),
-  )
-  assert_true(home.wxml.contains("Refresh My Stuff - My"))
-  assert_true(home.wxml.contains("data-action-message=\"tab-messages\""))
-  assert_true(home.wxml.contains("Review - Messages"))
   assert_true(
     !home.wxml.contains(
       "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
     ),
   )
-  assert_true(
-    home.wxml.contains("data-bunnia-message=\"publish-private-building\""),
-  )
-  assert_true(
-    home.wxml.contains(
-      "Needs refresh before the town can show the latest changes.",
-    ),
-  )
-  assert_true(
-    home.wxml.contains(
-      "Realm is the map; Home shows recent work around the same tile town.",
-    ),
-  )
-  assert_true(home.wxml.contains("data-home-stat=\"visible-buildings\""))
   assert_true(home.wxml.contains("Community Hub"))
   assert_true(
     home.wxml.contains(
@@ -302,13 +278,6 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("data-actor-kind=\"agent\""))
   assert_true(home.wxml.contains("Search Town"))
   assert_true(home.wxml.contains("Publish Draft"))
-  assert_true(home.wxml.contains("Recent Activity"))
-  assert_true(home.wxml.contains("Policy answer waiting for review"))
-  assert_true(home.wxml.contains("data-activity-kind=\"run\""))
-  assert_true(home.wxml.contains("data-target-ref=\"thread-policy-hall\""))
-  assert_true(home.wxml.contains("data-building-id=\"policy-hall\""))
-  assert_true(home.wxml.contains("data-action-message=\"tab-messages\""))
-  assert_true(home.wxml.contains("data-target-tab=\"messages\""))
   assert_true(!home.wxml.contains("Map Districts"))
   assert_true(!home.wxml.contains("moontown-right-hud"))
 
@@ -750,7 +719,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/home.data.js").contains(
-      "\"dev-login\":[{k:\"set\",p:\"session.activeUserId\",v:\"user-a\"}]",
+      "\"enter-town\":[{k:\"set\",p:\"session.activeUserId\",v:\"user-a\"}]",
     ),
   )
   assert_true(
@@ -1216,6 +1185,11 @@ test "moontown miniapp generates wechat project with backend hooks" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.wxml").contains(
+      "data-bunnia-message=\"enter-town\"",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/moontown/index.wxml").contains(
       "data-bunnia-message=\"dev-login\"",
     ),
   )

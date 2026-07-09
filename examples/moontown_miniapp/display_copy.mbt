@@ -110,31 +110,6 @@ fn town_tab_label(tab : String) -> String {
 }
 
 ///|
-fn backend_step_user_title(step : MiniTownBackendStep) -> String {
-  if step.endpoint_id == "load-town-snapshot" {
-    "Refresh Town"
-  } else if step.endpoint_id == "load-ownership-snapshot" {
-    "Refresh My Stuff"
-  } else if step.endpoint_id == "load-message-center" {
-    "Latest Messages"
-  } else if step.endpoint_id == "ack-notification" {
-    "Mark Read"
-  } else if step.endpoint_id == "ack-tool-result" {
-    "Review Result"
-  } else if step.endpoint_id == "request-subscription" {
-    "Watch Notices"
-  } else if step.endpoint_id == "dev-login" {
-    "Enter Town"
-  } else if step.endpoint_id == "cancel-run" {
-    "Cancel Agent Work"
-  } else if step.endpoint_id == "retry-run" {
-    "Try Again"
-  } else {
-    step.label
-  }
-}
-
-///|
 fn backend_step_user_summary(step : MiniTownBackendStep) -> String {
   if step.endpoint_id == "load-town-snapshot" {
     "Bring in the latest places, activity, and map updates."
@@ -169,38 +144,6 @@ fn cache_user_title(cache : MiniTownBackendCacheState) -> String {
     "Latest Messages"
   } else {
     cache.label
-  }
-}
-
-///|
-fn cache_user_summary(cache : MiniTownBackendCacheState) -> String {
-  if cache.state.contains("stale") {
-    "Needs refresh before the town can show the latest changes."
-  } else if cache.state == "failed" || cache.state == "malformed" {
-    "Could not update. Try again."
-  } else if cache.state == "cancelled" {
-    "Update cancelled."
-  } else if cache.state == "retrying" {
-    "Trying again now."
-  } else {
-    cache.summary
-  }
-}
-
-///|
-fn cache_user_action_label(cache : MiniTownBackendCacheState) -> String {
-  if cache.action_message == "load-town-snapshot" {
-    "Refresh Town"
-  } else if cache.action_message == "load-ownership-snapshot" {
-    "Refresh My Stuff"
-  } else if cache.action_message == "load-message-center" {
-    "Latest Messages"
-  } else if cache.action_message == "dev-login" {
-    "Enter Town"
-  } else if cache.action_label == "Sync" || cache.action_label == "Reload" {
-    "Refresh"
-  } else {
-    cache.action_label
   }
 }
 
