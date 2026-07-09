@@ -53,8 +53,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("data-book-id=\"book-policy-hall-sources\""))
   assert_true(page.wxml.contains("data-book-shelf-role=\"primary\""))
   assert_true(page.wxml.contains("data-book-shelf-role=\"support\""))
-  assert_true(page.wxml.contains("12 memories / 1 reviews / review"))
-  assert_true(page.wxml.contains("support / 9 memories / 0 reviews / stable"))
+  assert_true(page.wxml.contains("12 memories - 1 reviews - Needs review"))
+  assert_true(page.wxml.contains("9 memories - 0 reviews - Ready"))
   assert_true(page.wxml.contains("moontown-lifecycle-actions"))
   assert_true(page.wxml.contains("data-lifecycle-action=\"ask\""))
   assert_true(page.wxml.contains("data-lifecycle-action=\"edit\""))
@@ -89,6 +89,11 @@ test "moontown miniapp generates full vertical slice page" {
   )
   assert_true(
     page.wxml.contains(
+      "Building thread - Send a message in this building thread.",
+    ),
+  )
+  assert_true(
+    !page.wxml.contains(
       "runtime: {{backendStatus.send_building_message.state || 'idle'}}",
     ),
   )
@@ -179,34 +184,45 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
   assert_true(home.wxml.contains("Town Pulse"))
-  assert_true(home.wxml.contains("Backend Loop"))
-  assert_true(home.wxml.contains("DevTools target: http://127.0.0.1:18191"))
+  assert_true(home.wxml.contains("Town Updates"))
+  assert_true(
+    home.wxml.contains("Refresh stale town, message, and inventory rows"),
+  )
+  assert_true(!home.wxml.contains("Backend Loop"))
+  assert_true(!home.wxml.contains("DevTools target"))
   assert_true(home.wxml.contains("data-backend-step=\"login\""))
   assert_true(home.wxml.contains("data-bunnia-message=\"dev-login\""))
   assert_true(home.wxml.contains("data-backend-step=\"snapshot\""))
-  assert_true(home.wxml.contains("GET /miniapp/town/snapshot / ready"))
+  assert_true(home.wxml.contains("Refresh Town"))
+  assert_true(!home.wxml.contains("GET /miniapp/town/snapshot / ready"))
   assert_true(home.wxml.contains("data-backend-step=\"cancel-run\""))
-  assert_true(home.wxml.contains("POST /miniapp/runs/cancel / guarded"))
+  assert_true(home.wxml.contains("Cancel Agent Work"))
+  assert_true(!home.wxml.contains("POST /miniapp/runs/cancel / guarded"))
   assert_true(home.wxml.contains("data-backend-step=\"retry-run\""))
-  assert_true(home.wxml.contains("POST /miniapp/runs/retry / guarded"))
+  assert_true(home.wxml.contains("Try Again"))
+  assert_true(!home.wxml.contains("POST /miniapp/runs/retry / guarded"))
   assert_true(home.wxml.contains("data-backend-step=\"ack-notification\""))
-  assert_true(home.wxml.contains("POST /miniapp/messages/ack / ready"))
+  assert_true(home.wxml.contains("Mark Read"))
+  assert_true(!home.wxml.contains("POST /miniapp/messages/ack / ready"))
   assert_true(home.wxml.contains("data-backend-step=\"request-subscription\""))
-  assert_true(home.wxml.contains("POST /miniapp/messages/subscribe / platform"))
+  assert_true(home.wxml.contains("Watch Notices"))
+  assert_true(
+    !home.wxml.contains("POST /miniapp/messages/subscribe / platform"),
+  )
   assert_true(home.wxml.contains("data-backend-cache=\"snapshot\""))
   assert_true(home.wxml.contains("data-cache-state=\"stale-safe\""))
   assert_true(home.wxml.contains("data-action-message=\"load-town-snapshot\""))
-  assert_true(home.wxml.contains("Reload / realm"))
+  assert_true(home.wxml.contains("Refresh Town - Realm"))
   assert_true(home.wxml.contains("data-action-message=\"dev-login\""))
-  assert_true(home.wxml.contains("Login / my"))
+  assert_true(home.wxml.contains("Enter Town - My"))
   assert_true(
     home.wxml.contains("data-action-message=\"load-ownership-snapshot\""),
   )
-  assert_true(home.wxml.contains("Sync / my"))
+  assert_true(home.wxml.contains("Refresh My Stuff - My"))
   assert_true(home.wxml.contains("data-action-message=\"tab-messages\""))
-  assert_true(home.wxml.contains("Review / messages"))
+  assert_true(home.wxml.contains("Review - Messages"))
   assert_true(
-    home.wxml.contains(
+    !home.wxml.contains(
       "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
     ),
   )
@@ -214,7 +230,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     home.wxml.contains("data-bunnia-message=\"publish-private-building\""),
   )
   assert_true(
-    home.wxml.contains("Stale town remains visible on reload failure."),
+    home.wxml.contains(
+      "Needs refresh before the town can show the latest changes.",
+    ),
   )
   assert_true(
     home.wxml.contains(
@@ -242,7 +260,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("data-district-query=\"trust policy\""))
   assert_true(home.wxml.contains("data-action-message=\"tab-my\""))
   assert_true(home.wxml.contains("OPC Hub"))
-  assert_true(home.wxml.contains("8 checks / Verify / my"))
+  assert_true(home.wxml.contains("8 checks - Verify My"))
   assert_true(home.wxml.contains("moontown-presence-chip"))
   assert_true(home.wxml.contains("data-presence-id=\"presence-policy-guide\""))
   assert_true(home.wxml.contains("data-actor-kind=\"agent\""))
@@ -262,9 +280,14 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("moontown-map-fullscreen"))
   assert_true(discover.wxml.contains("moontown-page-surface"))
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
-  assert_true(discover.wxml.contains("Search public town objects."))
+  assert_true(discover.wxml.contains("Market Board"))
   assert_true(
-    discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
+    discover.wxml.contains(
+      "Find public places, people, books, agents, demands, and events.",
+    ),
+  )
+  assert_true(
+    !discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
   )
   assert_true(discover.wxml.contains("moontown-discover-entry"))
   assert_true(discover.wxml.contains("Town People"))
@@ -335,15 +358,18 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
 
   let messages = tab_page(projection, "messages")
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
+  assert_true(messages.wxml.contains("Mail Board"))
   assert_true(
-    messages.wxml.contains("runtime channel: {{messages.channel || 'all'}}"),
+    !messages.wxml.contains("runtime channel: {{messages.channel || 'all'}}"),
   )
   assert_true(messages.wxml.contains("moontown-message-bucket"))
   assert_true(messages.wxml.contains("moontown-message-sync"))
   assert_true(messages.wxml.contains("data-backend-sync=\"notifications\""))
-  assert_true(messages.wxml.contains("Ack Sync"))
-  assert_true(messages.wxml.contains("Subscribe Sync"))
-  assert_true(messages.wxml.contains("Tool Ack"))
+  assert_true(messages.wxml.contains("Mark Read"))
+  assert_true(messages.wxml.contains("Watch Notices"))
+  assert_true(messages.wxml.contains("Review Result"))
+  assert_true(!messages.wxml.contains("Ack Sync"))
+  assert_true(!messages.wxml.contains("Tool Ack"))
   assert_true(
     messages.wxml.contains("data-backend-endpoint=\"load-message-center\""),
   )
@@ -351,7 +377,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     messages.wxml.contains("data-backend-path=\"/miniapp/messages/center\""),
   )
   assert_true(
-    messages.wxml.contains(
+    !messages.wxml.contains(
       "{{backendStatus.load_message_center.state || 'idle'}}",
     ),
   )
@@ -362,7 +388,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     messages.wxml.contains("data-backend-endpoint=\"ack-notification\""),
   )
   assert_true(
-    messages.wxml.contains("{{backendStatus.ack_notification.state || 'idle'}}"),
+    !messages.wxml.contains(
+      "{{backendStatus.ack_notification.state || 'idle'}}",
+    ),
   )
   assert_true(
     messages.wxml.contains("data-backend-endpoint=\"request-subscription\""),
@@ -374,7 +402,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     messages.wxml.contains("data-backend-path=\"/miniapp/tool-results/ack\""),
   )
   assert_true(
-    messages.wxml.contains(
+    !messages.wxml.contains(
       "{{backendStatus.request_subscription.state || 'idle'}}",
     ),
   )
@@ -420,7 +448,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("data-bunnia-message=\"cancel-run\""))
   assert_true(messages.wxml.contains("data-bunnia-message=\"retry-run\""))
   assert_true(messages.wxml.contains("data-blocked-reason=\"wait for status\""))
-  assert_true(messages.wxml.contains("Tool Results"))
+  assert_true(messages.wxml.contains("Review Results"))
+  assert_true(!messages.wxml.contains("Tool Results"))
   assert_true(messages.wxml.contains("bunnia-tool-result-card"))
   assert_true(
     messages.wxml.contains("data-tool-result-id=\"tool-policy-summary\""),
@@ -480,9 +509,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
   assert_true(mine.wxml.contains("Identity Setup"))
   assert_true(
-    mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
+    !mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
   )
-  assert_true(mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
+  assert_true(!mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
   assert_true(mine.wxml.contains("data-setup-gate=\"session\""))
   assert_true(mine.wxml.contains("data-setup-gate=\"publish-ready\""))
   assert_true(
@@ -499,7 +528,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-profile-user-id=\"user-a\""))
   assert_true(mine.wxml.contains("data-profile-role=\"builder\""))
   assert_true(mine.wxml.contains("data-profile-ready=\"false\""))
-  assert_true(mine.wxml.contains("UID:user-a / avatar://ada"))
+  assert_true(mine.wxml.contains("Town passport - needs setup"))
   assert_true(mine.wxml.contains("moontown-profile-metric"))
   assert_true(mine.wxml.contains("Followers"))
   assert_true(mine.wxml.contains("Published"))
@@ -510,9 +539,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("Public-facing identity without private work."),
   )
-  assert_true(
-    mine.wxml.contains("builder / published 0 / watches 1 / reviews 1"),
-  )
+  assert_true(mine.wxml.contains("Published 0 - watches 1 - reviews 1"))
   assert_true(
     mine.wxml.contains("data-public-passport-item=\"passport-profile\""),
   )
@@ -537,7 +564,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
-  assert_true(mine.wxml.contains("Own Sync"))
+  assert_true(mine.wxml.contains("My Inventory"))
+  assert_true(!mine.wxml.contains("Own Sync"))
   assert_true(mine.wxml.contains("data-backend-step=\"ownership\""))
   assert_true(
     mine.wxml.contains("data-backend-endpoint=\"load-ownership-snapshot\""),
@@ -546,7 +574,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("data-bunnia-message=\"load-ownership-snapshot\""),
   )
-  assert_true(mine.wxml.contains("Ops Desk"))
+  assert_true(mine.wxml.contains("Reviewer Tools"))
+  assert_true(!mine.wxml.contains("Ops Desk"))
   assert_true(mine.wxml.contains("data-ops-desk=\"admin\""))
   assert_true(mine.wxml.contains("data-backend-step=\"admin-ops\""))
   assert_true(mine.wxml.contains("data-backend-endpoint=\"load-admin-ops\""))
@@ -562,8 +591,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     ),
   )
   assert_true(mine.wxml.contains("health, incidents, retention, recovery"))
-  assert_true(mine.wxml.contains("Ops Check"))
-  assert_true(mine.wxml.contains("Readiness"))
+  assert_true(mine.wxml.contains("Check Town Safety"))
+  assert_true(mine.wxml.contains("Launch Checks"))
+  assert_true(!mine.wxml.contains("Ops Check"))
+  assert_true(!mine.wxml.contains("Readiness"))
   assert_true(mine.wxml.contains("data-bunnia-message=\"load-admin-ops\""))
   assert_true(
     mine.wxml.contains("data-bunnia-message=\"load-admin-readiness\""),
@@ -585,7 +616,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("Town Published"))
   assert_true(mine.wxml.contains("Private Agent Lab drafted"))
   assert_true(mine.wxml.contains("data-audit-kind=\"create\""))
-  assert_true(mine.wxml.contains("ready: no"))
+  assert_true(mine.wxml.contains("needs setup"))
   assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"placements\""))
   assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
@@ -599,7 +630,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("data-action-message=\"submit-private-building\""),
   )
-  assert_true(mine.wxml.contains("building / private_draft / Submit / my"))
+  assert_true(mine.wxml.contains("Place - Private draft - Submit My"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"placement\""))
   assert_true(mine.wxml.contains("data-action-message=\"select-policy-hall\""))
   assert_true(
@@ -608,11 +639,11 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     ),
   )
   assert_true(mine.wxml.contains("data-ownership-kind=\"book\""))
-  assert_true(mine.wxml.contains("book / private_draft / Review / messages"))
+  assert_true(mine.wxml.contains("Book - Private draft - Review Messages"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"agent\""))
-  assert_true(mine.wxml.contains("agent / private_draft / Chat / messages"))
+  assert_true(mine.wxml.contains("Agent - Private draft - Chat Messages"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"watch\""))
-  assert_true(mine.wxml.contains("watch / watching / Open / realm"))
+  assert_true(mine.wxml.contains("Watch - Watching - Open Realm"))
   assert_true(mine.wxml.contains("Private Agent Lab Book"))
   assert_true(mine.wxml.contains("moontown-owned-entry"))
   assert_true(mine.wxml.contains("moontown-create-drawer"))
