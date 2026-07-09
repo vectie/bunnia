@@ -584,8 +584,8 @@ Acceptance checks:
 - Current implementation note: the ordinary mini-app WXSS is split into named
   tile chunks in `visual_tiles.mbt`, with shared row, action, state, drawer,
   shell, and responsive primitives. Generated stylesheet tests now guard
-  touch-action, safe-area offsets, scroll-safe page surfaces, wrapped action
-  rows, and no negative letter spacing.
+  touch-action, safe-area offsets, scroll-safe page surfaces, palette breadth,
+  wrapped action rows, and no negative letter spacing.
 
 Validation:
 

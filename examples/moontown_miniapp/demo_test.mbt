@@ -2132,6 +2132,7 @@ fn generated_wxss_has_tile_visual_system(
 ) -> Bool {
   let wxss = file_content(files, "app.wxss")
   wxss.contains("button{min-width:88rpx;min-height:72rpx") &&
+  wxss.contains("background:#ffe4e6;color:#881337") &&
   wxss.contains(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
   ) &&
@@ -2145,6 +2146,7 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("-webkit-overflow-scrolling:touch") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
   wxss.contains("align-content:start;overflow:visible;padding-bottom:12rpx") &&
+  generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
   wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
   wxss.contains(
@@ -2155,6 +2157,22 @@ fn generated_wxss_has_tile_visual_system(
   ) &&
   !wxss.contains("letter-spacing:-") &&
   ordinary_pages_share_app_wxss(files)
+}
+
+///|
+fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
+  wxss.contains("background:#0f172a") &&
+  wxss.contains("#ffe4e6") &&
+  wxss.contains("#881337") &&
+  wxss.contains("#e11d48") &&
+  wxss.contains("#2563eb") &&
+  wxss.contains("rgba(248,250,252,0.9)") &&
+  wxss.contains("rgba(239,246,255,0.78)") &&
+  wxss.contains("rgba(255,241,242,0.78)") &&
+  !wxss.contains("#fff8dc") &&
+  !wxss.contains("#f8f3df") &&
+  !wxss.contains("rgba(252,249,226") &&
+  !wxss.contains("rgba(255,250,240")
 }
 
 ///|
