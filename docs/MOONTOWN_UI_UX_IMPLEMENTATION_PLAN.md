@@ -748,7 +748,10 @@ Acceptance checks:
   content/discovery, shell/districts, attention/inventory filters, backend
   state, and places; seeded content is split again by books, activity,
   discovery listings, and discovery filters with `projection_seed_content.mbt`
-  kept as a marker. Projection actions are grouped by setup/shell, building
+  kept as a marker, and seeded shell data is split again by roles, tabs,
+  onboarding, district gates, and presence chips with
+  `projection_seed_shell.mbt` kept as a marker. Projection actions are grouped
+  by setup/shell, building
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
   Building actions are further split by draft/profile editing, publication
   lifecycle, communication, and placement so publish/manage/place flows can grow
