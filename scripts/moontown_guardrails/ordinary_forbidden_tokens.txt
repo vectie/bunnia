@@ -1,0 +1,20 @@
+data-backend-
+data-diagnostic-
+data-diagnostics-
+data-developer-diagnostics
+data-payload-key
+data-response-key
+moontown-diagnostic-
+Developer Diagnostics
+adminOpsQuery
+adminReadinessQuery
+adminOpsResult
+adminReadinessResult
+Moderation Desk
+Safety Desk
+System Gateway
+Identity Setup
+profile readiness
+shared-private buildings
+shared private
+shared privately

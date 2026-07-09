@@ -2,12 +2,41 @@
 set -eu
 
 project_dir="${1:-_build/bunnia/wechat/moontown_miniapp}"
-ordinary_pages="pages/moontown/index.wxml pages/moontown/home.wxml pages/moontown/discover.wxml pages/moontown/messages.wxml pages/moontown/my.wxml"
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+guardrail_dir="$script_dir/moontown_guardrails"
+ordinary_pages_file="$guardrail_dir/ordinary_wxml_paths.txt"
+visible_terms_file="$guardrail_dir/ordinary_visible_terms.txt"
+forbidden_tokens_file="$guardrail_dir/ordinary_forbidden_tokens.txt"
+reviewer_allowlist_file="$guardrail_dir/reviewer_allowlist_tokens.txt"
 failed=0
 
-visible_pattern='>[^<]*(GET /miniapp|POST /miniapp|endpoint|payload|response_key|backendStatus|DevTools|runtime filter|runtime channel|cursor|offset|load-message-center|Ack Sync|Tool Ack|Ops Desk)[^<]*<'
+require_file() {
+  if [ ! -f "$1" ]; then
+    printf '%s\n' "missing guardrail file: $1"
+    failed=1
+  fi
+}
 
-for rel in $ordinary_pages; do
+skip_guardrail_line() {
+  case "$1" in
+    ''|'#'*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+require_file "$ordinary_pages_file"
+require_file "$visible_terms_file"
+require_file "$forbidden_tokens_file"
+require_file "$reviewer_allowlist_file"
+
+if [ "$failed" -ne 0 ]; then
+  exit 1
+fi
+
+while IFS= read -r rel || [ -n "$rel" ]; do
+  if skip_guardrail_line "$rel"; then
+    continue
+  fi
   file="$project_dir/$rel"
   if [ ! -f "$file" ]; then
     printf '%s\n' "missing ordinary WXML: $file"
@@ -15,51 +44,41 @@ for rel in $ordinary_pages; do
     continue
   fi
 
-  if rg -n -o "$visible_pattern" "$file"; then
-    printf '%s\n' "forbidden visible technical copy in $rel"
-    failed=1
-  fi
+  while IFS= read -r term || [ -n "$term" ]; do
+    if skip_guardrail_line "$term"; then
+      continue
+    fi
+    if rg -n -o ">[^<]*${term}[^<]*<" "$file"; then
+      printf '%s\n' "forbidden visible technical copy '$term' in $rel"
+      failed=1
+    fi
+  done < "$visible_terms_file"
 
-  for token in \
-    'data-backend-' \
-    'data-payload-key' \
-    'data-response-key' \
-    'Developer Diagnostics' \
-    'adminOpsQuery' \
-    'adminReadinessQuery' \
-    'Moderation Desk' \
-    'Safety Desk' \
-    'System Gateway' \
-    'Identity Setup' \
-    'profile readiness' \
-    'shared-private buildings' \
-    'shared private' \
-    'shared privately'; do
+  while IFS= read -r token || [ -n "$token" ]; do
+    if skip_guardrail_line "$token"; then
+      continue
+    fi
     if rg -n -F "$token" "$file"; then
       printf '%s\n' "forbidden ordinary WXML token '$token' in $rel"
       failed=1
     fi
-  done
-done
+  done < "$forbidden_tokens_file"
+done < "$ordinary_pages_file"
 
 reviewer="$project_dir/pages/moontown/reviewer.wxml"
 if [ ! -f "$reviewer" ]; then
   printf '%s\n' "missing reviewer WXML: $reviewer"
   failed=1
 else
-  for token in \
-    'data-reviewer-route="true"' \
-    'Developer Diagnostics' \
-    'data-diagnostics-mode="reviewer"' \
-    'data-http-path="/miniapp/admin/ops"' \
-    'data-http-path="/miniapp/admin/readiness"' \
-    'data-payload-key="adminOpsQuery"' \
-    'data-response-key="adminReadinessResult"'; do
+  while IFS= read -r token || [ -n "$token" ]; do
+    if skip_guardrail_line "$token"; then
+      continue
+    fi
     if ! rg -n -F "$token" "$reviewer" >/dev/null; then
       printf '%s\n' "missing reviewer diagnostics allowlist token '$token'"
       failed=1
     fi
-  done
+  done < "$reviewer_allowlist_file"
 fi
 
 if [ "$failed" -ne 0 ]; then

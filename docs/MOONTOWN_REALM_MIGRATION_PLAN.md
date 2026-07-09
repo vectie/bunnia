@@ -367,7 +367,7 @@ one row, clarify the product object before implementing it.
 | R7 | owned objects, drafts, submissions, published work, archives, profile readiness | public marketplace ranking |
 | R8 | local backend persistence, two-user scenarios, DevTools loop, cache/retry states, deliberate reviewer diagnostics boundary | production secrets or cloud operations |
 | R9 | visual coherence, tile primitives, render budgets, list windowing, setData pressure, asset checks | net-new feature scope |
-| R10 | production login, storage, moderation operations, audit retention, rate limits, monitoring | large UX redesigns before local flows are proven |
+| R10 | production login, storage, moderation operations, audit retention, rate limits, monitoring, validation guardrails | large UX redesigns before local flows are proven |
 
 Implementation priority:
 

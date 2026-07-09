@@ -1,0 +1,15 @@
+GET /miniapp
+POST /miniapp
+endpoint
+payload
+response_key
+backendStatus
+DevTools
+runtime filter
+runtime channel
+cursor
+offset
+load-message-center
+Ack Sync
+Tool Ack
+Ops Desk

@@ -1,30 +1,4 @@
 ///|
-fn has_no_forbidden_ordinary_copy(wxml : String) -> Bool {
-  let mut ok = true
-  for
-    label in [
-      "Backend Loop", "DevTools target", "runtime filter", "runtime channel", "runtime role",
-      "backendStatus.load_town_snapshot", "backendStatus.load_message_center", "Ack Sync",
-      "Tool Ack", "Ops Desk", "Own Sync", "Tool Results", "Identity Setup", "UID:user-a / avatar://ada",
-      "GET /miniapp/town/snapshot / ready", "POST /miniapp/runs/cancel / guarded",
-      "POST /miniapp/runs/retry / guarded", "POST /miniapp/messages/ack / ready",
-      "POST /miniapp/messages/subscribe / platform", "Developer Diagnostics", "Endpoint id",
-      "HTTP path", "payload key", "response key", "package diagnostics", "render diagnostics",
-      "data-ops-desk=\"admin\"", "data-diagnostics-mode=\"reviewer\"", "data-backend-step=\"admin-ops\"",
-      "data-backend-step=\"admin-readiness\"", "data-backend-endpoint=\"load-admin-ops\"",
-      "data-backend-readiness-endpoint", "data-backend-path=\"/miniapp/admin/ops\"",
-      "data-backend-readiness-path", "adminOpsQuery", "adminReadinessQuery", "adminOpsResult",
-      "adminReadinessResult", "rate-limit bucket", "audit retention", "recovery",
-      "secrets",
-    ] {
-    if wxml.contains(label) {
-      ok = false
-    }
-  }
-  ok
-}
-
-///|
 test "moontown miniapp generates full vertical slice page" {
   let page = demo_wechat_page()
   assert_true(page.wxml.contains("Moontown"))
@@ -2097,29 +2071,12 @@ fn has_no_forbidden_generated_ordinary_wxml(
     if wxml == "" || !has_no_forbidden_ordinary_copy(wxml) {
       return false
     }
-    for
-      raw in [
-        "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
-        "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-diagnostic-",
-        "data-diagnostics-", "data-developer-diagnostics", "data-payload-key", "data-response-key",
-        "moontown-diagnostic-", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
-        "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
-        "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
-        " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
-        "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
-        "Receive run,", "Identity Setup", "profile readiness", "shared-private buildings",
-        "shared private", "shared privately",
-      ] {
+    for raw in ordinary_generated_forbidden_tokens() {
       if wxml.contains(raw) {
         return false
       }
     }
-    for
-      label in [
-        "endpoint", "payload", "response_key", "cursor", "offset", "load-message-center",
-        "load-ownership-snapshot", "load-admin-ops", "load-admin-readiness", "developer diagnostics",
-        "reviewer diagnostics", "package diagnostics", "render diagnostics",
-      ] {
+    for label in ordinary_visible_technical_labels() {
       if wxml.contains(">\{label}</text>") {
         return false
       }
@@ -2133,13 +2090,17 @@ fn has_reviewer_diagnostics_allowlist(
   files : Array[@bunnia.WechatFile],
 ) -> Bool {
   let reviewer = file_content(files, "pages/moontown/reviewer.wxml")
-  reviewer.contains("data-reviewer-route=\"true\"") &&
-  reviewer.contains("Developer Diagnostics") &&
-  reviewer.contains("data-diagnostics-mode=\"reviewer\"") &&
-  reviewer.contains("data-http-path=\"/miniapp/admin/ops\"") &&
-  reviewer.contains("data-http-path=\"/miniapp/admin/readiness\"") &&
-  reviewer.contains("data-payload-key=\"adminOpsQuery\"") &&
-  reviewer.contains("data-response-key=\"adminReadinessResult\"")
+  contains_all(reviewer, reviewer_diagnostics_allowlist_tokens())
+}
+
+///|
+fn contains_all(text : String, tokens : Array[String]) -> Bool {
+  for token in tokens {
+    if !text.contains(token) {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -2156,11 +2117,7 @@ fn generated_contract_data_stays_out_of_ordinary_wxml(
   }
   for path in ordinary_wxml_paths() {
     let wxml = file_content(files, path)
-    for
-      key in [
-        "adminOpsQuery", "adminReadinessQuery", "messageCenterQuery", "ownershipQuery",
-        "/miniapp/admin/ops", "/miniapp/messages/center", "/miniapp/me/ownership",
-      ] {
+    for key in ordinary_contract_data_tokens() {
       if wxml.contains(key) {
         return false
       }

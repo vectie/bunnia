@@ -639,6 +639,10 @@ Acceptance checks:
 - CI or local validation catches accidental backend-label leaks.
 - The generated mini-app stays within the strict package budget.
 - Map, search, messages, ownership, and backend calls remain smoke-testable.
+- Current implementation note: UX10 guardrails now have test-local token helpers
+  and focused display-label regression tests in
+  `validation_guardrails_test.mbt`, plus a data-driven shell validator backed by
+  `scripts/moontown_guardrails/*.txt`.
 
 Validation:
 

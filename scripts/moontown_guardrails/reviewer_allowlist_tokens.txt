@@ -1,0 +1,7 @@
+data-reviewer-route="true"
+Developer Diagnostics
+data-diagnostics-mode="reviewer"
+data-http-path="/miniapp/admin/ops"
+data-http-path="/miniapp/admin/readiness"
+data-payload-key="adminOpsQuery"
+data-response-key="adminReadinessResult"

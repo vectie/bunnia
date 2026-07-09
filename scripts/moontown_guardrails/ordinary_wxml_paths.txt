@@ -1,0 +1,5 @@
+pages/moontown/index.wxml
+pages/moontown/home.wxml
+pages/moontown/discover.wxml
+pages/moontown/messages.wxml
+pages/moontown/my.wxml
