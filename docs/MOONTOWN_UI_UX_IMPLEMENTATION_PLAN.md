@@ -684,11 +684,13 @@ Acceptance checks:
   patches, backend plans, scene adapters, shell/navigation, and Home panels are
   also split out of `demo.mbt`
   so page-level product work can evolve without reopening a demo monolith. The
-  generated page, project, pressure-plan, and helper tests live in focused
-  files, generated tab coverage is split by Realm/Home, Discover, Messages, My,
-  and Reviewer surfaces, and projection-flow coverage is split by shell/setup,
-  attention work, discovery/inventory, review readiness, building lifecycle, and
-  agent communication concerns so UX10 coverage can grow by concern. Seeded
+  generated page, pressure-plan, and helper tests live in focused files,
+  generated-project coverage is split by shell/files, route patches, backend
+  request contracts, seeded data, and manifest/diagnostic checks, generated tab
+  coverage is split by Realm/Home, Discover, Messages, My, and Reviewer
+  surfaces, and projection-flow coverage is split by shell/setup, attention
+  work, discovery/inventory, review readiness, building lifecycle, and agent
+  communication concerns so UX10 coverage can grow by concern. Seeded
   projection data is further grouped by core projection assembly, reviews/runs,
   content/discovery, shell/districts, attention/inventory filters, backend
   state, and places. Projection actions are grouped by setup/shell, building
