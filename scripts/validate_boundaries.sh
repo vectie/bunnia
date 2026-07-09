@@ -19,7 +19,9 @@ if rg -n -i "$stale_project" . -g '!_build/**' -g '!.git/**'; then
   exit 1
 fi
 
-for required in examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt; do
+projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt examples/moontown_miniapp/projection_visibility.mbt examples/moontown_miniapp/projection_lifecycle.mbt examples/moontown_miniapp/projection_discovery.mbt examples/moontown_miniapp/projection_actions.mbt examples/moontown_miniapp/projection_inventory.mbt examples/moontown_miniapp/projection_notifications.mbt'
+
+for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
     exit 1
@@ -27,9 +29,17 @@ for required in examples/moontown_miniapp/projection_schema.mbt examples/moontow
 done
 
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
-if [ "$projection_lines" -gt 3000 ]; then
-  printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep schema and seed data in focused files"
+if [ "$projection_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
   exit 1
 fi
+
+for focused_projection in $projection_files; do
+  focused_lines=$(wc -l < "$focused_projection" | tr -d ' ')
+  if [ "$focused_lines" -gt 1400 ]; then
+    printf '%s\n' "boundary violation: $focused_projection has $focused_lines lines; split the projection concern further"
+    exit 1
+  fi
+done
 
 printf '%s\n' 'boundary=ok'
