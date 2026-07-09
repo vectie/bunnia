@@ -311,8 +311,10 @@ Current implementation note:
   and backend-loop details are guarded out of ordinary generated WXML. District
   shortcut buttons use typed destination actions instead of generic filter copy.
   Town Pulse is now split into row data, row derivation, panel rendering, and
-  summary/count helpers so UX2 changes can evolve without reopening one Home
-  surface file.
+  summary/count helpers. District Gates are split by panel assembly,
+  destination/action derivation, district row rendering, and presence chips, with
+  `home_districts.mbt` kept as the UX2 marker so Home navigation changes can
+  evolve without reopening one broad Home surface file.
 
 ## UX3: Discover Market Board Reframe
 
@@ -715,7 +717,10 @@ Acceptance checks:
   also split out of `demo.mbt`
   so page-level product work can evolve without reopening a demo monolith. Home
   Pulse behavior is further split by row model, row derivation, panel rendering,
-  and summary/count helpers with a boundary check on `home_pulse.mbt`. The
+  and summary/count helpers with a boundary check on `home_pulse.mbt`. District
+  Gates are split by panel assembly, destination/action derivation, district row
+  rendering, and presence chips, with boundary checks keeping
+  `home_districts.mbt` as the UX2 marker. The
   generated page, pressure-plan, and helper tests live in focused files,
   generated-project coverage is split by shell/files, route patches, backend
   request contracts, seeded data, and manifest/diagnostic checks, generated tab

@@ -39,6 +39,8 @@ app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_mi
 
 home_pulse_files='examples/moontown_miniapp/home_pulse_model.mbt examples/moontown_miniapp/home_pulse_panel.mbt examples/moontown_miniapp/home_pulse_rows.mbt examples/moontown_miniapp/home_pulse_summaries.mbt'
 
+home_district_files='examples/moontown_miniapp/home_district_panels.mbt examples/moontown_miniapp/home_district_actions.mbt examples/moontown_miniapp/home_district_rows.mbt examples/moontown_miniapp/home_district_presence.mbt'
+
 runtime_files='examples/moontown_miniapp/demo_runtime_shell.mbt examples/moontown_miniapp/demo_runtime_filters.mbt examples/moontown_miniapp/demo_runtime_buildings.mbt examples/moontown_miniapp/demo_runtime_reviewer.mbt examples/moontown_miniapp/demo_runtime_map.mbt'
 
 moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_tab_realm_home_test.mbt examples/moontown_miniapp/demo_tab_discover_test.mbt examples/moontown_miniapp/demo_tab_messages_test.mbt examples/moontown_miniapp/demo_tab_my_test.mbt examples/moontown_miniapp/demo_tab_reviewer_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_project_shell_test.mbt examples/moontown_miniapp/demo_project_routes_test.mbt examples/moontown_miniapp/demo_project_backend_test.mbt examples/moontown_miniapp/demo_project_seed_data_test.mbt examples/moontown_miniapp/demo_project_manifest_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_projection_shell_test.mbt examples/moontown_miniapp/demo_projection_attention_work_test.mbt examples/moontown_miniapp/demo_projection_discovery_inventory_test.mbt examples/moontown_miniapp/demo_projection_review_readiness_test.mbt examples/moontown_miniapp/demo_projection_building_lifecycle_test.mbt examples/moontown_miniapp/demo_projection_agent_work_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
@@ -141,6 +143,13 @@ done
 for required in $home_pulse_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown Home Pulse file $required"
+    exit 1
+  fi
+done
+
+for required in $home_district_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown District Gates file $required"
     exit 1
   fi
 done
@@ -319,6 +328,12 @@ if [ "$home_pulse_lines" -gt 80 ]; then
   exit 1
 fi
 
+home_district_lines=$(wc -l < examples/moontown_miniapp/home_districts.mbt | tr -d ' ')
+if [ "$home_district_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: home_districts.mbt has $home_district_lines lines; keep District Gates behavior in focused home_district_* files"
+  exit 1
+fi
+
 demo_test_lines=$(wc -l < examples/moontown_miniapp/demo_test.mbt | tr -d ' ')
 if [ "$demo_test_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_test.mbt has $demo_test_lines lines; keep coverage in focused test files"
@@ -479,6 +494,14 @@ for focused_home_pulse in $home_pulse_files; do
   focused_lines=$(wc -l < "$focused_home_pulse" | tr -d ' ')
   if [ "$focused_lines" -gt 140 ]; then
     printf '%s\n' "boundary violation: $focused_home_pulse has $focused_lines lines; split the Home Pulse concern further"
+    exit 1
+  fi
+done
+
+for focused_home_district in $home_district_files; do
+  focused_lines=$(wc -l < "$focused_home_district" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_home_district has $focused_lines lines; split the District Gates concern further"
     exit 1
   fi
 done
