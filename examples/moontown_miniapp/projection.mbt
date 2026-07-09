@@ -2437,6 +2437,20 @@ pub fn selected_building_runs(
 }
 
 ///|
+pub fn selected_building_agents(
+  projection : MiniTownProjection,
+) -> Array[MiniTownAgent] {
+  let selected = selected_building(projection)
+  let output : Array[MiniTownAgent] = []
+  for agent in projection.agents {
+    if agent.building_id == selected.id {
+      output.push(agent)
+    }
+  }
+  output
+}
+
+///|
 pub fn visible_messages(
   projection : MiniTownProjection,
 ) -> Array[MiniTownMessage] {

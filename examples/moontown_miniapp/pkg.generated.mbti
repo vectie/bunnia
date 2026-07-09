@@ -216,6 +216,8 @@ pub fn selected_agent(MiniTownProjection) -> MiniTownAgent
 
 pub fn selected_building(MiniTownProjection) -> MiniTownBuilding
 
+pub fn selected_building_agents(MiniTownProjection) -> Array[MiniTownAgent]
+
 pub fn selected_building_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
 pub fn selected_building_book(MiniTownProjection) -> MiniTownBook

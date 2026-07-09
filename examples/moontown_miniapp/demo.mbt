@@ -3869,6 +3869,9 @@ fn building_object_header(
   building : MiniTownBuilding,
   book : MiniTownBook,
 ) -> @bunnia.Node {
+  let shelf = selected_building_book_shelf(projection)
+  let agents = selected_building_agents(projection)
+  let runs = selected_building_runs(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-object-header")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
       @bunnia.text(building.title),
@@ -3880,12 +3883,29 @@ fn building_object_header(
       object_badge("visibility", town_visibility_label(building.visibility)),
       object_badge("status", town_status_label(building.status)),
     ]),
+    object_stats_row(shelf, agents, runs),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text(
         "\{building_capability_label(projection, building)} - Primary book: \{book.title}",
       ),
     ]),
   ])
+}
+
+///|
+fn object_stats_row(
+  shelf : Array[MiniTownBookShelfItem],
+  agents : Array[MiniTownAgent],
+  runs : Array[MiniTownRun],
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("mt-meta moontown-object-stats")],
+    [
+      @bunnia.text(
+        "\{count_label(shelf.length(), "book", "books")} - \{count_label(agents.length(), "worker", "workers")} - \{count_label(runs.length(), "work item", "work items")}",
+      ),
+    ],
+  )
 }
 
 ///|
@@ -3919,49 +3939,77 @@ fn building_memory_section(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn building_worker_section(projection : MiniTownProjection) -> @bunnia.Node {
-  let agent = selected_agent(projection)
-  let run = selected_building_latest_run(projection)
+  let agents = selected_building_agents(projection)
+  let building = selected_building(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name("moontown-object-section moontown-worker-section"),
       @bunnia.data("object-section", "worker"),
-      @bunnia.data("building-id", run.building_id),
+      @bunnia.data("building-id", building.id),
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-        @bunnia.text("Agent Worker"),
+        @bunnia.text("Agent Workers"),
       ]),
-      @bunnia.view_with_attrs(
-        [
-          @bunnia.class_name(
-            "moontown-worker-entry bunnia-status-\{agent.status}",
-          ),
-        ],
-        [
-          @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-            @bunnia.text(agent.name),
-          ]),
-          @bunnia.text(run.summary),
-          @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-            @bunnia.text(
-              "\{town_status_label(agent.status)} - Latest work: \{run.title} - \{book_title_by_id(projection, run.book_id)}",
-            ),
-          ]),
-          @bunnia.view_with_attrs(
-            [@bunnia.class_name("moontown-run-actions")],
-            [
-              @bunnia.button("Message", "tab-messages"),
-              if run.review_required {
-                @bunnia.button("Review Work", "tab-messages")
-              } else {
-                @bunnia.button("Ask", "ask-selected-building")
-              },
-            ],
-          ),
-        ],
-      ),
+      if agents.length() == 0 {
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+          @bunnia.text("No agent worker is attached yet."),
+        ])
+      } else {
+        @bunnia.list(agents, agent => building_worker_entry(projection, agent))
+      },
     ],
   )
+}
+
+///|
+fn building_worker_entry(
+  projection : MiniTownProjection,
+  agent : MiniTownAgent,
+) -> @bunnia.Node {
+  let run = latest_agent_run(projection, agent)
+  @bunnia.keyed(
+    "worker-\{agent.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name(
+          "moontown-worker-entry bunnia-status-\{agent.status}",
+        ),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+          @bunnia.text(agent.name),
+        ]),
+        @bunnia.text(run.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+          @bunnia.text(
+            "\{town_status_label(agent.status)} - Latest work: \{run.title} - \{book_title_by_id(projection, run.book_id)}",
+          ),
+        ]),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
+          @bunnia.button("Message", "tab-messages"),
+          if run.review_required {
+            @bunnia.button("Review Work", "tab-messages")
+          } else {
+            @bunnia.button("Ask", "ask-selected-building")
+          },
+        ]),
+      ],
+    ),
+  )
+}
+
+///|
+fn latest_agent_run(
+  projection : MiniTownProjection,
+  agent : MiniTownAgent,
+) -> MiniTownRun {
+  for run in selected_building_runs(projection) {
+    if run.agent_id == agent.id {
+      return run
+    }
+  }
+  selected_building_latest_run(projection)
 }
 
 ///|

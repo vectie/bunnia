@@ -78,11 +78,13 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("moontown-object-header"))
   assert_true(page.wxml.contains("moontown-object-badge"))
   assert_true(page.wxml.contains("kind-category"))
+  assert_true(page.wxml.contains("moontown-object-stats"))
+  assert_true(page.wxml.contains("2 books - 1 worker - 1 work item"))
   assert_true(page.wxml.contains("Visitor"))
   assert_true(page.wxml.contains("Public place can be opened and placed"))
   assert_true(page.wxml.contains("Memory Shelf"))
   assert_true(page.wxml.contains("data-object-section=\"memory-shelf\""))
-  assert_true(page.wxml.contains("Agent Worker"))
+  assert_true(page.wxml.contains("Agent Workers"))
   assert_true(page.wxml.contains("moontown-worker-entry"))
   assert_true(!page.wxml.contains("data-agent-id=\"agent-policy-guide\""))
   assert_true(page.wxml.contains("Latest work: Policy answer review"))
@@ -1543,6 +1545,16 @@ test "moontown miniapp projection supports mock user create search and agent flo
   assert_eq(review_runs(projection).length(), 1)
   assert_eq(pending_reviews(projection).length(), 1)
   assert_eq(selected_building_runs(projection).length(), 1)
+  assert_eq(selected_building_agents(projection).length(), 1)
+  assert_eq(selected_building_agents(projection)[0].id, "agent-policy-guide")
+  let empty_worker_projection = place_published_building(
+    projection, "published-agent-lab",
+  )
+  assert_eq(
+    selected_building(empty_worker_projection).id,
+    "published-agent-lab",
+  )
+  assert_eq(selected_building_agents(empty_worker_projection).length(), 0)
   let policy_run_actions = run_actions(selected_building_runs(projection)[0])
   assert_eq(policy_run_actions.length(), 5)
   assert_eq(policy_run_actions[0].id, "open-building")
