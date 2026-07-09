@@ -433,7 +433,10 @@ Acceptance checks:
 - Current implementation note: Messages now starts with explicit attention rows
   for pending reviews, active agent work, recovery, and town signals; work,
   result, review, notice, and shared context helpers live in focused message
-  modules instead of one monolithic surface file.
+  modules instead of one monolithic surface file. Attention row modeling,
+  bucket summaries, and notification channel chips are now separate UX5 modules
+  so agent replies, reviews, failed actions, and town notices can evolve without
+  reopening the page assembly.
 
 Validation:
 
