@@ -638,7 +638,7 @@ fn default_style() -> String {
   ".bunnia-list-windowed { display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".bunnia-scene { position: relative; overflow: hidden; max-width: 100%; border: 1rpx solid #d1d5db; border-radius: 8rpx; background: #eef6f3; box-sizing: border-box; }\n" +
   ".bunnia-scene-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }\n" +
-  ".bunnia-scene-marker { position: absolute; transform: translate(-50%, -50%); min-width: 120rpx; min-height: 56rpx; padding: 10rpx 14rpx; border: 2rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 24rpx; line-height: 1.4; text-align: center; }\n" +
+  ".bunnia-scene-marker { position: absolute; transform: translate(-50%, -50%); min-width: 120rpx; min-height: 88rpx; padding: 10rpx 14rpx; border: 2rpx solid #64748b; border-radius: 8rpx; background: #ffffff; box-sizing: border-box; font-size: 24rpx; line-height: 1.4; text-align: center; }\n" +
   ".bunnia-scene-region { position: absolute; box-sizing: border-box; border: 2rpx solid #94a3b8; border-radius: 8rpx; background: rgba(255,255,255,0.64); }\n" +
   ".bunnia-scene-thread-overlay-anchored { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: block; pointer-events: none; }\n" +
   ".bunnia-scene-thread-anchored { position: absolute; transform: translate(-50%, -50%); pointer-events: auto; }\n" +

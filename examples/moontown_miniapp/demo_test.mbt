@@ -196,7 +196,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(
     page.wxss.contains("button[disabled],.bunnia-status-disabled{opacity:0.52"),
   )
-  assert_true(page.wxss.contains("min-height:72rpx"))
+  assert_true(page.wxss.contains("min-height:88rpx"))
   assert_true(page.wxss.contains("overflow-wrap:anywhere"))
   assert_true(page.wxss.contains("box-shadow:0 2rpx 0"))
   assert_true(
@@ -2151,17 +2151,25 @@ fn generated_wxss_has_tile_visual_system(
   files : Array[@bunnia.WechatFile],
 ) -> Bool {
   let wxss = file_content(files, "app.wxss")
-  wxss.contains("button{min-width:88rpx;min-height:72rpx") &&
+  wxss.contains("button{min-width:88rpx;min-height:88rpx") &&
   wxss.contains("background:#ffe4e6;color:#881337") &&
+  wxss.contains(".bunnia-review-button{min-height:88rpx") &&
+  wxss.contains(
+    ".bunnia-scene-marker{position:absolute;transform:translate(-50%,-50%);min-width:120rpx;min-height:88rpx",
+  ) &&
+  wxss.contains(".bunnia-scene-thread{min-width:88rpx;min-height:88rpx") &&
+  wxss.contains(
+    ".moontown-map-marker{position:absolute;z-index:3;min-width:112rpx;max-width:180rpx;min-height:88rpx",
+  ) &&
   wxss.contains(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
   ) &&
-  wxss.contains(".mt-panel input{width:100%;min-height:72rpx") &&
+  wxss.contains(".mt-panel input{width:100%;min-height:88rpx") &&
   wxss.contains("touch-action:manipulation") &&
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
   wxss.contains(
-    "bottom:calc(104rpx+env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto",
+    "bottom:calc(132rpx+env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto",
   ) &&
   wxss.contains("-webkit-overflow-scrolling:touch") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&

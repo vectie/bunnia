@@ -10,7 +10,7 @@ fn reviewer_wxss_source() -> String {
   ".moontown-diagnostic-row { min-width: 0; padding: 10rpx; border-radius: 6rpx; background: rgba(36,54,41,0.08); color: #243629; font-size: 20rpx; box-sizing: border-box; overflow: hidden; }\n" +
   ".moontown-diagnostic-row text { display: block; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-community-actions { display: flex; gap: 10rpx; margin-top: 14rpx; flex-wrap: wrap; }\n" +
-  "button { min-width: 88rpx; min-height: 72rpx; padding: 8rpx 18rpx; border: 1rpx solid #243629; border-radius: 6rpx; background: #243629; color: #fff1f2; font-size: 22rpx; touch-action: manipulation; }"
+  "button { min-width: 88rpx; min-height: 88rpx; padding: 8rpx 18rpx; border: 1rpx solid #243629; border-radius: 6rpx; background: #243629; color: #fff1f2; font-size: 22rpx; touch-action: manipulation; }"
 }
 
 ///|
@@ -29,12 +29,12 @@ fn moontown_wxss_source() -> String {
 fn tile_base_wxss() -> String {
   ".moontown-miniapp { position: relative; min-height: 100vh; overflow: hidden; background: #0f172a; color: #16221a; font-size: 24rpx; line-height: 1.35; overflow-wrap: anywhere; word-break: break-word; overscroll-behavior: contain; }\n" +
   "view, button, input { box-sizing: border-box; }\n" +
-  "button { min-width: 88rpx; min-height: 72rpx; max-width: 100%; margin: 0; padding: 8rpx 16rpx; border: 1rpx solid rgba(51,65,55,0.28); border-radius: 6rpx; background: #ffe4e6; color: #881337; font-size: 20rpx; line-height: 28rpx; overflow: hidden; touch-action: manipulation; }\n" +
+  "button { min-width: 88rpx; min-height: 88rpx; max-width: 100%; margin: 0; padding: 8rpx 16rpx; border: 1rpx solid rgba(51,65,55,0.28); border-radius: 6rpx; background: #ffe4e6; color: #881337; font-size: 20rpx; line-height: 28rpx; overflow: hidden; touch-action: manipulation; }\n" +
   "button::after { border: 0; }\n" +
   "button:active { opacity: 0.82; }\n" +
   "button[disabled], .bunnia-status-disabled { opacity: 0.52; pointer-events: none; }\n" +
   "button text { white-space: normal; text-align: center; overflow-wrap: anywhere; word-break: break-word; }\n" +
-  ".mt-panel input { width: 100%; min-height: 72rpx; margin-top: 8rpx; padding: 0 14rpx; border: 1rpx solid rgba(51,65,55,0.22); border-radius: 6rpx; background: rgba(255,255,255,0.86); color: #26362b; font-size: 20rpx; }\n"
+  ".mt-panel input { width: 100%; min-height: 88rpx; margin-top: 8rpx; padding: 0 14rpx; border: 1rpx solid rgba(51,65,55,0.22); border-radius: 6rpx; background: rgba(255,255,255,0.86); color: #26362b; font-size: 20rpx; }\n"
 }
 
 ///|
@@ -43,7 +43,7 @@ fn tile_map_wxss() -> String {
   ".moontown-map-touch-area { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 1; width: 100vw; height: 100vh; overflow: hidden; background: #0f172a; touch-action: none; }\n" +
   ".moontown-map-drag-content { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; overflow: hidden; transform-origin: 0 0; will-change: transform; }\n" +
   ".moontown-wenyu-map-image { position: absolute; left: 0; top: 0; width: \{moontown_map_display_width()}rpx; height: \{moontown_map_display_height()}rpx; display: block; }\n" +
-  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 54rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 241, 242, 0.9); color: #1e2c21; }\n" +
+  ".moontown-map-marker { position: absolute; z-index: 3; min-width: 112rpx; max-width: 180rpx; min-height: 88rpx; padding: 8rpx 10rpx; border: 2rpx solid rgba(255,255,255,0.68); border-radius: 8rpx; background: rgba(255, 241, 242, 0.9); color: #1e2c21; }\n" +
   ".moontown-map-marker.selected { border-width: 3rpx; box-shadow: 0 0 0 4rpx rgba(225,29,72,0.24); }\n" +
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-map-marker-kind { display: block; margin-top: 2rpx; color: #56604f; font-size: 15rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
@@ -59,11 +59,11 @@ fn tile_shell_wxss() -> String {
   ".moontown-subtitle { margin-top: 2rpx; font-size: 20rpx; font-weight: 500; color: #66705a; }\n" +
   ".moontown-shell-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
   ".moontown-shell-actions text { color: #334538; font-size: 20rpx; }\n" +
-  ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: calc(126rpx + env(safe-area-inset-top)); bottom: calc(104rpx + env(safe-area-inset-bottom)); overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; padding-bottom: 12rpx; }\n" +
+  ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: calc(160rpx + env(safe-area-inset-top)); bottom: calc(132rpx + env(safe-area-inset-bottom)); overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; padding-bottom: 12rpx; }\n" +
   ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: visible; padding-bottom: 12rpx; }\n" +
   ".moontown-page-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n" +
   ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: calc(18rpx + env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(5, 1fr); gap: 8rpx; padding: 10rpx; border: 1rpx solid rgba(255,255,255,0.5); border-radius: 8rpx; background: rgba(31, 49, 36, 0.88); }\n" +
-  ".moontown-tab-button { min-height: 64rpx; padding: 8rpx 6rpx; border: 1rpx solid rgba(255,241,242,0.38); border-radius: 6rpx; background: rgba(37,99,235,0.18); color: #fff1f2; font-size: 18rpx; line-height: 24rpx; overflow: hidden; }\n" +
+  ".moontown-tab-button { min-height: 88rpx; padding: 8rpx 6rpx; border: 1rpx solid rgba(255,241,242,0.38); border-radius: 6rpx; background: rgba(37,99,235,0.18); color: #fff1f2; font-size: 18rpx; line-height: 24rpx; overflow: hidden; }\n" +
   ".moontown-tab-button.active { background: #e11d48; color: #ffffff; font-weight: 800; }\n"
 }
 
@@ -117,13 +117,13 @@ fn tile_content_wxss() -> String {
   ".moontown-discovery-chip, .moontown-message-bucket { flex: 0 0 152rpx; min-width: 0; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,241,242,0.78); overflow: hidden; }\n" +
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-lifecycle-stages { display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; margin-top: 8rpx; }\n" +
   ".moontown-lifecycle-stage { flex: 0 0 auto; min-height: 36rpx; padding: 6rpx 8rpx; font-size: 16rpx; line-height: 24rpx; }\n" +
-  ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; min-height: 56rpx; padding: 10rpx 12rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(239,246,255,0.74); color: #334538; font-size: 18rpx; line-height: 28rpx; overflow: hidden; }\n" +
+  ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; min-height: 88rpx; padding: 10rpx 12rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(239,246,255,0.74); color: #334538; font-size: 18rpx; line-height: 28rpx; overflow: hidden; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #2563eb; color: #ffffff; }\n"
 }
 
 ///|
 fn tile_drawer_wxss() -> String {
-  ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
+  ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 160rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-create-drawer { min-width: 0; padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(255, 241, 242, 0.92); overflow: hidden; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +
   ".moontown-object-section, .moontown-worker-entry { min-width: 0; margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(239,246,255,0.74); }\n" +
@@ -131,17 +131,17 @@ fn tile_drawer_wxss() -> String {
   ".moontown-chat-drawer .bunnia-message-feed-windowed { max-height: 170rpx; overflow: hidden; }\n" +
   ".moontown-chat-drawer .bunnia-message { padding: 10rpx 12rpx; margin-bottom: 8rpx; background: rgba(255,255,255,0.78); font-size: 20rpx; }\n" +
   ".moontown-chat-drawer .bunnia-review { margin-top: 8rpx; padding: 10rpx; gap: 8rpx; background: rgba(255,255,255,0.68); }\n" +
-  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 344rpx; bottom: calc(104rpx + env(safe-area-inset-bottom)); display: block; }\n" +
+  ".moontown-bottom-hud { position: absolute; z-index: 7; left: 22rpx; right: 344rpx; bottom: calc(132rpx + env(safe-area-inset-bottom)); display: block; }\n" +
   ".moontown-map-state-strip { min-width: 0; padding: 12rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(15, 23, 42, 0.78); display: flex; flex-direction: row; gap: 8rpx; overflow: hidden; }\n" +
   ".moontown-map-state-chip { flex: 0 0 auto; max-width: 196rpx; padding: 8rpx 10rpx; border: 1rpx solid rgba(255,255,255,0.32); border-radius: 6rpx; background: rgba(255, 241, 242, 0.94); color: #27372b; font-size: 18rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
-  ".moontown-create-drawer input { min-height: 46rpx; margin-bottom: 8rpx; padding: 0 10rpx; border: 1rpx solid rgba(51, 65, 55, 0.22); border-radius: 6rpx; background: rgba(255,255,255,0.82); color: #26362b; font-size: 20rpx; }\n" +
+  ".moontown-create-drawer input { min-height: 88rpx; margin-bottom: 8rpx; padding: 0 10rpx; border: 1rpx solid rgba(51, 65, 55, 0.22); border-radius: 6rpx; background: rgba(255,255,255,0.82); color: #26362b; font-size: 20rpx; }\n" +
   ".moontown-create-drawer form { display: block; margin-bottom: 8rpx; }\n" +
   ".moontown-create-drawer form:last-child { margin-bottom: 0; }\n"
 }
 
 ///|
 fn tile_responsive_wxss() -> String {
-  "@media (max-width: 520px) { .moontown-page-surface { left: 16rpx; right: 16rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-create-drawer { display: none; } .moontown-right-hud { left: 16rpx; right: 16rpx; top: 126rpx; width: auto; } .moontown-bottom-hud { left: 16rpx; right: 16rpx; } }"
+  "@media (max-width: 520px) { .moontown-page-surface { left: 16rpx; right: 16rpx; } .moontown-page-grid, .moontown-page-grid.three { grid-template-columns: 1fr; } .moontown-create-drawer { display: none; } .moontown-right-hud { left: 16rpx; right: 16rpx; top: 160rpx; width: auto; } .moontown-bottom-hud { left: 16rpx; right: 16rpx; } }"
 }
 
 ///|
