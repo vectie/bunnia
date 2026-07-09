@@ -29,7 +29,9 @@ lifecycle_files='examples/moontown_miniapp/projection_lifecycle_actions.mbt exam
 
 schema_files='examples/moontown_miniapp/projection_schema_people.mbt examples/moontown_miniapp/projection_schema_content.mbt examples/moontown_miniapp/projection_schema_work.mbt examples/moontown_miniapp/projection_schema_actions.mbt examples/moontown_miniapp/projection_schema_shell.mbt examples/moontown_miniapp/projection_schema_attention.mbt examples/moontown_miniapp/projection_schema_discovery.mbt examples/moontown_miniapp/projection_schema_activity.mbt examples/moontown_miniapp/projection_schema_ownership.mbt examples/moontown_miniapp/projection_schema_backend.mbt examples/moontown_miniapp/projection_schema_projection.mbt'
 
-seed_files='examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt examples/moontown_miniapp/projection_seed_shell.mbt examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt'
+seed_content_files='examples/moontown_miniapp/projection_seed_content_books.mbt examples/moontown_miniapp/projection_seed_content_activity.mbt examples/moontown_miniapp/projection_seed_content_discovery.mbt examples/moontown_miniapp/projection_seed_content_filters.mbt'
+
+seed_files="examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt $seed_content_files examples/moontown_miniapp/projection_seed_shell.mbt examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt"
 
 action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt'
 
@@ -125,6 +127,13 @@ done
 for required in $seed_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown seeded-data file $required"
+    exit 1
+  fi
+done
+
+for required in $seed_content_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown seeded content file $required"
     exit 1
   fi
 done
@@ -343,6 +352,12 @@ if [ "$seed_lines" -gt 80 ]; then
   exit 1
 fi
 
+seed_content_lines=$(wc -l < examples/moontown_miniapp/projection_seed_content.mbt | tr -d ' ')
+if [ "$seed_content_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: projection_seed_content.mbt has $seed_content_lines lines; keep seeded content in focused projection_seed_content_* files"
+  exit 1
+fi
+
 actions_lines=$(wc -l < examples/moontown_miniapp/projection_actions.mbt | tr -d ' ')
 if [ "$actions_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_actions.mbt has $actions_lines lines; keep action behavior in focused workflow files"
@@ -537,6 +552,14 @@ for focused_seed in $seed_files; do
   focused_lines=$(wc -l < "$focused_seed" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_seed has $focused_lines lines; split the seeded-data concern further"
+    exit 1
+  fi
+done
+
+for focused_seed_content in $seed_content_files; do
+  focused_lines=$(wc -l < "$focused_seed_content" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_seed_content has $focused_lines lines; split the seeded content concern further"
     exit 1
   fi
 done

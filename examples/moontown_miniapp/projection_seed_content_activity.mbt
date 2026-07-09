@@ -1,0 +1,55 @@
+///|
+fn demo_activity_items() -> Array[MiniTownActivityItem] {
+  [
+    mini_town_activity_item(
+      id="activity-review-policy",
+      kind="run",
+      title="Policy answer waiting for review",
+      summary="Policy Guide produced an answer that can enter book memory.",
+      actor_id="agent-policy-guide",
+      target_ref="thread-policy-hall",
+      building_id="policy-hall",
+      status="review",
+    ),
+    mini_town_activity_item(
+      id="activity-market-curator",
+      kind="agent",
+      title="Map Curator scanning published buildings",
+      summary="Market Square is refreshing placeable agent buildings.",
+      actor_id="agent-map-curator",
+      target_ref="agent:agent-map-curator",
+      building_id="market-square",
+      status="running",
+    ),
+    mini_town_activity_item(
+      id="activity-team-share",
+      kind="share",
+      title="Team Studio shared to the organization",
+      summary="Shared private planning is visible to members only.",
+      actor_id="user-a",
+      target_ref="building:team-studio",
+      building_id="team-studio",
+      status="shared",
+    ),
+    mini_town_activity_item(
+      id="activity-book-memory",
+      kind="book",
+      title="Knowledge House memory updated",
+      summary="Accepted building answers are backed by durable books.",
+      actor_id="system",
+      target_ref="book:knowledge-house",
+      building_id="knowledge-house",
+      status="stable",
+    ),
+    mini_town_activity_item(
+      id="activity-publish-agent-lab",
+      kind="publish",
+      title="Published Agent Lab is placeable",
+      summary="A public agent lab can now be placed by other users.",
+      actor_id="user-b",
+      target_ref="building:published-agent-lab",
+      building_id="published-agent-lab",
+      status="stable",
+    ),
+  ]
+}
