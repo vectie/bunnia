@@ -2100,8 +2100,9 @@ fn has_no_forbidden_generated_ordinary_wxml(
     for
       raw in [
         "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
-        "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-payload-key",
-        "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
+        "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-diagnostic-",
+        "data-diagnostics-", "data-developer-diagnostics", "data-payload-key", "data-response-key",
+        "moontown-diagnostic-", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
         "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
@@ -2116,7 +2117,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
     for
       label in [
         "endpoint", "payload", "response_key", "cursor", "offset", "load-message-center",
-        "load-ownership-snapshot", "load-admin-ops", "load-admin-readiness",
+        "load-ownership-snapshot", "load-admin-ops", "load-admin-readiness", "developer diagnostics",
+        "reviewer diagnostics", "package diagnostics", "render diagnostics",
       ] {
       if wxml.contains(">\{label}</text>") {
         return false

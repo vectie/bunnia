@@ -365,7 +365,7 @@ one row, clarify the product object before implementing it.
 | R5 | building drawer, lifecycle, permissions, books, memory, audits | global chat timeline or generic social feed |
 | R6 | threads, messages, runs, tool results, handoff, review decisions, notices | becoming a second Realm or hiding building context |
 | R7 | owned objects, drafts, submissions, published work, archives, profile readiness | public marketplace ranking |
-| R8 | local backend persistence, two-user scenarios, DevTools loop, cache/retry states | production secrets or cloud operations |
+| R8 | local backend persistence, two-user scenarios, DevTools loop, cache/retry states, deliberate reviewer diagnostics boundary | production secrets or cloud operations |
 | R9 | visual coherence, render budgets, list windowing, setData pressure, asset checks | net-new feature scope |
 | R10 | production login, storage, moderation operations, audit retention, rate limits, monitoring | large UX redesigns before local flows are proven |
 

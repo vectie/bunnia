@@ -539,6 +539,12 @@ Acceptance checks:
 - Ordinary screenshots contain no backend implementation labels.
 - Reviewers and developers can still inspect the system deliberately.
 - Production readiness remains testable without becoming the main UI.
+- Current implementation note: Reviewer tools are isolated in
+  `reviewer_diagnostics.mbt`; ordinary `Home`, `Discover`, `Realm`,
+  `Messages`, and `My` generated WXML is scanned for diagnostic classes,
+  diagnostic data attributes, backend paths, payload/response keys, and
+  reviewer-only copy while `pages/moontown/reviewer` remains the allowlisted
+  technical surface.
 
 Validation:
 
