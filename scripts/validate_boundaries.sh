@@ -77,7 +77,9 @@ my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt
 
 workbench_alert_files='examples/moontown_miniapp/workbench_alert_model.mbt examples/moontown_miniapp/workbench_alert_derivation.mbt examples/moontown_miniapp/workbench_alert_filters.mbt examples/moontown_miniapp/workbench_alert_rows.mbt'
 
-discovery_projection_files='examples/moontown_miniapp/projection_discovery_results.mbt examples/moontown_miniapp/projection_discovery_activity.mbt examples/moontown_miniapp/projection_discovery_work.mbt examples/moontown_miniapp/projection_discovery_pulse.mbt'
+discovery_result_files='examples/moontown_miniapp/projection_discovery_result_buildings.mbt examples/moontown_miniapp/projection_discovery_result_aggregate.mbt examples/moontown_miniapp/projection_discovery_result_filters.mbt examples/moontown_miniapp/projection_discovery_result_matchers.mbt'
+
+discovery_projection_files="examples/moontown_miniapp/projection_discovery_results.mbt $discovery_result_files examples/moontown_miniapp/projection_discovery_activity.mbt examples/moontown_miniapp/projection_discovery_work.mbt examples/moontown_miniapp/projection_discovery_pulse.mbt"
 
 discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examples/moontown_miniapp/discover_market_entries.mbt examples/moontown_miniapp/discover_market_actions.mbt'
 
@@ -311,6 +313,13 @@ done
 for required in $discovery_projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown Discover projection file $required"
+    exit 1
+  fi
+done
+
+for required in $discovery_result_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Discover result file $required"
     exit 1
   fi
 done
@@ -565,6 +574,12 @@ fi
 projection_discovery_lines=$(wc -l < examples/moontown_miniapp/projection_discovery.mbt | tr -d ' ')
 if [ "$projection_discovery_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_discovery.mbt has $projection_discovery_lines lines; keep Discover projection behavior in focused files"
+  exit 1
+fi
+
+discovery_results_lines=$(wc -l < examples/moontown_miniapp/projection_discovery_results.mbt | tr -d ' ')
+if [ "$discovery_results_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: projection_discovery_results.mbt has $discovery_results_lines lines; keep Discover result behavior in focused projection_discovery_result_* files"
   exit 1
 fi
 
@@ -834,6 +849,14 @@ for focused_discovery_projection in $discovery_projection_files; do
   focused_lines=$(wc -l < "$focused_discovery_projection" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_discovery_projection has $focused_lines lines; split the Discover projection concern further"
+    exit 1
+  fi
+done
+
+for focused_discovery_result in $discovery_result_files; do
+  focused_lines=$(wc -l < "$focused_discovery_result" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_discovery_result has $focused_lines lines; split the Discover result concern further"
     exit 1
   fi
 done

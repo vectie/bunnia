@@ -716,7 +716,10 @@ Acceptance checks:
   Projection schema, seeded town data, visibility, lifecycle, discovery,
   actions, inventory, and notification behavior now live in focused package
   files so later UI phases can extend one concern without rebuilding a
-  projection monolith. Runtime assembly is likewise split by shell/setup
+  projection monolith. Discover result projection is split again by building
+  search, aggregate result assembly, filter/placeable logic, and
+  query/visibility matching so search and market-board changes stay localized.
+  Runtime assembly is likewise split by shell/setup
   patches, filter-query patches, building/workflow patches, reviewer runtime,
   and map gesture methods so interaction work can evolve without reopening the
   runtime monolith. Demo pressure-plan assembly is split by patch/snapshot,
