@@ -1,0 +1,53 @@
+///|
+fn demo_audit_events() -> Array[MiniTownAuditEvent] {
+  [
+    mini_town_audit_event(
+      id="audit-policy-review",
+      kind="review",
+      title="Policy answer entered review",
+      summary="Agent output is held until a reviewer accepts it into the book.",
+      actor_id="agent-policy-guide",
+      target_ref="run:run-policy-review",
+      building_id="policy-hall",
+      status="review",
+      visibility="published",
+      timestamp="2026-07-08T10:00:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-team-share",
+      kind="share",
+      title="Team Studio shared with team",
+      summary="Organization members can inspect this building before publication.",
+      actor_id="user-a",
+      target_ref="building:team-studio",
+      building_id="team-studio",
+      status="shared",
+      visibility="shared_private",
+      timestamp="2026-07-08T09:24:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-private-draft",
+      kind="create",
+      title="Private Agent Lab drafted",
+      summary="Private work stays owner-scoped until shared or published.",
+      actor_id="user-a",
+      target_ref="building:private-agent-lab",
+      building_id="private-agent-lab",
+      status="draft",
+      visibility="private_draft",
+      timestamp="2026-07-08T08:48:00Z",
+    ),
+    mini_town_audit_event(
+      id="audit-published-agent-lab",
+      kind="publish",
+      title="Published Agent Lab approved",
+      summary="This building is searchable and placeable from public town search.",
+      actor_id="user-b",
+      target_ref="building:published-agent-lab",
+      building_id="published-agent-lab",
+      status="stable",
+      visibility="published",
+      timestamp="2026-07-08T08:12:00Z",
+    ),
+  ]
+}

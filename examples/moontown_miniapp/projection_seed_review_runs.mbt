@@ -1,0 +1,50 @@
+///|
+fn demo_runs() -> Array[MiniTownRun] {
+  [
+    mini_town_run(
+      id="run-policy-review",
+      agent_id="agent-policy-guide",
+      building_id="policy-hall",
+      book_id="book-policy-hall",
+      thread_id="thread-policy-hall",
+      title="Policy answer review",
+      summary="Agent answer is waiting before it becomes public book memory.",
+      status="review",
+      review_required=true,
+      artifact_ref="artifact://book-policy-hall",
+    ),
+    mini_town_run(
+      id="run-market-scan",
+      agent_id="agent-map-curator",
+      building_id="market-square",
+      book_id="book-market-square",
+      thread_id="thread-market-square",
+      title="Market placement scan",
+      summary="Map Curator is finding published buildings that can be placed.",
+      status="running",
+      artifact_ref="artifact://market-square",
+    ),
+    mini_town_run(
+      id="run-private-lab-draft",
+      agent_id="agent-builder",
+      building_id="private-agent-lab",
+      book_id="book-private-agent-lab",
+      thread_id="thread-private-agent-lab",
+      title="Private lab setup",
+      summary="Builder is preparing the private agent lab before publishing.",
+      status="running",
+      artifact_ref="artifact://book-private-agent-lab",
+    ),
+    mini_town_run(
+      id="run-knowledge-sync",
+      agent_id="agent-policy-guide",
+      building_id="knowledge-house",
+      book_id="book-knowledge-house",
+      thread_id="thread-knowledge-house",
+      title="Knowledge memory sync",
+      summary="Accepted memories were synchronized into Knowledge House.",
+      status="done",
+      artifact_ref="artifact://book-knowledge-house",
+    ),
+  ]
+}

@@ -751,6 +751,8 @@ Acceptance checks:
   content/discovery, shell/districts, attention/inventory filters, backend
   state, and places; seeded backend data is split again by core, workflow, and
   reviewer endpoint groups, cache/retry states, and local backend defaults;
+  seeded review/run data is split again by moderation cases, audit trail,
+  review queue, run fixtures, and tool-result fixtures;
   seeded content is split again by books, activity,
   discovery listings, and discovery filters with `projection_seed_content.mbt`
   kept as a marker, and seeded shell data is split again by roles, tabs,
