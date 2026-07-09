@@ -439,9 +439,10 @@ Acceptance checks:
 - Current implementation note: Messages now starts with explicit attention rows
   for pending reviews, active agent work, recovery, and town signals; work,
   result, review, notice, and shared context helpers live in focused message
-  modules instead of one monolithic surface file. Attention row modeling,
-  bucket summaries, and notification channel chips are now separate UX5 modules
-  so agent replies, reviews, failed actions, and town notices can evolve without
+  modules instead of one monolithic surface file. Attention rows are now split
+  by row model, derivation, panel assembly, and row rendering, with bucket
+  summaries and notification channel chips also kept in separate UX5 modules so
+  agent replies, reviews, failed actions, and town notices can evolve without
   reopening the page assembly.
 
 Validation:
@@ -757,6 +758,9 @@ Acceptance checks:
   for My recovery behavior. Public Passport is split by panel assembly, item
   derivation, row rendering, and credential plaque lookup, with boundary checks
   keeping `my_public_passport.mbt` as a marker for My public identity behavior.
+  Messages attention behavior is split by row model, derivation, panel assembly,
+  and row rendering, with boundary checks keeping `message_attention.mbt` as the
+  UX5 attention marker instead of a broad page file.
   Visual tile WXSS is split by source assembly,
   reviewer styling, base controls, map, shell, primitive rows, state tones,
   content strips, drawers, responsive rules, and selector helpers, with boundary

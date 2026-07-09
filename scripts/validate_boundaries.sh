@@ -67,6 +67,8 @@ display_copy_files='examples/moontown_miniapp/display_copy_counts.mbt examples/m
 
 message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/moontown_miniapp/message_buckets.mbt examples/moontown_miniapp/message_channels.mbt examples/moontown_miniapp/message_context.mbt examples/moontown_miniapp/message_notices.mbt examples/moontown_miniapp/message_results.mbt examples/moontown_miniapp/message_reviews.mbt examples/moontown_miniapp/message_work.mbt'
 
+message_attention_files='examples/moontown_miniapp/message_attention_model.mbt examples/moontown_miniapp/message_attention_panel.mbt examples/moontown_miniapp/message_attention_rows.mbt examples/moontown_miniapp/message_attention_render.mbt'
+
 reviewer_diagnostics_files='examples/moontown_miniapp/reviewer_diagnostics_operations.mbt examples/moontown_miniapp/reviewer_diagnostics_sections.mbt examples/moontown_miniapp/reviewer_diagnostics_moderation.mbt examples/moontown_miniapp/reviewer_diagnostics_developer.mbt examples/moontown_miniapp/reviewer_diagnostics_backend.mbt'
 
 visual_tile_files='examples/moontown_miniapp/visual_tile_source.mbt examples/moontown_miniapp/visual_tile_reviewer.mbt examples/moontown_miniapp/visual_tile_base.mbt examples/moontown_miniapp/visual_tile_map.mbt examples/moontown_miniapp/visual_tile_shell.mbt examples/moontown_miniapp/visual_tile_primitives.mbt examples/moontown_miniapp/visual_tile_state.mbt examples/moontown_miniapp/visual_tile_content.mbt examples/moontown_miniapp/visual_tile_drawers.mbt examples/moontown_miniapp/visual_tile_responsive.mbt examples/moontown_miniapp/visual_tile_selectors.mbt'
@@ -239,6 +241,13 @@ for required in $message_surface_files; do
   fi
 done
 
+for required in $message_attention_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Messages attention file $required"
+    exit 1
+  fi
+done
+
 for required in $reviewer_diagnostics_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown reviewer diagnostics file $required"
@@ -364,6 +373,12 @@ fi
 messages_lines=$(wc -l < examples/moontown_miniapp/messages.mbt | tr -d ' ')
 if [ "$messages_lines" -gt 120 ]; then
   printf '%s\n' "boundary violation: messages.mbt has $messages_lines lines; keep Messages panels in focused files"
+  exit 1
+fi
+
+message_attention_lines=$(wc -l < examples/moontown_miniapp/message_attention.mbt | tr -d ' ')
+if [ "$message_attention_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: message_attention.mbt has $message_attention_lines lines; keep attention behavior in focused message_attention_* files"
   exit 1
 fi
 
@@ -553,6 +568,14 @@ for focused_message_surface in $message_surface_files; do
   focused_lines=$(wc -l < "$focused_message_surface" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_message_surface has $focused_lines lines; split the Messages concern further"
+    exit 1
+  fi
+done
+
+for focused_message_attention in $message_attention_files; do
+  focused_lines=$(wc -l < "$focused_message_attention" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_message_attention has $focused_lines lines; split the Messages attention concern further"
     exit 1
   fi
 done
