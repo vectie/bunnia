@@ -22,6 +22,8 @@ For visible UI decisions, use the companion doctrine in
 [MOONTOWN_UI_UX_DOCTRINE.md](MOONTOWN_UI_UX_DOCTRINE.md). It records the
 reference-design reasoning and the rule that ordinary user space should show
 town jobs and actions, not backend implementation details.
+For the phase-by-phase execution of that cleanup, use
+[MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md](MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md).
 
 This is therefore a rest-functionality migration plan. The map remains the
 product's game board; the phases below add the mature app systems that make the

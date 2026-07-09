@@ -4,6 +4,9 @@ This document records the UI/UX reasoning from the reference screenshots in
 `/Users/kq/Desktop/ref_design` and turns it into product rules for the Bunnia
 Moontown mini-app.
 
+For phase-by-phase execution, use the companion implementation plan in
+[MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md](MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md).
+
 The core decision is:
 
 ```text
