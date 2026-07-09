@@ -571,12 +571,13 @@ Acceptance checks:
 - Ordinary screenshots contain no backend implementation labels.
 - Reviewers and developers can still inspect the system deliberately.
 - Production readiness remains testable without becoming the main UI.
-- Current implementation note: Reviewer tools are isolated in
-  `reviewer_diagnostics.mbt`; ordinary `Home`, `Discover`, `Realm`,
-  `Messages`, and `My` generated WXML is scanned for diagnostic classes,
-  diagnostic data attributes, backend paths, payload/response keys, and
-  reviewer-only copy while `pages/moontown/reviewer` remains the allowlisted
-  technical surface.
+- Current implementation note: Reviewer tools are isolated behind the reviewer
+  route and split by operations assembly, reviewer check sections, moderation
+  rows, developer contract diagnostics, and backend-step lookup. Ordinary
+  `Home`, `Discover`, `Realm`, `Messages`, and `My` generated WXML is scanned
+  for diagnostic classes, diagnostic data attributes, backend paths,
+  payload/response keys, and reviewer-only copy while `pages/moontown/reviewer`
+  remains the allowlisted technical surface.
 
 Validation:
 
@@ -702,7 +703,10 @@ Acceptance checks:
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
   Building actions are further split by draft/profile editing, publication
   lifecycle, communication, and placement so publish/manage/place flows can grow
-  without rebuilding the building action monolith.
+  without rebuilding the building action monolith. Reviewer diagnostics are split
+  by operations assembly, reviewer check sections, moderation rows, developer
+  contract diagnostics, and backend-step lookup so UX8 can harden the diagnostics
+  boundary without reopening a reviewer monolith.
   Lifecycle projection behavior is split by drawer action rows, publication
   stamps, and selected-agent lookup so UX7 drawer polish can change one object
   concern without reopening a lifecycle monolith. Visibility projection behavior

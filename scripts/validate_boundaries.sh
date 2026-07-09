@@ -51,6 +51,8 @@ realm_map_files='examples/moontown_miniapp/realm_map_backdrop.mbt examples/moont
 
 message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/moontown_miniapp/message_buckets.mbt examples/moontown_miniapp/message_channels.mbt examples/moontown_miniapp/message_context.mbt examples/moontown_miniapp/message_notices.mbt examples/moontown_miniapp/message_results.mbt examples/moontown_miniapp/message_reviews.mbt examples/moontown_miniapp/message_work.mbt'
 
+reviewer_diagnostics_files='examples/moontown_miniapp/reviewer_diagnostics_operations.mbt examples/moontown_miniapp/reviewer_diagnostics_sections.mbt examples/moontown_miniapp/reviewer_diagnostics_moderation.mbt examples/moontown_miniapp/reviewer_diagnostics_developer.mbt examples/moontown_miniapp/reviewer_diagnostics_backend.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
@@ -163,6 +165,13 @@ for required in $message_surface_files; do
   fi
 done
 
+for required in $reviewer_diagnostics_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown reviewer diagnostics file $required"
+    exit 1
+  fi
+done
+
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
 if [ "$projection_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
@@ -244,6 +253,12 @@ fi
 messages_lines=$(wc -l < examples/moontown_miniapp/messages.mbt | tr -d ' ')
 if [ "$messages_lines" -gt 120 ]; then
   printf '%s\n' "boundary violation: messages.mbt has $messages_lines lines; keep Messages panels in focused files"
+  exit 1
+fi
+
+reviewer_diagnostics_lines=$(wc -l < examples/moontown_miniapp/reviewer_diagnostics.mbt | tr -d ' ')
+if [ "$reviewer_diagnostics_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: reviewer_diagnostics.mbt has $reviewer_diagnostics_lines lines; keep reviewer diagnostics behavior in focused reviewer_diagnostics_* files"
   exit 1
 fi
 
@@ -339,6 +354,14 @@ for focused_message_surface in $message_surface_files; do
   focused_lines=$(wc -l < "$focused_message_surface" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_message_surface has $focused_lines lines; split the Messages concern further"
+    exit 1
+  fi
+done
+
+for focused_reviewer_diagnostics in $reviewer_diagnostics_files; do
+  focused_lines=$(wc -l < "$focused_reviewer_diagnostics" | tr -d ' ')
+  if [ "$focused_lines" -gt 180 ]; then
+    printf '%s\n' "boundary violation: $focused_reviewer_diagnostics has $focused_lines lines; split the reviewer diagnostics concern further"
     exit 1
   fi
 done
