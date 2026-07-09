@@ -43,7 +43,9 @@ lifecycle_helper_files='examples/moontown_miniapp/projection_action_lifecycle_he
 
 action_shell_files='examples/moontown_miniapp/projection_action_shell_navigation.mbt examples/moontown_miniapp/projection_action_shell_profile.mbt examples/moontown_miniapp/projection_action_shell_reviewer.mbt examples/moontown_miniapp/projection_action_shell_gates.mbt'
 
-action_files="examples/moontown_miniapp/projection_action_shell.mbt $action_shell_files examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt $lifecycle_helper_files examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt"
+agent_action_files='examples/moontown_miniapp/projection_action_agent_create.mbt examples/moontown_miniapp/projection_action_agent_handoff.mbt examples/moontown_miniapp/projection_action_agent_lookup.mbt examples/moontown_miniapp/projection_action_agent_tools.mbt'
+
+action_files="examples/moontown_miniapp/projection_action_shell.mbt $action_shell_files examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt $lifecycle_helper_files examples/moontown_miniapp/projection_action_agents.mbt $agent_action_files examples/moontown_miniapp/projection_action_reviews.mbt"
 
 building_action_files='examples/moontown_miniapp/projection_action_building_drafts.mbt examples/moontown_miniapp/projection_action_building_lifecycle.mbt examples/moontown_miniapp/projection_action_building_messages.mbt examples/moontown_miniapp/projection_action_building_placement.mbt'
 
@@ -181,6 +183,13 @@ done
 for required in $action_shell_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown shell action file $required"
+    exit 1
+  fi
+done
+
+for required in $agent_action_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown agent action file $required"
     exit 1
   fi
 done
@@ -436,6 +445,12 @@ if [ "$action_shell_lines" -gt 40 ]; then
   exit 1
 fi
 
+agent_actions_lines=$(wc -l < examples/moontown_miniapp/projection_action_agents.mbt | tr -d ' ')
+if [ "$agent_actions_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: projection_action_agents.mbt has $agent_actions_lines lines; keep agent action behavior in focused projection_action_agent_* files"
+  exit 1
+fi
+
 building_actions_lines=$(wc -l < examples/moontown_miniapp/projection_action_buildings.mbt | tr -d ' ')
 if [ "$building_actions_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_action_buildings.mbt has $building_actions_lines lines; keep building action behavior in focused projection_action_building_* files"
@@ -676,6 +691,14 @@ for focused_action_shell in $action_shell_files; do
   focused_lines=$(wc -l < "$focused_action_shell" | tr -d ' ')
   if [ "$focused_lines" -gt 140 ]; then
     printf '%s\n' "boundary violation: $focused_action_shell has $focused_lines lines; split the shell action concern further"
+    exit 1
+  fi
+done
+
+for focused_agent_action in $agent_action_files; do
+  focused_lines=$(wc -l < "$focused_agent_action" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_agent_action has $focused_lines lines; split the agent action concern further"
     exit 1
   fi
 done
