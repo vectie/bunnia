@@ -759,7 +759,8 @@ Acceptance checks:
   profile/setup readiness, reviewer-tool toggles, and setup-gate assembly;
   agent/tool-result action behavior is split again by agent creation,
   handoff/run work, package-local lookup helpers, and tool-result
-  acknowledgements;
+  acknowledgements; review decision behavior is split again by accept paths,
+  reject paths, review-run status updates, and book-memory counters;
   lifecycle helper behavior is split again by selected-building projection
   updates, building mutations, book review counters, and audit event assembly.
   Building actions are further split by draft/profile editing, publication
