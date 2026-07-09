@@ -901,6 +901,11 @@ Done when:
 - inspect and tests stay green after every feature slice
 
 Current status: continuous after each slice.
+The ordinary visual system is now split into focused `visual_tile_*` files behind
+the `visual_tiles.mbt` marker, so base controls, map styling, shell layout,
+primitive rows, state tones, content strips, drawers, responsive rules, selector
+helpers, and reviewer-only styling can evolve without reopening one WXSS source
+module.
 The WeChat adapter now keeps repeated-row keys inside the render plan for
 unkeyed/duplicate diagnostics, but omits `data-bunnia-key` from production WXML.
 That reclaims markup budget for Moontown's mature app surfaces without weakening

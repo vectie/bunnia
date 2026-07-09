@@ -631,11 +631,13 @@ Acceptance checks:
 - Home, Discover, Messages, My, and drawers look like the same town product.
 - All touch targets are usable on small phone screens.
 - Visual state is understandable without reading system text.
-- Current implementation note: the ordinary mini-app WXSS is split into named
-  tile chunks in `visual_tiles.mbt`, with shared row, action, state, drawer,
-  shell, and responsive primitives. Generated stylesheet tests now guard
-  touch-action, 88rpx touch targets, safe-area offsets, scroll-safe page surfaces,
-  palette breadth, wrapped action rows, and no negative letter spacing.
+- Current implementation note: the ordinary mini-app WXSS is split into focused
+  `visual_tile_*` files behind the `visual_tiles.mbt` marker, with source
+  assembly, reviewer-only styling, base controls, map, shell, primitive rows,
+  state tones, content strips, drawers, responsive rules, and selector helpers
+  separated. Generated stylesheet tests now guard touch-action, 88rpx touch
+  targets, safe-area offsets, scroll-safe page surfaces, palette breadth,
+  wrapped action rows, and no negative letter spacing.
 
 Validation:
 
@@ -750,7 +752,10 @@ Acceptance checks:
   as a marker instead of a broad product file.
   Workbench alerts are split by alert model, derivation, recovery filters, and
   row rendering, with boundary checks keeping `workbench_alerts.mbt` as a marker
-  for My recovery behavior.
+  for My recovery behavior. Visual tile WXSS is split by source assembly,
+  reviewer styling, base controls, map, shell, primitive rows, state tones,
+  content strips, drawers, responsive rules, and selector helpers, with boundary
+  checks keeping `visual_tiles.mbt` as a marker for the shared UX9 style layer.
 
 Validation:
 

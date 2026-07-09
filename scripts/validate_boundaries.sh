@@ -67,6 +67,8 @@ message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/
 
 reviewer_diagnostics_files='examples/moontown_miniapp/reviewer_diagnostics_operations.mbt examples/moontown_miniapp/reviewer_diagnostics_sections.mbt examples/moontown_miniapp/reviewer_diagnostics_moderation.mbt examples/moontown_miniapp/reviewer_diagnostics_developer.mbt examples/moontown_miniapp/reviewer_diagnostics_backend.mbt'
 
+visual_tile_files='examples/moontown_miniapp/visual_tile_source.mbt examples/moontown_miniapp/visual_tile_reviewer.mbt examples/moontown_miniapp/visual_tile_base.mbt examples/moontown_miniapp/visual_tile_map.mbt examples/moontown_miniapp/visual_tile_shell.mbt examples/moontown_miniapp/visual_tile_primitives.mbt examples/moontown_miniapp/visual_tile_state.mbt examples/moontown_miniapp/visual_tile_content.mbt examples/moontown_miniapp/visual_tile_drawers.mbt examples/moontown_miniapp/visual_tile_responsive.mbt examples/moontown_miniapp/visual_tile_selectors.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
@@ -235,6 +237,13 @@ for required in $reviewer_diagnostics_files; do
   fi
 done
 
+for required in $visual_tile_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown visual tile file $required"
+    exit 1
+  fi
+done
+
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
 if [ "$projection_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
@@ -364,6 +373,12 @@ fi
 reviewer_diagnostics_lines=$(wc -l < examples/moontown_miniapp/reviewer_diagnostics.mbt | tr -d ' ')
 if [ "$reviewer_diagnostics_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: reviewer_diagnostics.mbt has $reviewer_diagnostics_lines lines; keep reviewer diagnostics behavior in focused reviewer_diagnostics_* files"
+  exit 1
+fi
+
+visual_tiles_lines=$(wc -l < examples/moontown_miniapp/visual_tiles.mbt | tr -d ' ')
+if [ "$visual_tiles_lines" -gt 60 ]; then
+  printf '%s\n' "boundary violation: visual_tiles.mbt has $visual_tiles_lines lines; keep tile WXSS chunks in focused visual_tile_* files"
   exit 1
 fi
 
@@ -523,6 +538,14 @@ for focused_reviewer_diagnostics in $reviewer_diagnostics_files; do
   focused_lines=$(wc -l < "$focused_reviewer_diagnostics" | tr -d ' ')
   if [ "$focused_lines" -gt 180 ]; then
     printf '%s\n' "boundary violation: $focused_reviewer_diagnostics has $focused_lines lines; split the reviewer diagnostics concern further"
+    exit 1
+  fi
+done
+
+for focused_visual_tile in $visual_tile_files; do
+  focused_lines=$(wc -l < "$focused_visual_tile" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_visual_tile has $focused_lines lines; split the visual tile concern further"
     exit 1
   fi
 done
