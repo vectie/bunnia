@@ -670,7 +670,10 @@ Acceptance checks:
   adapters, shell/navigation, and Home panels are also split out of `demo.mbt`
   so page-level product work can evolve without reopening a demo monolith. The
   generated page, tab, project, projection-flow, pressure-plan, and helper tests
-  now live in focused files so UX10 coverage can grow by concern.
+  now live in focused files so UX10 coverage can grow by concern. Seeded
+  projection data is further grouped by core projection assembly, reviews/runs,
+  content/discovery, shell/districts, attention/inventory filters, backend
+  state, and places.
 
 Validation:
 
