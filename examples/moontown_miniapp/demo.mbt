@@ -1485,7 +1485,10 @@ fn identity_setup_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-profile-status")], [
       @bunnia.text(
-        "\{projection.profile.display_name} is \{ready_word(profile_ready_to_publish(projection))} for publishing.",
+        profile_publish_sentence(
+          projection.profile.display_name,
+          profile_ready_to_publish(projection),
+        ),
       ),
     ]),
     @bunnia.windowed_list(
@@ -3384,6 +3387,11 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let published = ownership_stat_value(ownership_stats(projection), "published")
   let watches = visible_watches(projection).length()
   let reviews = pending_reviews(projection).length()
+  let published_label = empty_count_label(
+    published, "No published places", "published place", "published places",
+  )
+  let watch_label = optional_count_label(watches, "watch", "watches")
+  let review_label = optional_count_label(reviews, "review", "reviews")
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name("moontown-credential-plaque"),
@@ -3396,9 +3404,7 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
       ]),
       @bunnia.text("Public-facing identity without private work."),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-        @bunnia.text(
-          "Published \{published} - watches \{watches} - reviews \{reviews}",
-        ),
+        @bunnia.text("\{published_label} - \{watch_label} - \{review_label}"),
       ]),
       @bunnia.windowed_list(
         items,
@@ -3437,7 +3443,9 @@ fn public_passport_items(
     mini_town_ownership_item(
       id="passport-published",
       kind="building",
-      title="\{published} published place",
+      title=empty_count_label(
+        published, "No published places", "published place", "published places",
+      ),
       summary="Public buildings can be discovered and placed.",
       target_ref="building:published",
       visibility="public",
@@ -3448,7 +3456,11 @@ fn public_passport_items(
     mini_town_ownership_item(
       id="passport-watches",
       kind="watch",
-      title="\{watches.length()} watched town link",
+      title=count_label(
+        watches.length(),
+        "watched town link",
+        "watched town links",
+      ),
       summary="Watched places stay attached to Realm.",
       target_ref=if watches.length() > 0 {
         watches[0].target_ref
@@ -3467,7 +3479,7 @@ fn public_passport_items(
     mini_town_ownership_item(
       id="passport-reviews",
       kind="review",
-      title="\{reviews.length()} review signal",
+      title=count_label(reviews.length(), "review signal", "review signals"),
       summary="Review requests show accountable agent work.",
       target_ref="review:pending",
       visibility="public",
@@ -4086,6 +4098,16 @@ fn safety_report_button(
 
 ///|
 fn book_shelf_entry(item : MiniTownBookShelfItem) -> @bunnia.Node {
+  let memory_label = count_label(
+    item.accepted_memory_count,
+    "memory",
+    "memories",
+  )
+  let review_label = optional_count_label(
+    item.pending_review_count,
+    "review",
+    "reviews",
+  )
   @bunnia.keyed(
     "book-shelf-\{item.id}",
     @bunnia.view_with_attrs(
@@ -4101,7 +4123,7 @@ fn book_shelf_entry(item : MiniTownBookShelfItem) -> @bunnia.Node {
         @bunnia.text(item.safe_summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
-            "\{item.accepted_memory_count} memories - \{item.pending_review_count} reviews - \{town_status_label(item.status)}",
+            "\{memory_label} - \{review_label} - \{town_status_label(item.status)}",
           ),
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [

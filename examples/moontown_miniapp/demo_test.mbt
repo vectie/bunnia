@@ -108,8 +108,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxml.contains("data-book-id=\"book-policy-hall-sources\""))
   assert_true(page.wxml.contains("data-book-shelf-role=\"primary\""))
   assert_true(page.wxml.contains("data-book-shelf-role=\"support\""))
-  assert_true(page.wxml.contains("12 memories - 1 reviews - Needs review"))
-  assert_true(page.wxml.contains("9 memories - 0 reviews - Ready"))
+  assert_true(page.wxml.contains("12 memories - 1 review - Needs review"))
+  assert_true(page.wxml.contains("9 memories - no reviews - Ready"))
   assert_true(page.wxml.contains("Read"))
   assert_true(page.wxml.contains("Open Place"))
   assert_true(page.wxml.contains("moontown-lifecycle-actions"))
@@ -621,15 +621,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     mine.wxml.contains("Public-facing identity without private work."),
   )
-  assert_true(mine.wxml.contains("Published 0 - watches 1 - reviews 1"))
+  assert_true(mine.wxml.contains("No published places - 1 watch - 1 review"))
   assert_true(mine.wxml.contains("data-passport-kind=\"profile\""))
   assert_true(mine.wxml.contains("data-passport-kind=\"building\""))
   assert_true(mine.wxml.contains("data-passport-kind=\"watch\""))
   assert_true(mine.wxml.contains("data-passport-kind=\"review\""))
   assert_true(mine.wxml.contains("Profile incomplete"))
-  assert_true(mine.wxml.contains("0 published place"))
+  assert_true(mine.wxml.contains("No published places"))
   assert_true(mine.wxml.contains("1 watched town link"))
+  assert_true(!mine.wxml.contains("1 watched town links"))
   assert_true(mine.wxml.contains("1 review signal"))
+  assert_true(!mine.wxml.contains("1 review signals"))
   assert_true(!mine.wxml.contains("data-target-ref=\"review:pending\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"tab-discover\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"tab-messages\""))
@@ -1977,6 +1979,7 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
         "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
+        " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
       ] {
       if wxml.contains(raw) {
         return false
