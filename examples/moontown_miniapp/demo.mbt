@@ -1303,7 +1303,6 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
       run_queue_panel(projection),
       tool_result_panel(projection),
       review_queue_panel(projection),
-      moderation_desk_panel(projection),
     ])
   } else if projection.active_tab_id == "my" {
     town_page_surface(projection, [
@@ -3060,6 +3059,7 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
         "WeChat login", "domain", "storage", "monitoring", "reviewers", "secrets",
       ]),
       reviewer_action_section(),
+      moderation_desk_panel(projection),
       developer_diagnostics_section(ops, readiness),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-community-actions")],

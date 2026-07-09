@@ -529,21 +529,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!messages.wxml.contains("data-review-id="))
   assert_true(messages.wxml.contains("data-decision=\"accept\""))
   assert_true(messages.wxml.contains("data-decision=\"reject\""))
-  assert_true(messages.wxml.contains("Moderation Desk"))
+  assert_true(!messages.wxml.contains("Moderation Desk"))
+  assert_true(!messages.wxml.contains("data-moderation-case="))
+  assert_true(!messages.wxml.contains("data-moderation-action="))
   assert_true(
-    messages.wxml.contains("data-moderation-case=\"mod-policy-hall\""),
-  )
-  assert_true(messages.wxml.contains("data-moderation-action=\"hide\""))
-  assert_true(messages.wxml.contains("data-moderation-action=\"takedown\""))
-  assert_true(messages.wxml.contains("data-moderation-action=\"appeal\""))
-  assert_true(
-    messages.wxml.contains("data-bunnia-message=\"hide-public-building\""),
+    !messages.wxml.contains("data-bunnia-message=\"hide-public-building\""),
   )
   assert_true(
-    messages.wxml.contains("data-bunnia-message=\"takedown-public-building\""),
+    !messages.wxml.contains("data-bunnia-message=\"takedown-public-building\""),
   )
   assert_true(
-    messages.wxml.contains("data-bunnia-message=\"appeal-moderation-case\""),
+    !messages.wxml.contains("data-bunnia-message=\"appeal-moderation-case\""),
   )
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
@@ -715,6 +711,28 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     reviewer_mine.wxml.contains(
       "Review, hide, takedown, release hold, resolve incident, and check readiness.",
+    ),
+  )
+  assert_true(reviewer_mine.wxml.contains("Moderation Desk"))
+  assert_true(
+    reviewer_mine.wxml.contains("data-moderation-case=\"mod-policy-hall\""),
+  )
+  assert_true(reviewer_mine.wxml.contains("data-moderation-action=\"hide\""))
+  assert_true(
+    reviewer_mine.wxml.contains("data-moderation-action=\"takedown\""),
+  )
+  assert_true(reviewer_mine.wxml.contains("data-moderation-action=\"appeal\""))
+  assert_true(
+    reviewer_mine.wxml.contains("data-bunnia-message=\"hide-public-building\""),
+  )
+  assert_true(
+    reviewer_mine.wxml.contains(
+      "data-bunnia-message=\"takedown-public-building\"",
+    ),
+  )
+  assert_true(
+    reviewer_mine.wxml.contains(
+      "data-bunnia-message=\"appeal-moderation-case\"",
     ),
   )
   assert_true(reviewer_mine.wxml.contains("Developer Diagnostics"))
@@ -1945,6 +1963,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
         "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-payload-key",
         "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
+        "Moderation Desk", "data-moderation-case=", "data-moderation-action=", "hide-public-building",
+        "takedown-public-building", "appeal-moderation-case",
       ] {
       if wxml.contains(raw) {
         return false
