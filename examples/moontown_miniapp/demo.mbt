@@ -3931,7 +3931,7 @@ fn building_context_section(projection : MiniTownProjection) -> @bunnia.Node {
       ]),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
-          "Latest message, agent run, and review trail stay tied to this place.",
+          "Latest message, agent work, and review trail stay tied to this place.",
         ),
       ]),
       @bunnia.windowed_list(messages, total_count=messages.length(), render=message => {

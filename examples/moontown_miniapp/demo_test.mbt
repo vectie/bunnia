@@ -152,7 +152,7 @@ test "moontown miniapp generates full vertical slice page" {
   )
   assert_true(
     page.wxml.contains(
-      "Latest message, agent run, and review trail stay tied to this place.",
+      "Latest message, agent work, and review trail stay tied to this place.",
     ),
   )
   assert_true(
@@ -476,7 +476,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Deep Cultivator followed your town"))
   assert_true(messages.wxml.contains("Enterprise Club replied"))
   assert_true(messages.wxml.contains("Memory review needed"))
-  assert_true(messages.wxml.contains("Agent run completed"))
+  assert_true(messages.wxml.contains("Agent work completed"))
+  assert_true(!messages.wxml.contains("Agent run completed"))
   assert_true(!messages.wxml.contains("data-notice-kind="))
   assert_true(messages.wxml.contains("Agent Work"))
   assert_true(
@@ -1982,7 +1983,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
-        "placement - personal",
+        "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
+        "Receive run,",
       ] {
       if wxml.contains(raw) {
         return false

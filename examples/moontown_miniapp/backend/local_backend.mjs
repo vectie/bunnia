@@ -1734,7 +1734,7 @@ function ownershipFor(state, viewer, query = new URLSearchParams(), body = {}) {
     alerts.push({ id: "blocked-publication", severity: "medium", title: `${blockedDrafts} draft blocked from town`, summary: "Publish requires profile, consent, and review readiness.", targetRef: "building:drafts", action: "ownership-filter-drafts", status: "blocked" });
   }
   if (retryableRuns.length > 0) {
-    alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent run can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
+    alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent work item can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
   }
   const shares = state.shares.filter((item) => item.ownerId === viewer || item.targetUserId === viewer);
   return {

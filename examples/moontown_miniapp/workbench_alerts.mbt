@@ -72,11 +72,11 @@ pub fn workbench_alerts(
     output.push(
       mini_town_workbench_alert(
         id="retry-runs",
-        title="\{retry_runs.length()} agent run needs retry",
+        title="\{retry_runs.length()} agent work item needs retry",
         summary="Failed, rejected, or cancelled agent work should be retried from Messages.",
         target_ref="run:\{retry_runs[0].id}",
         severity="danger",
-        action_label="Review Runs",
+        action_label="Review Work",
         action_message="tab-messages",
         status="failed",
       ),

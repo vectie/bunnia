@@ -75,7 +75,7 @@ pub fn guide_steps(projection : MiniTownProjection) -> Array[MiniTownGuideStep] 
     mini_town_guide_step(
       id="agent-mail",
       title="Review Agent Mail",
-      summary="Messages collects runs, reviews, shares, and town notices.",
+      summary="Messages collects agent work, reviews, shares, and town notices.",
       tab_id="messages",
       action_label="Messages",
       action_message="tab-messages",
