@@ -13,3 +13,6 @@ load-message-center
 Ack Sync
 Tool Ack
 Ops Desk
+mini-app
+starter-map
+placed from starter-map

@@ -982,7 +982,7 @@ fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-title")], [
       @bunnia.text("Moontown"),
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-subtitle")], [
-        @bunnia.text("agent town mini-app"),
+        @bunnia.text("agents and places in one tile town"),
       ]),
     ]),
     town_shell_actions(projection),

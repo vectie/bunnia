@@ -241,8 +241,9 @@ Validation:
 
 Current implementation note:
 
-- The ordinary shell exposes Enter, Realm, and Passport actions. Legacy two-user
-  switch controls and patches are removed from generated ordinary output.
+- The ordinary shell exposes Enter, Realm, and Passport actions without platform
+  wording. Legacy two-user switch controls and patches are removed from generated
+  ordinary output.
 
 ## UX2: Home Town Pulse Reframe
 
@@ -468,7 +469,8 @@ Acceptance checks:
   books, agents, and watched places before the detailed ownership list. Setup
   stamps stay in Town Passport instead of repeating inside My Inventory, and
   the inventory refresh plaque exposes one clear Refresh My Stuff action instead
-  of a duplicate generic More backend trigger.
+  of a duplicate generic More backend trigger. Placement rows translate raw source
+  ids into ordinary map-state copy.
 
 Validation:
 

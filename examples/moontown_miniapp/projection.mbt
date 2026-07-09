@@ -4476,7 +4476,7 @@ fn placement_ownership_item(
   for building in projection.buildings {
     if building.id == placement.building_id {
       title = building.title
-      summary = "\{building.summary} / placed from \{placement.source}"
+      summary = "\{building.summary} / \{placement_source_label(placement.source)}"
       status = building.status
     }
   }

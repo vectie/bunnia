@@ -27,7 +27,8 @@ fn ordinary_generated_forbidden_tokens() -> Array[String] {
     " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
     "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
     "Receive run,", "Identity Setup", "profile readiness", "shared-private buildings",
-    "shared private", "shared privately", "Reference feature pages", "data-bunnia-message=\"switch-user-a\"",
+    "shared private", "shared privately", "Reference feature pages", "mini-app",
+    "starter-map", "placed from starter-map", "data-bunnia-message=\"switch-user-a\"",
     "data-bunnia-message=\"switch-user-b\"",
   ]
 }
@@ -95,6 +96,8 @@ test "moontown validation guardrails cover required ordinary tokens" {
       "data-bunnia-message=\"switch-user-b\"",
     ),
   )
+  assert_true(array_has(ordinary_generated_forbidden_tokens(), "mini-app"))
+  assert_true(array_has(ordinary_generated_forbidden_tokens(), "starter-map"))
   assert_true(array_has(ordinary_contract_data_tokens(), "/miniapp/admin/ops"))
   assert_true(
     array_has(
@@ -121,6 +124,10 @@ test "moontown generated labels translate backend state" {
   assert_true(messages.contains("Needs Review"))
   assert_true(mine.contains("Refresh My Stuff"))
   assert_true(!home.contains("Load Snapshot"))
+  assert_true(home.contains("agents and places in one tile town"))
+  assert_true(mine.contains("already on your map"))
+  assert_true(!home.contains("mini-app"))
+  assert_true(!mine.contains("starter-map"))
   assert_true(!messages.contains("Retry Run"))
   assert_true(!messages.contains("Cancel Run"))
   assert_true(!mine.contains("Sync Ownership"))
