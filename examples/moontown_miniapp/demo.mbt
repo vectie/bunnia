@@ -245,11 +245,6 @@ fn moontown_wxss_source() -> String {
   ".moontown-map-marker-title { display: block; color: #1f2d22; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-map-marker-kind { display: block; margin-top: 2rpx; color: #56604f; font-size: 15rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-thread-pin { position: absolute; right: -10rpx; top: -10rpx; min-width: 48rpx; height: 28rpx; padding: 0 8rpx; border-radius: 999rpx; background: #203729; color: #fff8dc; font-size: 15rpx; line-height: 28rpx; text-align: center; border: 1rpx solid rgba(255,255,255,0.68); }\n" +
-  ".moontown-map-marker.bunnia-status-review { border-color: #d69e2e; background: rgba(255,244,207,0.92); }\n" +
-  ".moontown-map-marker.bunnia-status-running { border-color: #3182ce; background: rgba(217,237,247,0.92); }\n" +
-  ".moontown-map-marker.bunnia-status-stable { border-color: #48bb78; background: rgba(228,243,216,0.92); }\n" +
-  ".moontown-map-marker.bunnia-status-draft { border-color: #9f7aea; background: rgba(239,227,244,0.92); }\n" +
-  ".moontown-map-marker.bunnia-status-shared { border-color: #b7791f; background: rgba(245,229,188,0.92); }\n" +
   ".moontown-semantic-scene { position: absolute; left: 0; top: 0; width: 1rpx; height: 1rpx; opacity: 0; overflow: hidden; pointer-events: none; }\n" +
   ".moontown-semantic-scene .bunnia-scene { pointer-events: none; }\n" +
   ".moontown-topbar { position: absolute; left: 24rpx; right: 24rpx; top: calc(24rpx + env(safe-area-inset-top)); z-index: 8; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 14rpx 16rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.9); }\n" +
@@ -257,11 +252,12 @@ fn moontown_wxss_source() -> String {
   ".moontown-subtitle { margin-top: 2rpx; font-size: 20rpx; font-weight: 500; color: #66705a; }\n" +
   ".moontown-user-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 8rpx; flex-wrap: wrap; max-width: 440rpx; }\n" +
   ".moontown-user-switcher text { color: #334538; font-size: 20rpx; }\n" +
-  "button { min-height: 72rpx; margin: 0; padding: 8rpx 16rpx; border: 1rpx solid rgba(51, 65, 55, 0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 28rpx; }\n" +
+  "button { min-width: 88rpx; min-height: 72rpx; margin: 0; padding: 8rpx 16rpx; border: 1rpx solid rgba(51,65,55,0.28); border-radius: 6rpx; background: #fff8dc; color: #243629; font-size: 20rpx; line-height: 28rpx; overflow: hidden; }\n" +
   "button::after { border: 0; }\n" +
   "button:active { opacity: 0.82; }\n" +
-  "button[disabled], .bunnia-status-disabled { opacity: 0.52; }\n" +
-  "button text { white-space: normal; }\n" +
+  "button[disabled], .bunnia-status-disabled { opacity: 0.52; pointer-events: none; }\n" +
+  "button text { white-space: normal; text-align: center; }\n" +
+  ".mt-panel input { width: 100%; min-height: 72rpx; margin-top: 8rpx; padding: 0 14rpx; border: 1rpx solid rgba(51,65,55,0.22); border-radius: 6rpx; background: rgba(255,255,255,0.86); color: #26362b; font-size: 20rpx; }\n" +
   ".moontown-left-hud { position: absolute; z-index: 7; left: 22rpx; top: calc(126rpx + env(safe-area-inset-top)); width: 338rpx; max-height: calc(100vh - 252rpx - env(safe-area-inset-top) - env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12rpx; overflow: hidden; }\n" +
   ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: calc(126rpx + env(safe-area-inset-top)); bottom: calc(104rpx + env(safe-area-inset-bottom)); overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; }\n" +
   ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: hidden; }\n" +
@@ -299,13 +295,14 @@ fn moontown_wxss_source() -> String {
   ".moontown-discovery-filter, .moontown-message-channel, .moontown-ownership-filter { flex: 0 0 auto; min-height: 56rpx; padding: 10rpx 12rpx; border: 1rpx solid rgba(51,65,55,0.18); border-radius: 6rpx; background: rgba(255,250,240,0.7); color: #334538; font-size: 18rpx; line-height: 28rpx; overflow: hidden; }\n" +
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
   ".moontown-run-action, .bunnia-tool-result-action { flex: 0 0 auto; }\n" +
-  ".moontown-tool-results .bunnia-tool-result-list-windowed { margin-top: 8rpx; max-height: 296rpx; overflow: hidden; }\n" +
-  ".moontown-discovery-badges { display: flex; gap: 6rpx; flex-wrap: wrap; margin-top: 6rpx; }\n" +
-  ".moontown-discovery-badge { min-height: 32rpx; padding: 4rpx 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 16rpx; line-height: 24rpx; }\n" +
-  ".moontown-discovery-action { margin-top: 8rpx; }\n" +
+  ".moontown-discovery-badges, .moontown-object-badges { display: flex; gap: 6rpx; flex-wrap: wrap; margin-top: 6rpx; }\n" +
+  ".moontown-discovery-badge, .moontown-object-badge { min-height: 32rpx; padding: 4rpx 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); font-size: 16rpx; line-height: 24rpx; }\n" +
+  ".moontown-discovery-action { display: flex; gap: 8rpx; flex-wrap: wrap; margin-top: 8rpx; }\n" +
+  ".moontown-community-actions button, .moontown-discovery-action button, .moontown-profile-actions button, .moontown-run-actions button, .moontown-map-actions button { flex: 1 1 0; min-width: 112rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-create-drawer { min-width: 0; padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.9); overflow: hidden; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +
+  ".moontown-object-section, .moontown-worker-entry { min-width: 0; margin-top: 8rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.16); border-radius: 6rpx; background: rgba(255,250,240,0.7); }\n" +
   ".moontown-building-drawer button { margin-top: 8rpx; margin-right: 6rpx; }\n" +
   ".moontown-chat-drawer .bunnia-message-feed-windowed { max-height: 170rpx; overflow: hidden; }\n" +
   ".moontown-chat-drawer .bunnia-message { padding: 10rpx 12rpx; margin-bottom: 8rpx; background: rgba(255,255,255,0.78); font-size: 20rpx; }\n" +

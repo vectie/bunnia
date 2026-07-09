@@ -849,6 +849,7 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(has_no_forbidden_generated_ordinary_wxml(project.files))
   assert_true(has_reviewer_diagnostics_allowlist(project.files))
   assert_true(generated_contract_data_stays_out_of_ordinary_wxml(project.files))
+  assert_true(generated_wxss_has_tile_visual_system(project.files))
   assert_true(
     backend_contract_contains(
       demo_backend_contract(),
@@ -2051,6 +2052,23 @@ fn generated_contract_data_stays_out_of_ordinary_wxml(
     }
   }
   true
+}
+
+///|
+fn generated_wxss_has_tile_visual_system(
+  files : Array[@bunnia.WechatFile],
+) -> Bool {
+  let wxss = file_content(files, "pages/moontown/index.wxss")
+  wxss.contains("button{min-width:88rpx;min-height:72rpx") &&
+  wxss.contains(
+    "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
+  ) &&
+  wxss.contains(".mt-panel input{width:100%;min-height:72rpx") &&
+  wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
+  wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
+  wxss.contains(
+    ".moontown-community-actions button,.moontown-discovery-action button",
+  )
 }
 
 ///|
