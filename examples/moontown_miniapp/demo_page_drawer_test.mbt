@@ -1,0 +1,47 @@
+///|
+test "moontown miniapp generated page renders object drawer" {
+  let page = demo_wechat_page()
+  assert_true(page.wxml.contains("moontown-building-drawer"))
+  assert_true(page.wxml.contains("moontown-object-drawer"))
+  assert_true(page.wxml.contains("data-object-drawer=\"building\""))
+  assert_true(page.wxml.contains("moontown-object-header"))
+  assert_true(page.wxml.contains("moontown-object-badge"))
+  assert_true(page.wxml.contains("kind-category"))
+  assert_true(page.wxml.contains("moontown-object-stats"))
+  assert_true(page.wxml.contains("2 books - 1 worker - 1 work item"))
+  assert_true(page.wxml.contains("Visitor"))
+  assert_true(page.wxml.contains("Public place can be opened and placed"))
+  assert_true(page.wxml.contains("Memory Shelf"))
+  assert_true(page.wxml.contains("data-object-section=\"memory-shelf\""))
+  assert_true(page.wxml.contains("moontown-book-entry"))
+  assert_true(page.wxml.contains("Policy Hall Book"))
+  assert_true(page.wxml.contains("Policy Source Shelf"))
+  assert_true(!page.wxml.contains("data-book-id=\"book-policy-hall\""))
+  assert_true(!page.wxml.contains("data-book-id=\"book-policy-hall-sources\""))
+  assert_true(page.wxml.contains("data-book-shelf-role=\"primary\""))
+  assert_true(page.wxml.contains("data-book-shelf-role=\"support\""))
+  assert_true(page.wxml.contains("12 memories - 1 review - Needs review"))
+  assert_true(page.wxml.contains("9 memories - no reviews - Ready"))
+  assert_true(page.wxml.contains("Read"))
+  assert_true(page.wxml.contains("Open Place"))
+  assert_true(page.wxml.contains("Agent Workers"))
+  assert_true(page.wxml.contains("moontown-worker-entry"))
+  assert_true(!page.wxml.contains("data-agent-id=\"agent-policy-guide\""))
+  assert_true(
+    page.wxml.contains(
+      "Role: place guide - Needs review - Latest work: Policy answer review",
+    ),
+  )
+  assert_true(page.wxml.contains("Message"))
+  assert_true(page.wxml.contains("Review Work"))
+  assert_true(page.wxml.contains("Communication Context"))
+  assert_true(!page.wxml.contains("system notices"))
+  assert_true(page.wxml.contains("data-object-section=\"communication\""))
+  assert_true(page.wxml.contains("moontown-object-context-card"))
+  assert_true(page.wxml.contains("data-object-context=\"latest-message\""))
+  assert_true(page.wxml.contains("data-object-context=\"latest-work\""))
+  assert_true(page.wxml.contains("data-object-context=\"review-need\""))
+  assert_true(
+    page.wxml.contains("Open Messages to continue the building thread."),
+  )
+}

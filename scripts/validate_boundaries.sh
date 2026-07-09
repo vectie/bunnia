@@ -43,7 +43,9 @@ home_district_files='examples/moontown_miniapp/home_district_panels.mbt examples
 
 runtime_files='examples/moontown_miniapp/demo_runtime_shell.mbt examples/moontown_miniapp/demo_runtime_filters.mbt examples/moontown_miniapp/demo_runtime_buildings.mbt examples/moontown_miniapp/demo_runtime_reviewer.mbt examples/moontown_miniapp/demo_runtime_map.mbt'
 
-moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_tab_realm_home_test.mbt examples/moontown_miniapp/demo_tab_discover_test.mbt examples/moontown_miniapp/demo_tab_messages_test.mbt examples/moontown_miniapp/demo_tab_my_test.mbt examples/moontown_miniapp/demo_tab_reviewer_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_project_shell_test.mbt examples/moontown_miniapp/demo_project_routes_test.mbt examples/moontown_miniapp/demo_project_backend_test.mbt examples/moontown_miniapp/demo_project_seed_data_test.mbt examples/moontown_miniapp/demo_project_manifest_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_projection_shell_test.mbt examples/moontown_miniapp/demo_projection_attention_work_test.mbt examples/moontown_miniapp/demo_projection_discovery_inventory_test.mbt examples/moontown_miniapp/demo_projection_review_readiness_test.mbt examples/moontown_miniapp/demo_projection_building_lifecycle_test.mbt examples/moontown_miniapp/demo_projection_agent_work_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
+generated_page_test_files='examples/moontown_miniapp/demo_page_map_test.mbt examples/moontown_miniapp/demo_page_drawer_test.mbt examples/moontown_miniapp/demo_page_lifecycle_test.mbt examples/moontown_miniapp/demo_page_visual_test.mbt examples/moontown_miniapp/demo_page_runtime_test.mbt'
+
+moontown_test_files="examples/moontown_miniapp/demo_page_test.mbt $generated_page_test_files examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_tab_realm_home_test.mbt examples/moontown_miniapp/demo_tab_discover_test.mbt examples/moontown_miniapp/demo_tab_messages_test.mbt examples/moontown_miniapp/demo_tab_my_test.mbt examples/moontown_miniapp/demo_tab_reviewer_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_project_shell_test.mbt examples/moontown_miniapp/demo_project_routes_test.mbt examples/moontown_miniapp/demo_project_backend_test.mbt examples/moontown_miniapp/demo_project_seed_data_test.mbt examples/moontown_miniapp/demo_project_manifest_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_projection_shell_test.mbt examples/moontown_miniapp/demo_projection_attention_work_test.mbt examples/moontown_miniapp/demo_projection_discovery_inventory_test.mbt examples/moontown_miniapp/demo_projection_review_readiness_test.mbt examples/moontown_miniapp/demo_projection_building_lifecycle_test.mbt examples/moontown_miniapp/demo_projection_agent_work_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt"
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
@@ -170,6 +172,13 @@ done
 for required in $moontown_test_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown focused test file $required"
+    exit 1
+  fi
+done
+
+for required in $generated_page_test_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown generated page test file $required"
     exit 1
   fi
 done
@@ -364,6 +373,12 @@ fi
 demo_test_lines=$(wc -l < examples/moontown_miniapp/demo_test.mbt | tr -d ' ')
 if [ "$demo_test_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_test.mbt has $demo_test_lines lines; keep coverage in focused test files"
+  exit 1
+fi
+
+demo_page_test_lines=$(wc -l < examples/moontown_miniapp/demo_page_test.mbt | tr -d ' ')
+if [ "$demo_page_test_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: demo_page_test.mbt has $demo_page_test_lines lines; keep generated page coverage in focused demo_page_*_test files"
   exit 1
 fi
 
@@ -715,6 +730,14 @@ for focused_test in $moontown_test_files; do
   focused_lines=$(wc -l < "$focused_test" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_test has $focused_lines lines; split the test concern further"
+    exit 1
+  fi
+done
+
+for focused_generated_page_test in $generated_page_test_files; do
+  focused_lines=$(wc -l < "$focused_generated_page_test" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_generated_page_test has $focused_lines lines; split the generated page test concern further"
     exit 1
   fi
 done

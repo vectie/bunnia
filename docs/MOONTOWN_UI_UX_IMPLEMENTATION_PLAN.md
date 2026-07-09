@@ -730,7 +730,9 @@ Acceptance checks:
   Gates are split by panel assembly, destination/action derivation, district row
   rendering, and presence chips, with boundary checks keeping
   `home_districts.mbt` as the UX2 marker. The
-  generated page, pressure-plan, and helper tests live in focused files,
+  generated page coverage is split by map/shell, object drawer memory/workers,
+  lifecycle/privacy, tile visual style, and runtime/plan-budget checks;
+  pressure-plan and helper tests also live in focused files,
   generated-project coverage is split by shell/files, route patches, backend
   request contracts, seeded data, and manifest/diagnostic checks, generated tab
   coverage is split by Realm/Home, Discover, Messages, My, and Reviewer
