@@ -2058,7 +2058,7 @@ fn generated_contract_data_stays_out_of_ordinary_wxml(
 fn generated_wxss_has_tile_visual_system(
   files : Array[@bunnia.WechatFile],
 ) -> Bool {
-  let wxss = file_content(files, "pages/moontown/index.wxss")
+  let wxss = file_content(files, "app.wxss")
   wxss.contains("button{min-width:88rpx;min-height:72rpx") &&
   wxss.contains(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
@@ -2068,7 +2068,22 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
   wxss.contains(
     ".moontown-community-actions button,.moontown-discovery-action button",
-  )
+  ) &&
+  ordinary_pages_share_app_wxss(files)
+}
+
+///|
+fn ordinary_pages_share_app_wxss(files : Array[@bunnia.WechatFile]) -> Bool {
+  for
+    path in [
+      "pages/moontown/index.wxss", "pages/moontown/home.wxss", "pages/moontown/discover.wxss",
+      "pages/moontown/messages.wxss", "pages/moontown/my.wxss",
+    ] {
+    if has_file(files, path) {
+      return false
+    }
+  }
+  true
 }
 
 ///|

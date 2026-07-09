@@ -241,6 +241,50 @@ test "wechat projects share default styles at app level" {
 }
 
 ///|
+test "wechat projects hoist repeated custom styles to app wxss" {
+  let shared = ".shared-card { color: #123456; }"
+  let unique = ".unique-card { color: #654321; }"
+  let first = project_page_with_wxss(
+    project_page(
+      name="First",
+      route="pages/first/index",
+      root=@core.page([@core.view([@core.text("First")])]),
+    ),
+    shared,
+  )
+  let second = project_page_with_wxss(
+    project_page(
+      name="Second",
+      route="pages/second/index",
+      root=@core.page([@core.view([@core.text("Second")])]),
+    ),
+    shared,
+  )
+  let third = project_page_with_wxss(
+    project_page(
+      name="Third",
+      route="pages/third/index",
+      root=@core.page([@core.view([@core.text("Third")])]),
+    ),
+    unique,
+  )
+  let project = generate_project_from_pages(name="Shared Styles", pages=[
+    first, second, third,
+  ])
+  let app_wxss = file_content(project.files, "app.wxss")
+  assert_true(app_wxss.contains(".shared-card{color:#123456}"))
+  assert_true(!has_file(project.files, "pages/first/index.wxss"))
+  assert_true(!has_file(project.files, "pages/second/index.wxss"))
+  assert_true(has_file(project.files, "pages/third/index.wxss"))
+  assert_true(
+    file_content(project.files, "pages/third/index.wxss").contains(
+      ".unique-card{color:#654321}",
+    ),
+  )
+  assert_eq(project.manifest.app_file_count + 1, project.files.length())
+}
+
+///|
 test "wechat manifests expose route scene asset references" {
   let scene_asset = @core.node(kind="image", attrs=[
     @core.class_name("bunnia-scene-sprite"),

@@ -356,12 +356,13 @@ fn generate_project_from_pages_internal(
   }
   let generated_pages = project_pages_for_backend(pages, backend_contract)
   let entry = generated_pages[0]
+  let shared_wxss = repeated_project_wxss(generated_pages)
   let files : Array[WechatFile] = [
     wechat_file("app.json", app_json(generated_pages)),
     wechat_file("project.config.json", project_config_json(name)),
     wechat_file("sitemap.json", sitemap_json()),
     wechat_file("bunnia.runtime.js", runtime_js()),
-    wechat_file("app.wxss", compact_wxss(default_wxss())),
+    wechat_file("app.wxss", project_app_wxss(shared_wxss)),
   ]
   match backend_contract {
     Some(contract) =>
@@ -377,10 +378,9 @@ fn generate_project_from_pages_internal(
   }
   for item in generated_pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
-    if item.page.wxss != "" {
-      files.push(
-        wechat_file("\{item.route}.wxss", compact_wxss(item.page.wxss)),
-      )
+    let compacted_wxss = compact_wxss(item.page.wxss)
+    if compacted_wxss != "" && !shared_wxss.contains(compacted_wxss) {
+      files.push(wechat_file("\{item.route}.wxss", compacted_wxss))
     }
     files.push(
       wechat_file(
@@ -418,6 +418,44 @@ fn generate_project_from_pages_internal(
     report,
     summary: "Bunnia WeChat project: pages=\{generated_pages.length()} files=\{files.length()} bytes=\{total} route=\{entry.route}",
   }
+}
+
+///|
+fn project_app_wxss(shared_wxss : Array[String]) -> String {
+  let out = StringBuilder::new()
+  out.write_string(compact_wxss(default_wxss()))
+  for wxss in shared_wxss {
+    out.write_string(wxss)
+  }
+  out.to_string()
+}
+
+///|
+fn repeated_project_wxss(pages : Array[WechatProjectPage]) -> Array[String] {
+  let repeated : Array[String] = []
+  for item in pages {
+    let wxss = compact_wxss(item.page.wxss)
+    if wxss != "" &&
+      !repeated.contains(wxss) &&
+      project_wxss_occurrence_count(pages, wxss) > 1 {
+      repeated.push(wxss)
+    }
+  }
+  repeated
+}
+
+///|
+fn project_wxss_occurrence_count(
+  pages : Array[WechatProjectPage],
+  wxss : String,
+) -> Int {
+  let mut count = 0
+  for item in pages {
+    if compact_wxss(item.page.wxss) == wxss {
+      count += 1
+    }
+  }
+  count
 }
 
 ///|
