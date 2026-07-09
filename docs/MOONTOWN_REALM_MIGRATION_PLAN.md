@@ -770,9 +770,10 @@ The My workbench view code is now isolated across focused My modules: town
 passport, setup stamps, public passport, publishing shelf, inventory refresh,
 and the reviewer-tools gate live in `my_workbench.mbt`, while the inventory
 shelf strip lives in focused `my_inventory_shelf_*` files behind the
-`my_inventory_shelves.mbt` boundary marker. That strip gives buildings,
-placements, drafts, submitted work, published work, archived work, books,
-agents, and watched places first-class action rows before the detailed
+`my_inventory_shelves.mbt` boundary marker, and recovery alerts live in focused
+`workbench_alert_*` files behind the `workbench_alerts.mbt` marker. That strip
+gives buildings, placements, drafts, submitted work, published work, archived
+work, books, agents, and watched places first-class action rows before the detailed
 ownership list. The top ordinary setup surface now reads as Town Passport
 instead of the generic Identity Setup label, and the ordinary-copy guard blocks
 that old label from returning to generated ordinary WXML.

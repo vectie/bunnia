@@ -492,7 +492,10 @@ Acceptance checks:
   inventory shelf, and inventory row modules so UX6 additions do not reopen a
   page monolith. Inventory shelves are now further split into shelf data,
   shelf-row derivation, and shelf rendering files so ownership counts and
-  actions can evolve without reopening a shelf monolith.
+  actions can evolve without reopening a shelf monolith. Workbench alerts are
+  further split by alert model, alert derivation, recovery filters, and row
+  rendering so My recovery tasks can evolve without reopening the workbench
+  alert boundary.
 
 Validation:
 
@@ -745,6 +748,9 @@ Acceptance checks:
   monolith. My Inventory shelves are also split by shelf model, row derivation,
   and panel rendering, with boundary checks keeping `my_inventory_shelves.mbt`
   as a marker instead of a broad product file.
+  Workbench alerts are split by alert model, derivation, recovery filters, and
+  row rendering, with boundary checks keeping `workbench_alerts.mbt` as a marker
+  for My recovery behavior.
 
 Validation:
 
