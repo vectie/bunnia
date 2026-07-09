@@ -303,10 +303,7 @@ fn inventory_refresh_plaque(projection : MiniTownProjection) -> @bunnia.Node {
       ]),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-community-actions")],
-        [
-          @bunnia.button("Refresh My Stuff", step.endpoint_id),
-          @bunnia.button("More", step.endpoint_id),
-        ],
+        [@bunnia.button("Refresh My Stuff", step.endpoint_id)],
       ),
     ],
   )

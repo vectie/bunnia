@@ -712,6 +712,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!mine.wxml.contains("placement - personal"))
   assert_true(mine.wxml.contains("Inventory Refresh"))
   assert_true(mine.wxml.contains("Refresh My Stuff"))
+  assert_true(!mine.wxml.contains("<text>More</text>"))
   assert_true(mine.wxml.contains("My Inventory - Waiting"))
   assert_true(!mine.wxml.contains("Own Sync"))
   assert_true(!mine.wxml.contains("data-backend-step=\"ownership\""))
