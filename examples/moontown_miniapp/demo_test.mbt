@@ -51,23 +51,17 @@ test "moontown miniapp generates full vertical slice page" {
     page.wxml.contains("moontown-map-marker bunnia-status-review selected"),
   )
   assert_true(page.wxml.contains("moontown-topbar"))
-  assert_true(page.wxml.contains("moontown-left-hud"))
+  assert_true(!page.wxml.contains("moontown-left-hud"))
   assert_true(page.wxml.contains("moontown-right-hud"))
   assert_true(page.wxml.contains("moontown-bottom-hud"))
   assert_true(page.wxml.contains("moontown-tabbar"))
   assert_true(page.wxml.contains("data-map-surface=\"true\""))
-  assert_true(page.wxml.contains("First Visit"))
-  assert_true(page.wxml.contains("moontown-guide-step"))
-  assert_true(page.wxml.contains("data-guide-step=\"enter-town\""))
-  assert_true(page.wxml.contains("data-guide-step=\"discover-public\""))
-  assert_true(page.wxml.contains("data-tab-id=\"discover\""))
-  assert_true(
-    page.wxml.contains("data-bunnia-route=\"pages/moontown/discover\""),
-  )
+  assert_true(!page.wxml.contains("First Visit"))
+  assert_true(!page.wxml.contains("moontown-guide-step"))
   assert_true(!page.wxml.contains("Identity Setup"))
   assert_true(!page.wxml.contains("Town Builder"))
   assert_true(!page.wxml.contains("Accept Consent"))
-  assert_true(page.wxml.contains("Realm is the map"))
+  assert_true(!page.wxml.contains("Realm is the map"))
   assert_true(!page.wxml.contains("Product Market"))
   assert_true(page.wxml.contains("Discover"))
   assert_true(page.wxml.contains("Messages"))
@@ -169,8 +163,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxml.contains("moontown-create-drawer"))
   assert_true(page.wxml.contains("moontown-map-state-strip"))
   assert_true(page.wxml.contains("moontown-map-state-chip"))
-  assert_true(page.wxml.contains("moontown-map-action-rail"))
-  assert_true(page.wxml.contains("data-selected-building-id=\"policy-hall\""))
+  assert_true(!page.wxml.contains("moontown-map-action-rail"))
+  assert_true(page.wxml.contains("moontown-object-primary-actions"))
+  assert_true(page.wxml.contains("Find Similar"))
   assert_true(!page.wxml.contains("data-visibility=\"private_draft\""))
   assert_true(!page.wxml.contains("data-visibility=\"published\""))
   assert_true(page.wxml.contains("select-policy-hall"))
@@ -188,7 +183,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxss.contains(".moontown-map-backfill"))
   assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
   assert_true(page.wxss.contains("width:2800rpx;height:1760rpx"))
-  assert_true(page.wxss.contains(".moontown-left-hud"))
+  assert_true(!page.wxss.contains(".moontown-left-hud"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
   assert_true(page.wxss.contains(".moontown-bottom-hud"))
   assert_true(page.wxss.contains(".moontown-tabbar"))
@@ -211,7 +206,7 @@ test "moontown miniapp generates full vertical slice page" {
   )
   assert_true(page.js.contains("__bunniaEventPatches"))
   assert_true(page.js.contains("\"tab-realm\""))
-  assert_true(page.js.contains("\"complete-onboarding\""))
+  assert_true(!page.js.contains("\"complete-onboarding\""))
   assert_true(page.js.contains("\"switch-user-a\""))
   assert_true(page.js.contains("\"switch-user-b\""))
   assert_true(page.js.contains("\"enter-town\""))
@@ -251,17 +246,19 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let realm = tab_page(projection, "realm")
   assert_true(has_no_forbidden_ordinary_copy(realm.wxml))
   assert_true(realm.wxml.contains("moontown-map-fullscreen"))
-  assert_true(realm.wxml.contains("moontown-left-hud"))
+  assert_true(!realm.wxml.contains("moontown-left-hud"))
   assert_true(realm.wxml.contains("moontown-right-hud"))
   assert_true(realm.wxml.contains("moontown-map-state-strip"))
-  assert_true(realm.wxml.contains("moontown-map-action-rail"))
+  assert_true(!realm.wxml.contains("moontown-map-action-rail"))
   assert_true(
     realm.wxml.contains("moontown-map-marker bunnia-status-review selected"),
   )
   assert_true(realm.wxml.contains("Policy Hall: Review"))
+  assert_true(realm.wxml.contains("Access: Public in town"))
+  assert_true(realm.wxml.contains("Placement: Pinned"))
   assert_true(realm.wxml.contains("Ask"))
   assert_true(realm.wxml.contains("Messages"))
-  assert_true(realm.wxml.contains("Find"))
+  assert_true(realm.wxml.contains("Find Similar"))
   assert_true(!realm.wxml.contains("moontown-search-drawer"))
   assert_true(!realm.wxml.contains("moontown-create-drawer"))
   assert_true(!realm.wxml.contains("data-backend-endpoint="))
@@ -1417,7 +1414,12 @@ test "moontown miniapp generates wechat project with backend hooks" {
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/index.wxml").contains(
+    !file_content(project.files, "pages/moontown/index.wxml").contains(
+      "data-guide-step=\"agent-mail\"",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/home.wxml").contains(
       "data-guide-step=\"agent-mail\"",
     ),
   )

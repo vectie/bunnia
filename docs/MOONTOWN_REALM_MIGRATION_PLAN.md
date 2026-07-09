@@ -36,7 +36,10 @@ Realm is just our map.
 The migration should no longer spend product energy inventing a new Realm page,
 domain graph, or abstract visual system. The existing Moontown tile map is the
 Realm: it is the place where buildings live, agents are visible, placements
-matter, and users return after acting elsewhere in the app.
+matter, and users return after acting elsewhere in the app. The current Realm
+surface keeps that boundary explicit: map rendering lives in `realm_map.mbt`,
+ordinary Realm shows only selected-place overlays and the building drawer, and
+setup/search/message work is routed to Home, Discover, Messages, or My.
 
 The missing work is the rest of the mini-app maturity:
 

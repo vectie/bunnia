@@ -42,12 +42,28 @@ fn building_object_header(
       object_badge("status", town_status_label(building.status)),
     ]),
     object_stats_row(shelf, agents, runs),
+    building_primary_actions(building),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
       @bunnia.text(
         "\{building_capability_label(projection, building)} - Primary book: \{book.title}",
       ),
     ]),
   ])
+}
+
+///|
+fn building_primary_actions(building : MiniTownBuilding) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-object-primary-actions"),
+      @bunnia.data("building-id", building.id),
+    ],
+    [
+      @bunnia.button("Ask", "ask-selected-building"),
+      @bunnia.button("Messages", "tab-messages"),
+      @bunnia.button("Find Similar", "tab-discover"),
+    ],
+  )
 }
 
 ///|

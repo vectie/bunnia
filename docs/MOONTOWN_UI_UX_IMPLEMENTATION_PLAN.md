@@ -367,6 +367,9 @@ Acceptance checks:
 - No large empty space appears during pan/pinch.
 - Markers remain tappable and visually tied to map positions.
 - Visible overlays explain town state, not render/projection internals.
+- Current implementation note: Realm map code is isolated in `realm_map.mbt`,
+  ordinary Realm no longer renders the onboarding/setup HUD, the floating action
+  rail is gone, and selected-place actions live inside the building drawer.
 
 Validation:
 
