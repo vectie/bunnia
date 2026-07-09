@@ -700,7 +700,10 @@ Acceptance checks:
   concern without reopening a lifecycle monolith. Visibility projection behavior
   is split by access policy, visible collections, and selected-object context so
   Realm, Discover, Messages, and My can share the same public/private boundary
-  without growing another visibility monolith.
+  without growing another visibility monolith. Inventory projection behavior is
+  split by owned collections, stats, ownership rows, and filter state so UX6 My
+  workbench shelves and row actions can evolve without reopening an inventory
+  monolith.
 
 Validation:
 

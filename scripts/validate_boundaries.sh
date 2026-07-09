@@ -21,6 +21,8 @@ fi
 
 projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt examples/moontown_miniapp/projection_visibility.mbt examples/moontown_miniapp/projection_lifecycle.mbt examples/moontown_miniapp/projection_discovery.mbt examples/moontown_miniapp/projection_actions.mbt examples/moontown_miniapp/projection_inventory.mbt examples/moontown_miniapp/projection_notifications.mbt'
 
+inventory_files='examples/moontown_miniapp/projection_inventory_owned.mbt examples/moontown_miniapp/projection_inventory_stats.mbt examples/moontown_miniapp/projection_inventory_items.mbt examples/moontown_miniapp/projection_inventory_filters.mbt'
+
 visibility_files='examples/moontown_miniapp/projection_visibility_access.mbt examples/moontown_miniapp/projection_visibility_collections.mbt examples/moontown_miniapp/projection_visibility_selection.mbt'
 
 lifecycle_files='examples/moontown_miniapp/projection_lifecycle_actions.mbt examples/moontown_miniapp/projection_lifecycle_publication.mbt examples/moontown_miniapp/projection_lifecycle_agents.mbt'
@@ -48,6 +50,13 @@ message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $inventory_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown inventory projection file $required"
     exit 1
   fi
 done
@@ -307,6 +316,20 @@ if [ "$projection_flows_shell_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_projection_flows_test.mbt has $projection_flows_shell_lines lines; keep projection-flow coverage in focused demo_projection_* files"
   exit 1
 fi
+
+inventory_lines=$(wc -l < examples/moontown_miniapp/projection_inventory.mbt | tr -d ' ')
+if [ "$inventory_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_inventory.mbt has $inventory_lines lines; keep inventory behavior in focused projection_inventory_* files"
+  exit 1
+fi
+
+for focused_inventory in $inventory_files; do
+  focused_lines=$(wc -l < "$focused_inventory" | tr -d ' ')
+  if [ "$focused_lines" -gt 180 ]; then
+    printf '%s\n' "boundary violation: $focused_inventory has $focused_lines lines; split the inventory projection concern further"
+    exit 1
+  fi
+done
 
 visibility_lines=$(wc -l < examples/moontown_miniapp/projection_visibility.mbt | tr -d ' ')
 if [ "$visibility_lines" -gt 80 ]; then
