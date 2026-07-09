@@ -625,10 +625,20 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(!mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
   assert_true(mine.wxml.contains("My Inventory"))
-  assert_true(mine.wxml.contains("Town passport, setup stamps, and"))
-  assert_true(mine.wxml.contains("owned items."))
-  assert_true(mine.wxml.contains("data-setup-gate=\"session\""))
-  assert_true(mine.wxml.contains("data-setup-gate=\"publish-ready\""))
+  assert_true(
+    mine.wxml.contains(
+      "Owned shelves, alerts, and 5 items are ready to manage.",
+    ),
+  )
+  assert_true(!mine.wxml.contains("Town passport, setup stamps"))
+  assert_eq(
+    string_occurrence_count(mine.wxml, "data-setup-gate=\"session\""),
+    1,
+  )
+  assert_eq(
+    string_occurrence_count(mine.wxml, "data-setup-gate=\"publish-ready\""),
+    1,
+  )
   assert_true(mine.wxml.contains("Town Entry"))
   assert_true(mine.wxml.contains("Entered as Ada Builder."))
   assert_true(!mine.wxml.contains("Logged in as user-a"))
@@ -2221,6 +2231,32 @@ fn backend_contract_contains(
     }
   }
   false
+}
+
+///|
+fn string_occurrence_count(text : String, needle : String) -> Int {
+  if needle == "" {
+    0
+  } else {
+    string_occurrence_count_from(text, needle, 0)
+  }
+}
+
+///|
+fn string_occurrence_count_from(
+  rest : String,
+  needle : String,
+  count : Int,
+) -> Int {
+  match rest.find(needle) {
+    Some(index) =>
+      string_occurrence_count_from(
+        rest.sub(start=index + needle.length(), end=rest.length()).to_owned(),
+        needle,
+        count + 1,
+      )
+    None => count
+  }
 }
 
 ///|

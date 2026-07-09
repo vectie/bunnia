@@ -465,9 +465,10 @@ Acceptance checks:
 - Profile readiness is helpful, not a dump of permission state.
 - Current implementation note: My now has an explicit inventory shelf strip for
   buildings, placements, drafts, submitted work, published work, archived work,
-  books, agents, and watched places before the detailed ownership list. The
-  inventory refresh plaque exposes one clear Refresh My Stuff action instead of
-  a duplicate generic More backend trigger.
+  books, agents, and watched places before the detailed ownership list. Setup
+  stamps stay in Town Passport instead of repeating inside My Inventory, and
+  the inventory refresh plaque exposes one clear Refresh My Stuff action instead
+  of a duplicate generic More backend trigger.
 
 Validation:
 

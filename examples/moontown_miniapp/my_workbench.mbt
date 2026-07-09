@@ -191,7 +191,6 @@ fn ownership_event_label(kind : String) -> String {
 fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let stats = ownership_stats(projection)
   let items = filtered_ownership_items(projection)
-  let gates = setup_gates(projection)
   let alerts = workbench_alerts(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
@@ -199,15 +198,10 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
-        "Town passport, setup stamps, and \{items.length()} owned items.",
+        "Owned shelves, alerts, and \{items.length()} items are ready to manage.",
       ),
     ]),
     profile_identity_card(projection),
-    @bunnia.windowed_list(
-      gates,
-      total_count=gates.length(),
-      render=setup_gate_entry,
-    ),
     @bunnia.windowed_list(
       alerts,
       total_count=alerts.length(),
