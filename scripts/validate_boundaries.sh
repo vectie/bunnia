@@ -67,6 +67,8 @@ object_context_files='examples/moontown_miniapp/object_context_model.mbt example
 
 object_lifecycle_files='examples/moontown_miniapp/object_lifecycle_model.mbt examples/moontown_miniapp/object_lifecycle_section.mbt examples/moontown_miniapp/object_lifecycle_stages.mbt examples/moontown_miniapp/object_lifecycle_actions.mbt'
 
+book_shelf_files='examples/moontown_miniapp/book_shelf_model.mbt examples/moontown_miniapp/book_shelf_items.mbt examples/moontown_miniapp/book_shelf_lookup.mbt examples/moontown_miniapp/book_shelf_copy.mbt'
+
 display_copy_files='examples/moontown_miniapp/display_copy_counts.mbt examples/moontown_miniapp/display_copy_status.mbt examples/moontown_miniapp/display_copy_kind.mbt examples/moontown_miniapp/display_copy_navigation.mbt'
 
 message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/moontown_miniapp/message_buckets.mbt examples/moontown_miniapp/message_channels.mbt examples/moontown_miniapp/message_context.mbt examples/moontown_miniapp/message_notices.mbt examples/moontown_miniapp/message_results.mbt examples/moontown_miniapp/message_reviews.mbt examples/moontown_miniapp/message_work.mbt'
@@ -241,6 +243,13 @@ done
 for required in $object_lifecycle_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown object lifecycle file $required"
+    exit 1
+  fi
+done
+
+for required in $book_shelf_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown book shelf file $required"
     exit 1
   fi
 done
@@ -424,6 +433,12 @@ if [ "$object_lifecycle_lines" -gt 80 ]; then
   exit 1
 fi
 
+book_shelf_lines=$(wc -l < examples/moontown_miniapp/book_shelf.mbt | tr -d ' ')
+if [ "$book_shelf_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: book_shelf.mbt has $book_shelf_lines lines; keep memory shelf behavior in focused book_shelf_* files"
+  exit 1
+fi
+
 display_copy_lines=$(wc -l < examples/moontown_miniapp/display_copy.mbt | tr -d ' ')
 if [ "$display_copy_lines" -gt 40 ]; then
   printf '%s\n' "boundary violation: display_copy.mbt has $display_copy_lines lines; keep ordinary labels in focused display_copy_* files"
@@ -598,6 +613,14 @@ for focused_object_lifecycle in $object_lifecycle_files; do
   focused_lines=$(wc -l < "$focused_object_lifecycle" | tr -d ' ')
   if [ "$focused_lines" -gt 140 ]; then
     printf '%s\n' "boundary violation: $focused_object_lifecycle has $focused_lines lines; split the object lifecycle concern further"
+    exit 1
+  fi
+done
+
+for focused_book_shelf in $book_shelf_files; do
+  focused_lines=$(wc -l < "$focused_book_shelf" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_book_shelf has $focused_lines lines; split the book shelf concern further"
     exit 1
   fi
 done

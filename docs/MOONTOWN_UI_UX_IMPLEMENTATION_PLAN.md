@@ -553,6 +553,9 @@ Acceptance checks:
   evolve without reopening the object-context boundary. Lifecycle stamps are
   split by row model, section assembly, stage rendering, and action/reason
   rendering so building publication states can evolve without reopening the
+  drawer boundary. Book memory shelf data is split by public shelf entry points,
+  shelf item model, building-book derivation, primary-book lookup, and safe copy
+  policy so memory counters and review needs can evolve without reopening the
   drawer boundary. Building action workflows are split by draft/profile editing,
   publication lifecycle, building messages, and public placement so drawer work
   can evolve one object concern at a time.
@@ -739,7 +742,9 @@ Acceptance checks:
   action/safety rows, with a marker-file guard on `object_drawer.mbt`. Object
   communication context is split by card model, section assembly, card
   derivation/rendering, and selected-context helpers so UX7 drawer communication
-  stays compact. Reviewer
+  stays compact. Book memory shelf behavior is split by shelf model, building
+  derivation, primary-book lookup, and safe-summary copy, with a boundary check
+  keeping `book_shelf.mbt` as the UX7 memory marker. Reviewer
   diagnostics are split by operations assembly, reviewer check sections,
   moderation rows, developer contract diagnostics, and backend-step lookup so
   UX8 can harden the diagnostics boundary without reopening a reviewer monolith.
