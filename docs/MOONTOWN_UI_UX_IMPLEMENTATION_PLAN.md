@@ -397,7 +397,11 @@ Acceptance checks:
   the floating action rail is gone, and selected-place actions live inside the
   building drawer. Map assembly, backdrop assets, marker hit targets, and
   selected-building HUD chips now have separate files so UX4 work stays
-  map-first without reopening a Realm monolith.
+  map-first without reopening a Realm monolith. Scene setup is now split by
+  map constants, scene-layer assembly, camera/asset/thread/quality plans, and
+  project inspection helpers, with `demo_scene.mbt` kept as the UX4 marker so
+  map geometry and release checks can evolve without reopening one mixed scene
+  file.
 
 Validation:
 
