@@ -91,8 +91,12 @@ fn town_status_label(status : String) -> String {
 
 ///|
 fn town_visibility_label(visibility : String) -> String {
-  if visibility == "published" || visibility == "public" {
+  if visibility == "published" ||
+    visibility == "public" ||
+    visibility == "system_public" {
     "Public in town"
+  } else if visibility == "personal" {
+    "My map"
   } else if visibility == "private_draft" {
     "Private draft"
   } else if visibility == "shared_private" {
@@ -124,6 +128,8 @@ fn town_kind_label(kind : String) -> String {
     "Agent"
   } else if kind == "building" {
     "Place"
+  } else if kind == "placement" {
+    "Placed"
   } else if kind == "policy_hall" {
     "Policy hall"
   } else if kind == "agent_lab" {

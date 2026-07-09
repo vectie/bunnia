@@ -647,6 +647,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
+  assert_true(mine.wxml.contains("Placed - My map - Open in Realm"))
+  assert_true(!mine.wxml.contains("placement - personal"))
   assert_true(mine.wxml.contains("Inventory Refresh"))
   assert_true(mine.wxml.contains("Refresh My Stuff"))
   assert_true(mine.wxml.contains("My Inventory - Waiting"))
@@ -1980,6 +1982,7 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
+        "placement - personal",
       ] {
       if wxml.contains(raw) {
         return false
