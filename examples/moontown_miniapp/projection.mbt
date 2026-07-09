@@ -2780,7 +2780,7 @@ fn lifecycle_publish_reason(
   if building.owner_id != projection.active_user_id {
     "owner only"
   } else if !profile_ready_to_publish(projection) {
-    "profile setup needed"
+    "Finish profile first"
   } else if building.visibility == "private_draft" ||
     building.visibility == "shared_private" {
     "ready for review"
@@ -2801,7 +2801,7 @@ fn lifecycle_archive_reason(
   } else if building.visibility == "archived" {
     "already archived"
   } else {
-    "owner action"
+    "Owner can archive"
   }
 }
 
@@ -3364,19 +3364,19 @@ pub fn setup_gates(projection : MiniTownProjection) -> Array[MiniTownSetupGate] 
   [
     mini_town_setup_gate(
       id="session",
-      label="Session",
+      label="Town Entry",
       summary=if projection.active_user_id == "" {
-        "Login before private buildings and agent runs can be scoped."
+        "Enter town before private places and agent work can belong to you."
       } else {
-        "Logged in as \{projection.active_user_id}."
+        "Entered as \{projection.profile.display_name}."
       },
-      action_label="Login",
+      action_label="Enter",
       action_message="dev-login",
       complete=projection.active_user_id != "",
     ),
     mini_town_setup_gate(
       id="onboarding",
-      label="Onboarding",
+      label="Town Intro",
       summary=if projection.onboarding_completed {
         "Realm intro is complete."
       } else {
@@ -3388,53 +3388,72 @@ pub fn setup_gates(projection : MiniTownProjection) -> Array[MiniTownSetupGate] 
     ),
     mini_town_setup_gate(
       id="role",
-      label="Role",
+      label="Town Role",
       summary=if projection.profile.role_id == "" {
-        "Choose a role so recommendations and labels are scoped."
+        "Choose how you show up in town."
       } else {
-        "Role selected: \{projection.profile.role_id}."
+        "Role selected: \{town_profile_role_label(projection.profile.role_id)}."
       },
-      action_label="Choose",
+      action_label="Choose Role",
       action_message="select-role-builder",
       complete=projection.profile.role_id != "",
     ),
     mini_town_setup_gate(
       id="consent",
-      label="Consent",
+      label="Town Consent",
       summary=if projection.profile.consent_accepted {
-        "Agreement accepted for publish and share workflows."
+        "Consent accepted for publishing and sharing."
       } else {
         "Accept consent before publishing or sharing town content."
       },
-      action_label="Accept",
+      action_label="Accept Consent",
       action_message="accept-profile-consent",
       complete=projection.profile.consent_accepted,
     ),
     mini_town_setup_gate(
       id="profile",
-      label="Profile",
+      label="Profile Details",
       summary=if projection.profile.setup_completed {
         "Profile setup is complete."
       } else {
         "Save profile details before public building actions."
       },
-      action_label="Save",
+      action_label="Finish Profile",
       action_message="save-profile",
       complete=projection.profile.setup_completed,
     ),
     mini_town_setup_gate(
       id="publish-ready",
-      label="Publish Ready",
+      label="Ready to Publish",
       summary=if profile_ready_to_publish(projection) {
-        "Create, share, and publish actions can be enabled by ownership."
+        "Drafts can be submitted, shared, and published."
       } else {
         "Publishing stays blocked until role, consent, and profile are ready."
       },
-      action_label="My",
+      action_label=if profile_ready_to_publish(projection) {
+        "Open Inventory"
+      } else {
+        "Finish Profile"
+      },
       action_message="tab-my",
       complete=profile_ready_to_publish(projection),
     ),
   ]
+}
+
+///|
+fn town_profile_role_label(role_id : String) -> String {
+  if role_id == "builder" {
+    "Builder"
+  } else if role_id == "reviewer" {
+    "Reviewer"
+  } else if role_id == "walker" {
+    "Walker"
+  } else if role_id == "owner" {
+    "Owner"
+  } else {
+    "Town member"
+  }
 }
 
 ///|

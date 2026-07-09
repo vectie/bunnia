@@ -2734,8 +2734,8 @@ fn moderation_button(
 ///|
 fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
   lifecycle_panel_with_events(
-    "My Lifecycle",
-    "Owned drafts, shares, publishing, placements, and archives stay visible here.",
+    "Publishing Shelf",
+    "Drafts, shares, review steps, published places, and archives stay visible here.",
     publication_steps(projection),
     owned_audit_events(projection),
   )
@@ -2806,11 +2806,7 @@ fn audit_entry(item : MiniTownAuditEvent) -> @bunnia.Node {
     @bunnia.view_with_attrs(
       [
         @bunnia.class_name("moontown-audit-entry bunnia-status-\{item.status}"),
-        @bunnia.data("audit-id", item.id),
-        @bunnia.data("audit-kind", item.kind),
-        @bunnia.data("target-ref", item.target_ref),
         @bunnia.data("building-id", item.building_id),
-        @bunnia.data("actor-id", item.actor_id),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -2818,11 +2814,34 @@ fn audit_entry(item : MiniTownAuditEvent) -> @bunnia.Node {
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-          @bunnia.text("\{item.kind} / \{item.visibility} / \{item.timestamp}"),
+          @bunnia.text(
+            "\{ownership_event_label(item.kind)} - \{town_visibility_label(item.visibility)} - \{town_status_label(item.status)}",
+          ),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn ownership_event_label(kind : String) -> String {
+  if kind == "create" {
+    "Created"
+  } else if kind == "update" {
+    "Updated"
+  } else if kind == "share" {
+    "Shared"
+  } else if kind == "submit" {
+    "Submitted"
+  } else if kind == "publish" {
+    "Published"
+  } else if kind == "archive" {
+    "Archived"
+  } else if kind == "restore" {
+    "Restored"
+  } else {
+    "Changed"
+  }
 }
 
 ///|
@@ -2913,32 +2932,29 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let alerts = workbench_alerts(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("My Town"),
+      @bunnia.text("My Inventory"),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
       @bunnia.text(
-        "\{if projection.profile.consent_accepted { "Consent accepted" } else { "Consent needed" }} - \{selected_ownership_filter(projection).label} - \{items.length()} items",
+        "Town passport, setup stamps, and \{items.length()} owned items.",
       ),
     ]),
     profile_identity_card(projection),
-    public_passport_panel(projection),
-    profile_credential_plaque(projection),
-    ownership_sync_plaque(projection),
-    reviewer_tools_panel(projection),
+    @bunnia.windowed_list(
+      gates,
+      total_count=gates.length(),
+      render=setup_gate_entry,
+    ),
     @bunnia.windowed_list(
       alerts,
       total_count=alerts.length(),
       render=workbench_alert_entry,
     ),
+    public_passport_panel(projection),
     @bunnia.windowed_list(
       stats,
       total_count=stats.length(),
       render=ownership_stat_entry,
-    ),
-    @bunnia.windowed_list(
-      gates,
-      total_count=gates.length(),
-      render=setup_gate_entry,
     ),
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-ownership-filters")],
@@ -2957,6 +2973,9 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       total_count=items.length(),
       render=ownership_item_entry,
     ),
+    profile_credential_plaque(projection),
+    inventory_refresh_plaque(projection),
+    reviewer_tools_panel(projection),
   ])
 }
 
@@ -2978,10 +2997,10 @@ fn reviewer_tools_gate_panel() -> @bunnia.Node {
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-        @bunnia.text("Protected Workbench"),
+        @bunnia.text("Reviewer Tools"),
       ]),
       @bunnia.text(
-        "Reviewer checks stay hidden until reviewer mode is opened deliberately.",
+        "Safety checks and launch tools stay behind a deliberate reviewer entry.",
       ),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-community-actions")],
@@ -2997,7 +3016,7 @@ fn reviewer_tools_open_button() -> @bunnia.Node {
     kind="button",
     attrs=[@bunnia.data("bunnia-route", "pages/moontown/reviewer")],
     events=[@bunnia.tap("open-reviewer-tools")],
-    children=[@bunnia.text("Open Reviewer Mode")],
+    children=[@bunnia.text("Open Reviewer Tools")],
   )
 }
 
@@ -3070,52 +3089,30 @@ fn backend_step_by_id(
 }
 
 ///|
-fn ownership_sync_plaque(projection : MiniTownProjection) -> @bunnia.Node {
+fn inventory_refresh_plaque(projection : MiniTownProjection) -> @bunnia.Node {
   let step = ownership_backend_step(projection)
   let cache = ownership_cache_state(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name("moontown-credential-plaque"),
-      @bunnia.data("backend-step", step.id),
-      @bunnia.data("backend-endpoint", step.endpoint_id),
-      @bunnia.data("backend-method", step.http_method),
-      @bunnia.data("backend-path", step.path),
-      @bunnia.data("backend-cache", cache.id),
-      @bunnia.data("target-ref", cache.target_ref),
+      @bunnia.data("inventory-refresh", town_status_label(cache.state)),
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-        @bunnia.text("My Inventory"),
+        @bunnia.text("Inventory Refresh"),
       ]),
-      @bunnia.text(backend_step_user_summary(step)),
+      @bunnia.text("Bring in owned places, books, agents, pins, and alerts."),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-        @bunnia.text(
-          "\{cache_user_title(cache)}: \{town_status_label(cache.state)}",
-        ),
+        @bunnia.text("My Inventory - \{town_status_label(cache.state)}"),
       ]),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-community-actions")],
-        [backend_window_button("More", step.endpoint_id, cursor=2, limit=2)],
+        [
+          @bunnia.button("Refresh My Stuff", step.endpoint_id),
+          @bunnia.button("More", step.endpoint_id),
+        ],
       ),
     ],
-  )
-}
-
-///|
-fn backend_window_button(
-  label : String,
-  message : String,
-  cursor~ : Int,
-  limit~ : Int,
-) -> @bunnia.Node {
-  @bunnia.node(
-    kind="button",
-    attrs=[
-      @bunnia.data("cursor", "\{cursor}"),
-      @bunnia.data("limit", "\{limit}"),
-    ],
-    events=[@bunnia.event("tap", message)],
-    children=[@bunnia.text(label)],
   )
 }
 
@@ -3172,7 +3169,6 @@ fn workbench_alert_entry(alert : MiniTownWorkbenchAlert) -> @bunnia.Node {
         ),
         @bunnia.data("workbench-alert", alert.id),
         @bunnia.data("severity", alert.severity),
-        @bunnia.data("target-ref", alert.target_ref),
         @bunnia.data("status", alert.status),
       ],
       events=[@bunnia.event("tap", alert.action_message)],
@@ -3197,10 +3193,8 @@ fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name("moontown-profile-card"),
-      @bunnia.data("profile-user-id", projection.profile.user_id),
-      @bunnia.data("profile-role", projection.profile.role_id),
       @bunnia.data(
-        "profile-ready",
+        "passport-ready",
         if profile_ready_to_publish(projection) {
           "true"
         } else {
@@ -3268,8 +3262,8 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name("moontown-credential-plaque"),
-      @bunnia.data("public-passport", projection.profile.user_id),
-      @bunnia.data("public-passport-items", items.length().to_string()),
+      @bunnia.data("passport-section", "public"),
+      @bunnia.data("passport-count", items.length().to_string()),
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -3367,9 +3361,7 @@ fn public_passport_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       kind="view",
       attrs=[
         @bunnia.class_name("moontown-owned-entry bunnia-status-\{item.status}"),
-        @bunnia.data("public-passport-item", item.id),
-        @bunnia.data("ownership-kind", item.kind),
-        @bunnia.data("target-ref", item.target_ref),
+        @bunnia.data("passport-kind", item.kind),
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[
@@ -3400,7 +3392,7 @@ fn profile_credential_plaque(projection : MiniTownProjection) -> @bunnia.Node {
     ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-        @bunnia.text("OPC Credential"),
+        @bunnia.text("Town Credential"),
       ]),
       @bunnia.text("\{district.title}: \{district.summary}"),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
@@ -3491,8 +3483,10 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       attrs=[
         @bunnia.class_name("moontown-owned-entry"),
         @bunnia.data("ownership-kind", item.kind),
-        @bunnia.data("target-ref", item.target_ref),
-        @bunnia.data("action-message", item.action_message),
+        @bunnia.data(
+          "ownership-destination",
+          town_tab_label(ownership_item_target_tab(item)),
+        ),
       ],
       events=[@bunnia.event("tap", item.action_message)],
       children=[
@@ -3502,7 +3496,7 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
-            "\{town_kind_label(item.kind)} - \{town_visibility_label(item.visibility)} - \{item.action_label} \{town_tab_label(ownership_item_target_tab(item))}",
+            "\{town_kind_label(item.kind)} - \{town_visibility_label(item.visibility)} - \{item.action_label} in \{town_tab_label(ownership_item_target_tab(item))}",
           ),
         ]),
       ],

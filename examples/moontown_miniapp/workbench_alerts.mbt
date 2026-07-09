@@ -87,11 +87,11 @@ pub fn workbench_alerts(
     output.push(
       mini_town_workbench_alert(
         id="stale-backend",
-        title="\{stale_backends.length()} backend state needs sync",
-        summary="Local cache or request state is stale, failed, malformed, cancelled, or retrying.",
+        title="\{stale_backends.length()} update needs refresh",
+        summary="Some town updates could not finish. Refresh to recover.",
         target_ref=stale_backends[0].target_ref,
         severity="notice",
-        action_label="Sync Town",
+        action_label="Refresh Town",
         action_message="load-town-snapshot",
         status="stale",
       ),
