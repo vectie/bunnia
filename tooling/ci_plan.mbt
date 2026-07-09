@@ -55,12 +55,22 @@ pub struct CiPlan {
 } derive(Debug, Eq)
 
 ///|
+pub fn ci_plan_step(
+  name : String,
+  command : String,
+  purpose : String,
+) -> CiPlanStep {
+  ci_step(name, command, purpose)
+}
+
+///|
 pub fn ci_plan(
   target? : String = "wechat",
   budget_profile? : String = "tight",
   render_budget_profile? : String = "",
   examples? : Array[String] = ["agent_map"],
   snapshot_dir? : String = "_build/bunnia/snapshots",
+  post_build_steps? : Array[CiPlanStep] = [],
 ) -> CiPlan {
   let active_render_budget_profile = if render_budget_profile == "" {
     budget_profile
@@ -116,6 +126,9 @@ pub fn ci_plan(
           "strict generated-output budget gate for \{example}",
         ),
       )
+      for step in post_build_steps {
+        steps.push(step)
+      }
       steps.push(
         ci_step(
           "watch-once-\{example}",
@@ -145,6 +158,9 @@ pub fn ci_plan(
           "strict generic mini-app lowering check for \{example}",
         ),
       )
+      for step in post_build_steps {
+        steps.push(step)
+      }
       steps.push(
         ci_step(
           "watch-once-\{example}",

@@ -246,6 +246,25 @@ test "ci plan can target one example and custom budgets" {
 }
 
 ///|
+test "ci plan accepts generic post build steps" {
+  let post_build : Array[CiPlanStep] = [
+    ci_plan_step(
+      "ordinary-copy", "sh scripts/validate_example_copy.sh _build/example", "reject ordinary copy leaks",
+    ),
+  ]
+  let plan = ci_plan(examples=["agent_map"], post_build_steps=post_build)
+  assert_eq(plan.step_count, 14)
+  assert_eq(plan.steps[9].name, "build-agent_map")
+  assert_eq(plan.steps[10].name, "ordinary-copy")
+  assert_eq(
+    plan.steps[10].command,
+    "sh scripts/validate_example_copy.sh _build/example",
+  )
+  assert_eq(plan.steps[11].name, "watch-once-agent_map")
+  assert_true(plan.summary.contains("steps=14"))
+}
+
+///|
 test "ci plan shell script is deterministic and runnable" {
   let plan = ci_plan(examples=["agent_map"])
   let script = ci_plan_shell_script(plan)

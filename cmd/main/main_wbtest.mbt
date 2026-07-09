@@ -626,10 +626,14 @@ test "ci plan can target Moontown miniapp with large-app budgets" {
   assert_eq(plan.examples[0], "moontown_miniapp")
   assert_eq(plan.budget_profile, "large")
   assert_eq(plan.render_budget_profile, "large")
-  assert_eq(plan.step_count, 13)
+  assert_eq(plan.step_count, 14)
   assert_true(plan.steps[8].command.contains("--example moontown_miniapp"))
   assert_true(plan.steps[8].command.contains("--budget large"))
-  assert_true(plan.steps[11].command.contains("moontown_miniapp.snapshot.txt"))
+  assert_eq(
+    plan.steps[10].command,
+    "sh scripts/validate_moontown_ordinary_copy.sh _build/bunnia/wechat/moontown_miniapp",
+  )
+  assert_true(plan.steps[12].command.contains("moontown_miniapp.snapshot.txt"))
 }
 
 ///|

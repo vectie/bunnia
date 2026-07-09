@@ -100,6 +100,7 @@ The Moontown mini-app slice uses the same build path:
 ```bash
 moon run cmd/main -- build --target wechat --example moontown_miniapp --strict --budget large --render-budget large
 moon run cmd/main -- inspect --target wechat --example moontown_miniapp --budget large --render-budget large
+sh scripts/validate_moontown_ordinary_copy.sh
 ```
 
 For WeChat DevTools backend calls, start the local Moontown example backend on

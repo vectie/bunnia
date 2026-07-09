@@ -12,6 +12,7 @@ Run from the repository root:
 moon test
 moon run cmd/main -- build --target wechat --example moontown_miniapp --strict --budget large --render-budget large
 moon run cmd/main -- inspect --target wechat --example moontown_miniapp --budget large --render-budget large
+sh scripts/validate_moontown_ordinary_copy.sh
 node examples/moontown_miniapp/backend/local_backend.mjs --smoke
 ```
 

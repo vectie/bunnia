@@ -127,9 +127,11 @@ pub fn cancel(String, String) -> @effects.Effect
 
 pub fn canvas(String) -> @core.Node
 
-pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> @tooling.CiPlan
+pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String, post_build_steps? : Array[@tooling.CiPlanStep]) -> @tooling.CiPlan
 
 pub fn ci_plan_shell_script(@tooling.CiPlan) -> String
+
+pub fn ci_plan_step(String, String, String) -> @tooling.CiPlanStep
 
 pub fn class_name(String) -> @core.Attr
 

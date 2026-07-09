@@ -347,13 +347,35 @@ fn ci_script_from_args(args : Array[String]) -> Bool {
 
 ///|
 fn ci_plan_from_args(args : Array[String]) -> @bunnia.CiPlan {
+  let target = target_from_args(args)
+  let examples = ci_examples_from_args(args)
   @bunnia.ci_plan(
-    target=target_from_args(args),
+    target~,
     budget_profile=ci_budget_profile_from_args(args),
     render_budget_profile=ci_render_budget_profile_from_args(args),
-    examples=ci_examples_from_args(args),
+    examples~,
     snapshot_dir=ci_snapshot_dir_from_args(args),
+    post_build_steps=ci_post_build_steps(target, examples),
   )
+}
+
+///|
+fn ci_post_build_steps(
+  target : String,
+  examples : Array[String],
+) -> Array[@bunnia.CiPlanStep] {
+  let steps : Array[@bunnia.CiPlanStep] = []
+  if target == "wechat" &&
+    examples.length() == 1 &&
+    examples[0] == "moontown_miniapp" {
+    steps.push(
+      @bunnia.ci_plan_step(
+        "ordinary-copy-moontown_miniapp", "sh scripts/validate_moontown_ordinary_copy.sh _build/bunnia/wechat/moontown_miniapp",
+        "reject technical copy leaks in ordinary Moontown surfaces",
+      ),
+    )
+  }
+  steps
 }
 
 ///|

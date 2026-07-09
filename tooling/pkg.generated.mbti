@@ -16,9 +16,11 @@ pub fn build_profile_budget(max_route_diagnostic_routes~ : Int, max_route_diagno
 
 pub fn build_profile_budget_for_profile(String) -> BuildProfileBudget
 
-pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String) -> CiPlan
+pub fn ci_plan(target? : String, budget_profile? : String, render_budget_profile? : String, examples? : Array[String], snapshot_dir? : String, post_build_steps? : Array[CiPlanStep]) -> CiPlan
 
 pub fn ci_plan_shell_script(CiPlan) -> String
+
+pub fn ci_plan_step(String, String, String) -> CiPlanStep
 
 pub fn gate_build_profile(BuildProfile, BuildProfileBudget, budget_profile? : String) -> BuildProfileGate
 

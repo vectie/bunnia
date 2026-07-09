@@ -3365,12 +3365,22 @@ pub fn profile_wechat_project(
 }
 
 ///|
+pub fn ci_plan_step(
+  name : String,
+  command : String,
+  purpose : String,
+) -> CiPlanStep {
+  @tooling.ci_plan_step(name, command, purpose)
+}
+
+///|
 pub fn ci_plan(
   target? : String = "wechat",
   budget_profile? : String = "tight",
   render_budget_profile? : String = "",
   examples? : Array[String] = ["agent_map"],
   snapshot_dir? : String = "_build/bunnia/snapshots",
+  post_build_steps? : Array[CiPlanStep] = [],
 ) -> CiPlan {
   @tooling.ci_plan(
     target~,
@@ -3378,6 +3388,7 @@ pub fn ci_plan(
     render_budget_profile~,
     examples~,
     snapshot_dir~,
+    post_build_steps~,
   )
 }
 
