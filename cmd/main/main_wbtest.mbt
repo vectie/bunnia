@@ -708,8 +708,8 @@ test "init command accepts output override and module default" {
 ///|
 test "init command writes a local workspace link" {
   assert_eq(
-    scaffold_workspace_content("/Users/kq/Workspace/moonmini"),
-    "members = [\n  \".\",\n  \"/Users/kq/Workspace/moonmini\",\n]\n",
+    scaffold_workspace_content("/Users/kq/Workspace/bunnia"),
+    "members = [\n  \".\",\n  \"/Users/kq/Workspace/bunnia\",\n]\n",
   )
 }
 
