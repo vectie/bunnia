@@ -43,6 +43,8 @@ moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moont
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
+my_inventory_shelf_files='examples/moontown_miniapp/my_inventory_shelf_model.mbt examples/moontown_miniapp/my_inventory_shelf_panel.mbt examples/moontown_miniapp/my_inventory_shelf_rows.mbt'
+
 discovery_projection_files='examples/moontown_miniapp/projection_discovery_results.mbt examples/moontown_miniapp/projection_discovery_activity.mbt examples/moontown_miniapp/projection_discovery_work.mbt examples/moontown_miniapp/projection_discovery_pulse.mbt'
 
 discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examples/moontown_miniapp/discover_market_entries.mbt examples/moontown_miniapp/discover_market_actions.mbt'
@@ -133,6 +135,13 @@ done
 for required in $my_workbench_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My workbench file $required"
+    exit 1
+  fi
+done
+
+for required in $my_inventory_shelf_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown My Inventory shelf file $required"
     exit 1
   fi
 done
@@ -232,6 +241,12 @@ if [ "$my_workbench_lines" -gt 120 ]; then
   exit 1
 fi
 
+my_inventory_shelves_lines=$(wc -l < examples/moontown_miniapp/my_inventory_shelves.mbt | tr -d ' ')
+if [ "$my_inventory_shelves_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: my_inventory_shelves.mbt has $my_inventory_shelves_lines lines; keep shelf behavior in focused my_inventory_shelf_* files"
+  exit 1
+fi
+
 projection_discovery_lines=$(wc -l < examples/moontown_miniapp/projection_discovery.mbt | tr -d ' ')
 if [ "$projection_discovery_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_discovery.mbt has $projection_discovery_lines lines; keep Discover projection behavior in focused files"
@@ -322,6 +337,14 @@ for focused_my_workbench in $my_workbench_files; do
   focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
+    exit 1
+  fi
+done
+
+for focused_my_inventory_shelf in $my_inventory_shelf_files; do
+  focused_lines=$(wc -l < "$focused_my_inventory_shelf" | tr -d ' ')
+  if [ "$focused_lines" -gt 180 ]; then
+    printf '%s\n' "boundary violation: $focused_my_inventory_shelf has $focused_lines lines; split the My Inventory shelf concern further"
     exit 1
   fi
 done
