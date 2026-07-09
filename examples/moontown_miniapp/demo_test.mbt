@@ -337,6 +337,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("moontown-presence-chip"))
   assert_true(home.wxml.contains("data-presence-id=\"presence-policy-guide\""))
   assert_true(home.wxml.contains("data-actor-kind=\"agent\""))
+  assert_true(home.wxml.contains("My holds profile setup"))
+  assert_true(!home.wxml.contains("My holds profile readiness"))
   assert_true(home.wxml.contains("Search Town"))
   assert_true(home.wxml.contains("Publish Draft"))
   assert_true(!home.wxml.contains("Map Districts"))
@@ -785,6 +787,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-workbench-alert=\"stale-backend\""))
   assert_true(mine.wxml.contains("Town passport incomplete"))
   assert_true(mine.wxml.contains("1 draft blocked from town"))
+  assert_true(
+    mine.wxml.contains(
+      "Owned drafts and shared places need profile setup before publishing.",
+    ),
+  )
+  assert_true(!mine.wxml.contains("shared-private buildings"))
+  assert_true(!mine.wxml.contains("profile readiness"))
   assert_true(mine.wxml.contains("1 update needs refresh"))
   assert_true(!mine.wxml.contains("backend state needs sync"))
   assert_true(!mine.wxml.contains("Sync Town"))
@@ -1984,7 +1993,7 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
         "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
-        "Receive run,",
+        "Receive run,", "profile readiness", "shared-private buildings",
       ] {
       if wxml.contains(raw) {
         return false

@@ -90,7 +90,7 @@ pub fn guide_steps(projection : MiniTownProjection) -> Array[MiniTownGuideStep] 
     mini_town_guide_step(
       id="passport",
       title="Finish Passport",
-      summary="My holds profile readiness, owned work, publishing, and archives.",
+      summary="My holds profile setup, owned work, publishing, and archives.",
       tab_id="my",
       action_label="My",
       action_message="tab-my",

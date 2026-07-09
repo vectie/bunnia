@@ -58,7 +58,7 @@ pub fn workbench_alerts(
       mini_town_workbench_alert(
         id="blocked-publication",
         title="\{blocked_publications} draft blocked from town",
-        summary="Owned draft or shared-private buildings need profile readiness before publish.",
+        summary="Owned drafts and shared places need profile setup before publishing.",
         target_ref="building:publication",
         severity="warning",
         action_label="Open Drafts",

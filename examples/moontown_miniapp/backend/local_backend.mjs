@@ -1731,7 +1731,7 @@ function ownershipFor(state, viewer, query = new URLSearchParams(), body = {}) {
   }
   const blockedDrafts = buildings.filter((item) => item.visibility === "private_draft").length;
   if (blockedDrafts > 0) {
-    alerts.push({ id: "blocked-publication", severity: "medium", title: `${blockedDrafts} draft blocked from town`, summary: "Publish requires profile, consent, and review readiness.", targetRef: "building:drafts", action: "ownership-filter-drafts", status: "blocked" });
+    alerts.push({ id: "blocked-publication", severity: "medium", title: `${blockedDrafts} draft blocked from town`, summary: "Publish requires profile, consent, and review setup.", targetRef: "building:drafts", action: "ownership-filter-drafts", status: "blocked" });
   }
   if (retryableRuns.length > 0) {
     alerts.push({ id: "retryable-runs", severity: "medium", title: `${retryableRuns.length} agent work item can retry`, summary: "Retry failed or cancelled agent work from Messages.", targetRef: "messages:runs", action: "message-channel-runs", status: "retry" });
@@ -1982,7 +1982,7 @@ function discoverItems(state, viewer, filters) {
       id: `user-${item.id}`,
       kind: "user",
       title: item.name,
-      summary: `Town ${item.roleId || "member"} with public profile readiness.`,
+      summary: `Town ${item.roleId || "member"} with public profile setup.`,
       targetRef: `user:${item.id}`,
       visibility: item.id === viewer ? "personal" : "published",
       status: "stable",
