@@ -33,6 +33,10 @@ moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moont
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
+discovery_projection_files='examples/moontown_miniapp/projection_discovery_results.mbt examples/moontown_miniapp/projection_discovery_activity.mbt examples/moontown_miniapp/projection_discovery_work.mbt examples/moontown_miniapp/projection_discovery_pulse.mbt'
+
+discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examples/moontown_miniapp/discover_market_entries.mbt examples/moontown_miniapp/discover_market_actions.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
@@ -82,6 +86,20 @@ for required in $my_workbench_files; do
   fi
 done
 
+for required in $discovery_projection_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Discover projection file $required"
+    exit 1
+  fi
+done
+
+for required in $discover_market_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Discover market file $required"
+    exit 1
+  fi
+done
+
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
 if [ "$projection_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
@@ -121,6 +139,18 @@ fi
 my_workbench_lines=$(wc -l < examples/moontown_miniapp/my_workbench.mbt | tr -d ' ')
 if [ "$my_workbench_lines" -gt 120 ]; then
   printf '%s\n' "boundary violation: my_workbench.mbt has $my_workbench_lines lines; keep My Inventory panels in focused files"
+  exit 1
+fi
+
+projection_discovery_lines=$(wc -l < examples/moontown_miniapp/projection_discovery.mbt | tr -d ' ')
+if [ "$projection_discovery_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_discovery.mbt has $projection_discovery_lines lines; keep Discover projection behavior in focused files"
+  exit 1
+fi
+
+discover_market_lines=$(wc -l < examples/moontown_miniapp/discover_market.mbt | tr -d ' ')
+if [ "$discover_market_lines" -gt 120 ]; then
+  printf '%s\n' "boundary violation: discover_market.mbt has $discover_market_lines lines; keep Market Board panels in focused files"
   exit 1
 fi
 
@@ -168,6 +198,22 @@ for focused_my_workbench in $my_workbench_files; do
   focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
+    exit 1
+  fi
+done
+
+for focused_discovery_projection in $discovery_projection_files; do
+  focused_lines=$(wc -l < "$focused_discovery_projection" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_discovery_projection has $focused_lines lines; split the Discover projection concern further"
+    exit 1
+  fi
+done
+
+for focused_discover_market in $discover_market_files; do
+  focused_lines=$(wc -l < "$focused_discover_market" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_discover_market has $focused_lines lines; split the Market Board concern further"
     exit 1
   fi
 done

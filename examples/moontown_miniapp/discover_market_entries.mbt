@@ -1,0 +1,86 @@
+///|
+fn discover_entry(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> @bunnia.Node {
+  @bunnia.keyed(
+    "discover-\{item.id}",
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name(
+          "moontown-discover-entry bunnia-status-\{item.status}",
+        ),
+        @bunnia.data("discovery-id", item.id),
+        @bunnia.data("discovery-kind", item.kind),
+      ],
+      [
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+          @bunnia.text(item.title),
+        ]),
+        @bunnia.text(item.summary),
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+          @bunnia.text(
+            "\{town_kind_label(item.kind)} - \{discover_eligibility_label(projection, item)}",
+          ),
+        ]),
+        discover_eligibility_row(projection, item),
+        discover_entry_action(projection, item),
+      ],
+    ),
+  )
+}
+
+///|
+fn discover_eligibility_row(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-badges")], [
+    discover_badge("kind", town_kind_label(item.kind)),
+    discover_badge("access", discover_access_label(item)),
+    discover_badge("eligibility", discover_eligibility_label(projection, item)),
+  ])
+}
+
+///|
+fn discover_badge(kind : String, label : String) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("moontown-discovery-badge kind-\{kind}")],
+    [@bunnia.text(label)],
+  )
+}
+
+///|
+fn discover_access_label(item : MiniTownDiscoveryItem) -> String {
+  if item.visibility == "published" || item.visibility == "public" {
+    "Public"
+  } else if item.visibility == "personal" {
+    "Owner only"
+  } else if item.visibility == "shared_private" {
+    "Shared"
+  } else if item.visibility == "private_draft" {
+    "Needs setup"
+  } else {
+    town_visibility_label(item.visibility)
+  }
+}
+
+///|
+fn discover_eligibility_label(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> String {
+  if item.kind == "building" && item.visibility == "published" {
+    if discovery_item_placement_state(projection, item) == "pinned" {
+      "Already placed"
+    } else {
+      "Can place"
+    }
+  } else if item.visibility == "published" || item.visibility == "public" {
+    "Can open"
+  } else if item.visibility == "personal" {
+    "Owner only"
+  } else {
+    "Needs setup"
+  }
+}
