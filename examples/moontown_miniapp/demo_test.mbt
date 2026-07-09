@@ -111,9 +111,9 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("disabled=\"true\""))
   assert_true(page.wxml.contains("moontown-run-entry"))
   assert_true(page.wxml.contains("Policy answer review"))
-  assert_true(page.wxml.contains("data-run-id=\"run-policy-review\""))
+  assert_true(!page.wxml.contains("data-run-id=\"run-policy-review\""))
   assert_true(
-    page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
+    !page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
   )
   assert_true(page.wxml.contains("Lifecycle Stamps"))
   assert_true(page.wxml.contains("moontown-audit-entry"))
@@ -391,24 +391,21 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   let messages = tab_page(projection, "messages")
   assert_true(has_no_forbidden_ordinary_copy(messages.wxml))
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
-  assert_true(messages.wxml.contains("Mail Board"))
+  assert_true(messages.wxml.contains("Attention Center"))
   assert_true(
     !messages.wxml.contains("runtime channel: {{messages.channel || 'all'}}"),
   )
   assert_true(messages.wxml.contains("moontown-message-bucket"))
-  assert_true(messages.wxml.contains("moontown-message-sync"))
-  assert_true(messages.wxml.contains("data-backend-sync=\"notifications\""))
+  assert_true(!messages.wxml.contains("moontown-message-sync"))
+  assert_true(!messages.wxml.contains("data-backend-sync="))
+  assert_true(!messages.wxml.contains("data-backend-endpoint="))
+  assert_true(!messages.wxml.contains("data-backend-path="))
+  assert_true(messages.wxml.contains("Latest Messages"))
+  assert_true(messages.wxml.contains("More"))
   assert_true(messages.wxml.contains("Mark Read"))
-  assert_true(messages.wxml.contains("Watch Notices"))
   assert_true(messages.wxml.contains("Review Result"))
   assert_true(!messages.wxml.contains("Ack Sync"))
   assert_true(!messages.wxml.contains("Tool Ack"))
-  assert_true(
-    messages.wxml.contains("data-backend-endpoint=\"load-message-center\""),
-  )
-  assert_true(
-    messages.wxml.contains("data-backend-path=\"/miniapp/messages/center\""),
-  )
   assert_true(
     !messages.wxml.contains(
       "{{backendStatus.load_message_center.state || 'idle'}}",
@@ -418,57 +415,51 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
     messages.wxml.contains("data-bunnia-message=\"load-message-center\""),
   )
   assert_true(
-    messages.wxml.contains("data-backend-endpoint=\"ack-notification\""),
-  )
-  assert_true(
     !messages.wxml.contains(
       "{{backendStatus.ack_notification.state || 'idle'}}",
     ),
-  )
-  assert_true(
-    messages.wxml.contains("data-backend-endpoint=\"request-subscription\""),
-  )
-  assert_true(
-    messages.wxml.contains("data-backend-endpoint=\"ack-tool-result\""),
-  )
-  assert_true(
-    messages.wxml.contains("data-backend-path=\"/miniapp/tool-results/ack\""),
   )
   assert_true(
     !messages.wxml.contains(
       "{{backendStatus.request_subscription.state || 'idle'}}",
     ),
   )
-  assert_true(messages.wxml.contains("New Follows"))
+  assert_true(messages.wxml.contains("Needs Review"))
+  assert_true(messages.wxml.contains("Agent Replies"))
   assert_true(messages.wxml.contains("Interactions"))
-  assert_true(messages.wxml.contains("data-channel-id=\"follow\""))
-  assert_true(messages.wxml.contains("data-channel-id=\"interaction\""))
+  assert_true(messages.wxml.contains("Town Notices"))
+  assert_true(messages.wxml.contains("Failed Actions"))
+  assert_true(!messages.wxml.contains("New Follows"))
+  assert_true(!messages.wxml.contains("data-channel-id="))
+  assert_true(!messages.wxml.contains("data-channel-kind="))
   assert_true(messages.wxml.contains("moontown-message-channel active"))
-  assert_true(messages.wxml.contains("data-channel-id=\"agent\""))
-  assert_true(messages.wxml.contains("data-channel-kind=\"agent-run\""))
   assert_true(messages.wxml.contains("Deep Cultivator followed your town"))
   assert_true(messages.wxml.contains("Enterprise Club replied"))
   assert_true(messages.wxml.contains("Memory review needed"))
   assert_true(messages.wxml.contains("Agent run completed"))
-  assert_true(messages.wxml.contains("data-notice-kind=\"agent-run\""))
-  assert_true(messages.wxml.contains("Agent Runs"))
+  assert_true(!messages.wxml.contains("data-notice-kind="))
+  assert_true(messages.wxml.contains("Agent Work"))
   assert_true(
     messages.wxml.contains(
-      "Runs stay linked to buildings, books, threads, and review artifacts.",
+      "Agent work stays attached to places, books, and review decisions.",
     ),
   )
   assert_true(messages.wxml.contains("Market placement scan"))
-  assert_true(messages.wxml.contains("data-run-id=\"run-market-scan\""))
-  assert_true(messages.wxml.contains("data-review-required=\"true\""))
+  assert_true(!messages.wxml.contains("data-run-id="))
+  assert_true(!messages.wxml.contains("moontown-chat-drawer"))
+  assert_true(!messages.wxml.contains("data-thread-id=\"thread-market-scan\""))
+  assert_true(!messages.wxml.contains("data-artifact-ref="))
+  assert_true(!messages.wxml.contains("data-review-required="))
+  assert_true(
+    messages.wxml.contains("In progress - Market Square - Market Square Ledger"),
+  )
   assert_true(messages.wxml.contains("moontown-run-actions"))
   assert_true(messages.wxml.contains("data-run-action=\"open-building\""))
   assert_true(messages.wxml.contains("data-run-action=\"review-accept\""))
   assert_true(messages.wxml.contains("data-run-action=\"review-reject\""))
   assert_true(messages.wxml.contains("data-run-action=\"cancel\""))
   assert_true(messages.wxml.contains("data-run-action=\"retry\""))
-  assert_true(
-    messages.wxml.contains("data-target-ref=\"building:policy-hall\""),
-  )
+  assert_true(!messages.wxml.contains("data-target-ref=\"run:"))
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"select-policy-hall\""),
   )
@@ -480,23 +471,28 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   )
   assert_true(messages.wxml.contains("data-bunnia-message=\"cancel-run\""))
   assert_true(messages.wxml.contains("data-bunnia-message=\"retry-run\""))
+  assert_true(messages.wxml.contains("Stop Work"))
+  assert_true(messages.wxml.contains("Try Again"))
   assert_true(messages.wxml.contains("data-blocked-reason=\"wait for status\""))
-  assert_true(messages.wxml.contains("Review Results"))
+  assert_true(messages.wxml.contains("Agent Results"))
+  assert_true(!messages.wxml.contains("Review Results"))
   assert_true(!messages.wxml.contains("Tool Results"))
-  assert_true(messages.wxml.contains("bunnia-tool-result-card"))
-  assert_true(
-    messages.wxml.contains("data-tool-result-id=\"tool-policy-summary\""),
-  )
-  assert_true(messages.wxml.contains("data-tool-name=\"book-summarizer\""))
+  assert_true(!messages.wxml.contains("bunnia-tool-result-card"))
+  assert_true(!messages.wxml.contains("data-tool-result-id="))
+  assert_true(!messages.wxml.contains("data-tool-name="))
+  assert_true(messages.wxml.contains("moontown-agent-result"))
   assert_true(messages.wxml.contains("Policy source summary"))
+  assert_true(messages.wxml.contains("Open Place"))
   assert_true(messages.wxml.contains("data-bunnia-message=\"ack-tool-result\""))
-  assert_true(messages.wxml.contains("Review Queue"))
+  assert_true(messages.wxml.contains("Needs Review"))
   assert_true(
     messages.wxml.contains(
-      "Accepted memory enters books; accepted publication enters town discovery.",
+      "Approve useful memory or reject work before it enters town books.",
     ),
   )
-  assert_true(messages.wxml.contains("data-review-id=\"review-policy-memory\""))
+  assert_true(messages.wxml.contains("Waiting for review - +1 memory"))
+  assert_true(!messages.wxml.contains("pending - +1 memory"))
+  assert_true(!messages.wxml.contains("data-review-id="))
   assert_true(messages.wxml.contains("data-decision=\"accept\""))
   assert_true(messages.wxml.contains("data-decision=\"reject\""))
   assert_true(messages.wxml.contains("Moderation Desk"))
@@ -518,14 +514,17 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
   assert_true(messages.wxml.contains("data-notice-action=\"ack\""))
-  assert_true(messages.wxml.contains("data-notice-id=\"notice-follow\""))
-  assert_true(messages.wxml.contains("data-notice-kind=\"follow\""))
-  assert_true(messages.wxml.contains("data-target-ref=\"subscription:wechat\""))
+  assert_true(!messages.wxml.contains("data-notice-id="))
+  assert_true(!messages.wxml.contains("data-notice-kind="))
   assert_true(
-    messages.wxml.contains("data-action-message=\"open-notice-review\""),
+    !messages.wxml.contains("data-target-ref=\"subscription:wechat\""),
+  )
+  assert_true(!messages.wxml.contains("data-action-message="))
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"open-notice-review\""),
   )
   assert_true(
-    messages.wxml.contains("data-action-message=\"request-subscription\""),
+    messages.wxml.contains("data-bunnia-message=\"request-subscription\""),
   )
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"ack-notification\""),
@@ -533,9 +532,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"request-subscription\""),
   )
-  assert_true(messages.wxml.contains("data-requires-subscription=\"true\""))
+  assert_true(!messages.wxml.contains("data-requires-subscription="))
   assert_true(messages.wxml.contains("data-building-id=\"policy-hall\""))
-  assert_true(messages.wxml.contains("moontown-chat-drawer"))
+  assert_true(!messages.wxml.contains("moontown-chat-drawer"))
   assert_true(!messages.wxml.contains("moontown-bottom-hud"))
 
   let mine = tab_page(projection, "my")

@@ -35,6 +35,8 @@ fn town_status_label(status : String) -> String {
     "Empty"
   } else if status == "clear" {
     "Clear"
+  } else if status == "pending" {
+    "Waiting for review"
   } else if status == "idle" {
     "Waiting"
   } else {
@@ -92,11 +94,21 @@ fn town_kind_label(kind : String) -> String {
   } else if kind == "system_gateway" {
     "Gateway"
   } else if kind == "review" {
-    "Review"
+    "Needs review"
+  } else if kind == "agent-run" {
+    "Agent reply"
+  } else if kind == "interaction" {
+    "Interaction"
+  } else if kind == "subscription" {
+    "Town notice"
+  } else if kind == "follow" {
+    "Town notice"
+  } else if kind == "publish" {
+    "Publishing"
+  } else if kind == "share" {
+    "Shared place"
   } else if kind == "run" {
     "Agent work"
-  } else if kind == "publish" {
-    "Published"
   } else if kind == "place" {
     "Placed"
   } else if kind == "watch" {
@@ -158,22 +170,5 @@ fn cache_user_title(cache : MiniTownBackendCacheState) -> String {
     "Latest Messages"
   } else {
     cache.label
-  }
-}
-
-///|
-fn backend_endpoint_user_summary(endpoint_id : String) -> String {
-  if endpoint_id == "load-message-center" {
-    "Check who needs your attention."
-  } else if endpoint_id == "ack-notification" {
-    "Clear notices after you have seen them."
-  } else if endpoint_id == "ack-tool-result" {
-    "Confirm a reviewed agent result."
-  } else if endpoint_id == "request-subscription" {
-    "Ask the town to keep you posted."
-  } else if endpoint_id == "send-building-message" {
-    "Send a message in this building thread."
-  } else {
-    "Ready when you need it."
   }
 }
