@@ -580,7 +580,10 @@ metadata so large public result sets do not force the mini-app to render or
 patch unbounded lists. Backend-bound Discover filter chips now update the
 search payload (`kind`, `filter`, `placeableOnly`, and cursor reset) as well as
 local display state, so WeChat DevTools exercises the same bounded search route
-that production will use while cosmetic filters stay cheap.
+that production will use while cosmetic filters stay cheap. The Discover market
+board UI now lives in `discover_market.mbt`, with shared Realm place actions in
+`place_actions.mbt`, and its empty search state tells users to try another
+search or market filter without exposing cursor or payload machinery.
 Public discovery targets can now also be
 watched through the existing subscription route: the backend validates that
 watched buildings, books, agents, users, and listings including circles are

@@ -3316,6 +3316,14 @@ pub fn switch_discovery_filter(
 }
 
 ///|
+pub fn search_discovery(
+  projection : MiniTownProjection,
+  query : String,
+) -> MiniTownProjection {
+  { ..projection, search_query: query }
+}
+
+///|
 pub fn switch_notification_channel(
   projection : MiniTownProjection,
   channel_id : String,

@@ -327,6 +327,9 @@ Acceptance checks:
 - Placeable results clearly return to Realm.
 - Private/shared-private objects remain absent from public search.
 - Paging does not make visible labels technical.
+- Current implementation note: the market board surface is isolated in
+  `discover_market.mbt`, reusable Realm open actions live in `place_actions.mbt`,
+  and empty results use ordinary copy instead of search payload details.
 
 Validation:
 

@@ -439,6 +439,19 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("Agent Lab Field Note"))
   assert_true(!discover.wxml.contains("moontown-right-hud"))
 
+  let empty_discover_projection = search_discovery(
+    projection, "no public market result matches this",
+  )
+  let empty_discover = tab_page(empty_discover_projection, "discover")
+  assert_true(has_no_forbidden_ordinary_copy(empty_discover.wxml))
+  assert_true(empty_discover.wxml.contains("moontown-discover-empty"))
+  assert_true(empty_discover.wxml.contains("No public match"))
+  assert_true(
+    empty_discover.wxml.contains(
+      "Try another search or choose a different market filter.",
+    ),
+  )
+
   let messages = tab_page(projection, "messages")
   assert_true(has_no_forbidden_ordinary_copy(messages.wxml))
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))

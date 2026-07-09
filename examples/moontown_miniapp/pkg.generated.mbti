@@ -208,6 +208,8 @@ pub fn review_runs(MiniTownProjection) -> Array[MiniTownRun]
 
 pub fn run_actions(MiniTownRun) -> Array[MiniTownRunAction]
 
+pub fn search_discovery(MiniTownProjection, String) -> MiniTownProjection
+
 pub fn search_results(MiniTownProjection) -> Array[MiniTownBuilding]
 
 pub fn select_role(MiniTownProjection, String) -> MiniTownProjection
