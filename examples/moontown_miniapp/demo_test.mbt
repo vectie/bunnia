@@ -2179,11 +2179,19 @@ fn generated_wxss_has_tile_visual_system(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
   ) &&
   wxss.contains(".mt-panel input{width:100%;min-height:72rpx") &&
+  wxss.contains("touch-action:manipulation") &&
+  wxss.contains("overscroll-behavior:contain") &&
+  wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
+  wxss.contains("bottom:calc(104rpx+env(safe-area-inset-bottom))") &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
   wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
   wxss.contains(
+    ".moontown-community-actions,.moontown-discovery-action,.moontown-profile-actions,.moontown-run-actions,.moontown-object-primary-actions{display:flex;flex-direction:row;gap:8rpx;flex-wrap:wrap",
+  ) &&
+  wxss.contains(
     ".moontown-community-actions button,.moontown-discovery-action button",
   ) &&
+  !wxss.contains("letter-spacing:-") &&
   ordinary_pages_share_app_wxss(files)
 }
 

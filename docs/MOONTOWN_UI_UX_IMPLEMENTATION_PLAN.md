@@ -581,6 +581,11 @@ Acceptance checks:
 - Home, Discover, Messages, My, and drawers look like the same town product.
 - All touch targets are usable on small phone screens.
 - Visual state is understandable without reading system text.
+- Current implementation note: the ordinary mini-app WXSS is split into named
+  tile chunks in `visual_tiles.mbt`, with shared row, action, state, drawer,
+  shell, and responsive primitives. Generated stylesheet tests now guard
+  touch-action, safe-area offsets, wrapped action rows, and no negative letter
+  spacing.
 
 Validation:
 
