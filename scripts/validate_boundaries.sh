@@ -37,6 +37,8 @@ discovery_projection_files='examples/moontown_miniapp/projection_discovery_resul
 
 discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examples/moontown_miniapp/discover_market_entries.mbt examples/moontown_miniapp/discover_market_actions.mbt'
 
+realm_map_files='examples/moontown_miniapp/realm_map_backdrop.mbt examples/moontown_miniapp/realm_map_markers.mbt examples/moontown_miniapp/realm_map_hud.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
@@ -100,6 +102,13 @@ for required in $discover_market_files; do
   fi
 done
 
+for required in $realm_map_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Realm map file $required"
+    exit 1
+  fi
+done
+
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
 if [ "$projection_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
@@ -151,6 +160,12 @@ fi
 discover_market_lines=$(wc -l < examples/moontown_miniapp/discover_market.mbt | tr -d ' ')
 if [ "$discover_market_lines" -gt 120 ]; then
   printf '%s\n' "boundary violation: discover_market.mbt has $discover_market_lines lines; keep Market Board panels in focused files"
+  exit 1
+fi
+
+realm_map_lines=$(wc -l < examples/moontown_miniapp/realm_map.mbt | tr -d ' ')
+if [ "$realm_map_lines" -gt 120 ]; then
+  printf '%s\n' "boundary violation: realm_map.mbt has $realm_map_lines lines; keep Realm map parts in focused files"
   exit 1
 fi
 
@@ -214,6 +229,14 @@ for focused_discover_market in $discover_market_files; do
   focused_lines=$(wc -l < "$focused_discover_market" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_discover_market has $focused_lines lines; split the Market Board concern further"
+    exit 1
+  fi
+done
+
+for focused_realm_map in $realm_map_files; do
+  focused_lines=$(wc -l < "$focused_realm_map" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_realm_map has $focused_lines lines; split the Realm map concern further"
     exit 1
   fi
 done
