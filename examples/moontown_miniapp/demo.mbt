@@ -288,6 +288,8 @@ fn moontown_wxss_source() -> String {
   ".moontown-discovery-filter.active, .moontown-message-channel.active, .moontown-ownership-filter.active { background: #203729; color: #fff8dc; }\n" +
   ".moontown-run-action, .bunnia-tool-result-action { flex: 0 0 auto; }\n" +
   ".moontown-tool-results .bunnia-tool-result-list-windowed { margin-top: 8rpx; max-height: 296rpx; overflow: hidden; }\n" +
+  ".moontown-discovery-badges { display: flex; gap: 6rpx; flex-wrap: wrap; margin-top: 6rpx; }\n" +
+  ".moontown-discovery-badge { padding: 4rpx 8rpx; border-radius: 6rpx; background: rgba(37,55,43,0.1); color: #334538; font-size: 16rpx; }\n" +
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-sizing: border-box; }\n" +
@@ -1884,7 +1886,7 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
     ),
     @bunnia.view_with_attrs(
       [@bunnia.class_name("moontown-community-actions")],
-      [backend_window_button("More", "discover-search", cursor=2, limit=2)],
+      [@bunnia.button("More", "discover-search")],
     ),
     discover_spotlight_section("Town People", people),
     discover_spotlight_section("Town Circles", circles),
@@ -1962,7 +1964,6 @@ fn discovery_filter_chip(
           },
         ),
         @bunnia.data("filter-id", filter.id),
-        @bunnia.data("filter-kind", filter.kind),
       ],
       events=[@bunnia.event("tap", "discover-filter-\{filter.id}")],
       children=[@bunnia.text(filter.label)],
@@ -1984,8 +1985,6 @@ fn discover_entry(
         ),
         @bunnia.data("discovery-id", item.id),
         @bunnia.data("discovery-kind", item.kind),
-        @bunnia.data("target-ref", item.target_ref),
-        @bunnia.data("visibility", item.visibility),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -1994,13 +1993,69 @@ fn discover_entry(
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
-            "\{town_kind_label(item.kind)} - \{town_visibility_label(item.visibility)}",
+            "\{town_kind_label(item.kind)} - \{discover_eligibility_label(projection, item)}",
           ),
         ]),
+        discover_eligibility_row(projection, item),
         discover_entry_action(projection, item),
       ],
     ),
   )
+}
+
+///|
+fn discover_eligibility_row(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-badges")], [
+    discover_badge("kind", town_kind_label(item.kind)),
+    discover_badge("access", discover_access_label(item)),
+    discover_badge("eligibility", discover_eligibility_label(projection, item)),
+  ])
+}
+
+///|
+fn discover_badge(kind : String, label : String) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("moontown-discovery-badge kind-\{kind}")],
+    [@bunnia.text(label)],
+  )
+}
+
+///|
+fn discover_access_label(item : MiniTownDiscoveryItem) -> String {
+  if item.visibility == "published" || item.visibility == "public" {
+    "Public"
+  } else if item.visibility == "personal" {
+    "Owner only"
+  } else if item.visibility == "shared_private" {
+    "Shared"
+  } else if item.visibility == "private_draft" {
+    "Needs setup"
+  } else {
+    town_visibility_label(item.visibility)
+  }
+}
+
+///|
+fn discover_eligibility_label(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> String {
+  if item.kind == "building" && item.visibility == "published" {
+    if discovery_item_placement_state(projection, item) == "pinned" {
+      "Already placed"
+    } else {
+      "Can place"
+    }
+  } else if item.visibility == "published" || item.visibility == "public" {
+    "Can open"
+  } else if item.visibility == "personal" {
+    "Owner only"
+  } else {
+    "Needs setup"
+  }
 }
 
 ///|
@@ -2021,18 +2076,6 @@ fn discover_entry_action(
         attrs=[
           @bunnia.data("discovery-id", item.id),
           @bunnia.data("building-id", discovery_item_building_id(item)),
-          @bunnia.data("target-ref", item.target_ref),
-          @bunnia.data("placement-state", placement_state),
-          @bunnia.data("placement-layer", "personal"),
-          @bunnia.data("placement-source", "discover"),
-          @bunnia.data(
-            "placement-x",
-            discovery_item_building_x(projection, item),
-          ),
-          @bunnia.data(
-            "placement-y",
-            discovery_item_building_y(projection, item),
-          ),
         ],
         events=place_events,
         children=[
@@ -2141,34 +2184,6 @@ fn discovery_item_building_id(item : MiniTownDiscoveryItem) -> String {
   } else {
     item.id
   }
-}
-
-///|
-fn discovery_item_building_x(
-  projection : MiniTownProjection,
-  item : MiniTownDiscoveryItem,
-) -> String {
-  let building_id = discovery_item_building_id(item)
-  for building in projection.buildings {
-    if building.id == building_id {
-      return "\{building.x}"
-    }
-  }
-  "0"
-}
-
-///|
-fn discovery_item_building_y(
-  projection : MiniTownProjection,
-  item : MiniTownDiscoveryItem,
-) -> String {
-  let building_id = discovery_item_building_id(item)
-  for building in projection.buildings {
-    if building.id == building_id {
-      return "\{building.y}"
-    }
-  }
-  "0"
 }
 
 ///|

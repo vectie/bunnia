@@ -330,21 +330,26 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("data-filter-id=\"event\""))
   assert_true(discover.wxml.contains("data-filter-id=\"post\""))
   assert_true(discover.wxml.contains("data-filter-id=\"placeable\""))
-  assert_true(discover.wxml.contains("data-filter-kind=\"building\""))
+  assert_true(!discover.wxml.contains("data-filter-kind="))
+  assert_true(discover.wxml.contains("moontown-discovery-badges"))
+  assert_true(discover.wxml.contains("moontown-discovery-badge kind-access"))
+  assert_true(
+    discover.wxml.contains("moontown-discovery-badge kind-eligibility"),
+  )
+  assert_true(discover.wxml.contains("Public"))
+  assert_true(discover.wxml.contains("Can open"))
   assert_true(discover.wxml.contains("Published Agent Lab"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"building\""))
   assert_true(discover.wxml.contains("Place On Map"))
   assert_true(
     discover.wxml.contains("data-building-id=\"published-agent-lab\""),
   )
-  assert_true(
-    discover.wxml.contains("data-target-ref=\"building:published-agent-lab\""),
-  )
-  assert_true(discover.wxml.contains("data-placement-state=\"not-placed\""))
-  assert_true(discover.wxml.contains("data-placement-layer=\"personal\""))
-  assert_true(discover.wxml.contains("data-placement-source=\"discover\""))
-  assert_true(discover.wxml.contains("data-placement-x=\"538\""))
-  assert_true(discover.wxml.contains("data-placement-y=\"528\""))
+  assert_true(discover.wxml.contains("Can place"))
+  assert_true(!discover.wxml.contains("data-placement-state="))
+  assert_true(!discover.wxml.contains("data-placement-layer="))
+  assert_true(!discover.wxml.contains("data-placement-source="))
+  assert_true(!discover.wxml.contains("data-placement-x="))
+  assert_true(!discover.wxml.contains("data-placement-y="))
   assert_true(discover.wxml.contains("Watch"))
   assert_true(
     discover.wxml.contains("data-bunnia-message=\"request-subscription\""),
@@ -1004,8 +1009,8 @@ test "moontown miniapp generates wechat project with backend hooks" {
     project.page.js.contains("d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1)"),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.wxml").contains(
-      "data-cursor=\"2\"",
+    !file_content(project.files, "pages/moontown/discover.wxml").contains(
+      "data-cursor=",
     ),
   )
   assert_true(
@@ -1655,7 +1660,8 @@ test "moontown miniapp projection supports mock user create search and agent flo
   }
   let placed_discover = tab_page(placed, "discover")
   assert_true(placed_discover.wxml.contains("Pinned On Map"))
-  assert_true(placed_discover.wxml.contains("data-placement-state=\"pinned\""))
+  assert_true(placed_discover.wxml.contains("Already placed"))
+  assert_true(!placed_discover.wxml.contains("data-placement-state="))
   let duplicate_placed = place_published_building(placed, "published-agent-lab")
   assert_eq(duplicate_placed.placements.length(), placed.placements.length())
   let archived = archive_selected_building(published)
