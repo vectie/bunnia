@@ -55,6 +55,8 @@ realm_map_files='examples/moontown_miniapp/realm_map_backdrop.mbt examples/moont
 
 object_context_files='examples/moontown_miniapp/object_context_model.mbt examples/moontown_miniapp/object_context_section.mbt examples/moontown_miniapp/object_context_cards.mbt examples/moontown_miniapp/object_context_helpers.mbt'
 
+display_copy_files='examples/moontown_miniapp/display_copy_counts.mbt examples/moontown_miniapp/display_copy_status.mbt examples/moontown_miniapp/display_copy_kind.mbt examples/moontown_miniapp/display_copy_navigation.mbt'
+
 message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/moontown_miniapp/message_buckets.mbt examples/moontown_miniapp/message_channels.mbt examples/moontown_miniapp/message_context.mbt examples/moontown_miniapp/message_notices.mbt examples/moontown_miniapp/message_results.mbt examples/moontown_miniapp/message_reviews.mbt examples/moontown_miniapp/message_work.mbt'
 
 reviewer_diagnostics_files='examples/moontown_miniapp/reviewer_diagnostics_operations.mbt examples/moontown_miniapp/reviewer_diagnostics_sections.mbt examples/moontown_miniapp/reviewer_diagnostics_moderation.mbt examples/moontown_miniapp/reviewer_diagnostics_developer.mbt examples/moontown_miniapp/reviewer_diagnostics_backend.mbt'
@@ -185,6 +187,13 @@ for required in $object_context_files; do
   fi
 done
 
+for required in $display_copy_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown display-copy file $required"
+    exit 1
+  fi
+done
+
 for required in $message_surface_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown Messages file $required"
@@ -298,6 +307,12 @@ fi
 object_context_lines=$(wc -l < examples/moontown_miniapp/object_context.mbt | tr -d ' ')
 if [ "$object_context_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: object_context.mbt has $object_context_lines lines; keep communication context behavior in focused object_context_* files"
+  exit 1
+fi
+
+display_copy_lines=$(wc -l < examples/moontown_miniapp/display_copy.mbt | tr -d ' ')
+if [ "$display_copy_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: display_copy.mbt has $display_copy_lines lines; keep ordinary labels in focused display_copy_* files"
   exit 1
 fi
 
@@ -415,6 +430,14 @@ for focused_object_context in $object_context_files; do
   focused_lines=$(wc -l < "$focused_object_context" | tr -d ' ')
   if [ "$focused_lines" -gt 140 ]; then
     printf '%s\n' "boundary violation: $focused_object_context has $focused_lines lines; split the object context concern further"
+    exit 1
+  fi
+done
+
+for focused_display_copy in $display_copy_files; do
+  focused_lines=$(wc -l < "$focused_display_copy" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_display_copy has $focused_lines lines; split the display-copy concern further"
     exit 1
   fi
 done

@@ -244,6 +244,9 @@ Current implementation note:
 - The ordinary shell exposes Enter, Realm, and Passport actions without platform
   wording. Legacy two-user switch controls and patches are removed from generated
   ordinary output.
+- The display-label layer is split by counts/passport readiness,
+  status/visibility copy, kind labels, and navigation/placement copy, keeping
+  backend ids stable while ordinary labels evolve by product concern.
 
 ## UX2: Home Town Pulse Reframe
 
@@ -719,6 +722,9 @@ Acceptance checks:
   diagnostics are split by operations assembly, reviewer check sections,
   moderation rows, developer contract diagnostics, and backend-step lookup so
   UX8 can harden the diagnostics boundary without reopening a reviewer monolith.
+  Display copy is split by counts/passport readiness, status/visibility copy,
+  kind labels, and navigation/placement labels, with a boundary check keeping
+  `display_copy.mbt` as the marker for the ordinary-label layer.
   Lifecycle projection behavior is split by drawer action rows, publication
   stamps, and selected-agent lookup so UX7 drawer polish can change one object
   concern without reopening a lifecycle monolith. Visibility projection behavior
