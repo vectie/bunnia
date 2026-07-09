@@ -678,7 +678,10 @@ Acceptance checks:
   Projection schema, seeded town data, visibility, lifecycle, discovery,
   actions, inventory, and notification behavior now live in focused package
   files so later UI phases can extend one concern without rebuilding a
-  projection monolith. Schema declarations are grouped by people, content,
+  projection monolith. Runtime assembly is likewise split by shell/setup
+  patches, filter-query patches, building/workflow patches, reviewer runtime,
+  and map gesture methods so interaction work can evolve without reopening the
+  runtime monolith. Schema declarations are grouped by people, content,
   work/reviews, actions, shell, attention, discovery, activity, ownership,
   backend diagnostics, and the projection aggregate. App assembly, runtime
   patches, backend plans, scene adapters, shell/navigation, and Home panels are
