@@ -898,6 +898,11 @@ long repeated key array from every backend-enabled route, dropping the Moontown
 strict build to 261073/262144 bytes without changing the backend contract,
 `event_patch_ops`, or page behavior. Future generated-code constants should use
 the same shared-adapter pattern before page-level duplication is accepted.
+The current R9 pass trims unconsumed local filter/channel patch writes from
+Discover, Messages, and My while preserving the same event ids and backend query
+payloads. The strict WeChat build now reports `event_patch_ops=130/160`,
+`max_update_ops=37/64`, `bytes=206504`, and diagnostics at 0, restoring headroom
+for the next visible-product slice without adding compatibility code.
 
 ### R10: Production Backend Readiness
 

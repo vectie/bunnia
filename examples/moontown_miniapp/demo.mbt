@@ -372,7 +372,7 @@ fn add_discovery_filter_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   for filter in projection.discovery_filters {
-    let patch = [@bunnia.set_string("discover.filter", filter.id)]
+    let patch : Array[@bunnia.Patch] = []
     if discover_filter_updates_backend(filter.id) {
       patch.push(
         @bunnia.set_json(
@@ -393,7 +393,7 @@ fn add_notification_channel_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   for channel in projection.notification_channels {
-    let patch = [@bunnia.set_string("messages.channel", channel.id)]
+    let patch : Array[@bunnia.Patch] = []
     if notification_channel_updates_backend(channel.id) {
       patch.push(
         @bunnia.set_json(
@@ -414,7 +414,7 @@ fn add_ownership_filter_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   for filter in projection.ownership_filters {
-    let patch = [@bunnia.set_string("ownership.filter", filter.id)]
+    let patch : Array[@bunnia.Patch] = []
     if ownership_filter_updates_backend(filter.id) {
       patch.push(
         @bunnia.set_json("ownershipQuery", ownership_query_json(filter)),
