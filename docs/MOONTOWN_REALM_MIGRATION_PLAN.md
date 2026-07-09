@@ -643,7 +643,10 @@ and reviewer decisions before public discovery. Submitted buildings now create
 publication review items, so accept moves the building and book into public
 discovery while reject returns them to private drafts. Accepted book-memory
 reviews now create durable safe memory records in the local backend instead of
-only incrementing book counters.
+only incrementing book counters. The selected-building drawer is now split into
+focused object modules for memory shelf, agent workers, lifecycle stamps, and
+communication context; ordinary communication cards show latest message, agent
+work, and review need while audit-ledger rows stay out of the drawer.
 
 ### R6: Messages And Agent Communication
 

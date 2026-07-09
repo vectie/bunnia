@@ -496,6 +496,10 @@ Acceptance checks:
   and what action comes next.
 - Agent work is tied to a building/book/thread context.
 - Public drawers expose safe summaries only.
+- Current implementation note: the selected-building drawer now uses focused
+  object modules for memory, workers, lifecycle, and communication. Ordinary
+  communication shows message/work/review context cards instead of audit-ledger
+  rows.
 
 Validation:
 

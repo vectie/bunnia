@@ -81,7 +81,11 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Agent Workers"))
   assert_true(page.wxml.contains("moontown-worker-entry"))
   assert_true(!page.wxml.contains("data-agent-id=\"agent-policy-guide\""))
-  assert_true(page.wxml.contains("Latest work: Policy answer review"))
+  assert_true(
+    page.wxml.contains(
+      "Role: place guide - Needs review - Latest work: Policy answer review",
+    ),
+  )
   assert_true(page.wxml.contains("Message"))
   assert_true(page.wxml.contains("Review Work"))
   assert_true(page.wxml.contains("Lifecycle Stamps"))
@@ -89,6 +93,13 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Communication Context"))
   assert_true(!page.wxml.contains("system notices"))
   assert_true(page.wxml.contains("data-object-section=\"communication\""))
+  assert_true(page.wxml.contains("moontown-object-context-card"))
+  assert_true(page.wxml.contains("data-object-context=\"latest-message\""))
+  assert_true(page.wxml.contains("data-object-context=\"latest-work\""))
+  assert_true(page.wxml.contains("data-object-context=\"review-need\""))
+  assert_true(
+    page.wxml.contains("Open Messages to continue the building thread."),
+  )
   assert_true(page.wxml.contains("Report Concern"))
   assert_true(!page.wxml.contains("Safety Desk"))
   assert_true(!page.wxml.contains("data-moderation-"))
@@ -108,6 +119,13 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("9 memories - no reviews - Ready"))
   assert_true(page.wxml.contains("Read"))
   assert_true(page.wxml.contains("Open Place"))
+  assert_true(page.wxml.contains("moontown-lifecycle-stages"))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"private-draft\""))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"team-shared\""))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"submitted\""))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"published\""))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"hidden\""))
+  assert_true(page.wxml.contains("data-lifecycle-stage=\"archived\""))
   assert_true(page.wxml.contains("moontown-lifecycle-actions"))
   assert_true(page.wxml.contains("data-lifecycle-action=\"ask\""))
   assert_true(page.wxml.contains("data-lifecycle-action=\"edit\""))
@@ -124,10 +142,10 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Owner only"))
   assert_true(page.wxml.contains("moontown-lifecycle-stamp"))
   assert_true(page.wxml.contains("disabled=\"true\""))
-  assert_true(page.wxml.contains("moontown-object-message"))
-  assert_true(page.wxml.contains("Place message - Policy Hall"))
-  assert_true(page.wxml.contains("Policy Guide"))
-  assert_true(page.wxml.contains("moontown-run-entry"))
+  assert_true(!page.wxml.contains("moontown-object-message"))
+  assert_true(!page.wxml.contains("Place message - Policy Hall"))
+  assert_true(page.wxml.contains("Policy Guide - Policy Hall"))
+  assert_true(!page.wxml.contains("moontown-run-entry"))
   assert_true(page.wxml.contains("Policy answer review"))
   assert_true(!page.wxml.contains("data-run-id=\"run-policy-review\""))
   assert_true(
@@ -136,8 +154,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(!page.wxml.contains("data-actor-id="))
   assert_true(!page.wxml.contains("artifact://book-policy-hall"))
   assert_true(page.wxml.contains("Lifecycle Stamps"))
-  assert_true(page.wxml.contains("moontown-audit-entry"))
-  assert_true(page.wxml.contains("Policy answer entered review"))
+  assert_true(!page.wxml.contains("moontown-audit-entry"))
+  assert_true(!page.wxml.contains("Policy answer entered review"))
   assert_true(!page.wxml.contains("data-audit-id=\"audit-policy-review\""))
   assert_true(page.wxml.contains("moontown-chat-drawer"))
   assert_true(
@@ -148,7 +166,7 @@ test "moontown miniapp generates full vertical slice page" {
   )
   assert_true(
     page.wxml.contains(
-      "Latest message, agent work, and review trail stay tied to this place.",
+      "Latest message, agent work, and review needs stay tied to this place.",
     ),
   )
   assert_true(
@@ -201,7 +219,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxss.contains("box-shadow:0 2rpx 0"))
   assert_true(
     page.wxss.contains(
-      ".bunnia-status-review,.bunnia-status-stale,.bunnia-status-waiting",
+      ".bunnia-status-review,.bunnia-status-pending,.bunnia-status-stale,.bunnia-status-waiting",
     ),
   )
   assert_true(page.js.contains("__bunniaEventPatches"))
