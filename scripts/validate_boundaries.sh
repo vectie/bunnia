@@ -39,9 +39,11 @@ action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moo
 
 building_action_files='examples/moontown_miniapp/projection_action_building_drafts.mbt examples/moontown_miniapp/projection_action_building_lifecycle.mbt examples/moontown_miniapp/projection_action_building_messages.mbt examples/moontown_miniapp/projection_action_building_placement.mbt'
 
+demo_project_files='examples/moontown_miniapp/demo_project_views.mbt examples/moontown_miniapp/demo_project_pages.mbt examples/moontown_miniapp/demo_project_routes.mbt examples/moontown_miniapp/demo_project_runtime.mbt examples/moontown_miniapp/demo_project_tabs.mbt'
+
 demo_plan_files='examples/moontown_miniapp/demo_patch_plans.mbt examples/moontown_miniapp/demo_agent_plans.mbt examples/moontown_miniapp/demo_backend_contract.mbt examples/moontown_miniapp/demo_backend_plans.mbt'
 
-app_shell_files="examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt $demo_plan_files examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt"
+app_shell_files="examples/moontown_miniapp/demo_project.mbt $demo_project_files examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt $demo_plan_files examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt"
 
 home_pulse_files='examples/moontown_miniapp/home_pulse_model.mbt examples/moontown_miniapp/home_pulse_panel.mbt examples/moontown_miniapp/home_pulse_rows.mbt examples/moontown_miniapp/home_pulse_summaries.mbt'
 
@@ -164,6 +166,13 @@ done
 for required in $app_shell_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown app-shell boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $demo_project_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown demo project file $required"
     exit 1
   fi
 done
@@ -385,6 +394,12 @@ if [ "$demo_lines" -gt 80 ]; then
   exit 1
 fi
 
+demo_project_lines=$(wc -l < examples/moontown_miniapp/demo_project.mbt | tr -d ' ')
+if [ "$demo_project_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: demo_project.mbt has $demo_project_lines lines; keep generated-project assembly in focused demo_project_* files"
+  exit 1
+fi
+
 demo_runtime_lines=$(wc -l < examples/moontown_miniapp/demo_runtime.mbt | tr -d ' ')
 if [ "$demo_runtime_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_runtime.mbt has $demo_runtime_lines lines; keep runtime behavior in focused demo_runtime_* files"
@@ -593,6 +608,14 @@ for focused_app_shell in $app_shell_files; do
   focused_lines=$(wc -l < "$focused_app_shell" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_app_shell has $focused_lines lines; split the app-shell concern further"
+    exit 1
+  fi
+done
+
+for focused_demo_project in $demo_project_files; do
+  focused_lines=$(wc -l < "$focused_demo_project" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_demo_project has $focused_lines lines; split the generated-project concern further"
     exit 1
   fi
 done

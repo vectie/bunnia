@@ -724,10 +724,12 @@ Acceptance checks:
   files, with a boundary check keeping `demo_plans.mbt` as the plan marker.
   Schema declarations are grouped by people, content,
   work/reviews, actions, shell, attention, discovery, activity, ownership,
-  backend diagnostics, and the projection aggregate. App assembly, runtime
-  patches, backend plans, scene adapters, shell/navigation, and Home panels are
-  also split out of `demo.mbt`
-  so page-level product work can evolve without reopening a demo monolith. Home
+  backend diagnostics, and the projection aggregate. App assembly, generated
+  project views/pages/routes/runtime scoping/tab metadata, runtime patches,
+  backend plans, scene adapters, shell/navigation, and Home panels are also
+  split out of `demo.mbt` and `demo_project.mbt`
+  so page-level product work can evolve without reopening demo or project
+  assembly monoliths. Home
   Pulse behavior is further split by row model, row derivation, panel rendering,
   and summary/count helpers with a boundary check on `home_pulse.mbt`. District
   Gates are split by panel assembly, destination/action derivation, district row
