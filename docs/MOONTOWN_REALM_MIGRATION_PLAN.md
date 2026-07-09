@@ -18,6 +18,11 @@ belongs to the same town: kiosks, signposts, plaques, ledgers, drawers, mail
 boards, inventory shelves, stamps, and building panels. Do not copy reference
 designs as generic mobile social pages.
 
+For visible UI decisions, use the companion doctrine in
+[MOONTOWN_UI_UX_DOCTRINE.md](MOONTOWN_UI_UX_DOCTRINE.md). It records the
+reference-design reasoning and the rule that ordinary user space should show
+town jobs and actions, not backend implementation details.
+
 This is therefore a rest-functionality migration plan. The map remains the
 product's game board; the phases below add the mature app systems that make the
 board useful without changing the board into another product.
