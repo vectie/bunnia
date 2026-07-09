@@ -90,9 +90,11 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("data-object-section=\"lifecycle\""))
   assert_true(page.wxml.contains("Communication Context"))
   assert_true(page.wxml.contains("data-object-section=\"communication\""))
-  assert_true(page.wxml.contains("Safety Desk 1 / Report"))
-  assert_true(page.wxml.contains("data-moderation-building=\"policy-hall\""))
-  assert_true(page.wxml.contains("data-moderation-count=\"1\""))
+  assert_true(page.wxml.contains("Report Concern"))
+  assert_true(!page.wxml.contains("Safety Desk"))
+  assert_true(!page.wxml.contains("data-moderation-"))
+  assert_true(page.wxml.contains("data-safety-report-building=\"policy-hall\""))
+  assert_true(page.wxml.contains("data-safety-report-count=\"1\""))
   assert_true(
     page.wxml.contains("data-bunnia-message=\"report-public-building\""),
   )
@@ -1963,7 +1965,7 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
         "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-payload-key",
         "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
-        "Moderation Desk", "data-moderation-case=", "data-moderation-action=", "hide-public-building",
+        "Moderation Desk", "Safety Desk", "data-moderation-", "hide-public-building",
         "takedown-public-building", "appeal-moderation-case",
       ] {
       if wxml.contains(raw) {

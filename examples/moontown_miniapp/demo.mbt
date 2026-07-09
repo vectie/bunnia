@@ -3771,7 +3771,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
     ],
     [
       building_object_header(projection, building, book),
-      moderation_safety_row(projection, building),
+      safety_report_button(projection, building),
       building_memory_section(projection),
       building_worker_section(projection),
       building_lifecycle_section(projection),
@@ -4067,7 +4067,7 @@ fn building_capability_label(
 }
 
 ///|
-fn moderation_safety_row(
+fn safety_report_button(
   projection : MiniTownProjection,
   building : MiniTownBuilding,
 ) -> @bunnia.Node {
@@ -4076,11 +4076,11 @@ fn moderation_safety_row(
     kind="button",
     attrs=[
       @bunnia.class_name("moontown-notice-action"),
-      @bunnia.data("moderation-building", building.id),
-      @bunnia.data("moderation-count", cases.length().to_string()),
+      @bunnia.data("safety-report-building", building.id),
+      @bunnia.data("safety-report-count", cases.length().to_string()),
     ],
     events=[@bunnia.tap("report-public-building")],
-    children=[@bunnia.text("Safety Desk \{cases.length()} / Report")],
+    children=[@bunnia.text("Report Concern")],
   )
 }
 
