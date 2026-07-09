@@ -1627,7 +1627,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
     ),
     mini_town_district(
       id="opc-hub",
-      title="OPC Hub",
+      title="Town Trust",
       feature_kind="credential",
       building_id="policy-hall",
       summary="Registration, policy, and public trust checks.",
@@ -2107,11 +2107,11 @@ fn demo_buildings() -> Array[MiniTownBuilding] {
     ),
     mini_town_building(
       id="gateway",
-      title="System Gateway",
+      title="Town Gate",
       kind="system_gateway",
       visibility="published",
       owner_id="system",
-      summary="Login, session, and safe backend handoff.",
+      summary="Sign-in and safe town handoff.",
       tags=["system", "login", "session"],
       x=696,
       y=556,

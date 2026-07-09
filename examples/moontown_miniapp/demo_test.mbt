@@ -42,6 +42,8 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("data-asset-id=\"moontown-wenyu-map\""))
   assert_true(page.wxml.contains("left:958rpx;top:776rpx"))
   assert_true(page.wxml.contains("moontown-map-marker"))
+  assert_true(page.wxml.contains("Town Gate"))
+  assert_true(!page.wxml.contains("System Gateway"))
   assert_true(page.wxml.contains("moontown-thread-pin"))
   assert_true(page.wxml.contains("Review"))
   assert_true(page.wxml.contains("Open"))
@@ -89,6 +91,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Lifecycle Stamps"))
   assert_true(page.wxml.contains("data-object-section=\"lifecycle\""))
   assert_true(page.wxml.contains("Communication Context"))
+  assert_true(!page.wxml.contains("system notices"))
   assert_true(page.wxml.contains("data-object-section=\"communication\""))
   assert_true(page.wxml.contains("Report Concern"))
   assert_true(!page.wxml.contains("Safety Desk"))
@@ -328,7 +331,8 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(home.wxml.contains("data-district-query=\"trust policy\""))
   assert_true(home.wxml.contains("data-action-message=\"tab-my\""))
-  assert_true(home.wxml.contains("OPC Hub"))
+  assert_true(home.wxml.contains("Town Trust"))
+  assert_true(!home.wxml.contains("OPC Hub"))
   assert_true(home.wxml.contains("8 checks - Verify My"))
   assert_true(home.wxml.contains("moontown-presence-chip"))
   assert_true(home.wxml.contains("data-presence-id=\"presence-policy-guide\""))
@@ -631,7 +635,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("data-bunnia-message=\"tab-messages\""))
   assert_true(mine.wxml.contains("moontown-credential-plaque"))
   assert_true(mine.wxml.contains("Town Credential"))
+  assert_true(
+    mine.wxml.contains(
+      "Town Trust: Registration, policy, and public trust checks.",
+    ),
+  )
   assert_true(!mine.wxml.contains("OPC Credential"))
+  assert_true(!mine.wxml.contains("OPC Hub"))
   assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
   assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
@@ -1965,8 +1975,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
         "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-payload-key",
         "data-response-key", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
-        "Moderation Desk", "Safety Desk", "data-moderation-", "hide-public-building",
-        "takedown-public-building", "appeal-moderation-case",
+        "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
+        "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
       ] {
       if wxml.contains(raw) {
         return false
