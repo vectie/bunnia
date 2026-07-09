@@ -27,7 +27,8 @@ fn ordinary_generated_forbidden_tokens() -> Array[String] {
     " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
     "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
     "Receive run,", "Identity Setup", "profile readiness", "shared-private buildings",
-    "shared private", "shared privately",
+    "shared private", "shared privately", "data-bunnia-message=\"switch-user-a\"",
+    "data-bunnia-message=\"switch-user-b\"",
   ]
 }
 
@@ -79,6 +80,18 @@ test "moontown validation guardrails cover required ordinary tokens" {
   assert_true(array_has(ordinary_copy_forbidden_labels(), "Tool Ack"))
   assert_true(array_has(ordinary_copy_forbidden_labels(), "Ops Desk"))
   assert_true(array_has(ordinary_generated_forbidden_tokens(), "data-backend-"))
+  assert_true(
+    array_has(
+      ordinary_generated_forbidden_tokens(),
+      "data-bunnia-message=\"switch-user-a\"",
+    ),
+  )
+  assert_true(
+    array_has(
+      ordinary_generated_forbidden_tokens(),
+      "data-bunnia-message=\"switch-user-b\"",
+    ),
+  )
   assert_true(array_has(ordinary_contract_data_tokens(), "/miniapp/admin/ops"))
   assert_true(
     array_has(

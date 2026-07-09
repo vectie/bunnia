@@ -18,3 +18,5 @@ profile readiness
 shared-private buildings
 shared private
 shared privately
+data-bunnia-message="switch-user-a"
+data-bunnia-message="switch-user-b"

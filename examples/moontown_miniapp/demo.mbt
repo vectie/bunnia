@@ -242,18 +242,6 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
     ]),
   )
   patches.push(
-    @bunnia.wechat_event_patch("switch-user-a", [
-      @bunnia.set_string("session.activeUserId", "user-a"),
-      @bunnia.set_string("town.selectedBuildingId", "policy-hall"),
-    ]),
-  )
-  patches.push(
-    @bunnia.wechat_event_patch("switch-user-b", [
-      @bunnia.set_string("session.activeUserId", "user-b"),
-      @bunnia.set_string("town.selectedBuildingId", "published-agent-lab"),
-    ]),
-  )
-  patches.push(
     @bunnia.wechat_event_patch("ask-selected-building", [
       @bunnia.append_json(
         "chat.messages", "{\"id\":\"msg-mock-answer\",\"actorId\":\"agent-policy-guide\",\"text\":\"Mock answer recorded as a run waiting for review.\"}",
@@ -997,7 +985,7 @@ fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
         @bunnia.text("agent town mini-app"),
       ]),
     ]),
-    user_switcher(projection),
+    town_shell_actions(projection),
   ])
 }
 
@@ -1530,13 +1518,12 @@ fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
 }
 
 ///|
-fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-user-switcher")], [
-    @bunnia.text("Town member: \{projection.profile.display_name}"),
+fn town_shell_actions(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-actions")], [
+    @bunnia.text("Passport: \{projection.profile.display_name}"),
     @bunnia.button("Enter", "enter-town"),
     @bunnia.button("Realm", "tab-realm"),
-    @bunnia.button("Ada", "switch-user-a"),
-    @bunnia.button("Bo", "switch-user-b"),
+    @bunnia.button("Passport", "tab-my"),
   ])
 }
 

@@ -239,6 +239,11 @@ Validation:
 - Strict Moontown build/inspect if generated UI changes.
 - Quick generated WXML search for forbidden ordinary copy.
 
+Current implementation note:
+
+- The ordinary shell exposes Enter, Realm, and Passport actions. Legacy two-user
+  switch controls and patches are removed from generated ordinary output.
+
 ## UX2: Home Town Pulse Reframe
 
 Type: feature polish.

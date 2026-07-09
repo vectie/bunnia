@@ -32,14 +32,14 @@ Bunnia is a dedicated framework. Moontown/Wenyu can be used as a reference app
 and stress test, but Moontown product concepts must not be mixed into Bunnia's
 core framework APIs.
 
-See [docs/ROADMAP.md](/Users/kq/Workspace/moonmini/docs/ROADMAP.md) for the
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the
 phase-by-phase implementation plan.
 
-See [docs/MOONTOWN_MINIAPP_PLAN.md](/Users/kq/Workspace/moonmini/docs/MOONTOWN_MINIAPP_PLAN.md)
+See [docs/MOONTOWN_MINIAPP_PLAN.md](docs/MOONTOWN_MINIAPP_PLAN.md)
 for the Moontown product/backend dogfood plan, including user login,
 building ownership, publication, search, books, and agent interaction.
 
-See [docs/MOONTOWN_REALM_MIGRATION_PLAN.md](/Users/kq/Workspace/moonmini/docs/MOONTOWN_REALM_MIGRATION_PLAN.md)
+See [docs/MOONTOWN_REALM_MIGRATION_PLAN.md](docs/MOONTOWN_REALM_MIGRATION_PLAN.md)
 for the focused migration plan where Realm is the existing tile map and the
 remaining work is the mature mini-app functionality around it.
 
