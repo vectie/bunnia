@@ -33,6 +33,8 @@ seed_files='examples/moontown_miniapp/projection_seed_core.mbt examples/moontown
 
 action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt'
 
+building_action_files='examples/moontown_miniapp/projection_action_building_drafts.mbt examples/moontown_miniapp/projection_action_building_lifecycle.mbt examples/moontown_miniapp/projection_action_building_messages.mbt examples/moontown_miniapp/projection_action_building_placement.mbt'
+
 app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt'
 
 runtime_files='examples/moontown_miniapp/demo_runtime_shell.mbt examples/moontown_miniapp/demo_runtime_filters.mbt examples/moontown_miniapp/demo_runtime_buildings.mbt examples/moontown_miniapp/demo_runtime_reviewer.mbt examples/moontown_miniapp/demo_runtime_map.mbt'
@@ -94,6 +96,13 @@ done
 for required in $action_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown action workflow file $required"
+    exit 1
+  fi
+done
+
+for required in $building_action_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown building action workflow file $required"
     exit 1
   fi
 done
@@ -175,6 +184,12 @@ fi
 actions_lines=$(wc -l < examples/moontown_miniapp/projection_actions.mbt | tr -d ' ')
 if [ "$actions_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_actions.mbt has $actions_lines lines; keep action behavior in focused workflow files"
+  exit 1
+fi
+
+building_actions_lines=$(wc -l < examples/moontown_miniapp/projection_action_buildings.mbt | tr -d ' ')
+if [ "$building_actions_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_action_buildings.mbt has $building_actions_lines lines; keep building action behavior in focused projection_action_building_* files"
   exit 1
 fi
 
@@ -260,6 +275,14 @@ for focused_action in $action_files; do
   focused_lines=$(wc -l < "$focused_action" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_action has $focused_lines lines; split the action workflow further"
+    exit 1
+  fi
+done
+
+for focused_building_action in $building_action_files; do
+  focused_lines=$(wc -l < "$focused_building_action" | tr -d ' ')
+  if [ "$focused_lines" -gt 180 ]; then
+    printf '%s\n' "boundary violation: $focused_building_action has $focused_lines lines; split the building action workflow further"
     exit 1
   fi
 done

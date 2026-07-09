@@ -529,7 +529,9 @@ Acceptance checks:
 - Current implementation note: the selected-building drawer now uses focused
   object modules for memory, workers, lifecycle, and communication. Ordinary
   communication shows message/work/review context cards instead of audit-ledger
-  rows.
+  rows. Building action workflows are split by draft/profile editing,
+  publication lifecycle, building messages, and public placement so drawer work
+  can evolve one object concern at a time.
 
 Validation:
 
@@ -698,6 +700,9 @@ Acceptance checks:
   content/discovery, shell/districts, attention/inventory filters, backend
   state, and places. Projection actions are grouped by setup/shell, building
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
+  Building actions are further split by draft/profile editing, publication
+  lifecycle, communication, and placement so publish/manage/place flows can grow
+  without rebuilding the building action monolith.
   Lifecycle projection behavior is split by drawer action rows, publication
   stamps, and selected-agent lookup so UX7 drawer polish can change one object
   concern without reopening a lifecycle monolith. Visibility projection behavior
