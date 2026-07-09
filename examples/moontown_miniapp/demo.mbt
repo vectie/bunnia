@@ -223,6 +223,10 @@ fn reviewer_wxss() -> String {
     ".moontown-credential-plaque { padding: 18rpx; border: 2rpx solid #8a6d3b; border-radius: 8rpx; background: #fffaf0; }\n" +
     ".mt-title { margin-bottom: 8rpx; color: #243629; font-size: 30rpx; font-weight: 800; }\n" +
     ".mt-meta { margin-top: 8rpx; color: #5f6d5f; font-size: 22rpx; }\n" +
+    ".moontown-diagnostic-section { margin-top: 16rpx; padding: 14rpx; border: 1rpx solid rgba(36,54,41,0.18); border-radius: 6rpx; background: rgba(255,255,255,0.7); }\n" +
+    ".moontown-diagnostic-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8rpx; margin-top: 10rpx; }\n" +
+    ".moontown-diagnostic-row { min-width: 0; padding: 10rpx; border-radius: 6rpx; background: rgba(36,54,41,0.08); color: #243629; font-size: 20rpx; box-sizing: border-box; overflow: hidden; }\n" +
+    ".moontown-diagnostic-row text { display: block; overflow: hidden; text-overflow: ellipsis; }\n" +
     ".moontown-community-actions { display: flex; gap: 10rpx; margin-top: 14rpx; flex-wrap: wrap; }\n" +
     "button { min-height: 52rpx; padding: 0 18rpx; border: 1rpx solid #243629; border-radius: 6rpx; background: #243629; color: #fff8dc; font-size: 22rpx; }",
   )
@@ -3013,6 +3017,8 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
     [
       @bunnia.class_name("moontown-credential-plaque"),
       @bunnia.data("ops-desk", "admin"),
+      @bunnia.data("diagnostics-mode", "reviewer"),
+      @bunnia.data("diagnostics-source", "reviewer-route"),
       @bunnia.data("backend-step", ops.id),
       @bunnia.data("backend-endpoint", ops.endpoint_id),
       @bunnia.data("backend-readiness-endpoint", readiness.endpoint_id),
@@ -3024,13 +3030,22 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
         @bunnia.text("Reviewer Tools"),
       ]),
       @bunnia.text(
-        "Explicit reviewer checks for health, incidents, retention, recovery, launch safety, and secrets.",
+        "Reviewer Mode keeps safety, launch, and developer diagnostics behind this deliberate entry.",
       ),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(
-          "\{town_status_label(ops.status)} - Launch checks stay gated here",
+          "Source: reviewer route - ordinary town pages stay product-only",
         ),
       ]),
+      reviewer_diagnostics_section("Town Safety", ops, [
+        "health", "incidents", "holds", "audit retention", "backup", "recovery",
+        "rate-limit bucket",
+      ]),
+      reviewer_diagnostics_section("Launch Checks", readiness, [
+        "WeChat login", "domain", "storage", "monitoring", "reviewers", "secrets",
+      ]),
+      reviewer_action_section(),
+      developer_diagnostics_section(ops, readiness),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-community-actions")],
         [
@@ -3038,6 +3053,126 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
           @bunnia.button("Launch Checks", readiness.endpoint_id),
         ],
       ),
+    ],
+  )
+}
+
+///|
+fn reviewer_diagnostics_section(
+  title : String,
+  step : MiniTownBackendStep,
+  checks : Array[String],
+) -> @bunnia.Node {
+  let items = []
+  for check in checks {
+    items.push(
+      @bunnia.view_with_attrs(
+        [
+          @bunnia.class_name("moontown-diagnostic-row"),
+          @bunnia.data("diagnostic-check", check),
+        ],
+        [
+          @bunnia.text(check),
+          @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+            @bunnia.text(town_status_label(step.status)),
+          ]),
+        ],
+      ),
+    )
+  }
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-diagnostic-section"),
+      @bunnia.data("diagnostic-section", title),
+      @bunnia.data("backend-step", step.id),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text(title),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+        @bunnia.text(step.summary),
+      ]),
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-diagnostic-list")],
+        items,
+      ),
+    ],
+  )
+}
+
+///|
+fn reviewer_action_section() -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-diagnostic-section"),
+      @bunnia.data("diagnostic-section", "reviewer-actions"),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Reviewer Actions"),
+      ]),
+      @bunnia.text(
+        "Review, hide, takedown, release hold, resolve incident, and check readiness.",
+      ),
+    ],
+  )
+}
+
+///|
+fn developer_diagnostics_section(
+  ops : MiniTownBackendStep,
+  readiness : MiniTownBackendStep,
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-diagnostic-section"),
+      @bunnia.data("diagnostic-section", "developer"),
+      @bunnia.data("developer-diagnostics", "local-explicit"),
+      @bunnia.data("ops-endpoint", ops.endpoint_id),
+      @bunnia.data("readiness-endpoint", readiness.endpoint_id),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Developer Diagnostics"),
+      ]),
+      @bunnia.text(
+        "Endpoint id, HTTP path, payload key, response key, package diagnostics, and render diagnostics stay visible only here.",
+      ),
+      diagnostic_contract_row(
+        "Town Safety", ops, "adminOpsQuery", "adminOpsResult",
+      ),
+      diagnostic_contract_row(
+        "Launch Checks", readiness, "adminReadinessQuery", "adminReadinessResult",
+      ),
+    ],
+  )
+}
+
+///|
+fn diagnostic_contract_row(
+  label : String,
+  step : MiniTownBackendStep,
+  payload_key : String,
+  response_key : String,
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-diagnostic-row"),
+      @bunnia.data("diagnostic-contract", step.id),
+      @bunnia.data("endpoint-id", step.endpoint_id),
+      @bunnia.data("http-method", step.http_method),
+      @bunnia.data("http-path", step.path),
+      @bunnia.data("payload-key", payload_key),
+      @bunnia.data("response-key", response_key),
+    ],
+    [
+      @bunnia.text(label),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+        @bunnia.text(
+          "\{step.endpoint_id} - \{step.http_method} \{step.path} - payload \{payload_key} - response \{response_key}",
+        ),
+      ]),
     ],
   )
 }
