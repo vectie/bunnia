@@ -1,0 +1,55 @@
+///|
+fn demo_backend_cache_states() -> Array[MiniTownBackendCacheState] {
+  [
+    mini_town_backend_cache_state(
+      id="session",
+      label="Session",
+      source="local",
+      state="empty",
+      summary="Dev login sets local session headers.",
+      target_ref="backend:dev-login",
+      action_label="Login",
+      action_message="dev-login",
+    ),
+    mini_town_backend_cache_state(
+      id="snapshot",
+      label="Town Snapshot",
+      source="cache",
+      state="stale-safe",
+      summary="Stale town remains visible on reload failure.",
+      target_ref="backend:load-town-snapshot",
+      action_label="Reload",
+      action_message="load-town-snapshot",
+    ),
+    mini_town_backend_cache_state(
+      id="ownership",
+      label="Ownership Snapshot",
+      source="cache",
+      state="idle",
+      summary="My reloads owned places, books, agents, pins, and alerts.",
+      target_ref="backend:load-ownership-snapshot",
+      action_label="Sync",
+      action_message="load-ownership-snapshot",
+    ),
+    mini_town_backend_cache_state(
+      id="mutations",
+      label="Mutation Queue",
+      source="request-log",
+      state="idle",
+      summary="Town actions keep retry payloads.",
+      target_ref="backend:mutations",
+      action_label="Open My",
+      action_message="tab-my",
+    ),
+    mini_town_backend_cache_state(
+      id="reviews",
+      label="Review Result",
+      source="run-log",
+      state="pending",
+      summary="Agent answers wait for book-memory review.",
+      target_ref="review:memory",
+      action_label="Review",
+      action_message="tab-messages",
+    ),
+  ]
+}

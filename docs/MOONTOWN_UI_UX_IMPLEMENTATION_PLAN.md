@@ -746,7 +746,9 @@ Acceptance checks:
   communication concerns so UX10 coverage can grow by concern. Seeded
   projection data is further grouped by core projection assembly, reviews/runs,
   content/discovery, shell/districts, attention/inventory filters, backend
-  state, and places; seeded content is split again by books, activity,
+  state, and places; seeded backend data is split again by core, workflow, and
+  reviewer endpoint groups, cache/retry states, and local backend defaults;
+  seeded content is split again by books, activity,
   discovery listings, and discovery filters with `projection_seed_content.mbt`
   kept as a marker, and seeded shell data is split again by roles, tabs,
   onboarding, district gates, and presence chips with
