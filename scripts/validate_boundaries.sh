@@ -21,9 +21,18 @@ fi
 
 projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt examples/moontown_miniapp/projection_visibility.mbt examples/moontown_miniapp/projection_lifecycle.mbt examples/moontown_miniapp/projection_discovery.mbt examples/moontown_miniapp/projection_actions.mbt examples/moontown_miniapp/projection_inventory.mbt examples/moontown_miniapp/projection_notifications.mbt'
 
+app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt examples/moontown_miniapp/demo_scene.mbt examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $app_shell_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown app-shell boundary file $required"
     exit 1
   fi
 done
@@ -34,10 +43,24 @@ if [ "$projection_lines" -gt 80 ]; then
   exit 1
 fi
 
+demo_lines=$(wc -l < examples/moontown_miniapp/demo.mbt | tr -d ' ')
+if [ "$demo_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: demo.mbt has $demo_lines lines; keep app assembly in focused demo and town files"
+  exit 1
+fi
+
 for focused_projection in $projection_files; do
   focused_lines=$(wc -l < "$focused_projection" | tr -d ' ')
   if [ "$focused_lines" -gt 1400 ]; then
     printf '%s\n' "boundary violation: $focused_projection has $focused_lines lines; split the projection concern further"
+    exit 1
+  fi
+done
+
+for focused_app_shell in $app_shell_files; do
+  focused_lines=$(wc -l < "$focused_app_shell" | tr -d ' ')
+  if [ "$focused_lines" -gt 600 ]; then
+    printf '%s\n' "boundary violation: $focused_app_shell has $focused_lines lines; split the app-shell concern further"
     exit 1
   fi
 done
