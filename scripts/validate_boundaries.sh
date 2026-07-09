@@ -37,7 +37,9 @@ seed_shell_files='examples/moontown_miniapp/projection_seed_shell_roles.mbt exam
 
 seed_files="examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt $seed_content_files examples/moontown_miniapp/projection_seed_shell.mbt $seed_shell_files examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt"
 
-action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt'
+lifecycle_helper_files='examples/moontown_miniapp/projection_action_lifecycle_helper_projection.mbt examples/moontown_miniapp/projection_action_lifecycle_helper_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helper_books.mbt examples/moontown_miniapp/projection_action_lifecycle_helper_audit.mbt'
+
+action_files="examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt $lifecycle_helper_files examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt"
 
 building_action_files='examples/moontown_miniapp/projection_action_building_drafts.mbt examples/moontown_miniapp/projection_action_building_lifecycle.mbt examples/moontown_miniapp/projection_action_building_messages.mbt examples/moontown_miniapp/projection_action_building_placement.mbt'
 
@@ -161,6 +163,13 @@ done
 for required in $action_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown action workflow file $required"
+    exit 1
+  fi
+done
+
+for required in $lifecycle_helper_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown lifecycle helper file $required"
     exit 1
   fi
 done
@@ -403,6 +412,12 @@ if [ "$building_actions_lines" -gt 80 ]; then
   exit 1
 fi
 
+lifecycle_helpers_lines=$(wc -l < examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt | tr -d ' ')
+if [ "$lifecycle_helpers_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: projection_action_lifecycle_helpers.mbt has $lifecycle_helpers_lines lines; keep lifecycle helper behavior in focused projection_action_lifecycle_helper_* files"
+  exit 1
+fi
+
 demo_lines=$(wc -l < examples/moontown_miniapp/demo.mbt | tr -d ' ')
 if [ "$demo_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo.mbt has $demo_lines lines; keep app assembly in focused demo and town files"
@@ -615,6 +630,14 @@ for focused_action in $action_files; do
   focused_lines=$(wc -l < "$focused_action" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_action has $focused_lines lines; split the action workflow further"
+    exit 1
+  fi
+done
+
+for focused_lifecycle_helper in $lifecycle_helper_files; do
+  focused_lines=$(wc -l < "$focused_lifecycle_helper" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_lifecycle_helper has $focused_lines lines; split the lifecycle helper concern further"
     exit 1
   fi
 done

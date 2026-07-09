@@ -752,7 +752,9 @@ Acceptance checks:
   onboarding, district gates, and presence chips with
   `projection_seed_shell.mbt` kept as a marker. Projection actions are grouped
   by setup/shell, building
-  lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
+  lifecycle, lifecycle helpers, agent/tool-result work, and review decisions;
+  lifecycle helper behavior is split again by selected-building projection
+  updates, building mutations, book review counters, and audit event assembly.
   Building actions are further split by draft/profile editing, publication
   lifecycle, communication, and placement so publish/manage/place flows can grow
   without rebuilding the building action monolith. Object drawer shell behavior
