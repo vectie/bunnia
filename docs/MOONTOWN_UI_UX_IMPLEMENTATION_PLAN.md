@@ -772,9 +772,11 @@ Acceptance checks:
   Display copy is split by counts/passport readiness, status/visibility copy,
   kind labels, and navigation/placement labels, with a boundary check keeping
   `display_copy.mbt` as the marker for the ordinary-label layer.
-  Lifecycle projection behavior is split by drawer action rows, publication
-  stamps, and selected-agent lookup so UX7 drawer polish can change one object
-  concern without reopening a lifecycle monolith. Visibility projection behavior
+  Lifecycle projection behavior is split by drawer action rows, action builders,
+  reason copy, publication stamps, and selected-agent lookup, with
+  `projection_lifecycle_actions.mbt` kept as the action marker so UX7 drawer
+  polish can change one object concern without reopening a lifecycle monolith.
+  Visibility projection behavior
   is split by access policy, visible collections, and selected-object context so
   Realm, Discover, Messages, and My can share the same public/private boundary
   without growing another visibility monolith. Inventory projection behavior is

@@ -25,7 +25,9 @@ inventory_files='examples/moontown_miniapp/projection_inventory_owned.mbt exampl
 
 visibility_files='examples/moontown_miniapp/projection_visibility_access.mbt examples/moontown_miniapp/projection_visibility_collections.mbt examples/moontown_miniapp/projection_visibility_selection.mbt'
 
-lifecycle_files='examples/moontown_miniapp/projection_lifecycle_actions.mbt examples/moontown_miniapp/projection_lifecycle_publication.mbt examples/moontown_miniapp/projection_lifecycle_agents.mbt'
+lifecycle_action_files='examples/moontown_miniapp/projection_lifecycle_action_rows.mbt examples/moontown_miniapp/projection_lifecycle_action_open.mbt examples/moontown_miniapp/projection_lifecycle_action_owner.mbt examples/moontown_miniapp/projection_lifecycle_action_reasons.mbt'
+
+lifecycle_files="examples/moontown_miniapp/projection_lifecycle_actions.mbt $lifecycle_action_files examples/moontown_miniapp/projection_lifecycle_publication.mbt examples/moontown_miniapp/projection_lifecycle_agents.mbt"
 
 schema_files='examples/moontown_miniapp/projection_schema_people.mbt examples/moontown_miniapp/projection_schema_content.mbt examples/moontown_miniapp/projection_schema_work.mbt examples/moontown_miniapp/projection_schema_actions.mbt examples/moontown_miniapp/projection_schema_shell.mbt examples/moontown_miniapp/projection_schema_attention.mbt examples/moontown_miniapp/projection_schema_discovery.mbt examples/moontown_miniapp/projection_schema_activity.mbt examples/moontown_miniapp/projection_schema_ownership.mbt examples/moontown_miniapp/projection_schema_backend.mbt examples/moontown_miniapp/projection_schema_projection.mbt'
 
@@ -113,6 +115,13 @@ done
 for required in $lifecycle_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown lifecycle projection file $required"
+    exit 1
+  fi
+done
+
+for required in $lifecycle_action_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown lifecycle action file $required"
     exit 1
   fi
 done
@@ -834,10 +843,24 @@ if [ "$lifecycle_lines" -gt 80 ]; then
   exit 1
 fi
 
+lifecycle_actions_lines=$(wc -l < examples/moontown_miniapp/projection_lifecycle_actions.mbt | tr -d ' ')
+if [ "$lifecycle_actions_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: projection_lifecycle_actions.mbt has $lifecycle_actions_lines lines; keep lifecycle action behavior in focused projection_lifecycle_action_* files"
+  exit 1
+fi
+
 for focused_lifecycle in $lifecycle_files; do
   focused_lines=$(wc -l < "$focused_lifecycle" | tr -d ' ')
   if [ "$focused_lines" -gt 260 ]; then
     printf '%s\n' "boundary violation: $focused_lifecycle has $focused_lines lines; split the lifecycle projection concern further"
+    exit 1
+  fi
+done
+
+for focused_lifecycle_action in $lifecycle_action_files; do
+  focused_lines=$(wc -l < "$focused_lifecycle_action" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_lifecycle_action has $focused_lines lines; split the lifecycle action concern further"
     exit 1
   fi
 done
