@@ -53,6 +53,8 @@ discover_market_files='examples/moontown_miniapp/discover_market_lists.mbt examp
 
 realm_map_files='examples/moontown_miniapp/realm_map_backdrop.mbt examples/moontown_miniapp/realm_map_markers.mbt examples/moontown_miniapp/realm_map_hud.mbt'
 
+object_drawer_files='examples/moontown_miniapp/object_drawer_shell.mbt examples/moontown_miniapp/object_drawer_header.mbt examples/moontown_miniapp/object_drawer_primitives.mbt examples/moontown_miniapp/object_drawer_labels.mbt examples/moontown_miniapp/object_drawer_actions.mbt'
+
 object_context_files='examples/moontown_miniapp/object_context_model.mbt examples/moontown_miniapp/object_context_section.mbt examples/moontown_miniapp/object_context_cards.mbt examples/moontown_miniapp/object_context_helpers.mbt'
 
 object_lifecycle_files='examples/moontown_miniapp/object_lifecycle_model.mbt examples/moontown_miniapp/object_lifecycle_section.mbt examples/moontown_miniapp/object_lifecycle_stages.mbt examples/moontown_miniapp/object_lifecycle_actions.mbt'
@@ -182,6 +184,13 @@ for required in $realm_map_files; do
   fi
 done
 
+for required in $object_drawer_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown object drawer file $required"
+    exit 1
+  fi
+done
+
 for required in $object_context_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown object context file $required"
@@ -304,6 +313,12 @@ fi
 realm_map_lines=$(wc -l < examples/moontown_miniapp/realm_map.mbt | tr -d ' ')
 if [ "$realm_map_lines" -gt 120 ]; then
   printf '%s\n' "boundary violation: realm_map.mbt has $realm_map_lines lines; keep Realm map parts in focused files"
+  exit 1
+fi
+
+object_drawer_lines=$(wc -l < examples/moontown_miniapp/object_drawer.mbt | tr -d ' ')
+if [ "$object_drawer_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: object_drawer.mbt has $object_drawer_lines lines; keep selected-building drawer behavior in focused object_drawer_* files"
   exit 1
 fi
 
@@ -437,6 +452,14 @@ for focused_realm_map in $realm_map_files; do
   focused_lines=$(wc -l < "$focused_realm_map" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_realm_map has $focused_lines lines; split the Realm map concern further"
+    exit 1
+  fi
+done
+
+for focused_object_drawer in $object_drawer_files; do
+  focused_lines=$(wc -l < "$focused_object_drawer" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_object_drawer has $focused_lines lines; split the object drawer concern further"
     exit 1
   fi
 done

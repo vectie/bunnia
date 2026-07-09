@@ -535,11 +535,12 @@ Acceptance checks:
 - Agent work is tied to a building/book/thread context.
 - Public drawers expose safe summaries only.
 - Current implementation note: the selected-building drawer now uses focused
-  object modules for memory, workers, lifecycle, and communication. Ordinary
-  communication shows message/work/review context cards instead of audit-ledger
-  rows. Communication context is further split by card model, section assembly,
-  card derivation/rendering, and shared helpers so agent/thread/review context
-  can evolve without reopening the object-context boundary. Lifecycle stamps are
+  object modules for shell assembly, header, drawer primitives, labels, actions,
+  memory, workers, lifecycle, and communication. Ordinary communication shows
+  message/work/review context cards instead of audit-ledger rows. Communication
+  context is further split by card model, section assembly, card
+  derivation/rendering, and shared helpers so agent/thread/review context can
+  evolve without reopening the object-context boundary. Lifecycle stamps are
   split by row model, section assembly, stage rendering, and action/reason
   rendering so building publication states can evolve without reopening the
   drawer boundary. Building action workflows are split by draft/profile editing,
@@ -718,9 +719,12 @@ Acceptance checks:
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
   Building actions are further split by draft/profile editing, publication
   lifecycle, communication, and placement so publish/manage/place flows can grow
-  without rebuilding the building action monolith. Object communication context
-  is split by card model, section assembly, card derivation/rendering, and
-  selected-context helpers so UX7 drawer communication stays compact. Reviewer
+  without rebuilding the building action monolith. Object drawer shell behavior
+  is split by selected-building assembly, header, shared primitives, labels, and
+  action/safety rows, with a marker-file guard on `object_drawer.mbt`. Object
+  communication context is split by card model, section assembly, card
+  derivation/rendering, and selected-context helpers so UX7 drawer communication
+  stays compact. Reviewer
   diagnostics are split by operations assembly, reviewer check sections,
   moderation rows, developer contract diagnostics, and backend-step lookup so
   UX8 can harden the diagnostics boundary without reopening a reviewer monolith.
