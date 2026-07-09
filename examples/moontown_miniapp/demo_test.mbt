@@ -403,6 +403,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(discover.wxml.contains("Can open"))
   assert_true(discover.wxml.contains("Published Agent Lab"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"building\""))
+  assert_true(discover.wxml.contains("Open Place"))
+  assert_true(
+    discover.wxml.contains(
+      "data-bunnia-message=\"open-place-published-agent-lab\"",
+    ),
+  )
+  assert_true(discover.wxml.contains("data-place-destination=\"Realm\""))
   assert_true(discover.wxml.contains("Place On Map"))
   assert_true(
     discover.wxml.contains("data-building-id=\"published-agent-lab\""),
@@ -553,6 +560,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("Subscribe to town signals"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
   assert_true(messages.wxml.contains("data-notice-action=\"ack\""))
+  assert_true(messages.wxml.contains("data-place-destination=\"Realm\""))
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"open-place-policy-hall\""),
+  )
   assert_true(!messages.wxml.contains("data-notice-id="))
   assert_true(!messages.wxml.contains("data-notice-kind="))
   assert_true(
@@ -838,6 +849,13 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(mine.wxml.contains("Agent - Private draft - Chat in Messages"))
   assert_true(mine.wxml.contains("data-ownership-kind=\"watch\""))
   assert_true(mine.wxml.contains("Watch - Watching - Open in Realm"))
+  assert_true(mine.wxml.contains("data-place-destination=\"Realm\""))
+  assert_true(
+    mine.wxml.contains("data-bunnia-message=\"open-place-private-agent-lab\""),
+  )
+  assert_true(
+    mine.wxml.contains("data-bunnia-message=\"open-place-policy-hall\""),
+  )
   assert_true(mine.wxml.contains("Private Agent Lab Book"))
   assert_true(mine.wxml.contains("moontown-owned-entry"))
   assert_true(mine.wxml.contains("moontown-create-drawer"))
@@ -964,6 +982,21 @@ test "moontown miniapp generates wechat project with backend hooks" {
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
       "\"open-reviewer-tools\":[{k:\"set\",p:\"reviewer.mode\",v:\"open\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"open-place-published-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"published-agent-lab\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/messages.data.js").contains(
+      "\"open-place-policy-hall\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"policy-hall\"}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"open-place-private-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"private-agent-lab\"}]",
     ),
   )
   assert_true(

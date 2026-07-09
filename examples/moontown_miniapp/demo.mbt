@@ -371,6 +371,7 @@ fn demo_runtime_for_tab(tab_id : String) -> @bunnia.WechatRuntime {
   add_ownership_filter_event_patches(patches, projection)
   for building in visible_buildings(projection) {
     patches.push(select_building_patch(building))
+    patches.push(open_place_patch(building))
     patches.push(open_building_thread_patch(building))
   }
   patches.push(
@@ -686,6 +687,14 @@ fn select_building_patch(
   building : MiniTownBuilding,
 ) -> @bunnia.WechatEventPatch {
   @bunnia.wechat_event_patch("select-\{building.id}", [
+    @bunnia.set_string("town.selectedBuildingId", building.id),
+  ])
+}
+
+///|
+fn open_place_patch(building : MiniTownBuilding) -> @bunnia.WechatEventPatch {
+  @bunnia.wechat_event_patch("open-place-\{building.id}", [
+    @bunnia.set_string("shell.activeTab", "realm"),
     @bunnia.set_string("town.selectedBuildingId", building.id),
   ])
 }
@@ -2096,17 +2105,19 @@ fn discover_entry_action(
 ) -> @bunnia.Node {
   if item.kind == "building" && item.visibility == "published" {
     let placement_state = discovery_item_placement_state(projection, item)
+    let building_id = discovery_item_building_id(item)
     let place_events = if placement_state == "pinned" {
       []
     } else {
       [@bunnia.tap("place-published-building")]
     }
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-action")], [
+      open_place_button(building_id),
       @bunnia.node(
         kind="button",
         attrs=[
           @bunnia.data("discovery-id", item.id),
-          @bunnia.data("building-id", discovery_item_building_id(item)),
+          @bunnia.data("building-id", building_id),
         ],
         events=place_events,
         children=[
@@ -2129,6 +2140,26 @@ fn discover_entry_action(
   } else {
     @bunnia.view([])
   }
+}
+
+///|
+fn open_place_button(building_id : String) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.data("building-id", building_id),
+      @bunnia.data("place-destination", "Realm"),
+    ],
+    events=[@bunnia.tap("open-place-\{building_id}")],
+    children=[@bunnia.text("Open Place")],
+  )
+}
+
+///|
+fn high_leverage_place_route(building_id : String) -> Bool {
+  building_id == "policy-hall" ||
+  building_id == "private-agent-lab" ||
+  building_id == "published-agent-lab"
 }
 
 ///|
@@ -2531,12 +2562,21 @@ fn agent_result_entry(
           ),
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
-          @bunnia.button("Open Place", item.open_message),
+          agent_result_open_button(item),
           @bunnia.button("Review Result", item.acknowledge_message),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn agent_result_open_button(item : MiniTownToolResult) -> @bunnia.Node {
+  if high_leverage_place_route(item.building_id) {
+    open_place_button(item.building_id)
+  } else {
+    @bunnia.button("Open Work", item.open_message)
+  }
 }
 
 ///|
@@ -2858,6 +2898,7 @@ fn notification_entry(
           @bunnia.text(notification_context_text(projection, notice)),
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
+          notification_place_button(notice),
           notification_action_button(notice),
           notification_ack_button(notice),
         ]),
@@ -2886,6 +2927,15 @@ fn notification_action_button(notice : MiniTownNotification) -> @bunnia.Node {
     message=notice.action_message,
     action="open",
   )
+}
+
+///|
+fn notification_place_button(notice : MiniTownNotification) -> @bunnia.Node {
+  if high_leverage_place_route(notice.building_id) {
+    open_place_button(notice.building_id)
+  } else {
+    @bunnia.view([])
+  }
 }
 
 ///|
@@ -3534,7 +3584,7 @@ fn profile_credential_plaque(projection : MiniTownProjection) -> @bunnia.Node {
           "\{district.stat_value} \{district.stat_label} - \{town_status_label(district.status)}",
         ),
       ]),
-      @bunnia.button(district.action_label, "select-\{district.building_id}"),
+      open_place_button(district.building_id),
     ],
   )
 }
@@ -3633,9 +3683,33 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
             "\{town_kind_label(item.kind)} - \{town_visibility_label(item.visibility)} - \{item.action_label} in \{town_tab_label(ownership_item_target_tab(item))}",
           ),
         ]),
+        ownership_item_place_button(item),
       ],
     ),
   )
+}
+
+///|
+fn ownership_item_place_button(item : MiniTownOwnershipItem) -> @bunnia.Node {
+  let building_id = ownership_item_building_id(item)
+  if high_leverage_place_route(building_id) {
+    open_place_button(building_id)
+  } else {
+    @bunnia.view([])
+  }
+}
+
+///|
+fn ownership_item_building_id(item : MiniTownOwnershipItem) -> String {
+  if item.target_ref.has_prefix("building:") {
+    item.target_ref.sub(start=9, end=item.target_ref.length()).to_owned()
+  } else if item.action_message.has_prefix("select-") {
+    item.action_message
+    .sub(start=7, end=item.action_message.length())
+    .to_owned()
+  } else {
+    ""
+  }
 }
 
 ///|
