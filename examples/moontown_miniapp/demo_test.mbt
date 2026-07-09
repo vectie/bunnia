@@ -59,6 +59,22 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(page.wxml.contains("Messages"))
   assert_true(!page.wxml.contains("My Town"))
   assert_true(page.wxml.contains("moontown-building-drawer"))
+  assert_true(page.wxml.contains("moontown-object-drawer"))
+  assert_true(page.wxml.contains("data-object-drawer=\"building\""))
+  assert_true(page.wxml.contains("moontown-object-header"))
+  assert_true(page.wxml.contains("moontown-object-badge"))
+  assert_true(page.wxml.contains("kind-category"))
+  assert_true(page.wxml.contains("Visitor"))
+  assert_true(page.wxml.contains("Public place can be opened and placed"))
+  assert_true(page.wxml.contains("Memory Shelf"))
+  assert_true(page.wxml.contains("data-object-section=\"memory-shelf\""))
+  assert_true(page.wxml.contains("Worker"))
+  assert_true(page.wxml.contains("moontown-worker-entry"))
+  assert_true(page.wxml.contains("data-agent-id=\"agent-policy-guide\""))
+  assert_true(page.wxml.contains("Lifecycle Stamps"))
+  assert_true(page.wxml.contains("data-object-section=\"lifecycle\""))
+  assert_true(page.wxml.contains("Communication Context"))
+  assert_true(page.wxml.contains("data-object-section=\"communication\""))
   assert_true(page.wxml.contains("Safety Desk 1 / Report"))
   assert_true(page.wxml.contains("data-moderation-building=\"policy-hall\""))
   assert_true(page.wxml.contains("data-moderation-count=\"1\""))
@@ -94,7 +110,7 @@ test "moontown miniapp generates full vertical slice page" {
   assert_true(
     page.wxml.contains("data-artifact-ref=\"artifact://book-policy-hall\""),
   )
-  assert_true(page.wxml.contains("Lifecycle"))
+  assert_true(page.wxml.contains("Lifecycle Stamps"))
   assert_true(page.wxml.contains("moontown-audit-entry"))
   assert_true(page.wxml.contains("Policy answer entered review"))
   assert_true(page.wxml.contains("data-audit-id=\"audit-policy-review\""))
@@ -108,7 +124,7 @@ test "moontown miniapp generates full vertical slice page" {
   )
   assert_true(
     page.wxml.contains(
-      "Building thread - Send a message in this building thread.",
+      "Latest message, agent run, and review trail stay tied to this place.",
     ),
   )
   assert_true(

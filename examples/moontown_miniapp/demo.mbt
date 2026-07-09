@@ -291,7 +291,6 @@ fn moontown_wxss_source() -> String {
   ".moontown-discovery-action { margin-top: 8rpx; }\n" +
   ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 126rpx; width: 300rpx; display: flex; flex-direction: column; gap: 12rpx; }\n" +
   ".moontown-building-drawer, .moontown-chat-drawer, .moontown-search-drawer, .moontown-create-drawer { padding: 14rpx; border: 1rpx solid rgba(255,255,255,0.52); border-radius: 8rpx; background: rgba(252, 249, 226, 0.88); box-sizing: border-box; }\n" +
-  ".moontown-building-drawer text:first-child, .moontown-chat-drawer > text:first-child { display: block; margin-bottom: 6rpx; color: #1f3327; font-size: 26rpx; font-weight: 800; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-search-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +
   ".moontown-building-drawer button { margin-top: 8rpx; margin-right: 6rpx; }\n" +
   ".moontown-chat-drawer .bunnia-message-feed-windowed { max-height: 170rpx; overflow: hidden; }\n" +
@@ -1253,8 +1252,6 @@ fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
 fn town_right_hud(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-right-hud")], [
     selected_building_drawer(projection),
-    lifecycle_panel(projection),
-    chat_drawer(projection),
   ])
 }
 
@@ -2724,16 +2721,6 @@ fn moderation_button(
 }
 
 ///|
-fn lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  lifecycle_panel_with_events(
-    "Lifecycle",
-    "Building actions stay auditable.",
-    [],
-    selected_building_audit_events(projection),
-  )
-}
-
-///|
 fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
   lifecycle_panel_with_events(
     "My Lifecycle",
@@ -3621,37 +3608,222 @@ fn user_switcher(projection : MiniTownProjection) -> @bunnia.Node {
 fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
   let book = selected_building_book(projection)
-  let shelf = selected_building_book_shelf(projection)
-  let runs = selected_building_runs(projection)
-  let actions = selected_building_lifecycle_actions(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
-        "moontown-building-drawer bunnia-status-\{building.status}",
+        "moontown-building-drawer moontown-object-drawer bunnia-status-\{building.status}",
       ),
+      @bunnia.data("object-drawer", "building"),
       @bunnia.data("building-id", building.id),
       @bunnia.data("visibility", building.visibility),
     ],
     [
-      @bunnia.text(building.title),
-      @bunnia.text(building.summary),
-      @bunnia.text(town_visibility_label(building.visibility)),
+      building_object_header(projection, building, book),
       moderation_safety_row(projection, building),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-        @bunnia.text("primary book: \{book.title}; shelf: \{shelf.length()}"),
+      building_memory_section(projection),
+      building_worker_section(projection),
+      building_lifecycle_section(projection),
+      building_context_section(projection),
+    ],
+  )
+}
+
+///|
+fn building_object_header(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+  book : MiniTownBook,
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-object-header")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+      @bunnia.text(building.title),
+    ]),
+    @bunnia.text(building.summary),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-object-badges")], [
+      object_badge("category", town_kind_label(building.kind)),
+      object_badge("owner", building_owner_label(projection, building)),
+      object_badge("visibility", town_visibility_label(building.visibility)),
+      object_badge("status", town_status_label(building.status)),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+      @bunnia.text(
+        "\{building_capability_label(projection, building)} - primary book: \{book.title}",
+      ),
+    ]),
+  ])
+}
+
+///|
+fn object_badge(kind : String, label : String) -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("moontown-object-badge kind-\{kind}")],
+    [@bunnia.text(label)],
+  )
+}
+
+///|
+fn building_memory_section(projection : MiniTownProjection) -> @bunnia.Node {
+  let shelf = selected_building_book_shelf(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-object-section moontown-memory-shelf"),
+      @bunnia.data("object-section", "memory-shelf"),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Memory Shelf"),
       ]),
       @bunnia.windowed_list(
         shelf,
         total_count=shelf.length(),
         render=book_shelf_entry,
       ),
-      @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
+    ],
+  )
+}
+
+///|
+fn building_worker_section(projection : MiniTownProjection) -> @bunnia.Node {
+  let agent = selected_agent(projection)
+  let run = selected_building_latest_run(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-object-section moontown-worker-section"),
+      @bunnia.data("object-section", "worker"),
+      @bunnia.data("agent-id", agent.id),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Worker"),
+      ]),
+      @bunnia.view_with_attrs(
+        [
+          @bunnia.class_name(
+            "moontown-worker-entry bunnia-status-\{agent.status}",
+          ),
+        ],
+        [
+          @bunnia.text(agent.name),
+          @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+            @bunnia.text("\{town_status_label(agent.status)} - \{run.title}"),
+          ]),
+          @bunnia.text(run.summary),
+        ],
+      ),
+    ],
+  )
+}
+
+///|
+fn building_lifecycle_section(projection : MiniTownProjection) -> @bunnia.Node {
+  let actions = selected_building_lifecycle_actions(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-object-section moontown-lifecycle-section"),
+      @bunnia.data("object-section", "lifecycle"),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Lifecycle Stamps"),
+      ]),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-lifecycle-actions")],
         [@bunnia.list(actions, lifecycle_action_button)],
       ),
     ],
   )
+}
+
+///|
+fn building_context_section(projection : MiniTownProjection) -> @bunnia.Node {
+  let building = selected_building(projection)
+  let messages = selected_building_messages(projection)
+  let runs = selected_building_runs(projection)
+  let events = selected_building_audit_events(projection)
+  @bunnia.view_with_attrs(
+    [
+      @bunnia.class_name("moontown-object-section moontown-chat-drawer"),
+      @bunnia.data("object-section", "communication"),
+      @bunnia.data("thread-id", "thread-\{building.id}"),
+      @bunnia.data("building-id", building.id),
+      @bunnia.data("backend-endpoint", "send-building-message"),
+      @bunnia.data("backend-path", "/miniapp/messages/send"),
+    ],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+        @bunnia.text("Communication Context"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+        @bunnia.text(
+          "Latest message, agent run, and review trail stay tied to this place.",
+        ),
+      ]),
+      @bunnia.windowed_message_feed(
+        bunnia_messages(messages),
+        total_count=messages.length(),
+      ),
+      @bunnia.windowed_list(runs, total_count=runs.length(), render=run_entry),
+      @bunnia.windowed_list(
+        events,
+        total_count=events.length(),
+        render=audit_entry,
+      ),
+      @bunnia.form("send-building-message", [
+        @bunnia.input(
+          name="chatDraft.body",
+          value="Can it publish an agent?",
+          input_message="edit-chat-draft",
+        ),
+        @bunnia.button("Send", "send-building-message"),
+      ]),
+    ],
+  )
+}
+
+///|
+fn selected_building_latest_run(projection : MiniTownProjection) -> MiniTownRun {
+  let runs = selected_building_runs(projection)
+  if runs.length() > 0 {
+    runs[0]
+  } else {
+    projection.runs[0]
+  }
+}
+
+///|
+fn building_owner_label(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.owner_id == projection.active_user_id {
+    "Owner"
+  } else if building.visibility == "shared_private" {
+    "Team member"
+  } else {
+    "Visitor"
+  }
+}
+
+///|
+fn building_capability_label(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+) -> String {
+  if building.visibility == "archived" {
+    "Archived; owner can restore"
+  } else if building.owner_id == projection.active_user_id &&
+    (
+      building.visibility == "private_draft" ||
+      building.visibility == "shared_private"
+    ) {
+    "Owner can edit, share, and submit"
+  } else if building.visibility == "published" {
+    "Public place can be opened and placed"
+  } else if building.visibility == "submitted" {
+    "Waiting for review decision"
+  } else {
+    "Open for safe reading"
+  }
 }
 
 ///|
