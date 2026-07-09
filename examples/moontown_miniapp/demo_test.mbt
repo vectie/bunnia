@@ -270,7 +270,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(!realm.wxml.contains("moontown-page-surface"))
   assert_true(realm.wxml.contains("data-map-surface=\"true\""))
   assert_true(!realm.wxml.contains("Map Districts"))
-  assert_true(!realm.wxml.contains("Community Hub"))
+  assert_true(!realm.wxml.contains("District Gates"))
 
   let home = tab_page(projection, "home")
   assert_true(has_no_forbidden_ordinary_copy(home.wxml))
@@ -311,10 +311,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
       "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
     ),
   )
-  assert_true(home.wxml.contains("Community Hub"))
+  assert_true(home.wxml.contains("District Gates"))
   assert_true(
     home.wxml.contains(
-      "Reference feature pages become tile districts on the map.",
+      "Market, messages, events, guides, and trust work open from this town board.",
     ),
   )
   assert_true(home.wxml.contains("data-feature-kind=\"market\""))
@@ -341,6 +341,7 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("Search Town"))
   assert_true(home.wxml.contains("Publish Draft"))
   assert_true(!home.wxml.contains("Map Districts"))
+  assert_true(!home.wxml.contains("Reference feature pages"))
   assert_true(!home.wxml.contains("moontown-right-hud"))
 
   let discover = tab_page(projection, "discover")

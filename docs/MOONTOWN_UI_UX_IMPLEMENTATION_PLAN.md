@@ -300,6 +300,12 @@ Validation:
 - Inspect first-screen bytes and event patch operations.
 - Manual DevTools smoke: Home refresh, stale state, route links.
 
+Current implementation note:
+
+- Home renders a compact Town Pulse plus District Gates. Rows route to Realm,
+  Messages, Discover, or My with ordinary labels, while migration/reference copy
+  and backend-loop details are guarded out of ordinary generated WXML.
+
 ## UX3: Discover Market Board Reframe
 
 Type: feature polish.

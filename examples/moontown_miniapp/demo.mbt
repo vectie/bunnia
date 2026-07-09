@@ -1014,7 +1014,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
     town_page_surface(projection, [
       onboarding_panel(projection),
       home_pulse_panel(projection),
-      community_hub_panel(projection),
+      home_district_gates_panel(projection),
     ])
   } else {
     town_realm_overlay(projection)
@@ -1129,14 +1129,16 @@ fn onboarding_step_entry(step : MiniTownOnboardingStep) -> @bunnia.Node {
 }
 
 ///|
-fn community_hub_panel(projection : MiniTownProjection) -> @bunnia.Node {
+fn home_district_gates_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let presence = community_presence(projection)
   @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("Community Hub"),
+      @bunnia.text("District Gates"),
     ]),
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-      @bunnia.text("Reference feature pages become tile districts on the map."),
+      @bunnia.text(
+        "Market, messages, events, guides, and trust work open from this town board.",
+      ),
     ]),
     @bunnia.windowed_list(
       projection.districts,
