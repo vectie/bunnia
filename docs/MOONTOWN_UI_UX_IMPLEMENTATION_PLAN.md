@@ -488,7 +488,9 @@ Acceptance checks:
   stamps stay in Town Passport instead of repeating inside My Inventory, and
   the inventory refresh plaque exposes one clear Refresh My Stuff action instead
   of a duplicate generic More backend trigger. Placement rows translate raw source
-  ids into ordinary map-state copy. My workbench assembly is now split into
+  ids into ordinary map-state copy. Town Passport is now split by panel
+  assembly, setup/role stamps, identity card, and profile metric chips, with
+  `my_passport.mbt` kept as the UX6 marker. My workbench assembly is split into
   focused passport/setup, lifecycle, reviewer/refresh, public passport, alert,
   inventory shelf, and inventory row modules so UX6 additions do not reopen a
   page monolith. Inventory shelves are now further split into shelf data,
@@ -753,6 +755,9 @@ Acceptance checks:
   monolith. My Inventory shelves are also split by shelf model, row derivation,
   and panel rendering, with boundary checks keeping `my_inventory_shelves.mbt`
   as a marker instead of a broad product file.
+  Town Passport is split by panel assembly, setup/role stamps, identity card,
+  and profile metric chips, with boundary checks keeping `my_passport.mbt` as a
+  marker instead of a broad setup surface file.
   Workbench alerts are split by alert model, derivation, recovery filters, and
   row rendering, with boundary checks keeping `workbench_alerts.mbt` as a marker
   for My recovery behavior. Public Passport is split by panel assembly, item

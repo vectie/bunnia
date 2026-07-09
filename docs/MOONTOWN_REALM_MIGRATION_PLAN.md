@@ -766,10 +766,12 @@ ownership filter chips now update the ownership sync payload
 (`kind`, `visibility`, and cursor reset) as well as local workbench state, so
 drafts, placements, and books exercise the same backend-owned windowing
 contract while the remaining chips stay available for cheap local exploration.
-The My workbench view code is now isolated across focused My modules: town
-passport, setup stamps, public passport, publishing shelf, inventory refresh,
-and the reviewer-tools gate live in `my_workbench.mbt`, while the inventory
-shelf strip lives in focused `my_inventory_shelf_*` files behind the
+The My workbench view code is now isolated across focused My modules: Town
+Passport lives in focused `my_passport_*` files behind the `my_passport.mbt`
+marker, splitting panel assembly, setup/role stamps, identity card, and profile
+metric chips; public passport, publishing shelf, inventory refresh, and the
+reviewer-tools gate remain separate My concerns. The inventory shelf strip lives
+in focused `my_inventory_shelf_*` files behind the
 `my_inventory_shelves.mbt` boundary marker, and recovery alerts live in focused
 `workbench_alert_*` files behind the `workbench_alerts.mbt` marker. Public
 Passport now lives in focused `my_public_passport_*` files behind the

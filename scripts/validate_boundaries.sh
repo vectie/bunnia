@@ -45,6 +45,8 @@ moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moont
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
+my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
+
 my_inventory_shelf_files='examples/moontown_miniapp/my_inventory_shelf_model.mbt examples/moontown_miniapp/my_inventory_shelf_panel.mbt examples/moontown_miniapp/my_inventory_shelf_rows.mbt'
 
 my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt examples/moontown_miniapp/my_public_passport_items.mbt examples/moontown_miniapp/my_public_passport_rows.mbt examples/moontown_miniapp/my_public_passport_credential.mbt'
@@ -160,6 +162,13 @@ done
 for required in $my_workbench_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My workbench file $required"
+    exit 1
+  fi
+done
+
+for required in $my_passport_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Town Passport file $required"
     exit 1
   fi
 done
@@ -328,6 +337,12 @@ if [ "$my_workbench_lines" -gt 120 ]; then
   exit 1
 fi
 
+my_passport_lines=$(wc -l < examples/moontown_miniapp/my_passport.mbt | tr -d ' ')
+if [ "$my_passport_lines" -gt 40 ]; then
+  printf '%s\n' "boundary violation: my_passport.mbt has $my_passport_lines lines; keep Town Passport behavior in focused my_passport_* files"
+  exit 1
+fi
+
 my_inventory_shelves_lines=$(wc -l < examples/moontown_miniapp/my_inventory_shelves.mbt | tr -d ' ')
 if [ "$my_inventory_shelves_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: my_inventory_shelves.mbt has $my_inventory_shelves_lines lines; keep shelf behavior in focused my_inventory_shelf_* files"
@@ -480,6 +495,14 @@ for focused_my_workbench in $my_workbench_files; do
   focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
+    exit 1
+  fi
+done
+
+for focused_my_passport in $my_passport_files; do
+  focused_lines=$(wc -l < "$focused_my_passport" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_my_passport has $focused_lines lines; split the Town Passport concern further"
     exit 1
   fi
 done
