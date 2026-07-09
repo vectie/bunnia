@@ -501,8 +501,11 @@ Acceptance checks:
   inventory shelf, and inventory row modules so UX6 additions do not reopen a
   page monolith. Inventory shelves are now further split into shelf data,
   shelf-row derivation, and shelf rendering files so ownership counts and
-  actions can evolve without reopening a shelf monolith. Workbench alerts are
-  further split by alert model, alert derivation, recovery filters, and row
+  actions can evolve without reopening a shelf monolith. Shelf-row decisions are
+  split again by map/place shelves, publication-state shelves, and book/agent
+  work shelves so My Inventory can grow by user job rather than by one broad
+  row factory. Workbench alerts are further split by alert model, alert
+  derivation, recovery filters, and row
   rendering so My recovery tasks can evolve without reopening the workbench
   alert boundary. Public Passport is split by panel assembly, public-summary
   derivation, passport row rendering, and credential plaque lookup so reference
