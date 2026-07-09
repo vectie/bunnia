@@ -21,6 +21,8 @@ fi
 
 projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt examples/moontown_miniapp/projection_visibility.mbt examples/moontown_miniapp/projection_lifecycle.mbt examples/moontown_miniapp/projection_discovery.mbt examples/moontown_miniapp/projection_actions.mbt examples/moontown_miniapp/projection_inventory.mbt examples/moontown_miniapp/projection_notifications.mbt'
 
+lifecycle_files='examples/moontown_miniapp/projection_lifecycle_actions.mbt examples/moontown_miniapp/projection_lifecycle_publication.mbt examples/moontown_miniapp/projection_lifecycle_agents.mbt'
+
 schema_files='examples/moontown_miniapp/projection_schema_people.mbt examples/moontown_miniapp/projection_schema_content.mbt examples/moontown_miniapp/projection_schema_work.mbt examples/moontown_miniapp/projection_schema_actions.mbt examples/moontown_miniapp/projection_schema_shell.mbt examples/moontown_miniapp/projection_schema_attention.mbt examples/moontown_miniapp/projection_schema_discovery.mbt examples/moontown_miniapp/projection_schema_activity.mbt examples/moontown_miniapp/projection_schema_ownership.mbt examples/moontown_miniapp/projection_schema_backend.mbt examples/moontown_miniapp/projection_schema_projection.mbt'
 
 seed_files='examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt examples/moontown_miniapp/projection_seed_shell.mbt examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt'
@@ -44,6 +46,13 @@ message_surface_files='examples/moontown_miniapp/message_attention.mbt examples/
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $lifecycle_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown lifecycle projection file $required"
     exit 1
   fi
 done
@@ -289,5 +298,19 @@ if [ "$projection_flows_shell_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_projection_flows_test.mbt has $projection_flows_shell_lines lines; keep projection-flow coverage in focused demo_projection_* files"
   exit 1
 fi
+
+lifecycle_lines=$(wc -l < examples/moontown_miniapp/projection_lifecycle.mbt | tr -d ' ')
+if [ "$lifecycle_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_lifecycle.mbt has $lifecycle_lines lines; keep lifecycle behavior in focused projection_lifecycle_* files"
+  exit 1
+fi
+
+for focused_lifecycle in $lifecycle_files; do
+  focused_lines=$(wc -l < "$focused_lifecycle" | tr -d ' ')
+  if [ "$focused_lines" -gt 260 ]; then
+    printf '%s\n' "boundary violation: $focused_lifecycle has $focused_lines lines; split the lifecycle projection concern further"
+    exit 1
+  fi
+done
 
 printf '%s\n' 'boundary=ok'

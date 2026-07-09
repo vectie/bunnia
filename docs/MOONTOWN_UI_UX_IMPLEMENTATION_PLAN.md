@@ -695,6 +695,9 @@ Acceptance checks:
   content/discovery, shell/districts, attention/inventory filters, backend
   state, and places. Projection actions are grouped by setup/shell, building
   lifecycle, lifecycle helpers, agent/tool-result work, and review decisions.
+  Lifecycle projection behavior is split by drawer action rows, publication
+  stamps, and selected-agent lookup so UX7 drawer polish can change one object
+  concern without reopening a lifecycle monolith.
 
 Validation:
 
