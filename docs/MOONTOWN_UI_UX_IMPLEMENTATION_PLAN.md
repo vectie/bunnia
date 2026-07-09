@@ -663,6 +663,8 @@ Acceptance checks:
   `scripts/moontown_guardrails/*.txt`. The generator also resets safe build
   output directories before writing, and the shell validator rejects stale
   ordinary page WXSS plus missing 88rpx touch-target and safe-area tokens.
+  Projection schema and seeded town data now live in focused package files so
+  later UI phases can extend behavior without rebuilding the projection monolith.
 
 Validation:
 
