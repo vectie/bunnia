@@ -322,9 +322,10 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(home.wxml.contains("data-district-filter=\"product\""))
   assert_true(home.wxml.contains("data-district-query=\"product\""))
   assert_true(home.wxml.contains("data-district-accent=\"blue\""))
-  assert_true(
-    home.wxml.contains("data-bunnia-message=\"discover-filter-product\""),
-  )
+  assert_true(home.wxml.contains("Browse Discover"))
+  assert_true(home.wxml.contains("Review Messages"))
+  assert_true(home.wxml.contains("Verify My"))
+  assert_true(!home.wxml.contains("<text>Filter</text>"))
   assert_true(home.wxml.contains("data-action-message=\"tab-discover\""))
   assert_true(home.wxml.contains("data-target-tab=\"discover\""))
   assert_true(home.wxml.contains("data-feature-kind=\"credential\""))

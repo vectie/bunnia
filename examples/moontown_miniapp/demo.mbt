@@ -1213,19 +1213,21 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
               kind="button",
               attrs=[
                 @bunnia.data("district-id", district.id),
-                @bunnia.data("filter-id", district.discovery_filter_id),
-                @bunnia.data("query", district.search_query),
+                @bunnia.data("target-tab", district_target_tab(district)),
               ],
-              events=[
-                @bunnia.tap("discover-filter-\{district.discovery_filter_id}"),
-              ],
-              children=[@bunnia.text("Filter")],
+              events=[@bunnia.tap(district_action_message(district))],
+              children=[@bunnia.text(district_cta_label(district))],
             ),
           ],
         ),
       ],
     ),
   )
+}
+
+///|
+fn district_cta_label(district : MiniTownDistrict) -> String {
+  "\{district.action_label} \{town_tab_label(district_target_tab(district))}"
 }
 
 ///|

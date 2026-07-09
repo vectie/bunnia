@@ -305,7 +305,8 @@ Current implementation note:
 
 - Home renders a compact Town Pulse plus District Gates. Rows route to Realm,
   Messages, Discover, or My with ordinary labels, while migration/reference copy
-  and backend-loop details are guarded out of ordinary generated WXML.
+  and backend-loop details are guarded out of ordinary generated WXML. District
+  shortcut buttons use typed destination actions instead of generic filter copy.
 
 ## UX3: Discover Market Board Reframe
 
@@ -341,7 +342,8 @@ Acceptance checks:
 - Paging does not make visible labels technical.
 - Current implementation note: the market board surface is isolated in
   `discover_market.mbt`, reusable Realm open actions live in `place_actions.mbt`,
-  and empty results use ordinary copy instead of search payload details.
+  and empty results use ordinary copy instead of search payload details. District
+  entries keep filter metadata internal while visible buttons say where they go.
 
 Validation:
 
