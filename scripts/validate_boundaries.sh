@@ -31,6 +31,8 @@ app_shell_files='examples/moontown_miniapp/demo_project.mbt examples/moontown_mi
 
 moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt'
 
+my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
+
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
@@ -73,6 +75,13 @@ for required in $moontown_test_files; do
   fi
 done
 
+for required in $my_workbench_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown My workbench file $required"
+    exit 1
+  fi
+done
+
 projection_lines=$(wc -l < examples/moontown_miniapp/projection.mbt | tr -d ' ')
 if [ "$projection_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection.mbt has $projection_lines lines; keep behavior in focused projection files"
@@ -106,6 +115,12 @@ fi
 demo_test_lines=$(wc -l < examples/moontown_miniapp/demo_test.mbt | tr -d ' ')
 if [ "$demo_test_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: demo_test.mbt has $demo_test_lines lines; keep coverage in focused test files"
+  exit 1
+fi
+
+my_workbench_lines=$(wc -l < examples/moontown_miniapp/my_workbench.mbt | tr -d ' ')
+if [ "$my_workbench_lines" -gt 120 ]; then
+  printf '%s\n' "boundary violation: my_workbench.mbt has $my_workbench_lines lines; keep My Inventory panels in focused files"
   exit 1
 fi
 
@@ -145,6 +160,14 @@ for focused_app_shell in $app_shell_files; do
   focused_lines=$(wc -l < "$focused_app_shell" | tr -d ' ')
   if [ "$focused_lines" -gt 600 ]; then
     printf '%s\n' "boundary violation: $focused_app_shell has $focused_lines lines; split the app-shell concern further"
+    exit 1
+  fi
+done
+
+for focused_my_workbench in $my_workbench_files; do
+  focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
     exit 1
   fi
 done

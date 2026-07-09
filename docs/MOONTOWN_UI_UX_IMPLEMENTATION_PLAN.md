@@ -472,7 +472,10 @@ Acceptance checks:
   stamps stay in Town Passport instead of repeating inside My Inventory, and
   the inventory refresh plaque exposes one clear Refresh My Stuff action instead
   of a duplicate generic More backend trigger. Placement rows translate raw source
-  ids into ordinary map-state copy.
+  ids into ordinary map-state copy. My workbench assembly is now split into
+  focused passport/setup, lifecycle, reviewer/refresh, public passport, alert,
+  inventory shelf, and inventory row modules so UX6 additions do not reopen a
+  page monolith.
 
 Validation:
 
