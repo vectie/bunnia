@@ -539,10 +539,12 @@ Acceptance checks:
   communication shows message/work/review context cards instead of audit-ledger
   rows. Communication context is further split by card model, section assembly,
   card derivation/rendering, and shared helpers so agent/thread/review context
-  can evolve without reopening the object-context boundary. Building action
-  workflows are split by draft/profile editing, publication lifecycle, building
-  messages, and public placement so drawer work can evolve one object concern
-  at a time.
+  can evolve without reopening the object-context boundary. Lifecycle stamps are
+  split by row model, section assembly, stage rendering, and action/reason
+  rendering so building publication states can evolve without reopening the
+  drawer boundary. Building action workflows are split by draft/profile editing,
+  publication lifecycle, building messages, and public placement so drawer work
+  can evolve one object concern at a time.
 
 Validation:
 
@@ -722,6 +724,9 @@ Acceptance checks:
   diagnostics are split by operations assembly, reviewer check sections,
   moderation rows, developer contract diagnostics, and backend-step lookup so
   UX8 can harden the diagnostics boundary without reopening a reviewer monolith.
+  Object lifecycle drawer behavior is split by lifecycle row model, section
+  assembly, stage rows, and action/reason rendering, with a marker-file guard on
+  `object_lifecycle.mbt`.
   Display copy is split by counts/passport readiness, status/visibility copy,
   kind labels, and navigation/placement labels, with a boundary check keeping
   `display_copy.mbt` as the marker for the ordinary-label layer.
