@@ -1067,7 +1067,7 @@ fn demo_audit_events() -> Array[MiniTownAuditEvent] {
     mini_town_audit_event(
       id="audit-team-share",
       kind="share",
-      title="Team Studio shared privately",
+      title="Team Studio shared with team",
       summary="Organization members can inspect this building before publication.",
       actor_id="user-a",
       target_ref="building:team-studio",
@@ -1739,7 +1739,7 @@ fn demo_notifications() -> Array[MiniTownNotification] {
       id="notice-interaction",
       kind="interaction",
       title="Enterprise Club replied",
-      body="The circle left feedback on your shared private building.",
+      body="The circle left feedback on your team place.",
       target_ref="circle:enterprise-club",
       building_id="team-studio",
       action_label="Open Circle",

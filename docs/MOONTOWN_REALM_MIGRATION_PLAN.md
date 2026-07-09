@@ -690,13 +690,15 @@ and messages into one tile mail stream with channel, status, building, thread,
 text query, limit, and cursor filters. It returns filter echo, all-counts,
 filtered counts, and page metadata, so Messages can grow around agent work
 without pushing every visible thread and notice through one snapshot update. The
-generated Messages tab now exposes that route as a compact Center Sync tile with
-its own backend status, payload key, response key, and tap action, keeping the
-mail-board UI aligned with the same bounded sync model as Discover and My.
-Backend-bound notification channel chips now update the message-center query
-channel and reset the cursor at the same time as local channel state, so unread,
-review, and agent-run windows can exercise the backend contract while lower-risk
-local channels remain lightweight.
+generated Messages tab now exposes that route through compact Latest Messages
+and More actions while backend status, payload keys, and response keys stay out
+of ordinary WXML. Backend-bound notification channel chips now update the
+message-center query channel and reset the cursor at the same time as local
+channel state, so unread, review, and agent-run windows can exercise the
+backend contract while lower-risk local channels remain lightweight. The
+Attention Center, run plaques, agent-result cards, review queue, and notice rows
+now live in a dedicated `messages.mbt` module, and the ordinary-copy guard also
+blocks permission-style "shared private" wording from returning to Messages.
 
 ### R7: My Ownership Workbench
 

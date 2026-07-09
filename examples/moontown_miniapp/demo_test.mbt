@@ -486,6 +486,9 @@ test "moontown miniapp renders dedicated tab surfaces around the same map" {
   assert_true(messages.wxml.contains("moontown-message-channel active"))
   assert_true(messages.wxml.contains("Deep Cultivator followed your town"))
   assert_true(messages.wxml.contains("Enterprise Club replied"))
+  assert_true(messages.wxml.contains("team place"))
+  assert_true(!messages.wxml.contains("shared private"))
+  assert_true(!messages.wxml.contains("shared privately"))
   assert_true(messages.wxml.contains("Memory review needed"))
   assert_true(messages.wxml.contains("Agent work completed"))
   assert_true(!messages.wxml.contains("Agent run completed"))
@@ -2039,7 +2042,8 @@ fn has_no_forbidden_generated_ordinary_wxml(
         "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
         " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
         "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
-        "Receive run,", "profile readiness", "shared-private buildings",
+        "Receive run,", "profile readiness", "shared-private buildings", "shared private",
+        "shared privately",
       ] {
       if wxml.contains(raw) {
         return false

@@ -31,7 +31,9 @@ for rel in $ordinary_pages; do
     'Safety Desk' \
     'System Gateway' \
     'profile readiness' \
-    'shared-private buildings'; do
+    'shared-private buildings' \
+    'shared private' \
+    'shared privately'; do
     if rg -n -F "$token" "$file"; then
       printf '%s\n' "forbidden ordinary WXML token '$token' in $rel"
       failed=1
