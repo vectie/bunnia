@@ -21,6 +21,8 @@ fi
 
 projection_files='examples/moontown_miniapp/projection_schema.mbt examples/moontown_miniapp/projection_seed.mbt examples/moontown_miniapp/projection_visibility.mbt examples/moontown_miniapp/projection_lifecycle.mbt examples/moontown_miniapp/projection_discovery.mbt examples/moontown_miniapp/projection_actions.mbt examples/moontown_miniapp/projection_inventory.mbt examples/moontown_miniapp/projection_notifications.mbt'
 
+schema_files='examples/moontown_miniapp/projection_schema_people.mbt examples/moontown_miniapp/projection_schema_content.mbt examples/moontown_miniapp/projection_schema_work.mbt examples/moontown_miniapp/projection_schema_actions.mbt examples/moontown_miniapp/projection_schema_shell.mbt examples/moontown_miniapp/projection_schema_attention.mbt examples/moontown_miniapp/projection_schema_discovery.mbt examples/moontown_miniapp/projection_schema_activity.mbt examples/moontown_miniapp/projection_schema_ownership.mbt examples/moontown_miniapp/projection_schema_backend.mbt examples/moontown_miniapp/projection_schema_projection.mbt'
+
 seed_files='examples/moontown_miniapp/projection_seed_core.mbt examples/moontown_miniapp/projection_seed_review.mbt examples/moontown_miniapp/projection_seed_content.mbt examples/moontown_miniapp/projection_seed_shell.mbt examples/moontown_miniapp/projection_seed_attention.mbt examples/moontown_miniapp/projection_seed_backend.mbt examples/moontown_miniapp/projection_seed_places.mbt'
 
 action_files='examples/moontown_miniapp/projection_action_shell.mbt examples/moontown_miniapp/projection_action_buildings.mbt examples/moontown_miniapp/projection_action_lifecycle_helpers.mbt examples/moontown_miniapp/projection_action_agents.mbt examples/moontown_miniapp/projection_action_reviews.mbt'
@@ -32,6 +34,13 @@ moontown_test_files='examples/moontown_miniapp/demo_page_test.mbt examples/moont
 for required in $projection_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown projection boundary file $required"
+    exit 1
+  fi
+done
+
+for required in $schema_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown schema domain file $required"
     exit 1
   fi
 done
@@ -70,6 +79,12 @@ if [ "$projection_lines" -gt 80 ]; then
   exit 1
 fi
 
+schema_lines=$(wc -l < examples/moontown_miniapp/projection_schema.mbt | tr -d ' ')
+if [ "$schema_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: projection_schema.mbt has $schema_lines lines; keep schema declarations in focused domain files"
+  exit 1
+fi
+
 seed_lines=$(wc -l < examples/moontown_miniapp/projection_seed.mbt | tr -d ' ')
 if [ "$seed_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: projection_seed.mbt has $seed_lines lines; keep seeded data in focused seed files"
@@ -98,6 +113,14 @@ for focused_projection in $projection_files; do
   focused_lines=$(wc -l < "$focused_projection" | tr -d ' ')
   if [ "$focused_lines" -gt 1400 ]; then
     printf '%s\n' "boundary violation: $focused_projection has $focused_lines lines; split the projection concern further"
+    exit 1
+  fi
+done
+
+for focused_schema in $schema_files; do
+  focused_lines=$(wc -l < "$focused_schema" | tr -d ' ')
+  if [ "$focused_lines" -gt 500 ]; then
+    printf '%s\n' "boundary violation: $focused_schema has $focused_lines lines; split the schema domain further"
     exit 1
   fi
 done

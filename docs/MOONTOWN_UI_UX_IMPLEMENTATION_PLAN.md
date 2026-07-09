@@ -666,8 +666,11 @@ Acceptance checks:
   Projection schema, seeded town data, visibility, lifecycle, discovery,
   actions, inventory, and notification behavior now live in focused package
   files so later UI phases can extend one concern without rebuilding a
-  projection monolith. App assembly, runtime patches, backend plans, scene
-  adapters, shell/navigation, and Home panels are also split out of `demo.mbt`
+  projection monolith. Schema declarations are grouped by people, content,
+  work/reviews, actions, shell, attention, discovery, activity, ownership,
+  backend diagnostics, and the projection aggregate. App assembly, runtime
+  patches, backend plans, scene adapters, shell/navigation, and Home panels are
+  also split out of `demo.mbt`
   so page-level product work can evolve without reopening a demo monolith. The
   generated page, tab, project, projection-flow, pressure-plan, and helper tests
   now live in focused files so UX10 coverage can grow by concern. Seeded
