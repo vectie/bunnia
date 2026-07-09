@@ -47,6 +47,8 @@ my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_
 
 my_inventory_shelf_files='examples/moontown_miniapp/my_inventory_shelf_model.mbt examples/moontown_miniapp/my_inventory_shelf_panel.mbt examples/moontown_miniapp/my_inventory_shelf_rows.mbt'
 
+my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt examples/moontown_miniapp/my_public_passport_items.mbt examples/moontown_miniapp/my_public_passport_rows.mbt examples/moontown_miniapp/my_public_passport_credential.mbt'
+
 workbench_alert_files='examples/moontown_miniapp/workbench_alert_model.mbt examples/moontown_miniapp/workbench_alert_derivation.mbt examples/moontown_miniapp/workbench_alert_filters.mbt examples/moontown_miniapp/workbench_alert_rows.mbt'
 
 discovery_projection_files='examples/moontown_miniapp/projection_discovery_results.mbt examples/moontown_miniapp/projection_discovery_activity.mbt examples/moontown_miniapp/projection_discovery_work.mbt examples/moontown_miniapp/projection_discovery_pulse.mbt'
@@ -163,6 +165,13 @@ done
 for required in $my_inventory_shelf_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My Inventory shelf file $required"
+    exit 1
+  fi
+done
+
+for required in $my_public_passport_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown Public Passport file $required"
     exit 1
   fi
 done
@@ -316,6 +325,12 @@ if [ "$my_inventory_shelves_lines" -gt 80 ]; then
   exit 1
 fi
 
+my_public_passport_lines=$(wc -l < examples/moontown_miniapp/my_public_passport.mbt | tr -d ' ')
+if [ "$my_public_passport_lines" -gt 80 ]; then
+  printf '%s\n' "boundary violation: my_public_passport.mbt has $my_public_passport_lines lines; keep My public identity behavior in focused my_public_passport_* files"
+  exit 1
+fi
+
 workbench_alert_lines=$(wc -l < examples/moontown_miniapp/workbench_alerts.mbt | tr -d ' ')
 if [ "$workbench_alert_lines" -gt 80 ]; then
   printf '%s\n' "boundary violation: workbench_alerts.mbt has $workbench_alert_lines lines; keep My recovery alert behavior in focused workbench_alert_* files"
@@ -458,6 +473,14 @@ for focused_my_inventory_shelf in $my_inventory_shelf_files; do
   focused_lines=$(wc -l < "$focused_my_inventory_shelf" | tr -d ' ')
   if [ "$focused_lines" -gt 180 ]; then
     printf '%s\n' "boundary violation: $focused_my_inventory_shelf has $focused_lines lines; split the My Inventory shelf concern further"
+    exit 1
+  fi
+done
+
+for focused_my_public_passport in $my_public_passport_files; do
+  focused_lines=$(wc -l < "$focused_my_public_passport" | tr -d ' ')
+  if [ "$focused_lines" -gt 140 ]; then
+    printf '%s\n' "boundary violation: $focused_my_public_passport has $focused_lines lines; split the Public Passport concern further"
     exit 1
   fi
 done

@@ -495,7 +495,9 @@ Acceptance checks:
   actions can evolve without reopening a shelf monolith. Workbench alerts are
   further split by alert model, alert derivation, recovery filters, and row
   rendering so My recovery tasks can evolve without reopening the workbench
-  alert boundary.
+  alert boundary. Public Passport is split by panel assembly, public-summary
+  derivation, passport row rendering, and credential plaque lookup so reference
+  profile work can evolve without reopening the My public identity boundary.
 
 Validation:
 
@@ -752,7 +754,10 @@ Acceptance checks:
   as a marker instead of a broad product file.
   Workbench alerts are split by alert model, derivation, recovery filters, and
   row rendering, with boundary checks keeping `workbench_alerts.mbt` as a marker
-  for My recovery behavior. Visual tile WXSS is split by source assembly,
+  for My recovery behavior. Public Passport is split by panel assembly, item
+  derivation, row rendering, and credential plaque lookup, with boundary checks
+  keeping `my_public_passport.mbt` as a marker for My public identity behavior.
+  Visual tile WXSS is split by source assembly,
   reviewer styling, base controls, map, shell, primitive rows, state tones,
   content strips, drawers, responsive rules, and selector helpers, with boundary
   checks keeping `visual_tiles.mbt` as a marker for the shared UX9 style layer.
