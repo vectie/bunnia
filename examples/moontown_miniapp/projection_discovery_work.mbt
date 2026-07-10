@@ -29,9 +29,7 @@ pub fn run_actions(run : MiniTownRun) -> Array[MiniTownRunAction] {
   let reviewable = run.review_required &&
     (run.status == "review" || run.status == "waiting-review")
   let cancellable = run.status == "running"
-  let retryable = run.status == "failed" ||
-    run.status == "rejected" ||
-    run.status == "cancelled"
+  let retryable = run_can_retry(run)
   [
     mini_town_run_action(
       id="open-building",
@@ -79,6 +77,13 @@ pub fn run_actions(run : MiniTownRun) -> Array[MiniTownRunAction] {
       status=if retryable { "ready" } else { "blocked" },
     ),
   ]
+}
+
+///|
+fn run_can_retry(run : MiniTownRun) -> Bool {
+  run.status == "failed" ||
+  run.status == "rejected" ||
+  run.status == "cancelled"
 }
 
 ///|

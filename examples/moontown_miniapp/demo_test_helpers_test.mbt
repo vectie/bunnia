@@ -117,7 +117,9 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(".moontown-district-grid .bunnia-list-windowed{") &&
   wxss.contains(".moontown-discovery-search{") &&
   wxss.contains(".moontown-discovery-results .bunnia-list-windowed{") &&
+  wxss.contains(".moontown-message-inbox,.moontown-message-notices{") &&
   wxss.contains(".moontown-primary-action{") &&
+  wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
   wxss.contains(".moontown-object-section,.moontown-worker-entry") &&

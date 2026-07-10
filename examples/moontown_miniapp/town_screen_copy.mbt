@@ -32,6 +32,8 @@ fn town_screen_subtitle(tab_id : String) -> String {
 fn town_page_grid_class(tab_id : String, panel_count : Int) -> String {
   if tab_id == "my" {
     "moontown-page-grid moontown-my-layout"
+  } else if tab_id == "messages" {
+    "moontown-page-grid moontown-messages-layout"
   } else if panel_count == 1 {
     "moontown-page-grid single"
   } else if panel_count > 2 {

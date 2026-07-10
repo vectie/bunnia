@@ -32,7 +32,7 @@ fn message_attention_failed_work_row(
     Some(
       message_attention_row(
         id="failed-work",
-        title="Work needs recovery",
+        title="Work needs attention",
         summary="\{message_count_text(failed)} can be retried or stopped from Agent Work.",
         status="failed",
         action_label="Review Work",

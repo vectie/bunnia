@@ -1,28 +1,4 @@
 ///|
-fn tool_result_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let results = visible_tool_results(projection)
-  @bunnia.view_with_attrs(
-    [
-      @bunnia.class_name("mt-panel moontown-agent-results"),
-      @bunnia.data("agent-result-count", results.length().to_string()),
-    ],
-    [
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-        @bunnia.text("Agent Results"),
-      ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text(
-          "Reviewed agent output stays attached to a place and can be opened or cleared.",
-        ),
-      ]),
-      @bunnia.windowed_list(results, total_count=results.length(), render=item => {
-        agent_result_entry(projection, item)
-      }),
-    ],
-  )
-}
-
-///|
 fn agent_result_entry(
   projection : MiniTownProjection,
   item : MiniTownToolResult,
@@ -46,7 +22,12 @@ fn agent_result_entry(
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
           agent_result_open_button(item),
-          @bunnia.button("Review Result", item.acknowledge_message),
+          @bunnia.node(
+            kind="button",
+            attrs=[@bunnia.class_name("moontown-primary-action")],
+            events=[@bunnia.tap(item.acknowledge_message)],
+            children=[@bunnia.text("Review Result")],
+          ),
         ]),
       ],
     ),
@@ -56,8 +37,13 @@ fn agent_result_entry(
 ///|
 fn agent_result_open_button(item : MiniTownToolResult) -> @bunnia.Node {
   if high_leverage_place_route(item.building_id) {
-    open_place_button(item.building_id)
+    open_place_button(item.building_id, emphasis=false)
   } else {
-    @bunnia.button("Open Work", item.open_message)
+    @bunnia.node(
+      kind="button",
+      attrs=[@bunnia.class_name("moontown-secondary-action")],
+      events=[@bunnia.tap(item.open_message)],
+      children=[@bunnia.text("Open Work")],
+    )
   }
 }

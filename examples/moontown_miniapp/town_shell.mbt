@@ -21,12 +21,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
   if projection.active_tab_id == "discover" {
     town_page_surface(projection, [discover_panel(projection)])
   } else if projection.active_tab_id == "messages" {
-    town_page_surface(projection, [
-      messages_panel(projection),
-      run_queue_panel(projection),
-      tool_result_panel(projection),
-      review_queue_panel(projection),
-    ])
+    town_page_surface(projection, messages_surface_panels(projection))
   } else if projection.active_tab_id == "my" {
     town_page_surface(projection, my_surface_panels(projection))
   } else if projection.active_tab_id == "home" {

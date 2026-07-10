@@ -1,10 +1,13 @@
 ///|
-fn message_attention_row_entry(row : MessageAttentionRow) -> @bunnia.Node {
+fn message_attention_lead_entry(row : MessageAttentionRow) -> @bunnia.Node {
   @bunnia.keyed(
-    "attention-row-\{row.id}",
+    "attention-lead-\{row.id}",
     @bunnia.view_with_attrs(
       [
-        @bunnia.class_name("moontown-attention-row bunnia-status-\{row.status}"),
+        @bunnia.class_name(
+          "moontown-message-lead moontown-home-lead bunnia-status-\{row.status}",
+        ),
+        @bunnia.data("attention-id", row.id),
         @bunnia.data("building-id", row.building_id),
       ],
       [
@@ -13,7 +16,12 @@ fn message_attention_row_entry(row : MessageAttentionRow) -> @bunnia.Node {
         ]),
         @bunnia.text(row.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
-          @bunnia.button(row.action_label, row.action_message),
+          @bunnia.node(
+            kind="button",
+            attrs=[@bunnia.class_name("moontown-primary-action")],
+            events=[@bunnia.tap(row.action_message)],
+            children=[@bunnia.text(row.action_label)],
+          ),
         ]),
       ],
     ),

@@ -118,7 +118,7 @@ test "moontown generated labels translate backend state" {
   let mine = guardrail_file_content(project.files, "pages/moontown/my.wxml")
   assert_true(mine.contains("Refresh Town"))
   assert_true(home.contains("Needs refresh"))
-  assert_true(messages.contains("Try Again"))
+  assert_true(!messages.contains("Try Again"))
   assert_true(messages.contains("Stop Work"))
   assert_true(messages.contains("Failed Actions"))
   assert_true(messages.contains("Needs Review"))

@@ -1,19 +1,22 @@
 ///|
 fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let reviews = pending_reviews(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("Needs Review"),
-    ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-      @bunnia.text(
-        "Approve useful memory or reject work before it enters town books.",
-      ),
-    ]),
-    @bunnia.windowed_list(reviews, total_count=reviews.length(), render=item => {
-      review_entry(projection, item)
-    }),
-  ])
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("mt-panel moontown-message-review")],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+        @bunnia.text("Needs Review"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
+        @bunnia.text(
+          "Approve useful memory or reject work before it enters town books.",
+        ),
+      ]),
+      @bunnia.windowed_list(reviews, total_count=reviews.length(), render=item => {
+        review_entry(projection, item)
+      }),
+    ],
+  )
 }
 
 ///|
@@ -87,7 +90,13 @@ fn review_decision_button(
   @bunnia.node(
     kind="button",
     attrs=[
-      @bunnia.class_name("bunnia-review-button bunnia-review-button-enabled"),
+      @bunnia.class_name(
+        if decision == "accept" {
+          "bunnia-review-button bunnia-review-button-enabled moontown-primary-action"
+        } else {
+          "bunnia-review-button bunnia-review-button-enabled moontown-danger-action"
+        },
+      ),
       @bunnia.data("decision", decision),
     ],
     events=[@bunnia.tap(message)],

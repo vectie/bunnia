@@ -68,6 +68,21 @@ technical state only when it changes the next user action
   actions
 - keep the existing discovery, placement, subscription, and route contracts
 
+## V2.4 Current Slice
+
+- choose one inbox lead by urgency: pending review, failed recovery, active
+  work, then unread town signals
+- separate decisions, active work, completed results, and recent notices into
+  clear scanning regions without duplicating their content
+- hide unavailable run controls instead of presenting disabled implementation
+  state
+- establish a consistent action hierarchy: primary next step, secondary
+  navigation or acknowledgement, and caution for rejection or cancellation
+- keep the inbox summary and notice feed full width, with decision and work
+  panels paired on larger screens and stacked on phones
+- preserve the existing message, review, work, notification, and place event
+  contracts without compatibility branches
+
 ## Validation
 
 Implementation happens before testing for each slice. After the slice is

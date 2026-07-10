@@ -1,19 +1,31 @@
 ///|
-fn run_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
+fn agent_work_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let runs = active_runs(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-      @bunnia.text("Agent Work"),
-    ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-      @bunnia.text(
-        "Agent work stays attached to places, books, and review decisions.",
-      ),
-    ]),
-    @bunnia.windowed_list(runs, total_count=runs.length(), render=run => {
-      run_queue_entry(projection, run)
-    }),
-  ])
+  let results = visible_tool_results(projection)
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("mt-panel moontown-message-work")],
+    [
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+        @bunnia.text("Agent Work"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
+        @bunnia.text(
+          "Active work, failed work, and completed results by place.",
+        ),
+      ]),
+      @bunnia.windowed_list(runs, total_count=runs.length(), render=run => {
+        run_queue_entry(projection, run)
+      }),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-section-label")], [
+        @bunnia.text("Completed Results"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-agent-results")], [
+        @bunnia.windowed_list(results, total_count=results.length(), render=item => {
+          agent_result_entry(projection, item)
+        }),
+      ]),
+    ],
+  )
 }
 
 ///|
@@ -38,7 +50,7 @@ fn run_queue_entry(
           @bunnia.text(run_context_text(projection, run)),
         ]),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
-          @bunnia.list(run_actions(run), run_action_button),
+          @bunnia.list(available_run_actions(run), run_action_button),
         ]),
       ],
     ),
@@ -48,14 +60,9 @@ fn run_queue_entry(
 ///|
 fn run_action_button(action : MiniTownRunAction) -> @bunnia.Node {
   let attrs = [
-    @bunnia.class_name("moontown-run-action \{action.status}"),
+    @bunnia.class_name(run_action_class(action)),
     @bunnia.data("run-action", action.id),
-    @bunnia.data("allowed", if action.allowed { "true" } else { "false" }),
-    @bunnia.data("blocked-reason", action.reason),
   ]
-  if !action.allowed {
-    attrs.push(@bunnia.attr("disabled", "true"))
-  }
   @bunnia.keyed(
     "run-action-\{action.id}",
     @bunnia.node(

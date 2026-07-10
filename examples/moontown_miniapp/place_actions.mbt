@@ -1,9 +1,18 @@
 ///|
-fn open_place_button(building_id : String) -> @bunnia.Node {
+fn open_place_button(
+  building_id : String,
+  emphasis? : Bool = true,
+) -> @bunnia.Node {
   @bunnia.node(
     kind="button",
     attrs=[
-      @bunnia.class_name("moontown-primary-action"),
+      @bunnia.class_name(
+        if emphasis {
+          "moontown-primary-action"
+        } else {
+          "moontown-secondary-action"
+        },
+      ),
       @bunnia.data("building-id", building_id),
       @bunnia.data("place-destination", "Realm"),
     ],

@@ -47,13 +47,14 @@ fn notification_action_button(notice : MiniTownNotification) -> @bunnia.Node {
     label=notice.action_label,
     message=notice.action_message,
     action="open",
+    emphasis=true,
   )
 }
 
 ///|
 fn notification_place_button(notice : MiniTownNotification) -> @bunnia.Node {
   if high_leverage_place_route(notice.building_id) {
-    open_place_button(notice.building_id)
+    open_place_button(notice.building_id, emphasis=false)
   } else {
     @bunnia.view([])
   }
@@ -66,6 +67,7 @@ fn notification_ack_button(notice : MiniTownNotification) -> @bunnia.Node {
     label="Mark Read",
     message="ack-notification",
     action="ack",
+    emphasis=false,
   )
 }
 
@@ -75,11 +77,18 @@ fn notification_button(
   label~ : String,
   message~ : String,
   action~ : String,
+  emphasis~ : Bool,
 ) -> @bunnia.Node {
   @bunnia.node(
     kind="button",
     attrs=[
-      @bunnia.class_name("moontown-notice-action"),
+      @bunnia.class_name(
+        if emphasis {
+          "moontown-notice-action moontown-primary-action"
+        } else {
+          "moontown-notice-action moontown-secondary-action"
+        },
+      ),
       @bunnia.data("notice-action", action),
       @bunnia.data("building-id", notice.building_id),
     ],

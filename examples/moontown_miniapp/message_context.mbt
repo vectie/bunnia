@@ -2,7 +2,7 @@
 fn failed_run_count(projection : MiniTownProjection) -> Int {
   let mut count = 0
   for run in visible_runs(projection) {
-    if run.status == "failed" || run.status == "cancelled" {
+    if run_can_retry(run) {
       count += 1
     }
   }
