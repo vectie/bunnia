@@ -73,6 +73,8 @@ moontown_test_files="examples/moontown_miniapp/demo_page_test.mbt $generated_pag
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
+my_inventory_row_files='examples/moontown_miniapp/my_inventory_row_stats.mbt examples/moontown_miniapp/my_inventory_row_filters.mbt examples/moontown_miniapp/my_inventory_row_routes.mbt examples/moontown_miniapp/my_inventory_row_actions.mbt'
+
 my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
 
 my_inventory_shelf_files='examples/moontown_miniapp/my_inventory_shelf_model.mbt examples/moontown_miniapp/my_inventory_shelf_panel.mbt examples/moontown_miniapp/my_inventory_shelf_rows.mbt examples/moontown_miniapp/my_inventory_shelf_places.mbt examples/moontown_miniapp/my_inventory_shelf_publication.mbt examples/moontown_miniapp/my_inventory_shelf_work.mbt'
@@ -296,6 +298,13 @@ done
 for required in $my_workbench_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My workbench file $required"
+    exit 1
+  fi
+done
+
+for required in $my_inventory_row_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown My Inventory row file $required"
     exit 1
   fi
 done
@@ -855,6 +864,14 @@ for focused_my_workbench in $my_workbench_files; do
   focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
+    exit 1
+  fi
+done
+
+for focused_my_inventory_row in $my_inventory_row_files; do
+  focused_lines=$(wc -l < "$focused_my_inventory_row" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_my_inventory_row has $focused_lines lines; split the My Inventory row concern further"
     exit 1
   fi
 done

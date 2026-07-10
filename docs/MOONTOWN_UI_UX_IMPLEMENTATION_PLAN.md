@@ -815,7 +815,10 @@ Acceptance checks:
   workbench shelves and row actions can evolve without reopening an inventory
   monolith. My Inventory shelves are also split by shelf model, row derivation,
   and panel rendering, with boundary checks keeping `my_inventory_shelves.mbt`
-  as a marker instead of a broad product file.
+  as a marker instead of a broad product file. My Inventory row behavior is
+  split by stat rendering, filter chips, route extraction, and action rows,
+  with boundary checks keeping `my_inventory_rows.mbt` as a UX6 marker for the
+  manageable-ownership row surface.
   Town Passport is split by panel assembly, setup/role stamps, identity card,
   and profile metric chips, with boundary checks keeping `my_passport.mbt` as a
   marker instead of a broad setup surface file.
