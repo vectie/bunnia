@@ -354,7 +354,10 @@ Acceptance checks:
   entries keep filter metadata internal while visible buttons say where they go.
   Discover projection is now grouped by result filtering, activity/audit rows,
   agent work/reviews, and town-pulse stats; Market Board rendering is grouped by
-  assembly, lists/filters, row labels, and typed actions.
+  assembly, lists/filters, row labels, and typed actions. Market Board actions
+  are split again by primary open/join/read/request actions, map placement
+  actions, and watch/subscription actions so public-object routing can evolve by
+  user job without reopening one mixed action file.
 
 Validation:
 
