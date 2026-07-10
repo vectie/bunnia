@@ -75,6 +75,8 @@ my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_
 
 my_lifecycle_files='examples/moontown_miniapp/my_lifecycle_panel.mbt examples/moontown_miniapp/my_lifecycle_steps.mbt examples/moontown_miniapp/my_lifecycle_audit.mbt examples/moontown_miniapp/my_lifecycle_labels.mbt'
 
+my_tool_files='examples/moontown_miniapp/my_tools_reviewer.mbt examples/moontown_miniapp/my_tools_refresh.mbt examples/moontown_miniapp/my_tools_backend.mbt'
+
 my_inventory_row_files='examples/moontown_miniapp/my_inventory_row_stats.mbt examples/moontown_miniapp/my_inventory_row_filters.mbt examples/moontown_miniapp/my_inventory_row_routes.mbt examples/moontown_miniapp/my_inventory_row_actions.mbt'
 
 my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
@@ -307,6 +309,13 @@ done
 for required in $my_lifecycle_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My lifecycle file $required"
+    exit 1
+  fi
+done
+
+for required in $my_tool_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown My tools file $required"
     exit 1
   fi
 done
@@ -881,6 +890,14 @@ for focused_my_lifecycle in $my_lifecycle_files; do
   focused_lines=$(wc -l < "$focused_my_lifecycle" | tr -d ' ')
   if [ "$focused_lines" -gt 120 ]; then
     printf '%s\n' "boundary violation: $focused_my_lifecycle has $focused_lines lines; split the My lifecycle concern further"
+    exit 1
+  fi
+done
+
+for focused_my_tool in $my_tool_files; do
+  focused_lines=$(wc -l < "$focused_my_tool" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_my_tool has $focused_lines lines; split the My tools concern further"
     exit 1
   fi
 done

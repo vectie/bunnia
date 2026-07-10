@@ -821,7 +821,9 @@ Acceptance checks:
   manageable-ownership row surface. My lifecycle behavior is split by panel
   assembly, publication-step rendering, audit row rendering, and event labels,
   with boundary checks keeping `my_lifecycle.mbt` as the UX6 marker for the
-  publish/archive shelf.
+  publish/archive shelf. My tools behavior is split by reviewer entry, refresh
+  plaque, and backend/cache fallback data, with boundary checks keeping
+  `my_tools.mbt` as the UX6 marker for the My backend loop.
   Town Passport is split by panel assembly, setup/role stamps, identity card,
   and profile metric chips, with boundary checks keeping `my_passport.mbt` as a
   marker instead of a broad setup surface file.
