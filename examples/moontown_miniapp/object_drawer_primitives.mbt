@@ -1,20 +1,4 @@
 ///|
-fn object_stats_row(
-  shelf : Array[MiniTownBookShelfItem],
-  agents : Array[MiniTownAgent],
-  runs : Array[MiniTownRun],
-) -> @bunnia.Node {
-  @bunnia.view_with_attrs(
-    [@bunnia.class_name("mt-meta moontown-object-stats")],
-    [
-      @bunnia.text(
-        "\{count_label(shelf.length(), "book", "books")} - \{count_label(agents.length(), "worker", "workers")} - \{count_label(runs.length(), "work item", "work items")}",
-      ),
-    ],
-  )
-}
-
-///|
 fn object_badge(kind : String, label : String) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [@bunnia.class_name("moontown-object-badge kind-\{kind}")],

@@ -22,12 +22,15 @@ test "moontown miniapp generated page renders map and shell" {
   assert_true(page.wxml.contains("Review"))
   assert_true(page.wxml.contains("Open"))
   assert_true(
-    page.wxml.contains("moontown-map-marker bunnia-status-review selected"),
+    page.wxml.contains("moontown-map-marker selected bunnia-status-review"),
   )
+  assert_true(page.wxml.contains("moontown-map-marker quiet"))
+  assert_eq(string_occurrence_count(page.wxml, "moontown-map-marker-kind"), 1)
   assert_true(page.wxml.contains("moontown-topbar"))
   assert_true(!page.wxml.contains("moontown-left-hud"))
   assert_true(page.wxml.contains("moontown-right-hud"))
-  assert_true(page.wxml.contains("moontown-bottom-hud"))
+  assert_true(!page.wxml.contains("moontown-bottom-hud"))
+  assert_true(page.wxml.contains("moontown-place-facts"))
   assert_true(page.wxml.contains("moontown-tabbar"))
   assert_true(page.wxml.contains("data-map-surface=\"true\""))
   assert_true(!page.wxml.contains("First Visit"))

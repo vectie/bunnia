@@ -5,7 +5,7 @@ fn building_worker_section(projection : MiniTownProjection) -> @bunnia.Node {
   object_section(
     section_id="worker",
     title="Agent Workers",
-    note="Workers show role, status, latest work, and the next message action.",
+    note="\{count_label(agents.length(), "worker", "workers")} attached",
     extra_class="moontown-worker-section",
     children=[
       @bunnia.view_with_attrs([@bunnia.data("building-id", building.id)], [

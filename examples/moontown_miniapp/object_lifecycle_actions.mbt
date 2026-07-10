@@ -1,14 +1,12 @@
 ///|
 fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
   let button_attrs = [
-    @bunnia.class_name("moontown-lifecycle-action \{action.status}"),
+    @bunnia.class_name(
+      "moontown-lifecycle-action \{lifecycle_action_emphasis(action)}",
+    ),
     @bunnia.data("lifecycle-action", action.id),
     @bunnia.data("building-id", lifecycle_action_building_id(action)),
-    @bunnia.data("allowed", if action.allowed { "true" } else { "false" }),
   ]
-  if !action.allowed {
-    button_attrs.push(@bunnia.attr("disabled", "true"))
-  }
   @bunnia.keyed(
     "lifecycle-action-\{action.id}",
     @bunnia.view_with_attrs(
@@ -30,6 +28,17 @@ fn lifecycle_action_button(action : MiniTownLifecycleAction) -> @bunnia.Node {
       ],
     ),
   )
+}
+
+///|
+fn lifecycle_action_emphasis(action : MiniTownLifecycleAction) -> String {
+  if action.id == "archive" || action.id == "hide" {
+    "moontown-danger-action"
+  } else if action.id == "submit" || action.id == "publish" {
+    "moontown-primary-action"
+  } else {
+    "moontown-secondary-action"
+  }
 }
 
 ///|

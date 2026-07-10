@@ -122,7 +122,8 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
-  wxss.contains(".moontown-object-section,.moontown-worker-entry") &&
+  wxss.contains(".moontown-object-section{") &&
+  wxss.contains(".moontown-worker-entry{") &&
   wxss.contains(
     ".moontown-community-actions,.moontown-discovery-action,.moontown-profile-actions,.moontown-run-actions,.moontown-object-primary-actions{display:flex;flex-direction:row;gap:8rpx;flex-wrap:wrap",
   ) &&

@@ -1,24 +1,19 @@
 ///|
 fn building_lifecycle_section(projection : MiniTownProjection) -> @bunnia.Node {
-  let actions = selected_building_lifecycle_actions(projection)
+  let actions = available_lifecycle_actions(projection)
   let building = selected_building(projection)
   let stages = lifecycle_stage_rows(building)
-  object_section(
-    section_id="lifecycle",
-    title="Lifecycle Stamps",
-    note="Private draft, team sharing, review, publishing, hiding, and archive states stay visible.",
-    extra_class="moontown-lifecycle-section",
-    children=[
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-lifecycle-stages")],
-        [
-          @bunnia.windowed_list(
-            stages,
-            total_count=stages.length(),
-            render=lifecycle_stage_entry,
-          ),
-        ],
+  let children : Array[@bunnia.Node] = [
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-lifecycle-stages")], [
+      @bunnia.windowed_list(
+        stages,
+        total_count=stages.length(),
+        render=lifecycle_stage_entry,
       ),
+    ]),
+  ]
+  if actions.length() > 0 {
+    children.push(
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-lifecycle-actions")],
         [
@@ -29,6 +24,26 @@ fn building_lifecycle_section(projection : MiniTownProjection) -> @bunnia.Node {
           ),
         ],
       ),
-    ],
+    )
+  }
+  object_section(
+    section_id="lifecycle",
+    title="Lifecycle Stamps",
+    note="\{town_visibility_label(building.visibility)} - \{town_status_label(building.status)}",
+    extra_class="moontown-lifecycle-section",
+    children~,
   )
+}
+
+///|
+fn available_lifecycle_actions(
+  projection : MiniTownProjection,
+) -> Array[MiniTownLifecycleAction] {
+  let actions : Array[MiniTownLifecycleAction] = []
+  for action in selected_building_lifecycle_actions(projection) {
+    if action.allowed && action.id != "ask" {
+      actions.push(action)
+    }
+  }
+  actions
 }

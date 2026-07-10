@@ -83,6 +83,23 @@ technical state only when it changes the next user action
 - preserve the existing message, review, work, notification, and place event
   contracts without compatibility branches
 
+## V2.5 Current Slice
+
+- make the selected place the dominant map marker while keeping neighboring
+  places quieter and fully tappable
+- show marker badges only for the selected place or meaningful review, active,
+  private, and shared signals
+- move access, placement, worker, and work facts into the selected-place sheet
+  instead of duplicating them in a detached bottom HUD
+- use a bounded side sheet on larger screens and a bottom sheet above tab
+  navigation on phones so the map remains visible and interactive
+- keep the first drawer viewport focused on place identity and Ask, with
+  Messages and Find Similar visually subordinate
+- present drawer sections as separated content bands, move reporting to the
+  end, and omit unavailable lifecycle controls
+- preserve map gestures, marker coordinates, and all existing action/event
+  contracts without compatibility branches
+
 ## Validation
 
 Implementation happens before testing for each slice. After the slice is

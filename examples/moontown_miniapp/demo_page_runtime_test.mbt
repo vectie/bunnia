@@ -8,11 +8,7 @@ test "moontown miniapp generated page keeps runtime and plan budgets stable" {
   assert_true(
     !page.wxml.contains("data-backend-path=\"/miniapp/messages/send\""),
   )
-  assert_true(
-    page.wxml.contains(
-      "Latest message, agent work, and review needs stay tied to this place.",
-    ),
-  )
+  assert_true(page.wxml.contains("3 updates from this place"))
   assert_true(
     !page.wxml.contains(
       "runtime: {{backendStatus.send_building_message.state || 'idle'}}",
@@ -23,8 +19,9 @@ test "moontown miniapp generated page keeps runtime and plan budgets stable" {
   )
   assert_true(!page.wxml.contains("moontown-search-drawer"))
   assert_true(!page.wxml.contains("moontown-create-drawer"))
-  assert_true(page.wxml.contains("moontown-map-state-strip"))
-  assert_true(page.wxml.contains("moontown-map-state-chip"))
+  assert_true(!page.wxml.contains("moontown-map-state-strip"))
+  assert_true(page.wxml.contains("moontown-place-facts"))
+  assert_true(page.wxml.contains("data-place-fact=\"work\""))
   assert_true(!page.wxml.contains("moontown-map-action-rail"))
   assert_true(page.wxml.contains("moontown-object-primary-actions"))
   assert_true(page.wxml.contains("Find Similar"))
@@ -61,12 +58,13 @@ test "moontown miniapp generated page keeps runtime and plan budgets stable" {
   assert_true(!page.js.contains("const safe = { left: 155"))
   assert_true(page.js.contains("\"ask-selected-building\""))
   assert_true(page.js.contains("\"place-published-building\""))
-  assert_true(page.js.contains("\"share-private-building\""))
-  assert_true(page.js.contains("\"publish-private-building\""))
-  assert_true(page.js.contains("\"archive-private-building\""))
+  assert_true(!page.js.contains("\"share-private-building\""))
+  assert_true(!page.js.contains("\"publish-private-building\""))
+  assert_true(!page.js.contains("\"archive-private-building\""))
   assert_true(
-    page.wxml.contains("data-bunnia-message=\"restore-archived-building\""),
+    !page.wxml.contains("data-bunnia-message=\"restore-archived-building\""),
   )
+  assert_true(!page.js.contains("\"restore-archived-building\""))
   assert_true(page.plan.scene_count == 1)
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)

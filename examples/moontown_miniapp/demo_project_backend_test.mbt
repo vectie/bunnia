@@ -72,12 +72,12 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/share",
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/update",
     ),
   )
@@ -87,12 +87,40 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/archive",
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
+      "/miniapp/buildings/restore",
+    ),
+  )
+  assert_true(
+    backend_contract_contains(
+      demo_backend_contract(),
+      "share-private-building",
+      "/miniapp/buildings/share",
+    ),
+  )
+  assert_true(
+    backend_contract_contains(
+      demo_backend_contract(),
+      "update-private-building",
+      "/miniapp/buildings/update",
+    ),
+  )
+  assert_true(
+    backend_contract_contains(
+      demo_backend_contract(),
+      "archive-private-building",
+      "/miniapp/buildings/archive",
+    ),
+  )
+  assert_true(
+    backend_contract_contains(
+      demo_backend_contract(),
+      "restore-archived-building",
       "/miniapp/buildings/restore",
     ),
   )

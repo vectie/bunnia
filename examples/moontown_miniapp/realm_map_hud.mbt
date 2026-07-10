@@ -7,53 +7,46 @@ fn town_right_hud(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn town_realm_overlay(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view([town_right_hud(projection), town_bottom_hud(projection)])
+  town_right_hud(projection)
 }
 
 ///|
-fn town_bottom_hud(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-bottom-hud")], [
-    realm_map_state_strip(projection),
-  ])
-}
-
-///|
-fn realm_map_state_strip(projection : MiniTownProjection) -> @bunnia.Node {
-  let building = selected_building(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-state-strip")], [
-    realm_map_state_chip(
-      id="selected",
-      label=building.title,
-      value=map_marker_badge_label(building),
-      status=building.status,
-    ),
-    realm_map_state_chip(
+fn selected_place_facts(
+  projection : MiniTownProjection,
+  building : MiniTownBuilding,
+  agents : Array[MiniTownAgent],
+  runs : Array[MiniTownRun],
+) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-place-facts")], [
+    selected_place_fact(
       id="access",
       label="Access",
       value=town_visibility_label(building.visibility),
       status=building.status,
     ),
-    realm_map_state_chip(
+    selected_place_fact(
       id="placement",
       label="Placement",
       value=selected_building_placement_label(projection, building),
       status=building.status,
     ),
-    realm_map_state_chip(
+    selected_place_fact(
       id="workers",
       label="Workers",
-      value=count_label(
-        selected_building_agents(projection).length(),
-        "worker",
-        "workers",
-      ),
+      value=count_label(agents.length(), "worker", "workers"),
+      status=building.status,
+    ),
+    selected_place_fact(
+      id="work",
+      label="Work",
+      value=count_label(runs.length(), "item", "items"),
       status=building.status,
     ),
   ])
 }
 
 ///|
-fn realm_map_state_chip(
+fn selected_place_fact(
   id~ : String,
   label~ : String,
   value~ : String,
@@ -63,10 +56,19 @@ fn realm_map_state_chip(
     "map-state-\{id}",
     @bunnia.view_with_attrs(
       [
-        @bunnia.class_name("moontown-map-state-chip bunnia-status-\{status}"),
-        @bunnia.data("map-state", id),
+        @bunnia.class_name("moontown-place-fact bunnia-status-\{status}"),
+        @bunnia.data("place-fact", id),
       ],
-      [@bunnia.text("\{label}: \{value}")],
+      [
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-place-fact-label")],
+          [@bunnia.text(label)],
+        ),
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-place-fact-value")],
+          [@bunnia.text(value)],
+        ),
+      ],
     ),
   )
 }

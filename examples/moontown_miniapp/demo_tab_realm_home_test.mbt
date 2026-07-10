@@ -6,14 +6,18 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(realm.wxml.contains("moontown-map-fullscreen"))
   assert_true(!realm.wxml.contains("moontown-left-hud"))
   assert_true(realm.wxml.contains("moontown-right-hud"))
-  assert_true(realm.wxml.contains("moontown-map-state-strip"))
+  assert_true(!realm.wxml.contains("moontown-map-state-strip"))
+  assert_true(realm.wxml.contains("moontown-place-facts"))
   assert_true(!realm.wxml.contains("moontown-map-action-rail"))
   assert_true(
-    realm.wxml.contains("moontown-map-marker bunnia-status-review selected"),
+    realm.wxml.contains("moontown-map-marker selected bunnia-status-review"),
   )
-  assert_true(realm.wxml.contains("Policy Hall: Review"))
-  assert_true(realm.wxml.contains("Access: Public in town"))
-  assert_true(realm.wxml.contains("Placement: Pinned"))
+  assert_true(realm.wxml.contains("Selected Place"))
+  assert_true(realm.wxml.contains("data-place-fact=\"access\""))
+  assert_true(realm.wxml.contains("Public in town"))
+  assert_true(realm.wxml.contains("data-place-fact=\"placement\""))
+  assert_true(realm.wxml.contains("Pinned"))
+  assert_true(!realm.wxml.contains("moontown-bottom-hud"))
   assert_true(realm.wxml.contains("Ask"))
   assert_true(realm.wxml.contains("Messages"))
   assert_true(realm.wxml.contains("Find Similar"))

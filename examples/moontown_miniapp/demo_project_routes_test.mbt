@@ -140,7 +140,12 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/index.data.js").contains(
+    file_content(project.files, "pages/moontown/home.data.js").contains(
+      "\"publish-private-building\":[]",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/moontown/index.data.js").contains(
       "\"publish-private-building\":[]",
     ),
   )

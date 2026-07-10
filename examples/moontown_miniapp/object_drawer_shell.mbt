@@ -12,11 +12,11 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
     ],
     [
       building_object_header(projection, building, book),
-      safety_report_button(projection, building),
       building_memory_section(projection),
       building_worker_section(projection),
       building_lifecycle_section(projection),
       building_context_section(projection),
+      safety_report_button(projection, building),
     ],
   )
 }
