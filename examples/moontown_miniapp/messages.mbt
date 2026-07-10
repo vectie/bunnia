@@ -1,5 +1,5 @@
 ///|
-// Messages leads with one decision; detailed work and notices follow it.
+// Messages opens as an inbox; its highest-priority work follows the chat list.
 
 ///|
 fn messages_panel(projection : MiniTownProjection) -> @bunnia.Node {

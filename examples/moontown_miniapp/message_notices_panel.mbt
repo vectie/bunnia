@@ -4,17 +4,20 @@ fn message_notices_panel(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [@bunnia.class_name("mt-panel moontown-message-notices")],
     [
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
-        @bunnia.text("Latest Messages"),
-      ]),
       @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-message-refresh")],
+        [@bunnia.class_name("moontown-chat-list-header")],
         [
+          @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
+            @bunnia.text("Chats"),
+          ]),
           @bunnia.node(
             kind="button",
-            attrs=[@bunnia.class_name("moontown-secondary-action")],
+            attrs=[
+              @bunnia.class_name("moontown-chat-refresh"),
+              @bunnia.attr("aria-label", "Refresh chats"),
+            ],
             events=[@bunnia.tap("load-message-center")],
-            children=[@bunnia.text("Refresh Inbox")],
+            children=[@bunnia.text("↻")],
           ),
         ],
       ),

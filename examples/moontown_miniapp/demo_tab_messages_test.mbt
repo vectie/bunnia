@@ -5,6 +5,7 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(has_no_forbidden_ordinary_copy(messages.wxml))
   assert_true(messages.wxml.contains("data-active-tab=\"messages\""))
   assert_true(messages.wxml.contains("moontown-messages-layout"))
+  assert_true(messages.wxml.contains("Chats and tasks"))
   assert_true(messages.wxml.contains("moontown-message-inbox"))
   assert_true(!messages.wxml.contains("Message Inbox"))
   assert_true(!messages.wxml.contains("1 decisions, 0 failed items"))
@@ -62,26 +63,44 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(messages.wxml.contains("Review Result"))
   assert_true(messages.wxml.contains("data-bunnia-message=\"ack-tool-result\""))
 
-  assert_true(messages.wxml.contains("Latest Messages"))
+  assert_true(messages.wxml.contains("Chats"))
+  assert_true(!messages.wxml.contains("Latest Messages"))
   assert_true(messages.wxml.contains("moontown-message-notices"))
   assert_true(messages.wxml.contains("moontown-notice-list"))
-  assert_true(messages.wxml.contains("Refresh Inbox"))
+  assert_true(!messages.wxml.contains("<text>Refresh</text>"))
+  assert_true(messages.wxml.contains("aria-label=\"Refresh chats\""))
+  assert_true(!messages.wxml.contains("Refresh Inbox"))
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"load-message-center\""),
   )
-  assert_true(messages.wxml.contains("Agent Replies"))
-  assert_true(messages.wxml.contains("Interactions"))
-  assert_true(messages.wxml.contains("Town Notices"))
+  assert_true(messages.wxml.contains("Unread"))
+  assert_true(messages.wxml.contains("Replies"))
+  assert_true(messages.wxml.contains("Activity"))
+  assert_true(messages.wxml.contains("Notices"))
+  assert_true(!messages.wxml.contains("Agent Replies"))
+  assert_true(!messages.wxml.contains("Town Notices"))
   assert_true(!messages.wxml.contains("Failed Actions"))
   assert_true(!messages.wxml.contains("New Follows"))
   assert_true(messages.wxml.contains("moontown-message-channel active"))
+  assert_true(messages.wxml.contains("moontown-chat-row unread"))
+  assert_true(messages.wxml.contains("moontown-chat-row read"))
+  assert_true(messages.wxml.contains("data-chat-unread=\"true\""))
+  assert_true(messages.wxml.contains("data-chat-unread=\"false\""))
+  assert_true(messages.wxml.contains("moontown-chat-avatar kind-agent-run"))
+  assert_true(messages.wxml.contains("moontown-chat-preview"))
+  assert_true(
+    messages.wxml.contains(
+      "A new AI walker is watching your public building updates.",
+    ),
+  )
+  assert_true(messages.wxml.contains("moontown-chat-unread-dot"))
   assert_true(messages.wxml.contains("Deep Cultivator followed your town"))
   assert_true(messages.wxml.contains("Enterprise Club replied"))
   assert_true(messages.wxml.contains("Memory review needed"))
   assert_true(messages.wxml.contains("Agent work completed"))
-  assert_true(messages.wxml.contains("Mark Read"))
+  assert_true(!messages.wxml.contains("Mark Read"))
   assert_true(messages.wxml.contains("data-notice-action=\"open\""))
-  assert_true(messages.wxml.contains("data-notice-action=\"ack\""))
+  assert_true(!messages.wxml.contains("data-notice-action=\"ack\""))
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"open-notice-review\""),
   )
@@ -89,7 +108,28 @@ test "moontown miniapp renders a prioritized Messages inbox" {
     messages.wxml.contains("data-bunnia-message=\"request-subscription\""),
   )
   assert_true(
-    messages.wxml.contains("data-bunnia-message=\"ack-notification\""),
+    !messages.wxml.contains("data-bunnia-message=\"ack-notification\""),
+  )
+  assert_true(
+    string_appears_before(
+      messages.wxml,
+      "moontown-message-notices",
+      "moontown-message-lead",
+    ),
+  )
+  assert_true(
+    string_appears_before(
+      messages.wxml,
+      "moontown-message-notices",
+      "moontown-message-review",
+    ),
+  )
+  assert_true(
+    string_appears_before(
+      messages.wxml,
+      "moontown-message-notices",
+      "moontown-message-work",
+    ),
   )
 
   assert_true(messages.wxml.contains("moontown-primary-action"))

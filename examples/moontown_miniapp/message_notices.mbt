@@ -5,26 +5,80 @@ fn notification_entry(
 ) -> @bunnia.Node {
   @bunnia.keyed(
     "notice-\{notice.id}",
-    @bunnia.view_with_attrs(
-      [
-        @bunnia.class_name("moontown-notice-entry"),
+    @bunnia.node(
+      kind="view",
+      attrs=[
+        @bunnia.class_name(
+          if notice.unread {
+            "moontown-notice-entry moontown-chat-row unread"
+          } else {
+            "moontown-notice-entry moontown-chat-row read"
+          },
+        ),
+        @bunnia.data(
+          "chat-unread",
+          if notice.unread {
+            "true"
+          } else {
+            "false"
+          },
+        ),
+        @bunnia.data("notice-action", "open"),
         @bunnia.data("building-id", notice.building_id),
       ],
-      [
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(notice.title),
-        ]),
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-          @bunnia.text(notification_context_text(projection, notice)),
-        ]),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
-          notification_place_button(notice),
-          notification_action_button(notice),
-          notification_ack_button(notice),
+      events=[@bunnia.tap(notice.action_message)],
+      children=[
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-chat-avatar kind-\{notice.kind}")],
+          [@bunnia.text(notification_avatar_label(notice.kind))],
+        ),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-chat-copy")], [
+          @bunnia.view_with_attrs(
+            [@bunnia.class_name("moontown-chat-title-row")],
+            [
+              @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+                @bunnia.text(notice.title),
+              ]),
+              notification_unread_indicator(notice),
+            ],
+          ),
+          @bunnia.view_with_attrs(
+            [@bunnia.class_name("moontown-chat-preview")],
+            [@bunnia.text(notice.body)],
+          ),
+          @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+            @bunnia.text(notification_context_text(projection, notice)),
+          ]),
         ]),
       ],
     ),
   )
+}
+
+///|
+fn notification_avatar_label(kind : String) -> String {
+  if kind == "agent-run" {
+    "A"
+  } else if kind == "review" {
+    "R"
+  } else if kind == "interaction" {
+    "I"
+  } else if kind == "follow" {
+    "F"
+  } else if kind == "subscription" {
+    "S"
+  } else {
+    "M"
+  }
+}
+
+///|
+fn notification_unread_indicator(notice : MiniTownNotification) -> @bunnia.Node {
+  if notice.unread {
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-chat-unread-dot")], [])
+  } else {
+    @bunnia.view([])
+  }
 }
 
 ///|
@@ -40,58 +94,3 @@ fn notification_context_text(
 }
 
 ///|
-fn notification_action_button(notice : MiniTownNotification) -> @bunnia.Node {
-  notification_button(
-    notice,
-    label=notice.action_label,
-    message=notice.action_message,
-    action="open",
-    emphasis=true,
-  )
-}
-
-///|
-fn notification_place_button(notice : MiniTownNotification) -> @bunnia.Node {
-  if high_leverage_place_route(notice.building_id) {
-    open_place_button(notice.building_id, emphasis=false)
-  } else {
-    @bunnia.view([])
-  }
-}
-
-///|
-fn notification_ack_button(notice : MiniTownNotification) -> @bunnia.Node {
-  notification_button(
-    notice,
-    label="Mark Read",
-    message="ack-notification",
-    action="ack",
-    emphasis=false,
-  )
-}
-
-///|
-fn notification_button(
-  notice : MiniTownNotification,
-  label~ : String,
-  message~ : String,
-  action~ : String,
-  emphasis~ : Bool,
-) -> @bunnia.Node {
-  @bunnia.node(
-    kind="button",
-    attrs=[
-      @bunnia.class_name(
-        if emphasis {
-          "moontown-notice-action moontown-primary-action"
-        } else {
-          "moontown-notice-action moontown-secondary-action"
-        },
-      ),
-      @bunnia.data("notice-action", action),
-      @bunnia.data("building-id", notice.building_id),
-    ],
-    events=[@bunnia.tap(message)],
-    children=[@bunnia.text(label)],
-  )
-}

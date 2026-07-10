@@ -14,6 +14,8 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-map-marker.selected"))
   assert_true(page.wxss.contains(".moontown-object-title"))
   assert_true(page.wxss.contains(".moontown-place-facts"))
+  assert_true(page.wxss.contains(".moontown-chat-avatar"))
+  assert_true(page.wxss.contains(".moontown-chat-unread-dot"))
   assert_true(
     page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #e11d48"),
   )

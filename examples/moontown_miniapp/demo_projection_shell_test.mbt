@@ -81,7 +81,7 @@ test "moontown projection exposes shell setup backend and seeded town shape" {
   assert_eq(projection.districts[0].accent, "blue")
   assert_eq(projection.presence.length(), 4)
   assert_eq(projection.notifications.length(), 7)
-  assert_eq(projection.notification_channels.length(), 7)
+  assert_eq(projection.notification_channels.length(), 5)
   assert_eq(projection.watches.length(), 1)
   assert_eq(projection.discovery_items.length(), 11)
   assert_eq(projection.discovery_filters.length(), 11)

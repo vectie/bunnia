@@ -6,6 +6,8 @@ Moontown mini-app.
 
 For phase-by-phase execution, use the companion implementation plan in
 [MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md](MOONTOWN_UI_UX_IMPLEMENTATION_PLAN.md).
+For exact page jobs and acceptable learning time, use
+[MOONTOWN_UI_UX_V4_TASK_MODEL.md](MOONTOWN_UI_UX_V4_TASK_MODEL.md).
 
 The core decision is:
 
@@ -90,8 +92,8 @@ content. The user job is "find something useful."
 
 Moontown rule:
 
-- Discover should show search, filters, result cards, and clear actions:
-  open, watch, place, join, answer, read.
+- Discover should show search, filters, result cards, and one clear action per
+  result. Watch and place belong after opening the destination.
 - "Next" should become "More" or "Load more" when visible to users.
 - Cursor, query payload, result window, and endpoint language should stay
   invisible.
@@ -122,6 +124,9 @@ It also asks users to subscribe to important notifications in plain language.
 Moontown rule:
 
 - Messages should answer "who needs my attention?"
+- Messages should use a familiar conversation-list structure before review and
+  agent-work sections: avatar, title, one-line preview, unread state, and a
+  whole-row tap target.
 - Agent runs should be translated into user tasks: reply, review, accept,
   reject, retry, inspect result.
 - "Ack Sync", "Tool Ack", "message center", and backend status should be

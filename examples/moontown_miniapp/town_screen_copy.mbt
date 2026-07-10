@@ -20,7 +20,7 @@ fn town_screen_subtitle(tab_id : String) -> String {
   } else if tab_id == "discover" {
     "Search the public town"
   } else if tab_id == "messages" {
-    "Decisions, replies, and work"
+    "Chats and tasks"
   } else if tab_id == "my" {
     "Identity, work, and publishing"
   } else {

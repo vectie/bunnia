@@ -68,7 +68,14 @@ fn mini_town_notification_channel_match(
   channel : MiniTownNotificationChannel,
   notice : MiniTownNotification,
 ) -> Bool {
-  let kind_match = channel.kind == "all" || channel.kind == notice.kind
+  let kind_match = if channel.kind == "notice" {
+    notice.kind == "follow" ||
+    notice.kind == "subscription" ||
+    notice.kind == "publish" ||
+    notice.kind == "share"
+  } else {
+    channel.kind == "all" || channel.kind == notice.kind
+  }
   let unread_match = !channel.unread_only || notice.unread
   kind_match && unread_match
 }

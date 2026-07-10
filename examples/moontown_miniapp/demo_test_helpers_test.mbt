@@ -59,6 +59,18 @@ fn contains_all(text : String, tokens : Array[String]) -> Bool {
 }
 
 ///|
+fn string_appears_before(
+  text : String,
+  first : String,
+  second : String,
+) -> Bool {
+  match (text.find(first), text.find(second)) {
+    (Some(first_index), Some(second_index)) => first_index < second_index
+    _ => false
+  }
+}
+
+///|
 fn generated_contract_data_stays_out_of_ordinary_wxml(
   files : Array[@bunnia.WechatFile],
 ) -> Bool {
@@ -125,7 +137,11 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(
     ".moontown-message-work,.moontown-my-inventory{border-top:3rpx solid #2f855a",
   ) &&
-  wxss.contains(".moontown-notice-entry{border-left:4rpx solid #e11d48") &&
+  wxss.contains(
+    ".moontown-chat-row{min-width:0;min-height:88rpx;margin:0;display:grid;grid-template-columns:64rpx minmax(0,1fr)",
+  ) &&
+  wxss.contains(".moontown-chat-avatar.kind-agent-run{background:#2563eb") &&
+  wxss.contains(".moontown-chat-preview,.moontown-chat-preview text{") &&
   wxss.contains(".moontown-tabbar{box-shadow:0 8rpx 24rpx") &&
   wxss.contains(
     ".moontown-tabbar>.bunnia-list{display:flex;flex-direction:row;gap:8rpx;width:100%",

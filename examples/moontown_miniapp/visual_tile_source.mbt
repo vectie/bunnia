@@ -6,6 +6,7 @@ fn moontown_wxss_source() -> String {
   tile_primitives_wxss() +
   tile_state_wxss() +
   tile_content_wxss() +
+  tile_messages_wxss() +
   tile_my_wxss() +
   tile_drawer_wxss() +
   tile_identity_wxss() +

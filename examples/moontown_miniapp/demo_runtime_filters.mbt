@@ -65,7 +65,7 @@ fn discover_filter_updates_backend(id : String) -> Bool {
 
 ///|
 fn notification_channel_updates_backend(id : String) -> Bool {
-  id == "unread" || id == "agent" || id == "review"
+  id == "unread" || id == "agent"
 }
 
 ///|
