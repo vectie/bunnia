@@ -447,9 +447,10 @@ Acceptance checks:
   result, review, notice, and shared context helpers live in focused message
   modules instead of one monolithic surface file. Attention rows are now split
   by row model, derivation, panel assembly, and row rendering, with bucket
-  summaries and notification channel chips also kept in separate UX5 modules so
-  agent replies, reviews, failed actions, and town notices can evolve without
-  reopening the page assembly.
+  summaries and notification channel chips also kept in separate UX5 modules.
+  Attention derivation is split again by review rows, agent work/recovery rows,
+  and town notice/quiet rows so reviews, failed actions, and town signals can
+  evolve without reopening the page assembly.
 
 Validation:
 
