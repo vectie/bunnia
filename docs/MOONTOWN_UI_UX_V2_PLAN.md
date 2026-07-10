@@ -117,6 +117,26 @@ technical state only when it changes the next user action
 - keep depth concentrated in navigation, selected map objects, and drawers
   rather than turning every page section into a floating card
 
+## V2.7 Current Slice
+
+- validate Realm, Home, Discover, Messages, My, and Reviewer in WeChat
+  DevTools on the iPhone 12/13 simulator at a 390 by 753 content viewport
+- remove the universal child selector rejected by the WXSS compiler and guard
+  generated styles against reintroducing it
+- replace mixed `rpx` and safe-area calculations with independently computed
+  safe-area positions and spacing margins so shell geometry remains stable
+- style generated list wrappers explicitly so navigation and action controls
+  retain their intended horizontal layout
+- turn the mobile onboarding guide into a readable two-column grid while
+  retaining Discover filters as a verified horizontal overflow strip
+- reset Reviewer to a true top-aligned standalone surface instead of inheriting
+  the ordinary-route header offset
+- restore semantic button-label contrast by inheriting each button's text color
+- verify drawer/navigation clearance, touch target sizing, route scrolling, and
+  computed primary-action contrast in the live simulator
+- keep small-phone, large-phone, and landscape presets in the continuous device
+  matrix until each preset is captured and inspected directly
+
 ## Validation
 
 Implementation happens before testing for each slice. After the slice is

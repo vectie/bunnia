@@ -1,7 +1,7 @@
 ///|
 fn reviewer_wxss_source() -> String {
   ".moontown-miniapp { min-height: 100vh; background: #0f172a; color: #16221a; font-size: 24rpx; line-height: 1.35; overflow-wrap: anywhere; word-break: break-word; }\n" +
-  ".moontown-page-surface { min-height: 100vh; padding: 24rpx; box-sizing: border-box; background: #eef2f7; }\n" +
+  ".moontown-page-surface { position: relative; left: auto; right: auto; top: auto; bottom: auto; min-height: 100vh; margin: 0; padding: 24rpx; box-sizing: border-box; overflow: visible; background: #eef2f7; }\n" +
   ".moontown-credential-plaque { padding: 18rpx; border: 2rpx solid #2563eb; border-radius: 8rpx; background: #f8fafc; box-shadow: 0 6rpx 18rpx rgba(15,23,42,0.14); }\n" +
   ".mt-title { margin-bottom: 8rpx; color: #203124; font-size: 30rpx; line-height: 38rpx; font-weight: 800; }\n" +
   ".mt-meta { margin-top: 8rpx; color: #53624e; font-size: 20rpx; line-height: 28rpx; }\n" +

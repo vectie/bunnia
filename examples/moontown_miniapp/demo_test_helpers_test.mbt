@@ -100,11 +100,14 @@ fn generated_wxss_has_tile_visual_system(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
   ) &&
   wxss.contains(".mt-panel input{width:100%;min-height:88rpx") &&
+  wxss.contains(
+    ".moontown-page-surface button text,.moontown-right-hud button text,.moontown-topbar button text,.moontown-tabbar button text{color:inherit",
+  ) &&
   wxss.contains("touch-action:manipulation") &&
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
   wxss.contains(
-    "bottom:calc(132rpx+env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto",
+    "bottom:0;bottom:constant(safe-area-inset-bottom);bottom:env(safe-area-inset-bottom);margin-top:160rpx;margin-bottom:132rpx;overflow-x:hidden;overflow-y:auto",
   ) &&
   wxss.contains("-webkit-overflow-scrolling:touch") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
@@ -124,6 +127,10 @@ fn generated_wxss_has_tile_visual_system(
   ) &&
   wxss.contains(".moontown-notice-entry{border-left:4rpx solid #e11d48") &&
   wxss.contains(".moontown-tabbar{box-shadow:0 8rpx 24rpx") &&
+  wxss.contains(
+    ".moontown-tabbar>.bunnia-list{display:flex;flex-direction:row;gap:8rpx;width:100%",
+  ) &&
+  wxss.contains(".moontown-tab-button{position:relative;flex:1 1 0;min-width:0") &&
   wxss.contains(".moontown-primary-action{") &&
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
@@ -136,6 +143,16 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(
     ".moontown-community-actions button,.moontown-discovery-action button",
   ) &&
+  wxss.contains(
+    ".moontown-community-actions>.bunnia-list,.moontown-discovery-action>.bunnia-list,.moontown-profile-actions>.bunnia-list,.moontown-run-actions>.bunnia-list,.moontown-object-primary-actions>.bunnia-list{display:flex;flex:1 1 100%;flex-direction:row",
+  ) &&
+  wxss.contains(
+    ".moontown-guide-strip>.bunnia-list-windowed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible",
+  ) &&
+  wxss.contains(
+    ".moontown-my-layout>.mt-panel,.moontown-my-layout>.moontown-credential-plaque,.moontown-my-layout>.moontown-create-drawer{grid-column:auto;grid-row:auto",
+  ) &&
+  !wxss.contains(">*{") &&
   !wxss.contains("letter-spacing:-") &&
   ordinary_pages_share_app_wxss(files)
 }

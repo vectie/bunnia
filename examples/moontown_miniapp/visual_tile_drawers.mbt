@@ -1,6 +1,6 @@
 ///|
 fn tile_drawer_wxss() -> String {
-  ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 160rpx; bottom: calc(132rpx + env(safe-area-inset-bottom)); width: 360rpx; overflow: hidden; }\n" +
+  ".moontown-right-hud { position: absolute; z-index: 7; right: 22rpx; top: 160rpx; bottom: 0; bottom: constant(safe-area-inset-bottom); bottom: env(safe-area-inset-bottom); margin-bottom: 132rpx; width: 360rpx; overflow: hidden; }\n" +
   ".moontown-building-drawer, .moontown-create-drawer { min-width: 0; padding: 16rpx; border: 1rpx solid rgba(255,255,255,0.62); border-radius: 8rpx; background: rgba(248,250,252,0.96); box-shadow: 0 10rpx 28rpx rgba(15,23,42,0.24); overflow: hidden; }\n" +
   ".moontown-building-drawer { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }\n" +
   ".moontown-building-drawer text, .moontown-chat-drawer text, .moontown-create-drawer text { display: block; color: #405244; font-size: 20rpx; }\n" +

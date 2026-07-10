@@ -100,6 +100,11 @@ test "moontown reviewer route shares the town visual identity" {
   let project = demo_wechat_project()
   let wxss = file_content(project.files, "pages/moontown/reviewer.wxss")
   assert_true(wxss.contains("background:#eef2f7"))
+  assert_true(
+    wxss.contains(
+      ".moontown-page-surface{position:relative;left:auto;right:auto;top:auto;bottom:auto;min-height:100vh;margin:0",
+    ),
+  )
   assert_true(wxss.contains("border:2rpx solid #2563eb"))
   assert_true(wxss.contains("background:#f8fafc"))
   assert_true(wxss.contains("border-top:3rpx solid #e11d48"))
