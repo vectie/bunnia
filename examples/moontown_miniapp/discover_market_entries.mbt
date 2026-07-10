@@ -8,7 +8,7 @@ fn discover_entry(
     @bunnia.view_with_attrs(
       [
         @bunnia.class_name(
-          "moontown-discover-entry bunnia-status-\{item.status}",
+          "moontown-discover-entry kind-\{item.kind} bunnia-status-\{item.status}",
         ),
         @bunnia.data("discovery-id", item.id),
         @bunnia.data("discovery-kind", item.kind),
@@ -18,11 +18,6 @@ fn discover_entry(
           @bunnia.text(item.title),
         ]),
         @bunnia.text(item.summary),
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-          @bunnia.text(
-            "\{town_kind_label(item.kind)} - \{discover_eligibility_label(projection, item)}",
-          ),
-        ]),
         discover_eligibility_row(projection, item),
         discover_entry_action(projection, item),
       ],

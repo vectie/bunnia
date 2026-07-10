@@ -36,10 +36,18 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
   assert_true(home.wxml.contains("Town Pulse"))
+  assert_true(home.wxml.contains("moontown-home-lead"))
+  assert_true(home.wxml.contains("data-home-lead=\"attention\""))
+  assert_true(home.wxml.contains("Review Messages"))
+  assert_true(home.wxml.contains("moontown-home-stats"))
+  assert_true(home.wxml.contains("data-home-stat=\"changed\""))
+  assert_true(home.wxml.contains("data-home-stat=\"attention\""))
+  assert_true(home.wxml.contains("data-home-stat=\"nearby\""))
+  assert_true(home.wxml.contains("Around town"))
   assert_true(home.wxml.contains("data-home-pulse=\"changes\""))
   assert_true(home.wxml.contains("3 places changed"))
   assert_true(home.wxml.contains("Policy answer waiting for review"))
-  assert_true(home.wxml.contains("data-home-pulse=\"attention\""))
+  assert_true(!home.wxml.contains("data-home-pulse=\"attention\""))
   assert_true(home.wxml.contains("Agent needs your decision"))
   assert_true(home.wxml.contains("Review policy answer"))
   assert_true(home.wxml.contains("data-home-pulse=\"market\""))
@@ -69,12 +77,12 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
       "runtime: {{backendStatus.load_town_snapshot.state || 'idle'}}",
     ),
   )
-  assert_true(home.wxml.contains("District Gates"))
+  assert_true(home.wxml.contains("Town Gates"))
   assert_true(
-    home.wxml.contains(
-      "Market, messages, events, guides, and trust work open from this town board.",
-    ),
+    home.wxml.contains("Enter a district or see who is active nearby."),
   )
+  assert_true(home.wxml.contains("moontown-district-grid"))
+  assert_true(home.wxml.contains("Nearby now"))
   assert_true(home.wxml.contains("data-feature-kind=\"market\""))
   assert_true(home.wxml.contains("feature-market tone-blue"))
   assert_true(home.wxml.contains("data-district-filter=\"product\""))
@@ -102,4 +110,11 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(!home.wxml.contains("Map Districts"))
   assert_true(!home.wxml.contains("Reference feature pages"))
   assert_true(!home.wxml.contains("moontown-right-hud"))
+
+  let onboarded_home = tab_page(complete_onboarding(projection), "home")
+  assert_true(has_no_forbidden_ordinary_copy(onboarded_home.wxml))
+  assert_true(!onboarded_home.wxml.contains("First Visit"))
+  assert_true(!onboarded_home.wxml.contains("moontown-onboarding-step"))
+  assert_true(onboarded_home.wxml.contains("moontown-home-pulse"))
+  assert_true(onboarded_home.wxml.contains("moontown-home-districts"))
 }

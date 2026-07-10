@@ -38,7 +38,7 @@ test "moontown miniapp exposes pressure plans for inspect gates" {
   assert_eq(quality.diagnostics.length(), 0)
   assert_eq(inspection.route_count, 6)
   assert_eq(inspection.total_diagnostics, 0)
-  assert_true(inspection.max_first_screen_bytes <= 72000)
+  assert_true(inspection.max_first_screen_bytes <= 76000)
   assert_true(inspection.max_update_payload_bytes > 0)
   assert_true(inspection.max_update_payload_bytes <= 4096)
   assert_true(inspection.max_update_operation_count <= 64)

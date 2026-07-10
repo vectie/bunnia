@@ -7,6 +7,7 @@ fn discover_place_button(
   @bunnia.node(
     kind="button",
     attrs=[
+      @bunnia.class_name("moontown-secondary-action"),
       @bunnia.data("discovery-id", item.id),
       @bunnia.data("building-id", building_id),
     ],

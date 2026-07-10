@@ -3,6 +3,7 @@ fn open_place_button(building_id : String) -> @bunnia.Node {
   @bunnia.node(
     kind="button",
     attrs=[
+      @bunnia.class_name("moontown-primary-action"),
       @bunnia.data("building-id", building_id),
       @bunnia.data("place-destination", "Realm"),
     ],

@@ -9,17 +9,24 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("Market Board"))
   assert_true(
     discover.wxml.contains(
-      "Find public places, people, books, agents, demands, and events.",
+      "Find something useful, then open it or bring it into town.",
     ),
   )
+  assert_true(discover.wxml.contains("moontown-page-grid single"))
+  assert_true(discover.wxml.contains("moontown-discovery-search"))
+  assert_true(discover.wxml.contains("moontown-primary-action"))
+  assert_true(discover.wxml.contains("matches"))
+  assert_true(discover.wxml.contains("All in the public town market."))
+  assert_true(discover.wxml.contains("Browse Town"))
   assert_true(
     !discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
   )
   assert_true(discover.wxml.contains("moontown-discover-entry"))
-  assert_true(discover.wxml.contains("Town People"))
-  assert_true(discover.wxml.contains("Town Circles"))
-  assert_true(discover.wxml.contains("Town Market"))
+  assert_true(discover.wxml.contains("People"))
+  assert_true(discover.wxml.contains("Circles"))
+  assert_true(discover.wxml.contains("Market"))
   assert_true(discover.wxml.contains("moontown-discovery-chip"))
+  assert_true(discover.wxml.contains("data-discovery-action=\"open\""))
   assert_true(discover.wxml.contains("Deep Cultivator"))
   assert_true(discover.wxml.contains("AI Exploration Camp"))
   assert_true(discover.wxml.contains("Agent Publishing Kit"))
@@ -68,6 +75,7 @@ test "moontown miniapp renders Discover market board tab surface" {
   )
   assert_true(discover.wxml.contains("data-place-destination=\"Realm\""))
   assert_true(discover.wxml.contains("Place On Map"))
+  assert_true(discover.wxml.contains("moontown-secondary-action"))
   assert_true(
     discover.wxml.contains("data-building-id=\"published-agent-lab\""),
   )
@@ -92,6 +100,7 @@ test "moontown miniapp renders Discover market board tab surface" {
     discover.wxml.contains("data-target-ref=\"book:book-published-agent-lab\""),
   )
   assert_true(discover.wxml.contains("Agent Lab Field Note"))
+  assert_true(!discover.wxml.contains("Map Districts"))
   assert_true(!discover.wxml.contains("moontown-right-hud"))
 
   let empty_discover_projection = search_discovery(

@@ -52,6 +52,22 @@ technical state only when it changes the next user action
   separate sections instead of one nested control surface
 - retain all existing actions and backend contracts without compatibility code
 
+## V2.3 Current Slice
+
+- make Home choose one lead item by user impact: review work, recovery, then
+  recent change
+- keep completed onboarding out of the normal Home flow
+- summarize changed places, attention, and nearby presence without duplicating
+  navigation commands
+- turn district access into a compact gate grid below the town pulse
+- make Discover one full-width search workflow instead of pairing it with a
+  duplicate district panel
+- place search, filters, result count, and actionable results before secondary
+  browse strips
+- give each result one primary action and visually subordinate place/watch
+  actions
+- keep the existing discovery, placement, subscription, and route contracts
+
 ## Validation
 
 Implementation happens before testing for each slice. After the slice is

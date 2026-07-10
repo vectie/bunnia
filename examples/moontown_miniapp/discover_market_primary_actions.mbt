@@ -3,6 +3,7 @@ fn discover_primary_action_button(item : MiniTownDiscoveryItem) -> @bunnia.Node 
   @bunnia.node(
     kind="button",
     attrs=[
+      @bunnia.class_name("moontown-primary-action"),
       @bunnia.data("discovery-action", discover_primary_action_kind(item)),
       @bunnia.data("discovery-id", item.id),
       @bunnia.data("discovery-kind", item.kind),

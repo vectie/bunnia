@@ -4,11 +4,19 @@ fn discover_results_list(
   results : Array[MiniTownDiscoveryItem],
 ) -> @bunnia.Node {
   if results.length() == 0 {
-    discover_empty_state()
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-discovery-results")],
+      [discover_empty_state()],
+    )
   } else {
-    @bunnia.windowed_list(results, total_count=results.length(), render=item => {
-      discover_entry(projection, item)
-    })
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-discovery-results")],
+      [
+        @bunnia.windowed_list(results, total_count=results.length(), render=item => {
+          discover_entry(projection, item)
+        }),
+      ],
+    )
   }
 }
 
@@ -43,17 +51,21 @@ fn discover_spotlight_section(
 fn discover_spotlight_chip(item : MiniTownDiscoveryItem) -> @bunnia.Node {
   @bunnia.keyed(
     "discover-chip-\{item.id}",
-    @bunnia.view_with_attrs(
-      [
+    @bunnia.node(
+      kind="view",
+      attrs=[
         @bunnia.class_name("moontown-discovery-chip"),
+        @bunnia.data("discovery-id", item.id),
         @bunnia.data("discovery-kind", item.kind),
+        @bunnia.data("discovery-action", discover_primary_action_kind(item)),
         @bunnia.data("target-ref", item.target_ref),
       ],
-      [
+      events=[@bunnia.tap("discover-action")],
+      children=[
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
-        @bunnia.text(town_status_label(item.status)),
+        @bunnia.text(discover_primary_action_label(item)),
       ],
     ),
   )
