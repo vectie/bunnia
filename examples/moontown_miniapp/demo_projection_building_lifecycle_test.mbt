@@ -112,7 +112,7 @@ test "moontown projection handles building creation publishing placement and res
     assert_true(item.target_ref != "building:published-agent-lab")
   }
   let placed_discover = tab_page(placed, "discover")
-  assert_true(placed_discover.wxml.contains("Pinned On Map"))
+  assert_true(!placed_discover.wxml.contains("Pinned On Map"))
   assert_true(placed_discover.wxml.contains("Already placed"))
   assert_true(!placed_discover.wxml.contains("data-placement-state="))
   let duplicate_placed = place_published_building(placed, "published-agent-lab")

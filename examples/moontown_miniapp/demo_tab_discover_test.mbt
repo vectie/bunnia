@@ -69,8 +69,8 @@ test "moontown miniapp renders Discover market board tab surface" {
     ),
   )
   assert_true(discover.wxml.contains("data-place-destination=\"Realm\""))
-  assert_true(discover.wxml.contains("Place On Map"))
-  assert_true(discover.wxml.contains("moontown-secondary-action"))
+  assert_true(!discover.wxml.contains("Place On Map"))
+  assert_true(!discover.wxml.contains("moontown-secondary-action"))
   assert_true(
     discover.wxml.contains("data-building-id=\"published-agent-lab\""),
   )
@@ -80,12 +80,12 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(!discover.wxml.contains("data-placement-source="))
   assert_true(!discover.wxml.contains("data-placement-x="))
   assert_true(!discover.wxml.contains("data-placement-y="))
-  assert_true(discover.wxml.contains("Watch"))
+  assert_true(!discover.wxml.contains("Watch"))
   assert_true(
-    discover.wxml.contains("data-bunnia-message=\"request-subscription\""),
+    !discover.wxml.contains("data-bunnia-message=\"request-subscription\""),
   )
-  assert_true(discover.wxml.contains("data-notice-kind=\"subscription\""))
-  assert_true(discover.wxml.contains("data-notice-id=\"notice-subscribe\""))
+  assert_true(!discover.wxml.contains("data-notice-kind=\"subscription\""))
+  assert_true(!discover.wxml.contains("data-notice-id=\"notice-subscribe\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"agent\""))
   assert_true(discover.wxml.contains("data-discovery-kind=\"book\""))
   assert_true(

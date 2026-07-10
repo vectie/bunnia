@@ -120,7 +120,7 @@ test "moontown generated labels translate backend state" {
   assert_true(!home.contains("Needs refresh"))
   assert_true(!messages.contains("Try Again"))
   assert_true(messages.contains("Stop Work"))
-  assert_true(messages.contains("Failed Actions"))
+  assert_true(!messages.contains("Failed Actions"))
   assert_true(messages.contains("Needs Review"))
   assert_true(mine.contains("Refresh My Stuff"))
   assert_true(!home.contains("Load Snapshot"))

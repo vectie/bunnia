@@ -19,18 +19,15 @@ fn tile_content_wxss() -> String {
   ".moontown-district-entry.tone-green { border-color: rgba(56,161,105,0.42); background: rgba(226,246,231,0.72); }\n" +
   ".moontown-presence-row .bunnia-list-windowed { display: flex; flex-direction: row; gap: 8rpx; overflow-x: auto; overflow-y: hidden; }\n" +
   ".moontown-presence-chip { flex: 0 0 136rpx; min-width: 0; }\n" +
-  ".moontown-message-buckets { display: flex; flex-direction: row; gap: 8rpx; overflow-x: auto; overflow-y: hidden; margin-top: 8rpx; }\n" +
   ".moontown-attention-rows .bunnia-list-windowed { display: flex; flex-direction: column; gap: 8rpx; margin-top: 8rpx; overflow: hidden; }\n" +
-  ".moontown-message-bucket { flex: 0 0 176rpx; min-width: 0; min-height: 88rpx; padding: 10rpx; border: 1rpx solid rgba(51,65,55,0.14); border-radius: 6rpx; background: rgba(255,255,255,0.62); overflow: hidden; }\n" +
   ".moontown-onboarding-compact .moontown-primary-action { width: 100%; margin-top: 10rpx; }\n" +
   ".moontown-discovery-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8rpx; align-items: stretch; margin-top: 10rpx; }\n" +
   ".mt-panel .moontown-discovery-search input { margin-top: 0; }\n" +
   ".moontown-results-heading { margin-top: 14rpx; padding-top: 12rpx; border-top: 1rpx solid rgba(51,65,55,0.18); }\n" +
   ".moontown-discovery-results .bunnia-list-windowed { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10rpx; }\n" +
-  ".moontown-discover-entry { display: flex; flex-direction: column; min-height: 220rpx; }\n" +
+  ".moontown-discover-entry { display: flex; flex-direction: column; min-height: 196rpx; }\n" +
   ".moontown-discover-entry > .moontown-discovery-action { margin-top: auto; padding-top: 8rpx; }\n" +
   ".moontown-discovery-action .moontown-primary-action { flex: 2 1 160rpx; }\n" +
-  ".moontown-discovery-action .moontown-secondary-action { flex: 1 1 112rpx; }\n" +
   ".moontown-message-inbox, .moontown-message-notices { grid-column: 1 / -1; }\n" +
   ".moontown-discovery-filters .bunnia-list-windowed, .moontown-message-channels .bunnia-list-windowed, .moontown-ownership-filters .bunnia-list-windowed, .moontown-lifecycle-actions, .moontown-lifecycle-stages { display: flex; flex-direction: row; gap: 8rpx; overflow-x: auto; overflow-y: hidden; margin-top: 8rpx; }\n" +
   ".moontown-lifecycle-stage { flex: 0 0 auto; min-height: 36rpx; padding: 6rpx 8rpx; font-size: 16rpx; line-height: 24rpx; }\n" +

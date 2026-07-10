@@ -8,20 +8,6 @@ fn message_count_text(count : Int) -> String {
 }
 
 ///|
-fn notification_kind_count(
-  projection : MiniTownProjection,
-  kind : String,
-) -> Int {
-  let mut count = 0
-  for notice in visible_notifications(projection) {
-    if notice.kind == kind {
-      count += 1
-    }
-  }
-  count
-}
-
-///|
 fn notification_channel_chip(
   channel : MiniTownNotificationChannel,
   active_channel_id : String,
