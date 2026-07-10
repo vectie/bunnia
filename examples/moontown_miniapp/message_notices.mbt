@@ -14,7 +14,6 @@ fn notification_entry(
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(notice.title),
         ]),
-        @bunnia.text(notice.body),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(notification_context_text(projection, notice)),
         ]),

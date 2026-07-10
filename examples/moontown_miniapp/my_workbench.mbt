@@ -10,12 +10,6 @@ fn profile_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("My Inventory"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text(
-          "Browse \{items.length()} owned items by shelf, then open the work you need.",
-        ),
-      ]),
-      inventory_shelves_panel(projection),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-ownership-filters")],
         [

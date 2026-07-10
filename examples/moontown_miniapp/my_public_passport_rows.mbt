@@ -13,7 +13,6 @@ fn public_passport_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
-        @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{town_kind_label(item.kind)} - \{town_visibility_label(item.visibility)} - \{item.action_label}",

@@ -18,25 +18,3 @@ fn setup_gate_entry(item : MiniTownSetupGate) -> @bunnia.Node {
     ),
   )
 }
-
-///|
-fn role_entry(role : MiniTownRole) -> @bunnia.Node {
-  @bunnia.keyed(
-    "role-\{role.id}",
-    @bunnia.node(
-      kind="view",
-      attrs=[
-        @bunnia.class_name("moontown-role-entry"),
-        @bunnia.data("role-id", role.id),
-        @bunnia.data("building-id", role.building_id),
-      ],
-      events=[@bunnia.event("tap", "select-role-\{role.id}")],
-      children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(role.title),
-        ]),
-        @bunnia.text(role.summary),
-      ],
-    ),
-  )
-}

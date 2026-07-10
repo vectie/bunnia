@@ -7,9 +7,6 @@ fn home_district_gates_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Town Gates"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text("Enter a district or see who is active nearby."),
-      ]),
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-district-grid")], [
         @bunnia.windowed_list(
           projection.districts,

@@ -17,7 +17,6 @@ fn discover_entry(
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
-        @bunnia.text(item.summary),
         discover_eligibility_row(projection, item),
         discover_entry_action(projection, item),
       ],
@@ -32,7 +31,6 @@ fn discover_eligibility_row(
 ) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-badges")], [
     discover_badge("kind", town_kind_label(item.kind)),
-    discover_badge("access", discover_access_label(item)),
     discover_badge("eligibility", discover_eligibility_label(projection, item)),
   ])
 }
@@ -43,21 +41,6 @@ fn discover_badge(kind : String, label : String) -> @bunnia.Node {
     [@bunnia.class_name("moontown-discovery-badge kind-\{kind}")],
     [@bunnia.text(label)],
   )
-}
-
-///|
-fn discover_access_label(item : MiniTownDiscoveryItem) -> String {
-  if item.visibility == "published" || item.visibility == "public" {
-    "Public"
-  } else if item.visibility == "personal" {
-    "Owner only"
-  } else if item.visibility == "shared_private" {
-    "Shared"
-  } else if item.visibility == "private_draft" {
-    "Needs setup"
-  } else {
-    town_visibility_label(item.visibility)
-  }
 }
 
 ///|

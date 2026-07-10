@@ -11,7 +11,6 @@ fn inventory_refresh_plaque(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("Inventory Refresh"),
       ]),
-      @bunnia.text("Bring in owned places, books, agents, pins, and alerts."),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text("My Inventory - \{town_status_label(cache.state)}"),
       ]),

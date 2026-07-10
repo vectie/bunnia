@@ -16,15 +16,15 @@ fn town_screen_title(tab_id : String) -> String {
 ///|
 fn town_screen_subtitle(tab_id : String) -> String {
   if tab_id == "home" {
-    "What changed and where to go next"
+    "Decide what needs you"
   } else if tab_id == "discover" {
-    "Find people, places, books, and work"
+    "Search the public town"
   } else if tab_id == "messages" {
-    "Replies, reviews, and work needing you"
+    "Decisions, replies, and work"
   } else if tab_id == "my" {
-    "Your passport, work, and publishing"
+    "Identity, work, and publishing"
   } else {
-    "Places and agents across the tile town"
+    "Explore the tile town"
   }
 }
 

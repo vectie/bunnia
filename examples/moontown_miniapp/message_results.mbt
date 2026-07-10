@@ -14,7 +14,6 @@ fn agent_result_entry(
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
-        @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{building_title_by_id(projection, item.building_id)} - Review result",

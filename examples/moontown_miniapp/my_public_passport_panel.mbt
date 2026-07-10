@@ -12,7 +12,6 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
         @bunnia.text("Public Passport"),
       ]),
-      @bunnia.text("Public-facing identity without private work."),
       @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
         @bunnia.text(summary),
       ]),

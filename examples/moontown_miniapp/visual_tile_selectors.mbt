@@ -1,6 +1,6 @@
 ///|
 fn tile_row_selectors() -> String {
-  ".moontown-guide-step, .moontown-onboarding-step, .moontown-setup-gate, .moontown-publication-step, .moontown-role-entry, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-discover-empty, .moontown-attention-row, .moontown-inventory-shelf, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-object-context-card, .moontown-lifecycle-stage, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card"
+  ".moontown-setup-gate, .moontown-publication-step, .moontown-district-entry, .moontown-presence-chip, .moontown-discover-entry, .moontown-discover-empty, .moontown-attention-row, .moontown-notice-entry, .moontown-owned-entry, .moontown-workbench-alert, .moontown-book-entry, .moontown-run-entry, .moontown-object-message, .moontown-object-context-card, .moontown-lifecycle-stage, .moontown-lifecycle-stamp, .moontown-review-entry, .moontown-agent-result, .moontown-audit-entry, .bunnia-tool-result-card"
 }
 
 ///|

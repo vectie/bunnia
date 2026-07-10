@@ -146,11 +146,10 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(
     ".moontown-community-actions>.bunnia-list,.moontown-discovery-action>.bunnia-list,.moontown-profile-actions>.bunnia-list,.moontown-run-actions>.bunnia-list,.moontown-object-primary-actions>.bunnia-list{display:flex;flex:1 1 100%;flex-direction:row",
   ) &&
+  !wxss.contains(".moontown-guide-strip") &&
+  !wxss.contains(".moontown-guide-step") &&
   wxss.contains(
-    ".moontown-guide-strip>.bunnia-list-windowed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible",
-  ) &&
-  wxss.contains(
-    ".moontown-my-layout>.mt-panel,.moontown-my-layout>.moontown-credential-plaque,.moontown-my-layout>.moontown-create-drawer{grid-column:auto;grid-row:auto",
+    ".moontown-my-layout{grid-template-columns:minmax(0,1fr);align-items:start",
   ) &&
   !wxss.contains(">*{") &&
   !wxss.contains("letter-spacing:-") &&
@@ -167,8 +166,9 @@ fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
   wxss.contains("#2f855a") &&
   wxss.contains("#d69e2e") &&
   wxss.contains("rgba(248,250,252,0.9)") &&
-  wxss.contains("rgba(239,246,255,0.78)") &&
-  wxss.contains("rgba(255,241,242,0.78)") &&
+  wxss.contains("rgba(248,250,252,0.72)") &&
+  wxss.contains("rgba(239,246,255,0.74)") &&
+  wxss.contains("rgba(255,241,242,0.88)") &&
   !wxss.contains("#fff8dc") &&
   !wxss.contains("#f8f3df") &&
   !wxss.contains("rgba(252,249,226") &&

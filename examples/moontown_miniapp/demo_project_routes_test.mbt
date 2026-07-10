@@ -70,7 +70,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/my.data.js").contains(
+    !file_content(project.files, "pages/moontown/my.data.js").contains(
       "\"select-role-explorer\":[{k:\"set\",p:\"profile.roleId\",v:\"explorer\"},{k:\"set\",p:\"profileDraft.roleId\",v:\"explorer\"}]",
     ),
   )

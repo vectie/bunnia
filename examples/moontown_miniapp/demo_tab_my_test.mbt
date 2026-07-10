@@ -7,7 +7,7 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("moontown-my-layout"))
   assert_true(mine.wxml.contains("data-attention-count=\"3\""))
   assert_true(
-    mine.wxml.contains("Identity first, then the work that needs you."),
+    !mine.wxml.contains("Identity first, then the work that needs you."),
   )
   assert_true(mine.wxml.contains("Town Passport"))
   assert_true(!mine.wxml.contains("Identity Setup"))
@@ -17,25 +17,26 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(!mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
   assert_true(mine.wxml.contains("My Inventory"))
   assert_true(
-    mine.wxml.contains(
+    !mine.wxml.contains(
       "Browse 5 owned items by shelf, then open the work you need.",
     ),
   )
   assert_true(!mine.wxml.contains("Town passport, setup stamps"))
   assert_eq(
     string_occurrence_count(mine.wxml, "data-setup-gate=\"session\""),
-    1,
+    0,
   )
   assert_eq(
     string_occurrence_count(mine.wxml, "data-setup-gate=\"publish-ready\""),
     1,
   )
-  assert_true(mine.wxml.contains("Town Entry"))
-  assert_true(mine.wxml.contains("Entered as Ada Builder."))
+  assert_true(!mine.wxml.contains("Town Entry"))
+  assert_true(!mine.wxml.contains("Entered as Ada Builder."))
   assert_true(!mine.wxml.contains("Logged in as user-a"))
-  assert_true(mine.wxml.contains("Town Role"))
-  assert_true(mine.wxml.contains("Role selected: Builder."))
+  assert_true(!mine.wxml.contains("Town Role"))
+  assert_true(!mine.wxml.contains("Role selected: Builder."))
   assert_true(!mine.wxml.contains("Role selected: builder."))
+  assert_true(!mine.wxml.contains("moontown-role-entry"))
   assert_true(mine.wxml.contains("Ready to Publish"))
   assert_true(
     mine.wxml.contains(
@@ -53,7 +54,8 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("data-passport-ready=\"false\""))
   assert_true(mine.wxml.contains("Town passport - needs setup"))
   assert_true(mine.wxml.contains("moontown-profile-metric"))
-  assert_true(mine.wxml.contains("Followers"))
+  assert_true(mine.wxml.contains("Reviews"))
+  assert_true(!mine.wxml.contains("Followers"))
   assert_true(mine.wxml.contains("Published"))
   assert_true(mine.wxml.contains("data-bunnia-message=\"save-profile\""))
   assert_true(mine.wxml.contains("Public Passport"))
@@ -63,7 +65,7 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("data-passport-section=\"public\""))
   assert_true(mine.wxml.contains("data-passport-count=\"4\""))
   assert_true(
-    mine.wxml.contains("Public-facing identity without private work."),
+    !mine.wxml.contains("Public-facing identity without private work."),
   )
   assert_true(mine.wxml.contains("No published places - 1 watch - 1 review"))
   assert_true(mine.wxml.contains("data-passport-kind=\"profile\""))
@@ -79,43 +81,32 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(!mine.wxml.contains("data-target-ref=\"review:pending\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"tab-discover\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"tab-messages\""))
-  assert_true(mine.wxml.contains("Inventory Shelves"))
-  assert_true(mine.wxml.contains("moontown-inventory-shelf"))
-  assert_true(mine.wxml.contains("data-inventory-shelf-count=\"9\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"buildings\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"placements\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"drafts\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"submitted\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"published\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"archived\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"books\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"agents\""))
-  assert_true(mine.wxml.contains("data-inventory-shelf=\"watched\""))
-  assert_true(mine.wxml.contains("Submit for review in My"))
-  assert_true(mine.wxml.contains("Open Place in Realm"))
-  assert_true(mine.wxml.contains("Review Books in Messages"))
-  assert_true(mine.wxml.contains("Message Agents in Messages"))
-  assert_true(mine.wxml.contains("Open Place in Realm"))
+  assert_true(!mine.wxml.contains("Inventory Shelves"))
+  assert_true(!mine.wxml.contains("moontown-inventory-shelf"))
+  assert_true(!mine.wxml.contains("data-inventory-shelf="))
+  assert_true(mine.wxml.contains("Open in Realm"))
   assert_true(!mine.wxml.contains("data-inventory-target-ref="))
   assert_true(mine.wxml.contains("moontown-credential-plaque"))
-  assert_true(mine.wxml.contains("Town Credential"))
+  assert_true(!mine.wxml.contains("Town Credential"))
   assert_true(
-    mine.wxml.contains(
+    !mine.wxml.contains(
       "Town Trust: Registration, policy, and public trust checks.",
     ),
   )
   assert_true(!mine.wxml.contains("OPC Credential"))
   assert_true(!mine.wxml.contains("OPC Hub"))
-  assert_true(mine.wxml.contains("data-feature-kind=\"credential\""))
-  assert_true(mine.wxml.contains("data-target-building-id=\"policy-hall\""))
+  assert_true(!mine.wxml.contains("data-feature-kind=\"credential\""))
+  assert_true(!mine.wxml.contains("data-target-building-id=\"policy-hall\""))
   assert_true(mine.wxml.contains("data-bunnia-message=\"select-policy-hall\""))
-  assert_true(mine.wxml.contains("Placed - My map - Open in Realm"))
-  assert_true(!mine.wxml.contains("placement - personal"))
-  assert_true(mine.wxml.contains("already on your map"))
   assert_true(!mine.wxml.contains("starter-map"))
   assert_true(!mine.wxml.contains("placed from starter-map"))
   assert_true(mine.wxml.contains("Inventory Refresh"))
   assert_true(mine.wxml.contains("Refresh My Stuff"))
+  assert_true(
+    !mine.wxml.contains(
+      "Bring in owned places, books, agents, pins, and alerts.",
+    ),
+  )
   assert_true(!mine.wxml.contains("<text>More</text>"))
   assert_true(mine.wxml.contains("My Inventory - Waiting"))
   assert_true(!mine.wxml.contains("Own Sync"))
@@ -136,6 +127,11 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("Reviewer Tools"))
   assert_true(mine.wxml.contains("data-reviewer-tools-gate=\"closed\""))
   assert_true(mine.wxml.contains("Open Reviewer Tools"))
+  assert_true(
+    !mine.wxml.contains(
+      "Safety checks and launch tools stay behind a deliberate reviewer entry.",
+    ),
+  )
   assert_true(!mine.wxml.contains("Open Reviewer Mode"))
   assert_true(!mine.wxml.contains("Ops Desk"))
   assert_true(!mine.wxml.contains("data-ops-desk=\"admin\""))
@@ -153,29 +149,35 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("moontown-workbench-alert"))
   assert_true(mine.wxml.contains("data-workbench-alert=\"profile-setup\""))
   assert_true(
-    mine.wxml.contains("data-workbench-alert=\"blocked-publication\""),
+    !mine.wxml.contains("data-workbench-alert=\"blocked-publication\""),
   )
-  assert_true(mine.wxml.contains("data-workbench-alert=\"stale-backend\""))
+  assert_true(!mine.wxml.contains("data-workbench-alert=\"stale-backend\""))
   assert_true(mine.wxml.contains("Town passport incomplete"))
-  assert_true(mine.wxml.contains("1 draft blocked from town"))
+  assert_true(!mine.wxml.contains("1 draft blocked from town"))
   assert_true(
-    mine.wxml.contains(
+    !mine.wxml.contains(
       "Owned drafts and shared places need profile setup before publishing.",
     ),
   )
   assert_true(!mine.wxml.contains("shared-private buildings"))
   assert_true(!mine.wxml.contains("profile readiness"))
-  assert_true(mine.wxml.contains("1 update needs refresh"))
+  assert_true(!mine.wxml.contains("1 update needs refresh"))
   assert_true(!mine.wxml.contains("backend state needs sync"))
   assert_true(!mine.wxml.contains("Sync Town"))
-  assert_true(mine.wxml.contains("Refresh Town"))
-  assert_true(mine.wxml.contains("data-bunnia-message=\"load-town-snapshot\""))
+  assert_true(!mine.wxml.contains("Refresh Town"))
+  assert_true(!mine.wxml.contains("data-bunnia-message=\"load-town-snapshot\""))
   assert_true(mine.wxml.contains("Publishing Shelf"))
   assert_true(!mine.wxml.contains("My Lifecycle"))
   assert_true(mine.wxml.contains("data-publication-step=\"draft\""))
-  assert_true(mine.wxml.contains("data-publication-step=\"review\""))
+  assert_true(mine.wxml.contains("data-publication-step=\"approve\""))
+  assert_true(!mine.wxml.contains("data-publication-step=\"review\""))
   assert_true(mine.wxml.contains("Private Draft"))
-  assert_true(mine.wxml.contains("Town Published"))
+  assert_true(!mine.wxml.contains("Town Published"))
+  assert_true(
+    !mine.wxml.contains(
+      "Drafts, shares, review steps, published places, and archives stay visible here.",
+    ),
+  )
   assert_true(mine.wxml.contains("Private Agent Lab drafted"))
   assert_true(!mine.wxml.contains("data-audit-kind="))
   assert_true(!mine.wxml.contains("data-audit-id="))
@@ -193,6 +195,9 @@ test "moontown miniapp renders My inventory workbench tab surface" {
     !mine.wxml.contains("data-action-message=\"submit-private-building\""),
   )
   assert_true(mine.wxml.contains("Place - Private draft - Submit in My"))
+  assert_true(
+    !mine.wxml.contains("Draft agent creation space visible only to Ada."),
+  )
   assert_true(mine.wxml.contains("data-ownership-kind=\"placement\""))
   assert_true(!mine.wxml.contains("data-action-message=\"select-policy-hall\""))
   assert_true(

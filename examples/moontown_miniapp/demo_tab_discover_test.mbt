@@ -6,18 +6,14 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("moontown-map-fullscreen"))
   assert_true(discover.wxml.contains("moontown-page-surface"))
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
-  assert_true(discover.wxml.contains("Market Board"))
-  assert_true(
-    discover.wxml.contains(
-      "Find something useful, then open it or bring it into town.",
-    ),
-  )
+  assert_true(!discover.wxml.contains("Market Board"))
+  assert_true(discover.wxml.contains("Search the public town"))
   assert_true(discover.wxml.contains("moontown-page-grid single"))
   assert_true(discover.wxml.contains("moontown-discovery-search"))
   assert_true(discover.wxml.contains("moontown-primary-action"))
   assert_true(discover.wxml.contains("matches"))
-  assert_true(discover.wxml.contains("All in the public town market."))
-  assert_true(discover.wxml.contains("Browse Town"))
+  assert_true(!discover.wxml.contains("All in the public town market."))
+  assert_true(!discover.wxml.contains("Browse Town"))
   assert_true(
     !discover.wxml.contains("runtime filter: {{discover.filter || 'all'}}"),
   )
@@ -25,7 +21,7 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("People"))
   assert_true(discover.wxml.contains("Circles"))
   assert_true(discover.wxml.contains("Market"))
-  assert_true(discover.wxml.contains("moontown-discovery-chip"))
+  assert_true(!discover.wxml.contains("moontown-discovery-chip"))
   assert_true(discover.wxml.contains("data-discovery-action=\"open\""))
   assert_true(discover.wxml.contains("Deep Cultivator"))
   assert_true(discover.wxml.contains("AI Exploration Camp"))
@@ -59,11 +55,10 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("data-filter-id=\"placeable\""))
   assert_true(!discover.wxml.contains("data-filter-kind="))
   assert_true(discover.wxml.contains("moontown-discovery-badges"))
-  assert_true(discover.wxml.contains("moontown-discovery-badge kind-access"))
+  assert_true(!discover.wxml.contains("moontown-discovery-badge kind-access"))
   assert_true(
     discover.wxml.contains("moontown-discovery-badge kind-eligibility"),
   )
-  assert_true(discover.wxml.contains("Public"))
   assert_true(discover.wxml.contains("Can open"))
   assert_true(discover.wxml.contains("Published Agent Lab"))
   assert_true(discover.wxml.contains("data-discovery-kind=\"building\""))
@@ -110,9 +105,5 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(has_no_forbidden_ordinary_copy(empty_discover.wxml))
   assert_true(empty_discover.wxml.contains("moontown-discover-empty"))
   assert_true(empty_discover.wxml.contains("No public match"))
-  assert_true(
-    empty_discover.wxml.contains(
-      "Try another search or choose a different market filter.",
-    ),
-  )
+  assert_true(empty_discover.wxml.contains("Change the search or filter."))
 }

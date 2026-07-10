@@ -1,7 +1,6 @@
 ///|
 fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
   let building = selected_building(projection)
-  let book = selected_building_book(projection)
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
@@ -11,7 +10,7 @@ fn selected_building_drawer(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.data("building-id", building.id),
     ],
     [
-      building_object_header(projection, building, book),
+      building_object_header(projection, building),
       building_memory_section(projection),
       building_worker_section(projection),
       building_lifecycle_section(projection),

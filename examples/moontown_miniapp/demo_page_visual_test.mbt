@@ -15,9 +15,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-object-title"))
   assert_true(page.wxss.contains(".moontown-place-facts"))
   assert_true(
-    page.wxss.contains(
-      ".moontown-home-pulse,.moontown-my-overview{border-top:3rpx solid #e11d48",
-    ),
+    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #e11d48"),
   )
   assert_true(
     page.wxss.contains(
@@ -47,7 +45,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(!page.wxml.contains("data-bunnia-message=\"switch-user-b\""))
   assert_true(!page.wxml.contains("<text>Ada</text>"))
   assert_true(!page.wxml.contains("<text>Bo</text>"))
-  assert_true(page.wxss.contains(".moontown-guide-step"))
+  assert_true(!page.wxss.contains(".moontown-guide-step"))
   assert_true(page.wxss.contains("env(safe-area-inset-top)"))
   assert_true(page.wxss.contains("env(safe-area-inset-bottom)"))
   assert_true(page.wxss.contains("button:active{opacity:0.82"))
@@ -57,7 +55,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   )
   assert_true(page.wxss.contains("min-height:88rpx"))
   assert_true(page.wxss.contains("overflow-wrap:anywhere"))
-  assert_true(page.wxss.contains("box-shadow:0 2rpx 0"))
+  assert_true(!page.wxss.contains("box-shadow:0 2rpx 0"))
   assert_true(
     page.wxss.contains(
       ".bunnia-status-review,.bunnia-status-pending,.bunnia-status-stale,.bunnia-status-waiting",

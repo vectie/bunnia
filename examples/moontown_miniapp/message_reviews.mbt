@@ -7,11 +7,6 @@ fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Needs Review"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text(
-          "Approve useful memory or reject work before it enters town books.",
-        ),
-      ]),
       @bunnia.windowed_list(reviews, total_count=reviews.length(), render=item => {
         review_entry(projection, item)
       }),
@@ -36,7 +31,6 @@ fn review_entry(
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(item.title),
         ]),
-        @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(
             "\{building_title_by_id(projection, item.building_id)} - \{book_title_by_id(projection, item.book_id)} - \{review_meta_text(item)}",

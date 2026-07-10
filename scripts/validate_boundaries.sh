@@ -71,7 +71,7 @@ generated_page_test_files='examples/moontown_miniapp/demo_page_map_test.mbt exam
 
 moontown_test_files="examples/moontown_miniapp/demo_page_test.mbt $generated_page_test_files examples/moontown_miniapp/demo_tabs_test.mbt examples/moontown_miniapp/demo_tab_realm_home_test.mbt examples/moontown_miniapp/demo_tab_discover_test.mbt examples/moontown_miniapp/demo_tab_messages_test.mbt examples/moontown_miniapp/demo_tab_my_test.mbt examples/moontown_miniapp/demo_tab_reviewer_test.mbt examples/moontown_miniapp/demo_project_test.mbt examples/moontown_miniapp/demo_project_shell_test.mbt examples/moontown_miniapp/demo_project_routes_test.mbt examples/moontown_miniapp/demo_project_backend_test.mbt examples/moontown_miniapp/demo_project_seed_data_test.mbt examples/moontown_miniapp/demo_project_manifest_test.mbt examples/moontown_miniapp/demo_projection_flows_test.mbt examples/moontown_miniapp/demo_projection_shell_test.mbt examples/moontown_miniapp/demo_projection_attention_work_test.mbt examples/moontown_miniapp/demo_projection_discovery_inventory_test.mbt examples/moontown_miniapp/demo_projection_review_readiness_test.mbt examples/moontown_miniapp/demo_projection_building_lifecycle_test.mbt examples/moontown_miniapp/demo_projection_agent_work_test.mbt examples/moontown_miniapp/demo_pressure_test.mbt examples/moontown_miniapp/demo_test_helpers_test.mbt"
 
-my_workbench_files='examples/moontown_miniapp/my_surface.mbt examples/moontown_miniapp/my_overview.mbt examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
+my_workbench_files='examples/moontown_miniapp/my_surface.mbt examples/moontown_miniapp/my_overview.mbt examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
 my_lifecycle_files='examples/moontown_miniapp/my_lifecycle_panel.mbt examples/moontown_miniapp/my_lifecycle_steps.mbt examples/moontown_miniapp/my_lifecycle_audit.mbt examples/moontown_miniapp/my_lifecycle_labels.mbt'
 
@@ -81,9 +81,8 @@ my_inventory_row_files='examples/moontown_miniapp/my_inventory_row_stats.mbt exa
 
 my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
 
-my_inventory_shelf_files='examples/moontown_miniapp/my_inventory_shelf_model.mbt examples/moontown_miniapp/my_inventory_shelf_panel.mbt examples/moontown_miniapp/my_inventory_shelf_rows.mbt examples/moontown_miniapp/my_inventory_shelf_places.mbt examples/moontown_miniapp/my_inventory_shelf_publication.mbt examples/moontown_miniapp/my_inventory_shelf_work.mbt'
 
-my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt examples/moontown_miniapp/my_public_passport_items.mbt examples/moontown_miniapp/my_public_passport_rows.mbt examples/moontown_miniapp/my_public_passport_credential.mbt'
+my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt examples/moontown_miniapp/my_public_passport_items.mbt examples/moontown_miniapp/my_public_passport_rows.mbt'
 
 workbench_alert_files='examples/moontown_miniapp/workbench_alert_model.mbt examples/moontown_miniapp/workbench_alert_derivation.mbt examples/moontown_miniapp/workbench_alert_filters.mbt examples/moontown_miniapp/workbench_alert_rows.mbt'
 
@@ -330,13 +329,6 @@ done
 for required in $my_passport_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown Town Passport file $required"
-    exit 1
-  fi
-done
-
-for required in $my_inventory_shelf_files; do
-  if [ ! -f "$required" ]; then
-    printf '%s\n' "boundary violation: missing Moontown My Inventory shelf file $required"
     exit 1
   fi
 done
@@ -607,12 +599,6 @@ fi
 my_passport_lines=$(wc -l < examples/moontown_miniapp/my_passport.mbt | tr -d ' ')
 if [ "$my_passport_lines" -gt 40 ]; then
   printf '%s\n' "boundary violation: my_passport.mbt has $my_passport_lines lines; keep Town Passport behavior in focused my_passport_* files"
-  exit 1
-fi
-
-my_inventory_shelves_lines=$(wc -l < examples/moontown_miniapp/my_inventory_shelves.mbt | tr -d ' ')
-if [ "$my_inventory_shelves_lines" -gt 80 ]; then
-  printf '%s\n' "boundary violation: my_inventory_shelves.mbt has $my_inventory_shelves_lines lines; keep shelf behavior in focused my_inventory_shelf_* files"
   exit 1
 fi
 
@@ -914,14 +900,6 @@ for focused_my_passport in $my_passport_files; do
   focused_lines=$(wc -l < "$focused_my_passport" | tr -d ' ')
   if [ "$focused_lines" -gt 140 ]; then
     printf '%s\n' "boundary violation: $focused_my_passport has $focused_lines lines; split the Town Passport concern further"
-    exit 1
-  fi
-done
-
-for focused_my_inventory_shelf in $my_inventory_shelf_files; do
-  focused_lines=$(wc -l < "$focused_my_inventory_shelf" | tr -d ' ')
-  if [ "$focused_lines" -gt 180 ]; then
-    printf '%s\n' "boundary violation: $focused_my_inventory_shelf has $focused_lines lines; split the My Inventory shelf concern further"
     exit 1
   fi
 done

@@ -7,9 +7,6 @@ fn message_notices_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Latest Messages"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text("Filter replies, interactions, and town notices."),
-      ]),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-message-refresh")],
         [

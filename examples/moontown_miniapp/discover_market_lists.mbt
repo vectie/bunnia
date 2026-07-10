@@ -26,49 +26,8 @@ fn discover_empty_state() -> @bunnia.Node {
     @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
       @bunnia.text("No public match"),
     ]),
-    @bunnia.text("Try another search or choose a different market filter."),
+    @bunnia.text("Change the search or filter."),
   ])
-}
-
-///|
-fn discover_spotlight_section(
-  title : String,
-  items : Array[MiniTownDiscoveryItem],
-) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-discovery-strip")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-      @bunnia.text(title),
-    ]),
-    @bunnia.windowed_list(
-      items,
-      total_count=items.length(),
-      render=discover_spotlight_chip,
-    ),
-  ])
-}
-
-///|
-fn discover_spotlight_chip(item : MiniTownDiscoveryItem) -> @bunnia.Node {
-  @bunnia.keyed(
-    "discover-chip-\{item.id}",
-    @bunnia.node(
-      kind="view",
-      attrs=[
-        @bunnia.class_name("moontown-discovery-chip"),
-        @bunnia.data("discovery-id", item.id),
-        @bunnia.data("discovery-kind", item.kind),
-        @bunnia.data("discovery-action", discover_primary_action_kind(item)),
-        @bunnia.data("target-ref", item.target_ref),
-      ],
-      events=[@bunnia.tap("discover-action")],
-      children=[
-        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-          @bunnia.text(item.title),
-        ]),
-        @bunnia.text(discover_primary_action_label(item)),
-      ],
-    ),
-  )
 }
 
 ///|

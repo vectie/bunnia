@@ -17,7 +17,7 @@ test "moontown generated project keeps onboarding routes manifest and diagnostic
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/home.wxml").contains(
+    !file_content(project.files, "pages/moontown/home.wxml").contains(
       "data-guide-step=\"agent-mail\"",
     ),
   )
@@ -27,7 +27,7 @@ test "moontown generated project keeps onboarding routes manifest and diagnostic
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/home.wxml").contains(
+    !file_content(project.files, "pages/moontown/home.wxml").contains(
       "data-guide-step=\"passport\"",
     ),
   )

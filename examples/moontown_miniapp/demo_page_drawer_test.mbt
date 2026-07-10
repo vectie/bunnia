@@ -5,7 +5,7 @@ test "moontown miniapp generated page renders object drawer" {
   assert_true(page.wxml.contains("moontown-object-drawer"))
   assert_true(page.wxml.contains("data-object-drawer=\"building\""))
   assert_true(page.wxml.contains("moontown-object-header"))
-  assert_true(page.wxml.contains("Selected Place"))
+  assert_true(!page.wxml.contains("Selected Place"))
   assert_true(page.wxml.contains("moontown-object-title"))
   assert_true(page.wxml.contains("moontown-object-badge"))
   assert_true(page.wxml.contains("kind-category"))

@@ -24,7 +24,7 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(messages.wxml.contains("Needs Review"))
   assert_true(messages.wxml.contains("moontown-message-review"))
   assert_true(
-    messages.wxml.contains(
+    !messages.wxml.contains(
       "Approve useful memory or reject work before it enters town books.",
     ),
   )
@@ -36,7 +36,7 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(messages.wxml.contains("Agent Work"))
   assert_true(messages.wxml.contains("moontown-message-work"))
   assert_true(
-    messages.wxml.contains(
+    !messages.wxml.contains(
       "Active work, failed work, and completed results by place.",
     ),
   )

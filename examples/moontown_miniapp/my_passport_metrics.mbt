@@ -5,14 +5,6 @@ fn profile_metric_chips(
 ) -> Array[@bunnia.Node] {
   [
     profile_metric_chip(
-      label="Watches",
-      value=visible_watches(projection).length(),
-    ),
-    profile_metric_chip(
-      label="Followers",
-      value=notification_kind_count(projection, "follow"),
-    ),
-    profile_metric_chip(
       label="Reviews",
       value=pending_reviews(projection).length(),
     ),

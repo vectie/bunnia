@@ -8,11 +8,6 @@ fn agent_work_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Agent Work"),
       ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-note")], [
-        @bunnia.text(
-          "Active work, failed work, and completed results by place.",
-        ),
-      ]),
       @bunnia.windowed_list(runs, total_count=runs.length(), render=run => {
         run_queue_entry(projection, run)
       }),
@@ -45,7 +40,6 @@ fn run_queue_entry(
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(run.title),
         ]),
-        @bunnia.text(run.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(run_context_text(projection, run)),
         ]),
