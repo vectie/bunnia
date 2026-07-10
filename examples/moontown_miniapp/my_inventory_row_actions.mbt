@@ -7,6 +7,7 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       attrs=[
         @bunnia.class_name("moontown-owned-entry"),
         @bunnia.data("ownership-kind", item.kind),
+        @bunnia.attr("wx:if", ownership_item_visibility(item)),
         @bunnia.data(
           "ownership-destination",
           town_tab_label(ownership_item_target_tab(item)),
@@ -24,6 +25,11 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
       ],
     ),
   )
+}
+
+///|
+fn ownership_item_visibility(item : MiniTownOwnershipItem) -> String {
+  "{{ownership.filter == 'all' || (ownership.filter == 'placements' && '\{item.kind}' == 'placement') || (ownership.filter == 'drafts' && '\{item.visibility}' == 'private_draft') || (ownership.filter == 'published' && '\{item.visibility}' == 'published') || (ownership.filter == 'books' && '\{item.kind}' == 'book') || (ownership.filter == 'agents' && '\{item.kind}' == 'agent') || (ownership.filter == 'watches' && '\{item.kind}' == 'watch')}}"
 }
 
 ///|

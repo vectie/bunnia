@@ -10,7 +10,13 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(realm.wxml.contains("moontown-place-facts"))
   assert_true(!realm.wxml.contains("moontown-map-action-rail"))
   assert_true(
-    realm.wxml.contains("moontown-map-marker selected bunnia-status-review"),
+    realm.wxml.contains(
+      "town.selectedBuildingId == 'policy-hall' ? 'selected' : ''",
+    ),
+  )
+  assert_true(realm.wxml.contains("bunnia-status-review"))
+  assert_true(
+    realm.wxml.contains("town.names[town.selectedBuildingId] || 'Place'"),
   )
   assert_true(!realm.wxml.contains("Selected Place"))
   assert_true(realm.wxml.contains("data-place-fact=\"access\""))

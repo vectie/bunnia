@@ -52,7 +52,10 @@ test "moontown projection handles building creation publishing placement and res
   assert_eq(selected_building_audit_events(shared).length(), 2)
   let shared_steps = publication_steps(shared)
   assert_true(shared_steps[1].current)
-  assert_eq(shared_steps[2].summary, "Finish profile first")
+  assert_eq(
+    shared_steps[2].summary,
+    "Ready to submit into town publication review.",
+  )
   let shared_unread_count = unread_notifications(shared).length()
   let submitted = submit_selected_building(shared)
   assert_eq(selected_building(submitted).visibility, "submitted")
@@ -70,7 +73,7 @@ test "moontown projection handles building creation publishing placement and res
   assert_true(submitted_steps[3].current)
   let submitted_actions = selected_building_lifecycle_actions(submitted)
   assert_eq(submitted_actions[5].id, "publish")
-  assert_true(!submitted_actions[5].allowed)
+  assert_true(submitted_actions[5].allowed)
   let rejected_publication = reject_review(
     submitted, "review-publish-created-agent-lab",
   )

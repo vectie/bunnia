@@ -65,13 +65,16 @@ test "moontown Realm shows only available owner actions for a private place" {
   )
   let realm = tab_page(projection, "realm")
   assert_true(
-    realm.wxml.contains("moontown-map-marker selected bunnia-status-draft"),
+    realm.wxml.contains(
+      "town.selectedBuildingId == 'owner-drawer-test' ? 'selected' : ''",
+    ),
   )
+  assert_true(realm.wxml.contains("bunnia-status-draft"))
   assert_true(realm.wxml.contains("Private Agent Lab"))
   assert_true(realm.wxml.contains("data-lifecycle-action=\"edit\""))
   assert_true(realm.wxml.contains("data-lifecycle-action=\"share\""))
   assert_true(realm.wxml.contains("data-lifecycle-action=\"archive\""))
-  assert_true(!realm.wxml.contains("data-lifecycle-action=\"submit\""))
+  assert_true(realm.wxml.contains("data-lifecycle-action=\"submit\""))
   assert_true(!realm.wxml.contains("data-lifecycle-action=\"publish\""))
   assert_true(!realm.wxml.contains("data-lifecycle-action=\"restore\""))
   assert_true(

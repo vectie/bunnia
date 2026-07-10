@@ -25,12 +25,15 @@ fn drawer_header_action(
   message : String,
   emphasis : String,
 ) -> @bunnia.Node {
-  @bunnia.node(
-    kind="button",
-    attrs=[@bunnia.class_name(emphasis)],
-    events=[@bunnia.tap(message)],
-    children=[@bunnia.text(label)],
-  )
+  let attrs = [@bunnia.class_name(emphasis)]
+  if message == "tab-messages" {
+    attrs.push(town_route_attr("messages"))
+  } else if message == "tab-discover" {
+    attrs.push(town_route_attr("discover"))
+  }
+  @bunnia.node(kind="button", attrs~, events=[@bunnia.tap(message)], children=[
+    @bunnia.text(label),
+  ])
 }
 
 ///|

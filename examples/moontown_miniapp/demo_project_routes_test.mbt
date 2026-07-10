@@ -13,7 +13,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-filter-building\":[]",
+      "\"discover-filter-building\":[{k:\"set\",p:\"discover.filter\",v:\"building\"}]",
     ),
   )
   assert_true(
@@ -28,7 +28,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-filter-product\":[{k:\"set\",p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"product\",\"kind\":\"product\",\"placeableOnly\":false,\"cursor\":0}}]",
+      "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"},{k:\"set\",p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"product\",\"kind\":\"product\",\"placeableOnly\":false,\"cursor\":0}}]",
     ),
   )
   assert_true(
@@ -51,7 +51,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"notification-channel-agent\":[{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"agent-run\",\"limit\":30,\"cursor\":0}}]",
+      "\"notification-channel-agent\":[{k:\"set\",p:\"messages.channel\",v:\"agent\"},{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"agent-run\",\"limit\":30,\"cursor\":0}}]",
     ),
   )
   assert_true(
@@ -61,7 +61,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"notification-channel-unread\":[{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"unread\",\"limit\":30,\"cursor\":0}}]",
+      "\"notification-channel-unread\":[{k:\"set\",p:\"messages.channel\",v:\"unread\"},{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"unread\",\"limit\":30,\"cursor\":0}}]",
     ),
   )
   assert_true(
@@ -101,7 +101,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"ownership-filter-books\":[{k:\"set\",p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"book\",\"visibility\":\"all\",\"cursor\":0}}]",
+      "\"ownership-filter-books\":[{k:\"set\",p:\"ownership.filter\",v:\"books\"},{k:\"set\",p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"book\",\"visibility\":\"all\",\"cursor\":0}}]",
     ),
   )
   assert_true(
@@ -111,7 +111,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"ownership-filter-placements\":[{k:\"set\",p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"placement\",\"visibility\":\"all\",\"cursor\":0}}]",
+      "\"ownership-filter-placements\":[{k:\"set\",p:\"ownership.filter\",v:\"placements\"},{k:\"set\",p:\"ownershipQuery\",v:{\"includeAlerts\":true,\"kind\":\"placement\",\"visibility\":\"all\",\"cursor\":0}}]",
     ),
   )
   assert_true(

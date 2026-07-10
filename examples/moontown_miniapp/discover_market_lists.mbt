@@ -33,7 +33,7 @@ fn discover_empty_state() -> @bunnia.Node {
 ///|
 fn discovery_filter_chip(
   filter : MiniTownDiscoveryFilter,
-  active_filter_id : String,
+  _active_filter_id : String,
 ) -> @bunnia.Node {
   @bunnia.keyed(
     "discover-filter-\{filter.id}",
@@ -41,11 +41,7 @@ fn discovery_filter_chip(
       kind="view",
       attrs=[
         @bunnia.class_name(
-          if filter.id == active_filter_id {
-            "moontown-discovery-filter active"
-          } else {
-            "moontown-discovery-filter"
-          },
+          "moontown-discovery-filter {{discover.filter == '\{filter.id}' ? 'active' : ''}}",
         ),
         @bunnia.data("filter-id", filter.id),
       ],

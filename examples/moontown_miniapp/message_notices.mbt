@@ -3,30 +3,36 @@ fn notification_entry(
   projection : MiniTownProjection,
   notice : MiniTownNotification,
 ) -> @bunnia.Node {
+  let attrs = [
+    @bunnia.class_name(
+      if notice.unread {
+        "moontown-notice-entry moontown-chat-row unread"
+      } else {
+        "moontown-notice-entry moontown-chat-row read"
+      },
+    ),
+    @bunnia.data("chat-unread", if notice.unread { "true" } else { "false" }),
+    @bunnia.data("notice-action", "open"),
+    @bunnia.data("building-id", notice.building_id),
+    @bunnia.attr("wx:if", notification_row_visibility(notice)),
+  ]
+  if !notice.requires_subscription {
+    attrs.push(
+      town_route_attr(
+        if notice.building_id == "" {
+          "discover"
+        } else {
+          "realm"
+        },
+      ),
+    )
+  }
   @bunnia.keyed(
     "notice-\{notice.id}",
     @bunnia.node(
       kind="view",
-      attrs=[
-        @bunnia.class_name(
-          if notice.unread {
-            "moontown-notice-entry moontown-chat-row unread"
-          } else {
-            "moontown-notice-entry moontown-chat-row read"
-          },
-        ),
-        @bunnia.data(
-          "chat-unread",
-          if notice.unread {
-            "true"
-          } else {
-            "false"
-          },
-        ),
-        @bunnia.data("notice-action", "open"),
-        @bunnia.data("building-id", notice.building_id),
-      ],
-      events=[@bunnia.tap(notice.action_message)],
+      attrs~,
+      events=[@bunnia.tap(notification_tap_message(notice))],
       children=[
         @bunnia.view_with_attrs(
           [@bunnia.class_name("moontown-chat-avatar kind-\{notice.kind}")],
@@ -53,6 +59,31 @@ fn notification_entry(
       ],
     ),
   )
+}
+
+///|
+fn notification_tap_message(notice : MiniTownNotification) -> String {
+  if notice.requires_subscription {
+    notice.action_message
+  } else if notice.building_id == "" {
+    "tab-discover"
+  } else {
+    "open-place-\{notice.building_id}"
+  }
+}
+
+///|
+fn notification_row_visibility(notice : MiniTownNotification) -> String {
+  let unread = if notice.unread { "true" } else { "false" }
+  let notice_kind = if notice.kind == "publish" ||
+    notice.kind == "share" ||
+    notice.kind == "follow" ||
+    notice.kind == "subscription" {
+    "true"
+  } else {
+    "false"
+  }
+  "{{messages.channel == 'all' || (messages.channel == 'unread' && \{unread}) || (messages.channel == 'interaction' && '\{notice.kind}' == 'interaction') || (messages.channel == 'agent' && '\{notice.kind}' == 'agent-run') || (messages.channel == 'notices' && \{notice_kind})}}"
 }
 
 ///|

@@ -15,6 +15,7 @@ fn open_place_button(
       ),
       @bunnia.data("building-id", building_id),
       @bunnia.data("place-destination", "Realm"),
+      town_route_attr("realm"),
     ],
     events=[@bunnia.tap("open-place-\{building_id}")],
     children=[@bunnia.text("Open Place")],

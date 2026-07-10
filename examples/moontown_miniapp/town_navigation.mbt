@@ -40,6 +40,11 @@ fn tab_button_class(tab : MiniTownTab, active_tab_id : String) -> String {
 }
 
 ///|
+fn town_route_attr(tab_id : String) -> @bunnia.Attr {
+  @bunnia.data("bunnia-route", moontown_tab_route(tab_id))
+}
+
+///|
 fn town_passport_entry(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-switch")], [
     town_entry_button(),

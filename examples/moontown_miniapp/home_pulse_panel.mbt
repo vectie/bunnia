@@ -41,7 +41,10 @@ fn home_pulse_lead_entry(item : HomePulseRow) -> @bunnia.Node {
       @bunnia.text(item.summary),
       @bunnia.node(
         kind="button",
-        attrs=[@bunnia.class_name("moontown-primary-action")],
+        attrs=[
+          @bunnia.class_name("moontown-primary-action"),
+          town_route_attr(item.target_tab),
+        ],
         events=[@bunnia.tap(item.action_message)],
         children=[
           @bunnia.text(

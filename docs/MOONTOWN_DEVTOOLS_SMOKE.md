@@ -37,11 +37,18 @@ The generated mini-app points at `http://127.0.0.1:18191`.
 
 Open `_build/bunnia/wechat/moontown_miniapp` in WeChat DevTools, then smoke:
 
-1. Realm: enter town, pan/zoom the map, select Policy Hall, open Messages and Discover from map actions.
-2. Discover: search/filter, open a result, place/watch a public item, and verify the action returns to town language.
-3. Messages: switch channels, mark a notice read, review an agent result, retry or cancel one run.
-4. My: refresh inventory, switch filters, edit profile choices, create or update a private building.
-5. Reviewer: open Reviewer Tools from My, run Check Town Safety and Launch Checks, then return to My.
+1. Enter Town, then use all five bottom tabs and confirm exactly one active tab.
+2. Home: open the priority lead and each Browse/Review/Verify gate; confirm the owning page opens.
+3. Discover: switch All/Places/People/Circles/Products/Placeable, confirm rows narrow, then open a place in Realm.
+4. Realm: pan/zoom, select Market Square, confirm marker and drawer titles agree, then reselect Policy Hall and use Ask, Messages, and Find Similar.
+5. Messages: switch All/Unread/Activity/Replies/Notices, tap a whole chat row, approve or reject the memory review, and confirm it leaves pending UI.
+6. My: confirm the passport is ready, switch inventory filters, open a placement, refresh My Stuff, and exercise one available lifecycle action.
+7. Reviewer: open Reviewer Tools from My, run Check Town Safety and Launch Checks, then return to My.
+
+If CLI automation connects but page calls hang, inspect the DevTools log for
+`appid missing` or `routeTo appLaunch timeout`. Reopen the generated project
+with an authorized local test AppID before rerunning automation; do not commit
+the test account identity to the repository.
 
 Ordinary pages must not show endpoint ids, HTTP paths, payload keys, response
 keys, runtime labels, cursor/offset labels, or DevTools copy. Reviewer Tools is

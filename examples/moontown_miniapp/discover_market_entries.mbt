@@ -12,6 +12,7 @@ fn discover_entry(
         ),
         @bunnia.data("discovery-id", item.id),
         @bunnia.data("discovery-kind", item.kind),
+        @bunnia.attr("wx:if", discover_entry_visibility(item)),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -22,6 +23,11 @@ fn discover_entry(
       ],
     ),
   )
+}
+
+///|
+fn discover_entry_visibility(item : MiniTownDiscoveryItem) -> String {
+  "{{discover.filter == 'all' || discover.filter == '\{item.kind}' || (discover.filter == 'placeable' && '\{item.kind}' == 'building')}}"
 }
 
 ///|

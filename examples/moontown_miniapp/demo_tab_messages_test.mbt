@@ -81,7 +81,9 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(!messages.wxml.contains("Town Notices"))
   assert_true(!messages.wxml.contains("Failed Actions"))
   assert_true(!messages.wxml.contains("New Follows"))
-  assert_true(messages.wxml.contains("moontown-message-channel active"))
+  assert_true(
+    messages.wxml.contains("messages.channel == 'all' ? 'active' : ''"),
+  )
   assert_true(messages.wxml.contains("moontown-chat-row unread"))
   assert_true(messages.wxml.contains("moontown-chat-row read"))
   assert_true(messages.wxml.contains("data-chat-unread=\"true\""))
@@ -104,6 +106,13 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"open-notice-review\""),
   )
+  assert_true(
+    messages.wxml.contains("data-bunnia-message=\"open-place-policy-hall\""),
+  )
+  assert_true(
+    messages.wxml.contains("data-bunnia-route=\"pages/moontown/index\""),
+  )
+  assert_true(messages.wxml.contains("reviews.memoryReview == 'pending'"))
   assert_true(
     messages.wxml.contains("data-bunnia-message=\"request-subscription\""),
   )

@@ -50,6 +50,7 @@ fn district_action_row(district : MiniTownDistrict) -> @bunnia.Node {
       attrs=[
         @bunnia.data("district-id", district.id),
         @bunnia.data("target-tab", district_target_tab(district)),
+        town_route_attr(district_target_tab(district)),
       ],
       events=[@bunnia.tap(district_action_message(district))],
       children=[@bunnia.text(district_cta_label(district))],

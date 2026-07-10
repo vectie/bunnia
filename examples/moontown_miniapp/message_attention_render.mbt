@@ -9,6 +9,14 @@ fn message_attention_lead_entry(row : MessageAttentionRow) -> @bunnia.Node {
         ),
         @bunnia.data("attention-id", row.id),
         @bunnia.data("building-id", row.building_id),
+        @bunnia.attr(
+          "wx:if",
+          if row.id == "review" {
+            "{{reviews.memoryReview == 'pending'}}"
+          } else {
+            "{{true}}"
+          },
+        ),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [

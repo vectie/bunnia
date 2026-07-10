@@ -24,6 +24,7 @@ fn review_entry(
     @bunnia.view_with_attrs(
       [
         @bunnia.class_name("moontown-review-entry bunnia-status-\{item.status}"),
+        @bunnia.attr("wx:if", review_entry_visibility(item)),
         @bunnia.data("building-id", item.building_id),
         @bunnia.data("book-id", item.book_id),
       ],
@@ -40,6 +41,16 @@ fn review_entry(
       ],
     ),
   )
+}
+
+///|
+fn review_entry_visibility(item : MiniTownReviewItem) -> String {
+  if item.accept_message == "accept-memory-review" ||
+    item.reject_message == "reject-memory-review" {
+    "{{reviews.memoryReview == 'pending'}}"
+  } else {
+    "{{true}}"
+  }
 }
 
 ///|

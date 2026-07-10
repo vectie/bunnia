@@ -22,10 +22,12 @@ test "moontown miniapp generated page renders map and shell" {
   assert_true(page.wxml.contains("Review"))
   assert_true(page.wxml.contains("Open"))
   assert_true(
-    page.wxml.contains("moontown-map-marker selected bunnia-status-review"),
+    page.wxml.contains(
+      "town.selectedBuildingId == 'policy-hall' ? 'selected' : ''",
+    ),
   )
-  assert_true(page.wxml.contains("moontown-map-marker quiet"))
-  assert_eq(string_occurrence_count(page.wxml, "moontown-map-marker-kind"), 1)
+  assert_true(page.wxml.contains("bunnia-status-review"))
+  assert_eq(string_occurrence_count(page.wxml, "moontown-map-marker-kind"), 0)
   assert_true(page.wxml.contains("moontown-topbar"))
   assert_true(!page.wxml.contains("moontown-left-hud"))
   assert_true(page.wxml.contains("moontown-right-hud"))

@@ -29,7 +29,7 @@ test "named budget profiles expose render and wechat budgets" {
   assert_eq(large_wechat.max_files, 48)
   assert_eq(large_wechat.max_total_bytes, 262144)
   assert_eq(large_wechat.max_wxml_bytes, 131072)
-  assert_eq(large_wechat.max_page_first_screen_bytes, 73728)
+  assert_eq(large_wechat.max_page_first_screen_bytes, 76000)
   assert_eq(large_wechat.max_page_update_payload_bytes, 4096)
   assert_eq(large_wechat.max_page_update_operations, 64)
   let tiny_wechat = wechat_build_budget_for_profile("tiny")

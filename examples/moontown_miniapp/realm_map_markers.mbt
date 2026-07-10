@@ -22,21 +22,13 @@ fn map_marker(
       @bunnia.text(building.title),
     ]),
   )
-  if selected {
-    children.push(
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-map-marker-kind")],
-        [@bunnia.text(town_kind_label(building.kind))],
-      ),
-    )
-  }
   @bunnia.keyed(
     "map-marker-\{building.id}",
     @bunnia.node(
       kind="view",
       attrs=[
         @bunnia.class_name(
-          "moontown-map-marker \{if selected { "selected" } else { "quiet" }} bunnia-status-\{building.status}",
+          "moontown-map-marker {{town.selectedBuildingId == '\{building.id}' ? 'selected' : ''}} bunnia-status-\{building.status}",
         ),
         @bunnia.attr(
           "style",

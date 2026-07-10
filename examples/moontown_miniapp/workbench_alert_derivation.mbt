@@ -56,7 +56,7 @@ pub fn workbench_alerts(
         summary="Some town updates could not finish. Refresh to recover.",
         target_ref=stale_backends[0].target_ref,
         severity="notice",
-        action_label="Refresh Town",
+        action_label="Refresh My Stuff",
         action_message="load-town-snapshot",
         status="stale",
       ),
