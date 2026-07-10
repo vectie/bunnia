@@ -14,13 +14,7 @@ fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
     @bunnia.node(
       kind="button",
       attrs=[
-        @bunnia.class_name(
-          if tab.id == active_tab_id {
-            "moontown-tab-button active"
-          } else {
-            "moontown-tab-button"
-          },
-        ),
+        @bunnia.class_name(tab_button_class(tab, active_tab_id)),
         @bunnia.data("tab-id", tab.id),
         @bunnia.data("bunnia-route", moontown_tab_route(tab.id)),
         @bunnia.data(
@@ -39,13 +33,64 @@ fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
 }
 
 ///|
-fn town_shell_actions(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-shell-actions")], [
-    @bunnia.text("Passport: \{projection.profile.display_name}"),
-    @bunnia.button("Enter", "enter-town"),
-    @bunnia.button("Realm", "tab-realm"),
-    @bunnia.button("Passport", "tab-my"),
-  ])
+fn tab_button_class(tab : MiniTownTab, active_tab_id : String) -> String {
+  let surface = if tab.map_surface { " map-surface" } else { "" }
+  let active = if tab.id == active_tab_id { " active" } else { "" }
+  "moontown-tab-button\{surface}\{active}"
+}
+
+///|
+fn town_passport_entry(projection : MiniTownProjection) -> @bunnia.Node {
+  if projection.active_tab_id == "realm" && !projection.onboarding_completed {
+    town_entry_button()
+  } else {
+    town_profile_button(projection)
+  }
+}
+
+///|
+fn town_entry_button() -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[@bunnia.class_name("moontown-entry-button")],
+    events=[@bunnia.tap("enter-town")],
+    children=[
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-name")], [
+        @bunnia.text("Enter Town"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-state")], [
+        @bunnia.text("First visit"),
+      ]),
+    ],
+  )
+}
+
+///|
+fn town_profile_button(projection : MiniTownProjection) -> @bunnia.Node {
+  @bunnia.node(
+    kind="button",
+    attrs=[
+      @bunnia.class_name("moontown-passport-entry"),
+      @bunnia.data("bunnia-route", moontown_tab_route("my")),
+      @bunnia.data(
+        "passport-ready",
+        if profile_ready_to_publish(projection) {
+          "true"
+        } else {
+          "false"
+        },
+      ),
+    ],
+    events=[@bunnia.tap("tab-my")],
+    children=[
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-name")], [
+        @bunnia.text(projection.profile.display_name),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-state")], [
+        @bunnia.text(ready_word(profile_ready_to_publish(projection))),
+      ]),
+    ],
+  )
 }
 
 ///|

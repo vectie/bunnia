@@ -4,7 +4,7 @@ fn public_passport_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let summary = public_passport_summary(projection)
   @bunnia.view_with_attrs(
     [
-      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.class_name("moontown-credential-plaque moontown-my-public"),
       @bunnia.data("passport-section", "public"),
       @bunnia.data("passport-count", items.length().to_string()),
     ],

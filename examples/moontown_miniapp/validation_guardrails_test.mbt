@@ -124,7 +124,7 @@ test "moontown generated labels translate backend state" {
   assert_true(messages.contains("Needs Review"))
   assert_true(mine.contains("Refresh My Stuff"))
   assert_true(!home.contains("Load Snapshot"))
-  assert_true(home.contains("agents and places in one tile town"))
+  assert_true(home.contains("What changed and where to go next"))
   assert_true(mine.contains("already on your map"))
   assert_true(!home.contains("mini-app"))
   assert_true(!mine.contains("starter-map"))

@@ -1,5 +1,8 @@
 # Moontown UI/UX Implementation Plan
 
+Status: complete. This foundation track is superseded by
+`MOONTOWN_UI_UX_V2_PLAN.md` for composition and visual-product work.
+
 This plan turns the UI/UX doctrine into an implementation sequence for the
 Moontown mini-app.
 

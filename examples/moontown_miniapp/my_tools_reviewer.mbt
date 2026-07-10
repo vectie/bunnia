@@ -11,7 +11,7 @@ fn reviewer_tools_panel(projection : MiniTownProjection) -> @bunnia.Node {
 fn reviewer_tools_gate_panel() -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [
-      @bunnia.class_name("moontown-credential-plaque"),
+      @bunnia.class_name("moontown-credential-plaque moontown-my-reviewer"),
       @bunnia.data("reviewer-tools-gate", "closed"),
     ],
     [

@@ -16,7 +16,7 @@ fn lifecycle_panel_with_events(
   events : Array[MiniTownAuditEvent],
 ) -> @bunnia.Node {
   @bunnia.view_with_attrs(
-    [@bunnia.class_name("mt-panel")],
+    [@bunnia.class_name("mt-panel moontown-my-lifecycle")],
     lifecycle_panel_children(title, note, steps, events),
   )
 }

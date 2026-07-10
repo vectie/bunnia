@@ -4,6 +4,11 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   let mine = tab_page(projection, "my")
   assert_true(has_no_forbidden_ordinary_copy(mine.wxml))
   assert_true(mine.wxml.contains("data-active-tab=\"my\""))
+  assert_true(mine.wxml.contains("moontown-my-layout"))
+  assert_true(mine.wxml.contains("data-attention-count=\"3\""))
+  assert_true(
+    mine.wxml.contains("Identity first, then the work that needs you."),
+  )
   assert_true(mine.wxml.contains("Town Passport"))
   assert_true(!mine.wxml.contains("Identity Setup"))
   assert_true(
@@ -13,7 +18,7 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("My Inventory"))
   assert_true(
     mine.wxml.contains(
-      "Owned shelves, alerts, and 5 items are ready to manage.",
+      "Browse 5 owned items by shelf, then open the work you need.",
     ),
   )
   assert_true(!mine.wxml.contains("Town passport, setup stamps"))
@@ -177,10 +182,7 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(!mine.wxml.contains("data-actor-id="))
   assert_true(mine.wxml.contains("Created - Private draft - Draft"))
   assert_true(mine.wxml.contains("needs setup"))
-  assert_true(mine.wxml.contains("data-ownership-stat=\"drafts\""))
-  assert_true(mine.wxml.contains("data-ownership-stat=\"placements\""))
-  assert_true(mine.wxml.contains("data-ownership-stat=\"books\""))
-  assert_true(mine.wxml.contains("data-ownership-stat=\"watches\""))
+  assert_true(!mine.wxml.contains("data-ownership-stat="))
   assert_true(mine.wxml.contains("moontown-ownership-filter active"))
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"placements\""))
   assert_true(mine.wxml.contains("data-ownership-filter-id=\"drafts\""))

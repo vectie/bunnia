@@ -1,13 +1,18 @@
 ///|
 fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-topbar")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-title")], [
-      @bunnia.text("Moontown"),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-title-block")], [
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-eyebrow")], [
+        @bunnia.text("Moontown"),
+      ]),
+      @bunnia.view_with_attrs([@bunnia.class_name("moontown-title")], [
+        @bunnia.text(town_screen_title(projection.active_tab_id)),
+      ]),
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-subtitle")], [
-        @bunnia.text("agents and places in one tile town"),
+        @bunnia.text(town_screen_subtitle(projection.active_tab_id)),
       ]),
     ]),
-    town_shell_actions(projection),
+    town_passport_entry(projection),
   ])
 }
 
@@ -26,12 +31,7 @@ fn town_active_surface(projection : MiniTownProjection) -> @bunnia.Node {
       review_queue_panel(projection),
     ])
   } else if projection.active_tab_id == "my" {
-    town_page_surface(projection, [
-      identity_setup_panel(projection),
-      profile_panel(projection),
-      ownership_lifecycle_panel(projection),
-      create_drawer(projection),
-    ])
+    town_page_surface(projection, my_surface_panels(projection))
   } else if projection.active_tab_id == "home" {
     town_page_surface(projection, [
       onboarding_panel(projection),
@@ -57,11 +57,7 @@ fn town_page_surface(
       @bunnia.view_with_attrs(
         [
           @bunnia.class_name(
-            if panels.length() > 2 {
-              "moontown-page-grid three"
-            } else {
-              "moontown-page-grid"
-            },
+            town_page_grid_class(projection.active_tab_id, panels.length()),
           ),
         ],
         panels,

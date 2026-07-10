@@ -1,7 +1,7 @@
 ///|
 fn identity_setup_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let gates = setup_gates(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel")], [
+  @bunnia.view_with_attrs([@bunnia.class_name("mt-panel moontown-my-setup")], [
     @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
       @bunnia.text("Town Passport"),
     ]),
