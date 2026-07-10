@@ -14,6 +14,24 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-map-marker.selected"))
   assert_true(page.wxss.contains(".moontown-object-title"))
   assert_true(page.wxss.contains(".moontown-place-facts"))
+  assert_true(
+    page.wxss.contains(
+      ".moontown-home-pulse,.moontown-my-overview{border-top:3rpx solid #e11d48",
+    ),
+  )
+  assert_true(
+    page.wxss.contains(
+      ".moontown-discovery-badge.kind-kind,.moontown-object-badge.kind-category",
+    ),
+  )
+  assert_true(
+    page.wxss.contains(
+      ".moontown-review-entry,.moontown-workbench-alert{border-left:4rpx solid #d69e2e",
+    ),
+  )
+  assert_true(
+    page.wxss.contains("white-space:normal;overflow:visible;text-overflow:clip"),
+  )
   assert_true(page.wxss.contains("max-height:52vh"))
   assert_true(page.wxss.contains("overscroll-behavior:contain"))
   assert_true(page.wxss.contains(".moontown-tabbar"))

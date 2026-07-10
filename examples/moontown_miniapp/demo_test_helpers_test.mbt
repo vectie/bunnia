@@ -118,6 +118,12 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(".moontown-discovery-search{") &&
   wxss.contains(".moontown-discovery-results .bunnia-list-windowed{") &&
   wxss.contains(".moontown-message-inbox,.moontown-message-notices{") &&
+  wxss.contains(".moontown-discover-board{border-top:3rpx solid #2563eb") &&
+  wxss.contains(
+    ".moontown-message-work,.moontown-my-inventory{border-top:3rpx solid #2f855a",
+  ) &&
+  wxss.contains(".moontown-notice-entry{border-left:4rpx solid #e11d48") &&
+  wxss.contains(".moontown-tabbar{box-shadow:0 8rpx 24rpx") &&
   wxss.contains(".moontown-primary-action{") &&
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
@@ -141,6 +147,8 @@ fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
   wxss.contains("#881337") &&
   wxss.contains("#e11d48") &&
   wxss.contains("#2563eb") &&
+  wxss.contains("#2f855a") &&
+  wxss.contains("#d69e2e") &&
   wxss.contains("rgba(248,250,252,0.9)") &&
   wxss.contains("rgba(239,246,255,0.78)") &&
   wxss.contains("rgba(255,241,242,0.78)") &&

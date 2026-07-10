@@ -94,3 +94,18 @@ test "moontown miniapp gates reviewer diagnostics from My tab" {
     reviewer_mine.wxml.contains("data-bunnia-message=\"load-admin-readiness\""),
   )
 }
+
+///|
+test "moontown reviewer route shares the town visual identity" {
+  let project = demo_wechat_project()
+  let wxss = file_content(project.files, "pages/moontown/reviewer.wxss")
+  assert_true(wxss.contains("background:#eef2f7"))
+  assert_true(wxss.contains("border:2rpx solid #2563eb"))
+  assert_true(wxss.contains("background:#f8fafc"))
+  assert_true(wxss.contains("border-top:3rpx solid #e11d48"))
+  assert_true(wxss.contains("border-left:4rpx solid #2563eb"))
+  assert_true(wxss.contains("background:#203124;color:#ffffff"))
+  assert_true(!wxss.contains("#f8f3df"))
+  assert_true(!wxss.contains("#fffaf0"))
+  assert_true(!wxss.contains("#8a6d3b"))
+}

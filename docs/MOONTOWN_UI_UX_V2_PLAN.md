@@ -100,6 +100,23 @@ technical state only when it changes the next user action
 - preserve map gestures, marker coordinates, and all existing action/event
   contracts without compatibility branches
 
+## V2.6 Current Slice
+
+- retain the established ink, rose, blue, green, gold, and cloud palette while
+  assigning each color a consistent semantic role
+- distinguish Home/My identity, Discover, review attention, and work/inventory
+  panels with restrained top accents instead of decorative backgrounds
+- differentiate category, access/owner, and eligibility/status badges so their
+  meaning can be scanned before reading every label
+- give discovery, review, work, notice, ownership, and inventory rows consistent
+  semantic edge accents across routes
+- allow compact titles and badges to wrap safely instead of truncating dynamic
+  names
+- align Reviewer with the ordinary town palette and type scale, removing the
+  legacy beige and brown visual branch
+- keep depth concentrated in navigation, selected map objects, and drawers
+  rather than turning every page section into a floating card
+
 ## Validation
 
 Implementation happens before testing for each slice. After the slice is
