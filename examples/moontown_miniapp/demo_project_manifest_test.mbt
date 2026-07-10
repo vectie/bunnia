@@ -3,12 +3,12 @@ test "moontown generated project keeps onboarding routes manifest and diagnostic
   let project = demo_wechat_project()
   assert_true(
     file_content(project.files, "pages/moontown/index.wxml").contains(
-      "data-bunnia-message=\"enter-town\"",
+      "data-bunnia-message=\"dev-login\"",
     ),
   )
   assert_true(
     !file_content(project.files, "pages/moontown/index.wxml").contains(
-      "data-bunnia-message=\"dev-login\"",
+      "data-bunnia-message=\"enter-town\"",
     ),
   )
   assert_true(

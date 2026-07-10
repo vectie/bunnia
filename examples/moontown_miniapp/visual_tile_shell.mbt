@@ -6,6 +6,7 @@ fn tile_shell_wxss() -> String {
   ".moontown-title { color: #203222; font-size: 30rpx; font-weight: 800; }\n" +
   ".moontown-subtitle { margin-top: 2rpx; color: #53624e; font-size: 18rpx; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-passport-entry, .moontown-entry-button { flex: 0 0 auto; min-width: 160rpx; min-height: 88rpx; padding: 8rpx 12rpx; background: #203124; color: #ffffff; text-align: left; }\n" +
+  ".moontown-passport-switch { flex: 0 0 auto; display: flex; }\n" +
   ".moontown-passport-name { max-width: 190rpx; color: #ffffff; font-size: 18rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
   ".moontown-passport-state { margin-top: 2rpx; color: #ffd7df; font-size: 15rpx; }\n" +
   ".moontown-page-surface { position: absolute; z-index: 7; left: 22rpx; right: 22rpx; top: 0; top: constant(safe-area-inset-top); top: env(safe-area-inset-top); bottom: 0; bottom: constant(safe-area-inset-bottom); bottom: env(safe-area-inset-bottom); margin-top: 160rpx; margin-bottom: 132rpx; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12rpx; padding-bottom: 12rpx; }\n" +

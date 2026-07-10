@@ -9,6 +9,17 @@ fn test_backend_contract() -> @effects.BackendContract {
 }
 
 ///|
+test "wechat project config permits the local DevTools backend loop" {
+  let project = generate_project(
+    name="Local Backend",
+    route="pages/local/index",
+    root=@core.page([@core.text("Local")]),
+  )
+  let config = file_content(project.files, "project.config.json")
+  assert_true(config.contains("\"urlCheck\": false"))
+}
+
+///|
 test "wechat request adapter records replayable request data" {
   let js = generate_request_adapter(test_backend_contract())
   assert_true(js.contains("const requestPayload"))
@@ -27,6 +38,10 @@ test "wechat request adapter carries session headers and response keys" {
   assert_true(js.contains("header: __bunniaRequestHeaders(page)"))
   assert_true(js.contains("if (endpoint.r) update[endpoint.r] = res.data"))
   assert_true(js.contains("__bunniaSessionIdFromResponse(res.data)"))
+  assert_true(js.contains("__bunniaSessionStorageKey"))
+  assert_true(js.contains("wx.getStorageSync"))
+  assert_true(js.contains("wx.setStorageSync"))
+  assert_true(js.contains("res.data.state === 'revoked'"))
 }
 
 ///|
@@ -44,7 +59,7 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("const __bk='runId reviewId decision"))
   assert_true(
     js.contains(
-      "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bk }",
+      "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk }",
     ),
   )
 }
@@ -85,9 +100,12 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   )
   assert_true(
     js.contains(
-      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk }",
+      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk }",
     ),
   )
+  assert_true(js.contains("__bunniaInitialDataWithSession"))
+  assert_true(js.contains("onShow(){"))
+  assert_true(js.contains("this.data[__bunniaBackend.s]!==token"))
   assert_true(js.contains("Object.assign({},p.data[e.p]||{})"))
   assert_true(js.contains("__bk.map(k=>"))
   assert_true(js.contains("d[k]!==undefined&&d[k]!==''&&(b[k]=d[k],h=1)"))

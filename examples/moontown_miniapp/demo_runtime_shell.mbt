@@ -4,11 +4,6 @@ fn add_shell_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   patches.push(@bunnia.wechat_event_patch("load-town-snapshot", []))
-  patches.push(
-    @bunnia.wechat_event_patch("complete-onboarding", [
-      @bunnia.set_string("shell.onboardingCompleted", "true"),
-    ]),
-  )
   for tab in projection.tabs {
     patches.push(
       @bunnia.wechat_event_patch("tab-\{tab.id}", [
@@ -24,8 +19,9 @@ fn add_setup_event_patches(
   projection : MiniTownProjection,
 ) -> Unit {
   patches.push(
-    @bunnia.wechat_event_patch("enter-town", [
+    @bunnia.wechat_event_patch("dev-login", [
       @bunnia.set_string("session.activeUserId", "user-a"),
+      @bunnia.set_string("shell.onboardingCompleted", "true"),
     ]),
   )
   patches.push(

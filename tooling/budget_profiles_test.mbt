@@ -23,6 +23,7 @@ test "named budget profiles expose render and wechat budgets" {
   let tight_wechat = wechat_build_budget_for_profile("tight")
   assert_eq(tight_wechat.max_files, 16)
   assert_eq(tight_wechat.max_total_bytes, 32768)
+  assert_eq(tight_wechat.max_js_bytes, 10240)
   assert_eq(tight_wechat.max_page_update_payload_bytes, 1024)
   let large_wechat = wechat_build_budget_for_profile("large")
   assert_eq(large_wechat.max_files, 48)

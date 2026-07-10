@@ -432,6 +432,14 @@ function authFromRequest(state, headers) {
   return { token, session, userId: session.userId };
 }
 
+function allowsAnonymous(path) {
+  return path === "/miniapp/routes"
+    || path === "/miniapp/health"
+    || path === "/miniapp/monitoring/incident"
+    || path === "/miniapp/auth/dev-login"
+    || path === "/miniapp/auth/wechat-login";
+}
+
 function createSession(state, userId) {
   const now = Date.now();
   const id = `session-${randomUUID()}`;
@@ -1154,10 +1162,14 @@ function dispatch(state, request) {
   const path = request.path;
   const body = request.body || {};
   const auth = authFromRequest(state, request.headers || {});
-  if (auth.error && path !== "/miniapp/auth/dev-login" && path !== "/miniapp/auth/wechat-login" && path !== "/miniapp/routes" && path !== "/miniapp/health" && path !== "/miniapp/monitoring/incident") {
+  if (auth.error && !allowsAnonymous(path)) {
     return { status: 401, changed: false, body: { error: auth.error } };
   }
-  const viewer = auth.userId || (path === "/miniapp/monitoring/incident" ? "monitoring-probe" : (body.userId || "user-a"));
+  if (!auth.userId && !allowsAnonymous(path)) {
+    return { status: 401, changed: false, body: { error: "missing_session" } };
+  }
+  const viewer = auth.userId
+    || (path === "/miniapp/monitoring/incident" ? "monitoring-probe" : (body.userId || "anonymous"));
   const limit = rateLimitFor(state, viewer, path);
   if (limit) return limit;
 
@@ -2849,6 +2861,13 @@ function smoke(options) {
   assert(health.body.routeCount === routeCatalog().length, "health route count");
   assert(health.body.activeSessionCount === 1, "health active sessions");
   assert(health.body.auditEventCount >= 1, "health audit count");
+  const missingSessionSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(missingSessionSnapshot.status === 401, "snapshot requires session");
+  assert(missingSessionSnapshot.body.error === "missing_session", "snapshot missing session reason");
+  const spoofedViewerSnapshot = dispatch(state, { method: "GET", path: "/miniapp/town/snapshot", query: new URLSearchParams(), headers: {}, body: { userId: "user-b" } });
+  assert(spoofedViewerSnapshot.status === 401, "snapshot ignores spoofed viewer");
+  const missingSessionMessages = dispatch(state, { method: "GET", path: "/miniapp/messages/center", query: new URLSearchParams(), headers: {}, body: {} });
+  assert(missingSessionMessages.status === 401, "messages require session");
   const logoutProbe = dispatch(state, { method: "POST", path: "/miniapp/auth/dev-login", query: new URLSearchParams(), headers: {}, body: { userId: "user-logout", displayName: "Logout Probe" } });
   const logoutHeaders = { "x-miniapp-session": logoutProbe.body.session.id };
   const loggedOut = dispatch(state, { method: "POST", path: "/miniapp/auth/logout", query: new URLSearchParams(), headers: logoutHeaders, body: {} });

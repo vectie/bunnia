@@ -60,7 +60,7 @@ pub fn wechat_build_budget_for_profile(
         max_total_bytes=32768,
         max_wxml_bytes=16384,
         max_wxss_bytes=8192,
-        max_js_bytes=8192,
+        max_js_bytes=10240,
         max_initial_data_bytes=1024,
         max_event_patch_bytes=1024,
         max_event_patch_operations=32,

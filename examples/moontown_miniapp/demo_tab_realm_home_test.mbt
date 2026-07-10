@@ -44,8 +44,8 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(
     home.wxml.contains("Start in Realm. Every destination stays one tap away."),
   )
-  assert_true(home.wxml.contains("Enter Realm"))
-  assert_true(home.wxml.contains("data-bunnia-message=\"complete-onboarding\""))
+  assert_true(home.wxml.contains("Enter Town"))
+  assert_true(home.wxml.contains("data-bunnia-message=\"dev-login\""))
   assert_true(!home.wxml.contains("moontown-onboarding-step"))
   assert_true(!home.wxml.contains("moontown-guide-step"))
   assert_true(!home.wxml.contains("moontown-guide-strip"))

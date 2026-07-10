@@ -8,7 +8,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"enter-town\":[{k:\"set\",p:\"session.activeUserId\",v:\"user-a\"}]",
+      "\"dev-login\":[{k:\"set\",p:\"session.activeUserId\",v:\"user-a\"},{k:\"set\",p:\"shell.onboardingCompleted\",v:\"true\"}]",
     ),
   )
   assert_true(

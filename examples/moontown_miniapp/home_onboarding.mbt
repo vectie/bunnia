@@ -1,7 +1,10 @@
 ///|
 fn onboarding_panel(_projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs(
-    [@bunnia.class_name("mt-panel moontown-onboarding-compact")],
+    [
+      @bunnia.class_name("mt-panel moontown-onboarding-compact"),
+      @bunnia.attr("wx:if", "{{!bunniaSessionId}}"),
+    ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Enter Moontown"),
@@ -12,8 +15,8 @@ fn onboarding_panel(_projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.node(
         kind="button",
         attrs=[@bunnia.class_name("moontown-primary-action")],
-        events=[@bunnia.tap("complete-onboarding")],
-        children=[@bunnia.text("Enter Realm")],
+        events=[@bunnia.tap("dev-login")],
+        children=[@bunnia.text("Enter Town")],
       ),
     ],
   )

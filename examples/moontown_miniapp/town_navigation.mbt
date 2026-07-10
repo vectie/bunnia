@@ -41,19 +41,21 @@ fn tab_button_class(tab : MiniTownTab, active_tab_id : String) -> String {
 
 ///|
 fn town_passport_entry(projection : MiniTownProjection) -> @bunnia.Node {
-  if projection.active_tab_id == "realm" && !projection.onboarding_completed {
-    town_entry_button()
-  } else {
-    town_profile_button(projection)
-  }
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-switch")], [
+    town_entry_button(),
+    town_profile_button(projection),
+  ])
 }
 
 ///|
 fn town_entry_button() -> @bunnia.Node {
   @bunnia.node(
     kind="button",
-    attrs=[@bunnia.class_name("moontown-entry-button")],
-    events=[@bunnia.tap("enter-town")],
+    attrs=[
+      @bunnia.class_name("moontown-entry-button"),
+      @bunnia.attr("wx:if", "{{!bunniaSessionId}}"),
+    ],
+    events=[@bunnia.tap("dev-login")],
     children=[
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-name")], [
         @bunnia.text("Enter Town"),
@@ -71,6 +73,7 @@ fn town_profile_button(projection : MiniTownProjection) -> @bunnia.Node {
     kind="button",
     attrs=[
       @bunnia.class_name("moontown-passport-entry"),
+      @bunnia.attr("wx:if", "{{bunniaSessionId}}"),
       @bunnia.data("bunnia-route", moontown_tab_route("my")),
       @bunnia.data(
         "passport-ready",

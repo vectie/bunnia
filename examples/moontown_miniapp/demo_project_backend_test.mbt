@@ -174,7 +174,7 @@ test "moontown generated project keeps backend request contract and hidden runti
   )
   assert_true(
     project.page.js.contains(
-      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk }",
+      "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk }",
     ),
   )
   assert_true(project.page.js.contains("Object.assign({},p.data[e.p]||{})"))

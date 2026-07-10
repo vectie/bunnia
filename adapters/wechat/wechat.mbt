@@ -578,6 +578,7 @@ pub fn generate_runtime_js() -> String {
 pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
   "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility limit cursor placeableOnly includeAlerts'.split(' ')\n" +
+  "const __bunniaSessionStorageKey='__bunnia_session__'+(__bunniaBackend.s||'default')\n" +
   "\n" +
   "function __bunniaRequest(page, endpointId, payload) {\n" +
   "  const endpoint = __bunniaBackend.e[endpointId]\n" +
@@ -614,7 +615,8 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "        __bs(update, endpointId, 'ready', '')\n" +
   "        if (endpoint.r) update[endpoint.r] = res.data\n" +
   "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
-  "        if (sessionId && __bunniaBackend.s) update[__bunniaBackend.s] = sessionId\n" +
+  "        if (res.data && res.data.state === 'revoked') __bunniaStoreSession('')\n" +
+  "        else if (sessionId && __bunniaBackend.s) { update[__bunniaBackend.s] = sessionId; __bunniaStoreSession(sessionId) }\n" +
   "      }\n" +
   "      page.setData(update)\n" +
   "    },\n" +
@@ -630,8 +632,16 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "}\n" +
   "\n" +
   "function __bunniaRequestHeaders(page) {\n" +
-  "  const k = __bunniaBackend.s, h = __bunniaBackend.h, t = k && page && page.data ? page.data[k] : ''\n" +
+  "  const k = __bunniaBackend.s, h = __bunniaBackend.h, t = (k && page && page.data ? page.data[k] : '') || __bunniaStoredSession()\n" +
   "  return t && h ? { [h]: t } : {}\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaStoredSession() {\n" +
+  "  try { return typeof wx !== 'undefined' && wx.getStorageSync ? (wx.getStorageSync(__bunniaSessionStorageKey) || '') : '' } catch (_) { return '' }\n" +
+  "}\n" +
+  "\n" +
+  "function __bunniaStoreSession(value) {\n" +
+  "  try { if (typeof wx !== 'undefined' && wx.setStorageSync) wx.setStorageSync(__bunniaSessionStorageKey, value || '') } catch (_) {}\n" +
   "}\n" +
   "\n" +
   "function __bunniaSessionIdFromResponse(data) {\n" +
@@ -657,7 +667,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  return __bunniaRequest(page, endpointId, current ? current.request : undefined)\n" +
   "}\n" +
   "\n" +
-  "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bk }"
+  "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk }"
 }
 
 ///|
@@ -1307,7 +1317,8 @@ fn project_config_json(name : String) -> String {
   "  \"compileType\": \"miniprogram\",\n" +
   "  \"setting\": {\n" +
   "    \"es6\": true,\n" +
-  "    \"minified\": false\n" +
+  "    \"minified\": false,\n" +
+  "    \"urlCheck\": false\n" +
   "  }\n" +
   "}\n"
 }
@@ -1628,7 +1639,9 @@ fn project_page_js_with_backend(
 ) -> String {
   "const { __bunniaApplyPatches } = require('\{runtime_require_path(route)}')\n" +
   "const { initialData: __bunniaInitialData, eventPatches: __bunniaEventPatches } = require('\{page_payload_require_path(route)}')\n" +
-  "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bk } = require('\{backend_require_path(route)}')\n" +
+  "const { __bunniaBackend, __bunniaRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk } = require('\{backend_require_path(route)}')\n" +
+  "const __bunniaInitialDataWithSession = Object.assign({}, __bunniaInitialData)\n" +
+  "if (__bunniaBackend.s) __bunniaInitialDataWithSession[__bunniaBackend.s] = __bunniaStoredSession()\n" +
   "const __bunniaBackendEvents = \{backend_event_object(contract, plan)}\n" +
   "\n" +
   backend_request_dispatch_js() +
@@ -1636,10 +1649,18 @@ fn project_page_js_with_backend(
   page_definition_js(
     name,
     plan,
-    "__bunniaInitialData",
+    "__bunniaInitialDataWithSession",
     "    __bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})\n",
-    runtime.page_methods_js,
+    backend_session_page_methods_js() + runtime.page_methods_js,
   )
+}
+
+///|
+fn backend_session_page_methods_js() -> String {
+  "  onShow(){\n" +
+  "    const token=__bunniaStoredSession()\n" +
+  "    if(__bunniaBackend.s&&token&&this.data[__bunniaBackend.s]!==token){const update={};update[__bunniaBackend.s]=token;this.setData(update)}\n" +
+  "  },\n"
 }
 
 ///|
