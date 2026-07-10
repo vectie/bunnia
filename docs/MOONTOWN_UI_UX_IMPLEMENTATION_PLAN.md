@@ -818,7 +818,10 @@ Acceptance checks:
   as a marker instead of a broad product file. My Inventory row behavior is
   split by stat rendering, filter chips, route extraction, and action rows,
   with boundary checks keeping `my_inventory_rows.mbt` as a UX6 marker for the
-  manageable-ownership row surface.
+  manageable-ownership row surface. My lifecycle behavior is split by panel
+  assembly, publication-step rendering, audit row rendering, and event labels,
+  with boundary checks keeping `my_lifecycle.mbt` as the UX6 marker for the
+  publish/archive shelf.
   Town Passport is split by panel assembly, setup/role stamps, identity card,
   and profile metric chips, with boundary checks keeping `my_passport.mbt` as a
   marker instead of a broad setup surface file.

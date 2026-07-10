@@ -73,6 +73,8 @@ moontown_test_files="examples/moontown_miniapp/demo_page_test.mbt $generated_pag
 
 my_workbench_files='examples/moontown_miniapp/my_passport.mbt examples/moontown_miniapp/my_lifecycle.mbt examples/moontown_miniapp/my_tools.mbt examples/moontown_miniapp/my_public_passport.mbt examples/moontown_miniapp/my_inventory_rows.mbt examples/moontown_miniapp/my_inventory_shelves.mbt examples/moontown_miniapp/workbench_alerts.mbt'
 
+my_lifecycle_files='examples/moontown_miniapp/my_lifecycle_panel.mbt examples/moontown_miniapp/my_lifecycle_steps.mbt examples/moontown_miniapp/my_lifecycle_audit.mbt examples/moontown_miniapp/my_lifecycle_labels.mbt'
+
 my_inventory_row_files='examples/moontown_miniapp/my_inventory_row_stats.mbt examples/moontown_miniapp/my_inventory_row_filters.mbt examples/moontown_miniapp/my_inventory_row_routes.mbt examples/moontown_miniapp/my_inventory_row_actions.mbt'
 
 my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
@@ -298,6 +300,13 @@ done
 for required in $my_workbench_files; do
   if [ ! -f "$required" ]; then
     printf '%s\n' "boundary violation: missing Moontown My workbench file $required"
+    exit 1
+  fi
+done
+
+for required in $my_lifecycle_files; do
+  if [ ! -f "$required" ]; then
+    printf '%s\n' "boundary violation: missing Moontown My lifecycle file $required"
     exit 1
   fi
 done
@@ -864,6 +873,14 @@ for focused_my_workbench in $my_workbench_files; do
   focused_lines=$(wc -l < "$focused_my_workbench" | tr -d ' ')
   if [ "$focused_lines" -gt 500 ]; then
     printf '%s\n' "boundary violation: $focused_my_workbench has $focused_lines lines; split the My Inventory concern further"
+    exit 1
+  fi
+done
+
+for focused_my_lifecycle in $my_lifecycle_files; do
+  focused_lines=$(wc -l < "$focused_my_lifecycle" | tr -d ' ')
+  if [ "$focused_lines" -gt 120 ]; then
+    printf '%s\n' "boundary violation: $focused_my_lifecycle has $focused_lines lines; split the My lifecycle concern further"
     exit 1
   fi
 done
