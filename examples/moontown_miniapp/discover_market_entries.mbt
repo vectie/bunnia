@@ -27,7 +27,14 @@ fn discover_entry(
 
 ///|
 fn discover_entry_visibility(item : MiniTownDiscoveryItem) -> String {
-  "{{discover.filter == 'all' || discover.filter == '\{item.kind}' || (discover.filter == 'placeable' && '\{item.kind}' == 'building')}}"
+  let filters = [
+    "discover.filter == 'all'",
+    "discover.filter == '\{item.kind}'",
+  ]
+  if item.kind == "building" {
+    filters.push("discover.filter == 'placeable'")
+  }
+  "{{\{filters.join(" || ")}}}"
 }
 
 ///|

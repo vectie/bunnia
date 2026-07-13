@@ -29,7 +29,26 @@ fn ownership_item_entry(item : MiniTownOwnershipItem) -> @bunnia.Node {
 
 ///|
 fn ownership_item_visibility(item : MiniTownOwnershipItem) -> String {
-  "{{ownership.filter == 'all' || (ownership.filter == 'placements' && '\{item.kind}' == 'placement') || (ownership.filter == 'drafts' && '\{item.visibility}' == 'private_draft') || (ownership.filter == 'published' && '\{item.visibility}' == 'published') || (ownership.filter == 'books' && '\{item.kind}' == 'book') || (ownership.filter == 'agents' && '\{item.kind}' == 'agent') || (ownership.filter == 'watches' && '\{item.kind}' == 'watch')}}"
+  let filters = ["ownership.filter == 'all'"]
+  if item.kind == "placement" {
+    filters.push("ownership.filter == 'placements'")
+  }
+  if item.visibility == "private_draft" {
+    filters.push("ownership.filter == 'drafts'")
+  }
+  if item.visibility == "published" {
+    filters.push("ownership.filter == 'published'")
+  }
+  if item.kind == "book" {
+    filters.push("ownership.filter == 'books'")
+  }
+  if item.kind == "agent" {
+    filters.push("ownership.filter == 'agents'")
+  }
+  if item.kind == "watch" {
+    filters.push("ownership.filter == 'watches'")
+  }
+  "{{\{filters.join(" || ")}}}"
 }
 
 ///|

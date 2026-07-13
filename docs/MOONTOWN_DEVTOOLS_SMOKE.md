@@ -37,6 +37,11 @@ The generated mini-app points at `http://127.0.0.1:18191`.
 
 Open `_build/bunnia/wechat/moontown_miniapp` in WeChat DevTools, then smoke:
 
+If the generated `project.config.json` has an empty AppID, use DevTools Import,
+choose the generated directory, select `Test Account`, choose no cloud service,
+create the local project, and trust it. The resulting test identity belongs in
+DevTools local project metadata and must not be committed.
+
 1. Enter Town, then use all five bottom tabs and confirm exactly one active tab.
 2. Home: open the priority lead and each Browse/Review/Verify gate; confirm the owning page opens.
 3. Discover: switch All/Places/People/Circles/Products/Placeable, confirm rows narrow, then open a place in Realm.
@@ -46,9 +51,10 @@ Open `_build/bunnia/wechat/moontown_miniapp` in WeChat DevTools, then smoke:
 7. Reviewer: open Reviewer Tools from My, run Check Town Safety and Launch Checks, then return to My.
 
 If CLI automation connects but page calls hang, inspect the DevTools log for
-`appid missing` or `routeTo appLaunch timeout`. Reopen the generated project
-with an authorized local test AppID before rerunning automation; do not commit
-the test account identity to the repository.
+`appid missing` or `routeTo appLaunch timeout`. Re-import the generated project
+with `Test Account` or an authorized local AppID before rerunning automation.
+Treat any WXML compiler error as a release blocker even when MoonBit and strict
+build checks pass.
 
 Ordinary pages must not show endpoint ids, HTTP paths, payload keys, response
 keys, runtime labels, cursor/offset labels, or DevTools copy. Reviewer Tools is

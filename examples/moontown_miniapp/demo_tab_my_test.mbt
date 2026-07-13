@@ -17,6 +17,11 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(!mine.wxml.contains("own: {{ownership.filter || 'all'}}"))
   assert_true(mine.wxml.contains("My Inventory"))
   assert_true(
+    mine.wxml.contains(
+      "ownership.filter == 'all' || ownership.filter == 'drafts'",
+    ),
+  )
+  assert_true(
     !mine.wxml.contains(
       "Browse 5 owned items by shelf, then open the work you need.",
     ),

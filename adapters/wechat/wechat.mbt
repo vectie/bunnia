@@ -1980,10 +1980,10 @@ fn default_wxss() -> String {
 ///|
 fn escape_xml(value : String) -> String {
   value
-  .replace(old="&", new="&amp;")
-  .replace(old="<", new="&lt;")
-  .replace(old=">", new="&gt;")
-  .replace(old="\"", new="&quot;")
+  .replace_all(old="&", new="&amp;")
+  .replace_all(old="<", new="&lt;")
+  .replace_all(old=">", new="&gt;")
+  .replace_all(old="\"", new="&quot;")
   .to_string()
 }
 

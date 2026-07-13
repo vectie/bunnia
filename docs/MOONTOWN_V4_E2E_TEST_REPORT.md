@@ -213,10 +213,10 @@ found:
 - Reviewer alone exposed four diagnostic sections
 
 The final generated geometry remains under all node, depth, list, scene, update,
-and package gates. A final screenshot/offset comparison is still required once
-DevTools app launch is restored.
+and package gates. A fresh first-viewport review is complete; the full journey
+and offset comparison below still requires rerun.
 
-## Simulator Blocker
+## Simulator Recovery
 
 After DevTools was restarted, `miniprogram-automator` connected but page APIs
 stopped completing. DevTools logged:
@@ -227,14 +227,14 @@ appid missing
 ```
 
 An isolated build of `593aba3` also failed before page launch, including an
-automator `checkVersion` failure on missing DevTools version data. Therefore the
-remaining block is assigned to the local DevTools project identity/session, not
-to the final UI code.
+automator `checkVersion` failure on missing DevTools version data. Re-importing
+the generated directory with DevTools `Test Account` restored an authorized
+local identity on 2026-07-13. The repaired project then launched on WeChatLib
+3.16.2 with zero compiler or runtime errors.
 
 ## Required Signoff Rerun
 
-Once DevTools has a valid authorized test AppID and can launch the generated
-page, rerun:
+With DevTools launch restored, rerun:
 
 1. all seven journeys in the plan
 2. six-route first/final viewport geometry
@@ -244,3 +244,20 @@ page, rerun:
 
 Release status becomes **pass** only when those live results are recorded with
 no P0/P1 failure.
+
+## Follow-Up Launch Audit
+
+A fresh DevTools review on 2026-07-13 exposed a separate P0 before product
+geometry could be reassessed: Discover, Messages, and My generated compound
+`wx:if` expressions with only the first ampersand escaped. For example, `&&`
+became `&amp;&`, which WeChat rejected as malformed WXML and replaced the app UI
+with its compiler error surface.
+
+The failure came from the shared mini-app XML serializers using
+`String::replace`, which replaces only the first occurrence. Both the generic
+mini-app adapter and the dedicated WeChat adapter now use `replace_all` for XML
+metacharacters and carry repeated-character regression tests. Moontown now also
+compiles build-time item facts out of route visibility conditions, leaving
+small runtime clauses joined only by `||` and avoiding encoded logical-AND
+operators in WXML. The route filter design and V4 task model remain unchanged;
+launch correctness takes priority over a new visual iteration.

@@ -84,6 +84,11 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(
     messages.wxml.contains("messages.channel == 'all' ? 'active' : ''"),
   )
+  assert_true(
+    messages.wxml.contains(
+      "messages.channel == 'all' || messages.channel == 'unread' || messages.channel == 'notices'",
+    ),
+  )
   assert_true(messages.wxml.contains("moontown-chat-row unread"))
   assert_true(messages.wxml.contains("moontown-chat-row read"))
   assert_true(messages.wxml.contains("data-chat-unread=\"true\""))

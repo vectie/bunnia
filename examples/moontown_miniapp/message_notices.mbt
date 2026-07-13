@@ -74,16 +74,23 @@ fn notification_tap_message(notice : MiniTownNotification) -> String {
 
 ///|
 fn notification_row_visibility(notice : MiniTownNotification) -> String {
-  let unread = if notice.unread { "true" } else { "false" }
-  let notice_kind = if notice.kind == "publish" ||
+  let channels = ["messages.channel == 'all'"]
+  if notice.unread {
+    channels.push("messages.channel == 'unread'")
+  }
+  if notice.kind == "interaction" {
+    channels.push("messages.channel == 'interaction'")
+  }
+  if notice.kind == "agent-run" {
+    channels.push("messages.channel == 'agent'")
+  }
+  if notice.kind == "publish" ||
     notice.kind == "share" ||
     notice.kind == "follow" ||
     notice.kind == "subscription" {
-    "true"
-  } else {
-    "false"
+    channels.push("messages.channel == 'notices'")
   }
-  "{{messages.channel == 'all' || (messages.channel == 'unread' && \{unread}) || (messages.channel == 'interaction' && '\{notice.kind}' == 'interaction') || (messages.channel == 'agent' && '\{notice.kind}' == 'agent-run') || (messages.channel == 'notices' && \{notice_kind})}}"
+  "{{\{channels.join(" || ")}}}"
 }
 
 ///|

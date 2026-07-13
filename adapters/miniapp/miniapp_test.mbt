@@ -38,6 +38,27 @@ test "generic miniapp generator lowers tiktok component and event names" {
 }
 
 ///|
+test "generic miniapp generator escapes repeated markup characters" {
+  let page = generate_page(
+    "Markup Escape",
+    @core.page([
+      @core.node(
+        kind="view",
+        attrs=[@core.attr("a:if", "{{ready && visible && enabled}}")],
+        children=[@core.text("A & B & C")],
+      ),
+    ]),
+    platform=Alipay,
+  )
+  assert_true(
+    page.markup.contains(
+      "a:if=\"{{ready &amp;&amp; visible &amp;&amp; enabled}}\"",
+    ),
+  )
+  assert_true(page.markup.contains("A &amp; B &amp; C"))
+}
+
+///|
 test "generic miniapp project packages platform file extensions" {
   let project = generate_alipay_project(
     name="Adapter Smoke",

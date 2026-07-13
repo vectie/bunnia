@@ -20,6 +20,27 @@ test "wechat project config permits the local DevTools backend loop" {
 }
 
 ///|
+test "wechat generator escapes repeated WXML characters" {
+  let project = generate_project(
+    name="WXML Escape",
+    route="pages/escape/index",
+    root=@core.page([
+      @core.node(
+        kind="view",
+        attrs=[@core.attr("wx:if", "{{ready && visible && enabled}}")],
+        children=[@core.text("A & B & C")],
+      ),
+    ]),
+  )
+  assert_true(
+    project.page.wxml.contains(
+      "wx:if=\"{{ready &amp;&amp; visible &amp;&amp; enabled}}\"",
+    ),
+  )
+  assert_true(project.page.wxml.contains("A &amp; B &amp; C"))
+}
+
+///|
 test "wechat request adapter records replayable request data" {
   let js = generate_request_adapter(test_backend_contract())
   assert_true(js.contains("const requestPayload"))

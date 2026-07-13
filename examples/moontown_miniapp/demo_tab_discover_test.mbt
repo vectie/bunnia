@@ -48,6 +48,11 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(
     discover.wxml.contains("discover.filter == 'all' ? 'active' : ''"),
   )
+  assert_true(
+    discover.wxml.contains(
+      "discover.filter == 'all' || discover.filter == 'building' || discover.filter == 'placeable'",
+    ),
+  )
   assert_true(discover.wxml.contains("data-filter-id=\"user\""))
   assert_true(discover.wxml.contains("data-filter-id=\"circle\""))
   assert_true(discover.wxml.contains("data-filter-id=\"product\""))
