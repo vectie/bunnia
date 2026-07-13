@@ -13,6 +13,12 @@ fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
         @bunnia.text("Publishing Shelf"),
       ]),
       publication_step_list(visible_steps),
+      @bunnia.node(
+        kind="button",
+        attrs=[@bunnia.class_name("moontown-primary-action")],
+        events=[@bunnia.tap("publish-private-building")],
+        children=[@bunnia.text("Publish Draft")],
+      ),
       audit_event_list(owned_audit_events(projection)),
     ],
   )

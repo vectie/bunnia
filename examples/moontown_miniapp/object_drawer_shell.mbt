@@ -15,7 +15,7 @@ fn selected_building_detail_drawer(
   @bunnia.view_with_attrs(
     [
       @bunnia.class_name(
-        "moontown-building-drawer moontown-object-drawer bunnia-status-\{building.status}",
+        "moontown-building-drawer moontown-object-drawer {{town.detailsOpen ? 'details-open' : 'compact'}} bunnia-status-\{building.status}",
       ),
       @bunnia.attr("wx:if", "{{town.selectedBuildingId == '\{building.id}'}}"),
       @bunnia.data("object-drawer", "building"),
@@ -23,11 +23,20 @@ fn selected_building_detail_drawer(
     ],
     [
       building_object_header(projection, building),
-      building_memory_section(projection),
-      building_worker_section(projection),
-      building_lifecycle_section(projection),
-      building_context_section(projection),
-      safety_report_button(projection, building),
+      @bunnia.view_with_attrs(
+        [
+          @bunnia.class_name("moontown-object-details"),
+          @bunnia.attr("wx:if", "{{town.detailsOpen}}"),
+        ],
+        [
+          building_detail_actions(),
+          building_memory_section(projection),
+          building_worker_section(projection),
+          building_lifecycle_section(projection),
+          building_context_section(projection),
+          safety_report_button(projection, building),
+        ],
+      ),
     ],
   )
 }

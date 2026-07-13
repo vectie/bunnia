@@ -1,5 +1,8 @@
 # Moontown V4 End-to-End Test Report
 
+> V5 supersedes the first-viewport conclusions in this report. The current
+> live simulator evidence is in `docs/MOONTOWN_V5_UI_UX_TEST_REPORT.md`.
+
 Date: 2026-07-10
 
 Plan: `docs/MOONTOWN_V4_E2E_TEST_PLAN.md`

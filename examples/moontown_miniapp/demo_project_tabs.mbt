@@ -1,17 +1,17 @@
 ///|
 fn moontown_tab_page_name(tab_id : String) -> String {
   if tab_id == "home" {
-    "Moontown Home"
+    "Home"
   } else if tab_id == "discover" {
-    "Moontown Discover"
+    "Discover"
   } else if tab_id == "messages" {
-    "Moontown Messages"
+    "Messages"
   } else if tab_id == "my" {
-    "Moontown My"
+    "My"
   } else if tab_id == "reviewer" {
-    "Moontown Reviewer"
+    "Reviewer"
   } else {
-    "Moontown Realm"
+    "Realm"
   }
 }
 

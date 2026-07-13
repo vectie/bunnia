@@ -10,10 +10,25 @@ fn building_primary_actions(building : MiniTownBuilding) -> @bunnia.Node {
         "Ask", "ask-selected-building", "moontown-primary-action",
       ),
       drawer_header_action(
+        "Details", "open-place-details", "moontown-secondary-action",
+      ),
+    ],
+  )
+}
+
+///|
+fn building_detail_actions() -> @bunnia.Node {
+  @bunnia.view_with_attrs(
+    [@bunnia.class_name("moontown-object-detail-actions")],
+    [
+      drawer_header_action(
         "Messages", "tab-messages", "moontown-secondary-action",
       ),
       drawer_header_action(
         "Find Similar", "tab-discover", "moontown-secondary-action",
+      ),
+      drawer_header_action(
+        "Back to map", "close-place-details", "moontown-secondary-action",
       ),
     ],
   )

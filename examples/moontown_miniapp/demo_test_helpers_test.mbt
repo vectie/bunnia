@@ -99,7 +99,7 @@ fn generated_wxss_has_tile_visual_system(
 ) -> Bool {
   let wxss = file_content(files, "app.wxss")
   wxss.contains("button{min-width:88rpx;min-height:88rpx") &&
-  wxss.contains("background:#ffe4e6;color:#881337") &&
+  wxss.contains("background:#ffffff;color:#24332a;font-size:24rpx") &&
   wxss.contains(".bunnia-review-button{min-height:88rpx") &&
   wxss.contains(
     ".bunnia-scene-marker{position:absolute;transform:translate(-50%,-50%);min-width:120rpx;min-height:88rpx",
@@ -118,9 +118,8 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("touch-action:manipulation") &&
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
-  wxss.contains(
-    "bottom:0;bottom:constant(safe-area-inset-bottom);bottom:env(safe-area-inset-bottom);margin-top:160rpx;margin-bottom:132rpx;overflow-x:hidden;overflow-y:auto",
-  ) &&
+  wxss.contains("bottom:0;margin-top:112rpx;padding:18rpx 18rpx 154rpx") &&
+  wxss.contains("background:#f1f5f4") &&
   wxss.contains("-webkit-overflow-scrolling:touch") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
   wxss.contains(
@@ -131,14 +130,16 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains(".moontown-home-stats{") &&
   wxss.contains(".moontown-district-grid .bunnia-list-windowed{") &&
   wxss.contains(".moontown-discovery-search{") &&
+  wxss.contains(".moontown-discovery-primary-filters{") &&
+  wxss.contains("grid-template-columns:repeat(4,minmax(0,1fr))") &&
   wxss.contains(".moontown-discovery-results .bunnia-list-windowed{") &&
   wxss.contains(".moontown-message-inbox,.moontown-message-notices{") &&
   wxss.contains(".moontown-discover-board{border-top:3rpx solid #2563eb") &&
   wxss.contains(
-    ".moontown-message-work,.moontown-my-inventory{border-top:3rpx solid #2f855a",
+    ".moontown-message-inbox,.moontown-message-review,.moontown-message-work,.moontown-my-inventory{border-top:3rpx solid #2563eb",
   ) &&
   wxss.contains(
-    ".moontown-chat-row{min-width:0;min-height:88rpx;margin:0;display:grid;grid-template-columns:64rpx minmax(0,1fr)",
+    ".moontown-chat-row{min-width:0;min-height:104rpx;margin:0;display:grid;grid-template-columns:72rpx minmax(0,1fr)",
   ) &&
   wxss.contains(".moontown-chat-avatar.kind-agent-run{background:#2563eb") &&
   wxss.contains(".moontown-chat-preview,.moontown-chat-preview text{") &&
@@ -148,10 +149,12 @@ fn generated_wxss_has_tile_visual_system(
   ) &&
   wxss.contains(".moontown-tab-button{position:relative;flex:1 1 0;min-width:0") &&
   wxss.contains(".moontown-primary-action{") &&
+  wxss.contains("border-color:#2563eb;background:#2563eb") &&
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
   wxss.contains(".moontown-object-section{") &&
+  wxss.contains(".moontown-building-drawer.details-open{max-height:72vh") &&
   wxss.contains(".moontown-worker-entry{") &&
   wxss.contains(
     ".moontown-community-actions,.moontown-discovery-action,.moontown-profile-actions,.moontown-run-actions,.moontown-object-primary-actions{display:flex;flex-direction:row;gap:8rpx;flex-wrap:wrap",
@@ -175,16 +178,14 @@ fn generated_wxss_has_tile_visual_system(
 ///|
 fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
   wxss.contains("background:#0f172a") &&
-  wxss.contains("#ffe4e6") &&
-  wxss.contains("#881337") &&
-  wxss.contains("#e11d48") &&
+  wxss.contains("#f1f5f4") &&
+  wxss.contains("#fff") &&
+  wxss.contains("#17221b") &&
   wxss.contains("#2563eb") &&
   wxss.contains("#2f855a") &&
   wxss.contains("#d69e2e") &&
-  wxss.contains("rgba(248,250,252,0.9)") &&
-  wxss.contains("rgba(248,250,252,0.72)") &&
-  wxss.contains("rgba(239,246,255,0.74)") &&
-  wxss.contains("rgba(255,241,242,0.88)") &&
+  wxss.contains("#c64438") &&
+  !wxss.contains("background:rgba(248,250,252,0.72)") &&
   !wxss.contains("#fff8dc") &&
   !wxss.contains("#f8f3df") &&
   !wxss.contains("rgba(252,249,226") &&

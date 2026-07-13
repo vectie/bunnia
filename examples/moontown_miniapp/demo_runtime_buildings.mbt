@@ -21,6 +21,16 @@ fn add_building_workflow_event_patches(
     ]),
   )
   patches.push(
+    @bunnia.wechat_event_patch("open-place-details", [
+      @bunnia.set_json("town.detailsOpen", "true"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("close-place-details", [
+      @bunnia.set_json("town.detailsOpen", "false"),
+    ]),
+  )
+  patches.push(
     @bunnia.wechat_event_patch("ask-selected-building", [
       @bunnia.append_json(
         "chat.messages", "{\"id\":\"msg-mock-answer\",\"actorId\":\"agent-policy-guide\",\"text\":\"Mock answer recorded as a run waiting for review.\"}",
@@ -87,6 +97,7 @@ fn select_building_patch(
 ) -> @bunnia.WechatEventPatch {
   @bunnia.wechat_event_patch("select-\{building.id}", [
     @bunnia.set_string("town.selectedBuildingId", building.id),
+    @bunnia.set_json("town.detailsOpen", "false"),
   ])
 }
 
@@ -95,6 +106,7 @@ fn open_place_patch(building : MiniTownBuilding) -> @bunnia.WechatEventPatch {
   @bunnia.wechat_event_patch("open-place-\{building.id}", [
     @bunnia.set_string("shell.activeTab", "realm"),
     @bunnia.set_string("town.selectedBuildingId", building.id),
+    @bunnia.set_json("town.detailsOpen", "false"),
   ])
 }
 

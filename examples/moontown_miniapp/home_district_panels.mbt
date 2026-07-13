@@ -1,6 +1,7 @@
 ///|
 fn home_district_gates_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let presence = community_presence(projection)
+  let districts = home_priority_districts(projection)
   @bunnia.view_with_attrs(
     [@bunnia.class_name("mt-panel moontown-home-districts")],
     [
@@ -9,8 +10,8 @@ fn home_district_gates_panel(projection : MiniTownProjection) -> @bunnia.Node {
       ]),
       @bunnia.view_with_attrs([@bunnia.class_name("moontown-district-grid")], [
         @bunnia.windowed_list(
-          projection.districts,
-          total_count=projection.districts.length(),
+          districts,
+          total_count=districts.length(),
           render=district_entry,
         ),
       ]),
@@ -24,13 +25,21 @@ fn home_district_gates_panel(projection : MiniTownProjection) -> @bunnia.Node {
           render=presence_chip,
         ),
       ]),
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-community-actions")],
-        [
-          @bunnia.button("Search Town", "tab-discover"),
-          @bunnia.button("Publish Draft", "publish-private-building"),
-        ],
-      ),
     ],
   )
+}
+
+///|
+fn home_priority_districts(
+  projection : MiniTownProjection,
+) -> Array[MiniTownDistrict] {
+  let districts : Array[MiniTownDistrict] = []
+  for district in projection.districts {
+    if district.id == "product-market" ||
+      district.id == "demand-hall" ||
+      district.id == "opc-hub" {
+      districts.push(district)
+    }
+  }
+  districts
 }

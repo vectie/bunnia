@@ -1,19 +1,12 @@
 ///|
 fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-topbar")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("moontown-title-block")], [
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-eyebrow")], [
-        @bunnia.text("Moontown"),
-      ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-title")], [
-        @bunnia.text(town_screen_title(projection.active_tab_id)),
-      ]),
-      @bunnia.view_with_attrs([@bunnia.class_name("moontown-subtitle")], [
-        @bunnia.text(town_screen_subtitle(projection.active_tab_id)),
-      ]),
-    ]),
-    town_passport_entry(projection),
-  ])
+  if projection.active_tab_id == "my" {
+    @bunnia.view([])
+  } else {
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-topbar")], [
+      town_passport_entry(projection),
+    ])
+  }
 }
 
 ///|
@@ -38,7 +31,9 @@ fn town_page_surface(
 ) -> @bunnia.Node {
   @bunnia.view_with_attrs(
     [
-      @bunnia.class_name("moontown-page-surface"),
+      @bunnia.class_name(
+        "moontown-page-surface tab-\{projection.active_tab_id}",
+      ),
       @bunnia.data("active-tab", projection.active_tab_id),
     ],
     [
@@ -52,6 +47,21 @@ fn town_page_surface(
       ),
     ],
   )
+}
+
+///|
+fn town_page_grid_class(tab_id : String, panel_count : Int) -> String {
+  if tab_id == "my" {
+    "moontown-page-grid moontown-my-layout"
+  } else if tab_id == "messages" {
+    "moontown-page-grid moontown-messages-layout"
+  } else if panel_count == 1 {
+    "moontown-page-grid single"
+  } else if panel_count > 2 {
+    "moontown-page-grid three"
+  } else {
+    "moontown-page-grid"
+  }
 }
 
 ///|

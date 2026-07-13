@@ -7,7 +7,8 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("moontown-page-surface"))
   assert_true(discover.wxml.contains("data-active-tab=\"discover\""))
   assert_true(!discover.wxml.contains("Market Board"))
-  assert_true(discover.wxml.contains("Search the public town"))
+  assert_true(!discover.wxml.contains("Search the public town"))
+  assert_true(!discover.wxml.contains("moontown-title-block"))
   assert_true(discover.wxml.contains("moontown-page-grid single"))
   assert_true(discover.wxml.contains("moontown-discovery-search"))
   assert_true(discover.wxml.contains("moontown-primary-action"))
@@ -45,6 +46,13 @@ test "moontown miniapp renders Discover market board tab surface" {
   assert_true(discover.wxml.contains("data-discovery-action=\"read\""))
   assert_true(discover.wxml.contains("data-bunnia-message=\"discover-action\""))
   assert_true(discover.wxml.contains("discover-search"))
+  assert_true(discover.wxml.contains("moontown-discovery-primary-filters"))
+  assert_true(discover.wxml.contains("<text>Places</text>"))
+  assert_true(discover.wxml.contains("<text>More</text>"))
+  assert_true(discover.wxml.contains("aria-label=\"Show more filters\""))
+  assert_true(discover.wxml.contains("moontown-discovery-more-panel"))
+  assert_true(discover.wxml.contains("wx:if=\"{{discover.moreOpen}}\""))
+  assert_true(discover.wxml.contains("aria-label=\"Hide more filters\""))
   assert_true(
     discover.wxml.contains("discover.filter == 'all' ? 'active' : ''"),
   )

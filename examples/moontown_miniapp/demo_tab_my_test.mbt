@@ -9,7 +9,8 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(
     !mine.wxml.contains("Identity first, then the work that needs you."),
   )
-  assert_true(mine.wxml.contains("Town Passport"))
+  assert_true(!mine.wxml.contains("Town Passport"))
+  assert_true(!mine.wxml.contains("moontown-topbar"))
   assert_true(!mine.wxml.contains("Identity Setup"))
   assert_true(
     !mine.wxml.contains("runtime role: {{profile.roleId || 'builder'}}"),
@@ -48,11 +49,24 @@ test "moontown miniapp renders My inventory workbench tab surface" {
       "Publishing stays blocked until role, consent, and profile are ready.",
     ),
   )
-  assert_true(mine.wxml.contains("data-complete=\"false\""))
   assert_true(
     mine.wxml.contains("data-bunnia-message=\"accept-profile-consent\""),
   )
   assert_true(mine.wxml.contains("moontown-profile-card"))
+  assert_true(
+    string_appears_before(
+      mine.wxml,
+      "moontown-profile-card",
+      "moontown-my-inventory",
+    ),
+  )
+  assert_true(
+    string_appears_before(
+      mine.wxml,
+      "moontown-my-inventory",
+      "moontown-my-public",
+    ),
+  )
   assert_true(!mine.wxml.contains("data-profile-user-id="))
   assert_true(!mine.wxml.contains("data-profile-role="))
   assert_true(!mine.wxml.contains("data-profile-ready="))

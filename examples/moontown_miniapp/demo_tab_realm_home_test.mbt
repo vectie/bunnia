@@ -25,6 +25,10 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(realm.wxml.contains("Pinned"))
   assert_true(!realm.wxml.contains("moontown-bottom-hud"))
   assert_true(realm.wxml.contains("Ask"))
+  assert_true(realm.wxml.contains("Details"))
+  assert_true(realm.wxml.contains("moontown-object-details"))
+  assert_true(realm.wxml.contains("wx:if=\"{{town.detailsOpen}}\""))
+  assert_true(realm.wxml.contains("Back to map"))
   assert_true(realm.wxml.contains("Messages"))
   assert_true(realm.wxml.contains("Find Similar"))
   assert_true(!realm.wxml.contains("moontown-search-drawer"))
@@ -45,7 +49,8 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(home.wxml.contains("moontown-map-fullscreen"))
   assert_true(home.wxml.contains("moontown-page-surface"))
   assert_true(home.wxml.contains("data-active-tab=\"home\""))
-  assert_true(home.wxml.contains("Town Pulse"))
+  assert_true(!home.wxml.contains("Town Pulse"))
+  assert_true(!home.wxml.contains("moontown-title-block"))
   assert_true(home.wxml.contains("Enter Moontown"))
   assert_true(
     home.wxml.contains("Start in Realm. Every destination stays one tap away."),
@@ -84,6 +89,7 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
     ),
   )
   assert_true(home.wxml.contains("Town Gates"))
+  assert_eq(string_occurrence_count(home.wxml, "data-feature-kind="), 3)
   assert_true(
     !home.wxml.contains("Enter a district or see who is active nearby."),
   )
@@ -104,6 +110,8 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(home.wxml.contains("data-district-query=\"trust policy\""))
   assert_true(home.wxml.contains("data-action-message=\"tab-my\""))
   assert_true(home.wxml.contains("Town Trust"))
+  assert_true(!home.wxml.contains("Event Calendar"))
+  assert_true(!home.wxml.contains("City Guide"))
   assert_true(!home.wxml.contains("OPC Hub"))
   assert_true(home.wxml.contains("8 checks - Verify My"))
   assert_true(home.wxml.contains("moontown-presence-chip"))
@@ -111,8 +119,8 @@ test "moontown miniapp renders Realm and Home tab surfaces around the same map" 
   assert_true(home.wxml.contains("data-actor-kind=\"agent\""))
   assert_true(!home.wxml.contains("My holds profile setup"))
   assert_true(!home.wxml.contains("My holds profile readiness"))
-  assert_true(home.wxml.contains("Search Town"))
-  assert_true(home.wxml.contains("Publish Draft"))
+  assert_true(!home.wxml.contains("Search Town"))
+  assert_true(!home.wxml.contains("Publish Draft"))
   assert_true(!home.wxml.contains("Map Districts"))
   assert_true(!home.wxml.contains("Reference feature pages"))
   assert_true(!home.wxml.contains("moontown-right-hud"))

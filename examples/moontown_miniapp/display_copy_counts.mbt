@@ -42,12 +42,3 @@ fn empty_count_label(
     count_label(count, singular, plural)
   }
 }
-
-///|
-fn profile_publish_sentence(name : String, ready : Bool) -> String {
-  if ready {
-    "\{name} is ready to publish."
-  } else {
-    "\{name} needs setup before publishing."
-  }
-}

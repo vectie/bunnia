@@ -98,7 +98,7 @@ test "moontown generated project keeps seeded page data contract" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"discover\":{\"filter\":\"all\"}",
+      "\"discover\":{\"filter\":\"all\",\"moreOpen\":false}",
     ),
   )
   assert_true(

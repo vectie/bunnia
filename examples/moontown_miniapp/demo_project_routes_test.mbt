@@ -18,6 +18,21 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-more-open\":[{k:\"set\",p:\"discover.moreOpen\",v:true}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-more-close\":[{k:\"set\",p:\"discover.moreOpen\",v:false}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/index.data.js").contains(
+      "\"open-place-details\":[{k:\"set\",p:\"town.detailsOpen\",v:true}]",
+    ),
+  )
+  assert_true(
+    file_content(project.files, "pages/moontown/discover.data.js").contains(
       "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"placeable\",\"kind\":\"building\",\"placeableOnly\":true,\"cursor\":0}",
     ),
   )
@@ -86,17 +101,17 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"open-place-published-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"published-agent-lab\"}]",
+      "\"open-place-published-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"published-agent-lab\"},{k:\"set\",p:\"town.detailsOpen\",v:false}]",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"open-place-policy-hall\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"policy-hall\"}]",
+      "\"open-place-policy-hall\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"policy-hall\"},{k:\"set\",p:\"town.detailsOpen\",v:false}]",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"open-place-private-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"private-agent-lab\"}]",
+      "\"open-place-private-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"private-agent-lab\"},{k:\"set\",p:\"town.detailsOpen\",v:false}]",
     ),
   )
   assert_true(
@@ -140,7 +155,12 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/home.data.js").contains(
+    file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"publish-private-building\":[]",
+    ),
+  )
+  assert_true(
+    !file_content(project.files, "pages/moontown/home.data.js").contains(
       "\"publish-private-building\":[]",
     ),
   )

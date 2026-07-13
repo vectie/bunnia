@@ -31,22 +31,19 @@ fn discover_empty_state() -> @bunnia.Node {
 }
 
 ///|
-fn discovery_filter_chip(
-  filter : MiniTownDiscoveryFilter,
-  _active_filter_id : String,
-) -> @bunnia.Node {
+fn discovery_filter_chip(filter_id : String, label : String) -> @bunnia.Node {
   @bunnia.keyed(
-    "discover-filter-\{filter.id}",
+    "discover-filter-\{filter_id}",
     @bunnia.node(
-      kind="view",
+      kind="button",
       attrs=[
         @bunnia.class_name(
-          "moontown-discovery-filter {{discover.filter == '\{filter.id}' ? 'active' : ''}}",
+          "moontown-discovery-filter {{discover.filter == '\{filter_id}' ? 'active' : ''}}",
         ),
-        @bunnia.data("filter-id", filter.id),
+        @bunnia.data("filter-id", filter_id),
       ],
-      events=[@bunnia.event("tap", "discover-filter-\{filter.id}")],
-      children=[@bunnia.text(filter.label)],
+      events=[@bunnia.event("tap", "discover-filter-\{filter_id}")],
+      children=[@bunnia.text(label)],
     ),
   )
 }

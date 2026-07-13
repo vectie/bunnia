@@ -59,7 +59,7 @@ demo_plan_files='examples/moontown_miniapp/demo_patch_plans.mbt examples/moontow
 
 demo_scene_files='examples/moontown_miniapp/demo_scene_constants.mbt examples/moontown_miniapp/demo_scene_map.mbt examples/moontown_miniapp/demo_scene_plans.mbt examples/moontown_miniapp/demo_scene_inspection.mbt'
 
-app_shell_files="examples/moontown_miniapp/demo_project.mbt $demo_project_files examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt $demo_plan_files examples/moontown_miniapp/demo_scene.mbt $demo_scene_files examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/town_screen_copy.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt"
+app_shell_files="examples/moontown_miniapp/demo_project.mbt $demo_project_files examples/moontown_miniapp/demo_runtime.mbt examples/moontown_miniapp/demo_plans.mbt $demo_plan_files examples/moontown_miniapp/demo_scene.mbt $demo_scene_files examples/moontown_miniapp/demo_adapters.mbt examples/moontown_miniapp/town_shell.mbt examples/moontown_miniapp/town_navigation.mbt examples/moontown_miniapp/home_onboarding.mbt examples/moontown_miniapp/home_districts.mbt examples/moontown_miniapp/home_pulse.mbt"
 
 home_pulse_files='examples/moontown_miniapp/home_pulse_model.mbt examples/moontown_miniapp/home_pulse_panel.mbt examples/moontown_miniapp/home_pulse_rows.mbt examples/moontown_miniapp/home_pulse_summaries.mbt'
 
@@ -79,7 +79,7 @@ my_tool_files='examples/moontown_miniapp/my_tools_reviewer.mbt examples/moontown
 
 my_inventory_row_files='examples/moontown_miniapp/my_inventory_row_stats.mbt examples/moontown_miniapp/my_inventory_row_filters.mbt examples/moontown_miniapp/my_inventory_row_routes.mbt examples/moontown_miniapp/my_inventory_row_actions.mbt'
 
-my_passport_files='examples/moontown_miniapp/my_passport_panel.mbt examples/moontown_miniapp/my_passport_setup.mbt examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
+my_passport_files='examples/moontown_miniapp/my_passport_identity.mbt examples/moontown_miniapp/my_passport_metrics.mbt'
 
 
 my_public_passport_files='examples/moontown_miniapp/my_public_passport_panel.mbt examples/moontown_miniapp/my_public_passport_items.mbt examples/moontown_miniapp/my_public_passport_rows.mbt'

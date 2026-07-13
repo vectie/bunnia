@@ -19,6 +19,16 @@ fn add_discovery_filter_event_patches(
       @bunnia.wechat_event_patch("discover-filter-\{filter.id}", patch),
     )
   }
+  patches.push(
+    @bunnia.wechat_event_patch("discover-more-open", [
+      @bunnia.set_json("discover.moreOpen", "true"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("discover-more-close", [
+      @bunnia.set_json("discover.moreOpen", "false"),
+    ]),
+  )
 }
 
 ///|

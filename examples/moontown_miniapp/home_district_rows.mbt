@@ -10,7 +10,6 @@ fn district_entry(district : MiniTownDistrict) -> @bunnia.Node {
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
           @bunnia.text(district.title),
         ]),
-        @bunnia.text(district.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
           @bunnia.text(district_meta_text(district)),
         ]),

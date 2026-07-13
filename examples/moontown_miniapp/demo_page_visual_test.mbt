@@ -17,7 +17,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-chat-avatar"))
   assert_true(page.wxss.contains(".moontown-chat-unread-dot"))
   assert_true(
-    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #e11d48"),
+    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #2563eb"),
   )
   assert_true(
     page.wxss.contains(
@@ -32,13 +32,17 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(
     page.wxss.contains("white-space:normal;overflow:visible;text-overflow:clip"),
   )
-  assert_true(page.wxss.contains("max-height:52vh"))
+  assert_true(page.wxss.contains("max-height:36vh"))
+  assert_true(page.wxss.contains("max-height:72vh"))
   assert_true(page.wxss.contains("overscroll-behavior:contain"))
   assert_true(page.wxss.contains(".moontown-tabbar"))
   assert_true(page.wxss.contains(".moontown-tab-button.active"))
   assert_true(page.wxss.contains(".moontown-passport-entry"))
   assert_true(page.wxss.contains(".moontown-entry-button"))
   assert_true(page.wxss.contains(".moontown-tab-button.map-surface"))
+  assert_true(page.wxss.contains("font-size:26rpx"))
+  assert_true(page.wxss.contains("font-size:22rpx"))
+  assert_true(page.wxss.contains("background:#f1f5f4"))
   assert_true(!page.wxss.contains(".moontown-user-switcher"))
   assert_true(!page.wxml.contains("Passport: Ada Builder"))
   assert_true(page.wxml.contains("Enter Town"))

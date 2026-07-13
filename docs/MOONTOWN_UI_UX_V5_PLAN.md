@@ -38,12 +38,12 @@ should feel like quiet mobile utilities placed within the same world.
 | Phase | Priority | Outcome |
 | --- | --- | --- |
 | V5.0 Launch Correctness | complete | Compile route filters into valid, compact WXML and require a live DevTools compile gate. |
-| V5.1 Reading Shell | highest | Remove duplicate route headings, raise type sizes, increase surface opacity, and unify active navigation color. |
-| V5.2 Realm Map First | highest | Keep at least half of the first viewport for the map and show a compact selected-place sheet before detailed work. |
-| V5.3 Home And Discover | high | Reduce equal-weight gates and filters so each page presents one obvious first action. |
-| V5.4 My Disclosure | high | Merge identity/readiness and move passport history, publishing detail, and reviewer access below inventory or behind deliberate entry. |
-| V5.5 Messages Polish | medium | Preserve the current inbox model while improving type, refresh affordance, and separation between chats and tasks. |
-| V5.6 Device Signoff | continuous | Validate first viewport, complete scroll, filters, drawers, and handoffs in WeChat on small and large phones. |
+| V5.1 Reading Shell | complete | Native titles only, `26rpx` body floor, opaque utility surfaces, and one blue interaction accent. |
+| V5.2 Realm Map First | complete | Compact selected-place sheet keeps most of the first viewport spatial; Details reveals the full workbench. |
+| V5.3 Home And Discover | complete | Home has three priority gates; Discover has four primary choices and compact result rows. |
+| V5.4 My Disclosure | complete | One identity header leads into one attention item and inventory before secondary management. |
+| V5.5 Messages Polish | complete | Familiar chat composition, larger previews, icon refresh, unread structure, and tasks below chats. |
+| V5.6 Device Signoff | first viewport complete; continuous | iPhone 12/13 Pro routes, More, and Realm Details are live-verified; small/large phone journey sweeps remain a release gate. |
 
 ## Shared Shell Contract
 
@@ -108,3 +108,25 @@ the first viewport.
 - Messages retains whole-row chat navigation and distinct unread structure
 - My shows identity once and inventory before historical publishing detail
 - all six routes compile with zero WXML errors and complete their V4 handoffs
+
+## Implementation Record
+
+Implemented on 2026-07-13 as one hierarchy-first pass, followed by automated
+and live testing. The shared shell was changed before route-level detail so the
+type, surface, navigation, and safe-area rules apply consistently.
+
+- deleted the stale duplicate title and passport panel modules instead of
+  retaining compatibility render paths
+- reduced Home from five equal gates to Product Market, Demand Hall, and Town
+  Trust, with nearby presence below them
+- reduced Discover from eleven exposed filters to All, Places, People, and
+  More; the remaining taxonomy is disclosed on demand
+- split Realm into a compact place summary and a deliberate Details state
+- consolidated My identity and moved Publish Draft into Publishing Shelf
+- extended opaque ordinary surfaces behind the fixed tab bar so Realm terrain
+  cannot leak through the phone safe area
+- kept Messages structurally familiar and raised its row, avatar, preview, and
+  filter legibility
+
+Validation evidence and the page-task oracle are recorded in
+`docs/MOONTOWN_V5_UI_UX_TEST_REPORT.md`.
