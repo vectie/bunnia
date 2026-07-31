@@ -7,7 +7,7 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/me/profile",
     ),
   )
@@ -17,7 +17,7 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/discover/search",
     ),
   )
@@ -52,7 +52,7 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/moderation/appeal",
     ),
   )
@@ -67,7 +67,7 @@ test "moontown generated project keeps backend request contract and hidden runti
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/buildings/publish",
     ),
   )

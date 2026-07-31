@@ -156,7 +156,14 @@ test "moontown miniapp renders a prioritized Messages inbox" {
   assert_true(!messages.wxml.contains("data-channel-kind="))
   assert_true(!messages.wxml.contains("data-notice-id="))
   assert_true(!messages.wxml.contains("data-notice-kind="))
-  assert_true(!messages.wxml.contains("data-run-id="))
+  assert_true(messages.wxml.contains("data-run-id=\"run-market-scan\""))
+  assert_true(
+    messages.wxml.contains(
+      "cancelResult ? cancelResult.run.id != 'run-market-scan' : true",
+    ),
+  )
+  assert_true(messages.wxml.contains("Work stopped."))
+  assert_true(messages.wxml.contains("Work restarted."))
   assert_true(!messages.wxml.contains("data-review-id="))
   assert_true(!messages.wxml.contains("data-tool-result-id="))
   assert_true(!messages.wxml.contains("data-target-ref="))

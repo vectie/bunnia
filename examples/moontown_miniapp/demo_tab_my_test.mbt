@@ -50,7 +50,7 @@ test "moontown miniapp renders My inventory workbench tab surface" {
     ),
   )
   assert_true(
-    mine.wxml.contains("data-bunnia-message=\"accept-profile-consent\""),
+    !mine.wxml.contains("data-bunnia-message=\"accept-profile-consent\""),
   )
   assert_true(mine.wxml.contains("moontown-profile-card"))
   assert_true(
@@ -76,7 +76,9 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(mine.wxml.contains("Reviews"))
   assert_true(!mine.wxml.contains("Followers"))
   assert_true(mine.wxml.contains("Published"))
-  assert_true(mine.wxml.contains("data-bunnia-message=\"save-profile\""))
+  assert_true(!mine.wxml.contains("data-bunnia-message=\"save-profile\""))
+  assert_true(mine.wxml.contains("Town Guide"))
+  assert_true(mine.wxml.contains("data-guide-entry=\"my\""))
   assert_true(mine.wxml.contains("Public Passport"))
   assert_true(!mine.wxml.contains("data-public-passport="))
   assert_true(!mine.wxml.contains("data-public-passport-items="))
@@ -121,6 +123,15 @@ test "moontown miniapp renders My inventory workbench tab surface" {
   assert_true(!mine.wxml.contains("placed from starter-map"))
   assert_true(mine.wxml.contains("Inventory Refresh"))
   assert_true(mine.wxml.contains("Refresh My Stuff"))
+  assert_true(mine.wxml.contains("All Clear"))
+  assert_true(
+    mine.wxml.contains(
+      "ui.feedback == 'inventory' ? requestState.state == 'ready' : false",
+    ),
+  )
+  assert_true(mine.wxml.contains("Building created."))
+  assert_true(mine.wxml.contains("Agent created."))
+  assert_true(mine.wxml.contains("Profile - Public in town - Ready"))
   assert_true(
     !mine.wxml.contains(
       "Bring in owned places, books, agents, pins, and alerts.",

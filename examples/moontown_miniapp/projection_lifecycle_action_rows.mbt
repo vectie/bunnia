@@ -7,7 +7,7 @@ pub fn selected_building_lifecycle_actions(
   [
     lifecycle_ask_action(building, book),
     lifecycle_edit_action(projection, building, book),
-    lifecycle_place_action(building, book),
+    lifecycle_place_action(projection, building, book),
     lifecycle_share_action(projection, building, book),
     lifecycle_submit_action(projection, building, book),
     lifecycle_publish_action(projection, building, book),

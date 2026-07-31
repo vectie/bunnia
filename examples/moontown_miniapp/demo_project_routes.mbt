@@ -23,7 +23,11 @@ fn reviewer_route_view(projection : MiniTownProjection) -> @bunnia.Node {
             @bunnia.class_name("moontown-page-surface"),
             @bunnia.data("active-tab", "reviewer"),
           ],
-          [operations_desk_panel(projection), reviewer_tools_back_button()],
+          [
+            global_request_feedback(),
+            operations_desk_panel(projection),
+            reviewer_tools_back_button(),
+          ],
         ),
       ],
     ),

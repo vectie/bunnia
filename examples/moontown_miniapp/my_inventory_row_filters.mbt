@@ -6,7 +6,7 @@ fn ownership_filter_chip(
   @bunnia.keyed(
     "ownership-filter-\{filter.id}",
     @bunnia.node(
-      kind="view",
+      kind="button",
       attrs=[
         @bunnia.class_name(
           "moontown-ownership-filter {{ownership.filter == '\{filter.id}' ? 'active' : ''}}",

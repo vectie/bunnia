@@ -7,5 +7,6 @@ fn my_surface_panels(projection : MiniTownProjection) -> Array[@bunnia.Node] {
     ownership_lifecycle_panel(projection),
     create_drawer(projection),
     reviewer_tools_panel(projection),
+    town_guide_panel(),
   ]
 }

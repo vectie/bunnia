@@ -21,21 +21,26 @@ fn lifecycle_ask_action(
 
 ///|
 fn lifecycle_place_action(
+  projection : MiniTownProjection,
   building : MiniTownBuilding,
   book : MiniTownBook,
 ) -> MiniTownLifecycleAction {
+  let can_place = building.visibility == "published" &&
+    placement_for_building(projection, building.id) is None
   mini_town_lifecycle_action(
     id="place",
     label="Place",
     message="place-published-building",
     target_ref="building:\{building.id}",
     book_id=book.id,
-    allowed=building.visibility == "published",
-    reason=if building.visibility == "published" {
+    allowed=can_place,
+    reason=if placement_for_building(projection, building.id) is Some(_) {
+      "already placed"
+    } else if building.visibility == "published" {
       "published building"
     } else {
       "publish first"
     },
-    status=if building.visibility == "published" { "ready" } else { "blocked" },
+    status=if can_place { "ready" } else { "blocked" },
   )
 }

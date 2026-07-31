@@ -1,6 +1,7 @@
 ///|
 fn moontown_map_page_methods_js() -> String {
-  "  onLoad(){\n" +
+  "  onLoad(options){\n" +
+  "    if(options&&options.buildingId)this.setData({'town.selectedBuildingId':options.buildingId,'town.detailsOpen':false})\n" +
   "    this.__mc(this.data.mapViewport.x,this.data.mapViewport.y,this.data.mapViewport.scale)\n" +
   "  },\n" +
   "  onMoontownMapTouchStart(e){\n" +

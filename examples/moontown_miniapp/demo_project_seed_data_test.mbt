@@ -7,7 +7,7 @@ test "moontown generated project keeps seeded page data contract" {
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.wxml").contains(
+    !file_content(project.files, "pages/moontown/discover.wxml").contains(
       "data-bunnia-message=\"discover-search\"",
     ),
   )

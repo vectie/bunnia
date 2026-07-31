@@ -1,5 +1,6 @@
 ///|
 fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
+  let subject = publication_subject_building(projection)
   let visible_steps : Array[MiniTownPublicationStep] = []
   for step in publication_steps(projection) {
     if step.current || step.blocked {
@@ -15,9 +16,13 @@ fn ownership_lifecycle_panel(projection : MiniTownProjection) -> @bunnia.Node {
       publication_step_list(visible_steps),
       @bunnia.node(
         kind="button",
-        attrs=[@bunnia.class_name("moontown-primary-action")],
-        events=[@bunnia.tap("publish-private-building")],
-        children=[@bunnia.text("Publish Draft")],
+        attrs=[
+          @bunnia.class_name("moontown-primary-action"),
+          @bunnia.data("building-id", subject.id),
+          town_place_route_attr(subject.id),
+        ],
+        events=[@bunnia.tap("open-place-\{subject.id}")],
+        children=[@bunnia.text("View Draft in Realm")],
       ),
       audit_event_list(owned_audit_events(projection)),
     ],

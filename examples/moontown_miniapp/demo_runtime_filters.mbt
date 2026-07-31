@@ -52,6 +52,11 @@ fn add_notification_channel_event_patches(
       @bunnia.wechat_event_patch("notification-channel-\{channel.id}", patch),
     )
   }
+  patches.push(
+    @bunnia.wechat_event_patch("load-message-center", [
+      @bunnia.set_string("ui.feedback", "chats"),
+    ]),
+  )
 }
 
 ///|
@@ -72,6 +77,11 @@ fn add_ownership_filter_event_patches(
       @bunnia.wechat_event_patch("ownership-filter-\{filter.id}", patch),
     )
   }
+  patches.push(
+    @bunnia.wechat_event_patch("load-ownership-snapshot", [
+      @bunnia.set_string("ui.feedback", "inventory"),
+    ]),
+  )
 }
 
 ///|

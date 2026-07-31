@@ -28,10 +28,14 @@ fn profile_identity_card(projection : MiniTownProjection) -> @bunnia.Node {
       ),
       @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-profile-actions")],
-        [
-          @bunnia.button("Edit Profile", "save-profile"),
-          @bunnia.button("Accept Consent", "accept-profile-consent"),
-        ],
+        if profile_ready_to_publish(projection) {
+          []
+        } else {
+          [
+            @bunnia.button("Save Profile", "save-profile"),
+            @bunnia.button("Accept Consent", "accept-profile-consent"),
+          ]
+        },
       ),
     ],
   )

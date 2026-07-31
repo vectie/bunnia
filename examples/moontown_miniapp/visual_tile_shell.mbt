@@ -1,19 +1,24 @@
 ///|
 fn tile_shell_wxss() -> String {
   ".moontown-topbar { position: absolute; right: 22rpx; top: 0; top: constant(safe-area-inset-top); top: env(safe-area-inset-top); margin-top: 18rpx; z-index: 8; display: flex; justify-content: flex-end; padding: 0; background: transparent; }\n" +
-  ".moontown-passport-entry, .moontown-entry-button { flex: 0 0 auto; min-width: 148rpx; min-height: 88rpx; padding: 10rpx 14rpx; border-color: rgba(255,255,255,0.68); background: #1f3125; color: #ffffff; text-align: left; box-shadow: 0 4rpx 14rpx rgba(15,23,42,0.18); }\n" +
+  ".moontown-passport-entry, .moontown-entry-button { flex: 0 0 auto; min-width: 148rpx; min-height: 76rpx; padding: 8rpx 14rpx; border-color: rgba(255,251,235,0.5); border-radius: 999rpx; background: rgba(69,44,16,0.7); color: #fffbeb; text-align: left; box-shadow: 0 8rpx 24rpx rgba(15,23,42,0.2); backdrop-filter: blur(12rpx); }\n" +
   ".moontown-passport-switch { flex: 0 0 auto; display: flex; }\n" +
-  ".moontown-passport-name { max-width: 190rpx; color: #ffffff; font-size: 22rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
-  ".moontown-passport-state { margin-top: 2rpx; color: #dbeafe; font-size: 22rpx; }\n" +
-  ".moontown-page-surface { position: absolute; z-index: 7; left: 0; right: 0; top: 0; top: constant(safe-area-inset-top); top: env(safe-area-inset-top); bottom: 0; margin-top: 112rpx; padding: 18rpx 18rpx 154rpx; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16rpx; background: #f1f5f4; }\n" +
-  ".moontown-page-surface.tab-my { margin-top: 0; padding-top: 20rpx; }\n" +
-  ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; align-content: start; overflow: visible; padding-bottom: 12rpx; }\n" +
+  ".moontown-passport-name { max-width: 190rpx; color: #fffbeb; font-size: 22rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
+  ".moontown-passport-state { margin-top: 2rpx; color: #fde68a; font-size: 20rpx; }\n" +
+  ".moontown-page-surface { position: absolute; z-index: 7; left: 0; right: 0; top: 0; bottom: 0; margin: 0; padding: 0 24rpx 184rpx; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10rpx; background: #fbf7ee; }\n" +
+  ".moontown-page-surface.tab-my { margin: 0; padding-top: 0; }\n" +
+  ".moontown-page-header { padding: calc(24rpx + env(safe-area-inset-top)) 0 12rpx; }\n" +
+  ".moontown-page-title { color: #292524; font-size: 38rpx; line-height: 48rpx; font-weight: 900; }\n" +
+  ".moontown-page-subtitle { margin-top: 2rpx; color: #78716c; font-size: 22rpx; line-height: 30rpx; }\n" +
+  ".moontown-page-grid { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18rpx; align-content: start; overflow: visible; padding-bottom: 12rpx; }\n" +
   ".moontown-page-grid.single { grid-template-columns: minmax(0, 1fr); }\n" +
-  ".moontown-page-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }\n" +
-  ".moontown-tabbar { position: absolute; z-index: 9; left: 22rpx; right: 22rpx; bottom: 0; bottom: constant(safe-area-inset-bottom); bottom: env(safe-area-inset-bottom); margin-bottom: 16rpx; display: block; padding: 8rpx; border: 1rpx solid rgba(255,255,255,0.42); border-radius: 8rpx; background: rgba(26,39,31,0.96); }\n" +
-  ".moontown-tabbar > .bunnia-list { display: flex; flex-direction: row; gap: 8rpx; width: 100%; }\n" +
-  ".moontown-tab-button { position: relative; flex: 1 1 0; min-width: 0; min-height: 88rpx; padding: 8rpx 6rpx; border: 1rpx solid transparent; border-radius: 6rpx; background: transparent; color: #e2e8f0; font-size: 22rpx; line-height: 30rpx; overflow: visible; }\n" +
-  ".moontown-tab-button.map-surface { top: -8rpx; min-height: 96rpx; border-color: rgba(255,255,255,0.62); background: #2563eb; box-shadow: 0 6rpx 12rpx rgba(15,23,42,0.28); font-weight: 800; }\n" +
-  ".moontown-tab-button.active { background: #2563eb; color: #ffffff; font-weight: 800; }\n" +
-  ".moontown-tab-button.active::before { position: absolute; left: 50%; bottom: 6rpx; width: 22rpx; height: 4rpx; border-radius: 4rpx; background: #ffffff; content: ''; transform: translateX(-50%); }\n"
+  ".moontown-page-grid.three { grid-template-columns: minmax(0, 1fr); }\n" +
+  ".moontown-tabbar { position: absolute; z-index: 9; left: 0; right: 0; bottom: 0; margin: 0; display: block; padding: 10rpx 8rpx calc(10rpx + env(safe-area-inset-bottom)); border: 0; border-top: 1rpx solid rgba(120,53,15,0.12); border-radius: 0; background: rgba(251,247,238,0.97); box-shadow: 0 -10rpx 28rpx rgba(69,44,16,0.08); }\n" +
+  ".moontown-tabbar > .bunnia-list { display: flex; flex-direction: row; align-items: flex-end; gap: 4rpx; width: 100%; }\n" +
+  ".moontown-tab-button { position: relative; flex: 1 1 0; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 96rpx; padding: 8rpx 4rpx; border: 0; border-radius: 18rpx; background: transparent; color: #78716c; font-size: 20rpx; line-height: 26rpx; overflow: visible; }\n" +
+  ".moontown-tab-button.map-surface { top: -26rpx; min-width: 112rpx; min-height: 112rpx; border: 8rpx solid #fbf7ee; border-radius: 999rpx; background: #b45309; color: #fffbeb; box-shadow: 0 10rpx 22rpx rgba(120,53,15,0.3); font-weight: 800; }\n" +
+  ".moontown-tab-button.active { background: transparent; color: #b45309; font-weight: 800; }\n" +
+  ".moontown-tab-button.map-surface.active { background: #d97706; color: #fffbeb; transform: translateY(-4rpx); }\n" +
+  ".moontown-tab-button.active::before { position: absolute; inset: 4rpx; border: 2rpx solid rgba(180,83,9,0.7); border-radius: 16rpx; content: ''; pointer-events: none; }\n" +
+  ".moontown-tab-button.map-surface.active::before { display: none; }\n"
 }

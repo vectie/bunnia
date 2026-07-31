@@ -15,7 +15,7 @@ fn notification_channel_chip(
   @bunnia.keyed(
     "notice-channel-\{channel.id}",
     @bunnia.node(
-      kind="view",
+      kind="button",
       attrs=[
         @bunnia.class_name(
           "moontown-message-channel {{messages.channel == '\{channel.id}' ? 'active' : ''}}",

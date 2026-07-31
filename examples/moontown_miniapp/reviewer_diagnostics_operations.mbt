@@ -51,6 +51,12 @@ fn operations_desk_panel(projection : MiniTownProjection) -> @bunnia.Node {
         [
           @bunnia.button("Check Town Safety", ops.endpoint_id),
           @bunnia.button("Launch Checks", readiness.endpoint_id),
+          backend_feedback(
+            "safety", "Checking town safety...", "Town safety check complete.", "Town safety check failed. Try again.",
+          ),
+          backend_feedback(
+            "readiness", "Running launch checks...", "Launch checks complete.", "Launch checks failed. Try again.",
+          ),
         ],
       ),
     ],

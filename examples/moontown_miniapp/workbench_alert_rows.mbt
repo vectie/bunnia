@@ -3,7 +3,7 @@ fn workbench_alert_entry(alert : MiniTownWorkbenchAlert) -> @bunnia.Node {
   @bunnia.keyed(
     "workbench-alert-\{alert.id}",
     @bunnia.node(
-      kind="view",
+      kind="button",
       attrs=[
         @bunnia.class_name(
           "moontown-workbench-alert bunnia-status-\{alert.status}",

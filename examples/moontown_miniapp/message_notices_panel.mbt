@@ -19,6 +19,9 @@ fn message_notices_panel(projection : MiniTownProjection) -> @bunnia.Node {
             events=[@bunnia.tap("load-message-center")],
             children=[@bunnia.text("↻")],
           ),
+          backend_feedback(
+            "chats", "Refreshing...", "Chats are up to date.", "Could not refresh chats. Try again.",
+          ),
         ],
       ),
       @bunnia.view_with_attrs(

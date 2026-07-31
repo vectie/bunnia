@@ -8,6 +8,12 @@ fn agent_work_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Agent Work"),
       ]),
+      backend_feedback(
+        "cancel", "Stopping work...", "Work stopped.", "Could not stop work. Try again.",
+      ),
+      backend_feedback(
+        "retry", "Retrying work...", "Work restarted.", "Could not restart work. Try again.",
+      ),
       @bunnia.windowed_list(runs, total_count=runs.length(), render=run => {
         run_queue_entry(projection, run)
       }),
@@ -35,6 +41,16 @@ fn run_queue_entry(
         @bunnia.class_name("moontown-run-entry bunnia-status-\{run.status}"),
         @bunnia.data("building-id", run.building_id),
         @bunnia.data("book-id", run.book_id),
+        @bunnia.attr(
+          "wx:if",
+          if run.review_required {
+            "{{reviews.memoryReview == 'pending'}}"
+          } else if run.status == "running" {
+            "{{cancelResult ? cancelResult.run.id != '\{run.id}' : true}}"
+          } else {
+            "{{true}}"
+          },
+        ),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -57,6 +73,22 @@ fn run_action_button(action : MiniTownRunAction) -> @bunnia.Node {
     @bunnia.class_name(run_action_class(action)),
     @bunnia.data("run-action", action.id),
   ]
+  if action.target_ref.has_prefix("building:") {
+    let building_id = action.target_ref
+      .sub(start=9, end=action.target_ref.length())
+      .to_owned()
+    attrs.push(@bunnia.data("building-id", building_id))
+    attrs.push(town_place_route_attr(building_id))
+  } else if action.target_ref.has_prefix("run:") {
+    attrs.push(
+      @bunnia.data(
+        "run-id",
+        action.target_ref
+        .sub(start=4, end=action.target_ref.length())
+        .to_owned(),
+      ),
+    )
+  }
   @bunnia.keyed(
     "run-action-\{action.id}",
     @bunnia.node(

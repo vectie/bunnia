@@ -10,6 +10,26 @@ fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.windowed_list(reviews, total_count=reviews.length(), render=item => {
         review_entry(projection, item)
       }),
+      @bunnia.view_with_attrs(
+        [
+          @bunnia.class_name("mt-meta bunnia-status-stable"),
+          @bunnia.attr("wx:if", "{{reviews.memoryReview == 'approved'}}"),
+        ],
+        [@bunnia.text("Review approved. The result is now stable.")],
+      ),
+      @bunnia.view_with_attrs(
+        [
+          @bunnia.class_name("mt-meta bunnia-status-rejected"),
+          @bunnia.attr("wx:if", "{{reviews.memoryReview == 'rejected'}}"),
+        ],
+        [@bunnia.text("Review rejected. The run can be tried again.")],
+      ),
+      backend_feedback(
+        "approve", "Saving approval...", "Approval saved.", "Approval was not saved. Try again.",
+      ),
+      backend_feedback(
+        "reject", "Saving rejection...", "Rejection saved.", "Rejection was not saved. Try again.",
+      ),
     ],
   )
 }

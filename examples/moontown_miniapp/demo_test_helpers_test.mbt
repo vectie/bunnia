@@ -97,9 +97,9 @@ fn generated_contract_data_stays_out_of_ordinary_wxml(
 fn generated_wxss_has_tile_visual_system(
   files : Array[@bunnia.WechatFile],
 ) -> Bool {
-  let wxss = file_content(files, "app.wxss")
+  let wxss = ordinary_wxss_bundle(files)
   wxss.contains("button{min-width:88rpx;min-height:88rpx") &&
-  wxss.contains("background:#ffffff;color:#24332a;font-size:24rpx") &&
+  wxss.contains("background:#fbf7ee;color:#292524;font-size:26rpx") &&
   wxss.contains(".bunnia-review-button{min-height:88rpx") &&
   wxss.contains(
     ".bunnia-scene-marker{position:absolute;transform:translate(-50%,-50%);min-width:120rpx;min-height:88rpx",
@@ -118,9 +118,11 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("touch-action:manipulation") &&
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
-  wxss.contains("bottom:0;margin-top:112rpx;padding:18rpx 18rpx 154rpx") &&
-  wxss.contains("background:#f1f5f4") &&
+  wxss.contains("bottom:0;margin:0;padding:0 24rpx 184rpx") &&
+  wxss.contains("background:#fbf7ee") &&
   wxss.contains("-webkit-overflow-scrolling:touch") &&
+  wxss.contains(".moontown-page-header{") &&
+  wxss.contains(".moontown-page-title{color:#292524") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
   wxss.contains(
     ".moontown-page-grid.single{grid-template-columns:minmax(0,1fr)",
@@ -134,22 +136,29 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("grid-template-columns:repeat(4,minmax(0,1fr))") &&
   wxss.contains(".moontown-discovery-results .bunnia-list-windowed{") &&
   wxss.contains(".moontown-message-inbox,.moontown-message-notices{") &&
-  wxss.contains(".moontown-discover-board{border-top:3rpx solid #2563eb") &&
+  wxss.contains(".moontown-discover-board{border-top:0") &&
   wxss.contains(
-    ".moontown-message-inbox,.moontown-message-review,.moontown-message-work,.moontown-my-inventory{border-top:3rpx solid #2563eb",
+    ".moontown-message-inbox,.moontown-message-review,.moontown-message-work,.moontown-my-inventory{border-top:0",
   ) &&
   wxss.contains(
-    ".moontown-chat-row{min-width:0;min-height:104rpx;margin:0;display:grid;grid-template-columns:72rpx minmax(0,1fr)",
+    ".moontown-chat-row{min-width:0;min-height:112rpx;margin:0;display:grid;grid-template-columns:72rpx minmax(0,1fr)",
   ) &&
-  wxss.contains(".moontown-chat-avatar.kind-agent-run{background:#2563eb") &&
+  wxss.contains(
+    ".moontown-chat-avatar.kind-agent-run{background:#fef3c7;color:#92400e",
+  ) &&
   wxss.contains(".moontown-chat-preview,.moontown-chat-preview text{") &&
-  wxss.contains(".moontown-tabbar{box-shadow:0 8rpx 24rpx") &&
+  wxss.contains(".moontown-tabbar{box-shadow:0 -10rpx 28rpx") &&
   wxss.contains(
-    ".moontown-tabbar>.bunnia-list{display:flex;flex-direction:row;gap:8rpx;width:100%",
+    ".moontown-tabbar>.bunnia-list{display:flex;flex-direction:row;align-items:flex-end",
   ) &&
-  wxss.contains(".moontown-tab-button{position:relative;flex:1 1 0;min-width:0") &&
+  wxss.contains(
+    ".moontown-tab-button{position:relative;flex:1 1 0;display:flex",
+  ) &&
+  wxss.contains(
+    ".moontown-tab-button.map-surface{top:-26rpx;min-width:112rpx;min-height:112rpx",
+  ) &&
   wxss.contains(".moontown-primary-action{") &&
-  wxss.contains("border-color:#2563eb;background:#2563eb") &&
+  wxss.contains("border-color:#b45309;background:#b45309") &&
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
@@ -172,19 +181,20 @@ fn generated_wxss_has_tile_visual_system(
   ) &&
   !wxss.contains(">*{") &&
   !wxss.contains("letter-spacing:-") &&
-  ordinary_pages_share_app_wxss(files)
+  ordinary_pages_scope_route_wxss(files)
 }
 
 ///|
 fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
   wxss.contains("background:#0f172a") &&
-  wxss.contains("#f1f5f4") &&
+  wxss.contains("#fbf7ee") &&
+  wxss.contains("#fffbeb") &&
   wxss.contains("#fff") &&
-  wxss.contains("#17221b") &&
-  wxss.contains("#2563eb") &&
-  wxss.contains("#2f855a") &&
-  wxss.contains("#d69e2e") &&
-  wxss.contains("#c64438") &&
+  wxss.contains("#292524") &&
+  wxss.contains("#b45309") &&
+  wxss.contains("#16a34a") &&
+  wxss.contains("#d97706") &&
+  wxss.contains("#dc2626") &&
   !wxss.contains("background:rgba(248,250,252,0.72)") &&
   !wxss.contains("#fff8dc") &&
   !wxss.contains("#f8f3df") &&
@@ -193,17 +203,31 @@ fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
 }
 
 ///|
-fn ordinary_pages_share_app_wxss(files : Array[@bunnia.WechatFile]) -> Bool {
+fn ordinary_pages_scope_route_wxss(files : Array[@bunnia.WechatFile]) -> Bool {
+  let app = file_content(files, "app.wxss")
+  let realm = file_content(files, "pages/moontown/index.wxss")
+  let messages = file_content(files, "pages/moontown/messages.wxss")
+  let mine = file_content(files, "pages/moontown/my.wxss")
+  app.contains(".moontown-miniapp{") &&
+  has_file(files, "pages/moontown/home.wxss") &&
+  has_file(files, "pages/moontown/discover.wxss") &&
+  realm.contains(".moontown-map-touch-area{") &&
+  !realm.contains(".moontown-miniapp{") &&
+  messages.contains(".moontown-chat-row{") &&
+  mine.contains(".moontown-my-overview>.moontown-profile-card{")
+}
+
+///|
+fn ordinary_wxss_bundle(files : Array[@bunnia.WechatFile]) -> String {
+  let out = StringBuilder::new()
   for
     path in [
-      "pages/moontown/index.wxss", "pages/moontown/home.wxss", "pages/moontown/discover.wxss",
+      "app.wxss", "pages/moontown/index.wxss", "pages/moontown/home.wxss", "pages/moontown/discover.wxss",
       "pages/moontown/messages.wxss", "pages/moontown/my.wxss",
     ] {
-    if has_file(files, path) {
-      return false
-    }
+    out.write_string(file_content(files, path))
   }
-  true
+  out.to_string()
 }
 
 ///|

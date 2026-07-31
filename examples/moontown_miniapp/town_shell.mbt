@@ -1,6 +1,6 @@
 ///|
 fn town_top_bar(projection : MiniTownProjection) -> @bunnia.Node {
-  if projection.active_tab_id == "my" {
+  if projection.active_tab_id != "realm" {
     @bunnia.view([])
   } else {
     @bunnia.view_with_attrs([@bunnia.class_name("moontown-topbar")], [
@@ -37,6 +37,7 @@ fn town_page_surface(
       @bunnia.data("active-tab", projection.active_tab_id),
     ],
     [
+      town_page_header(projection.active_tab_id),
       @bunnia.view_with_attrs(
         [
           @bunnia.class_name(
@@ -47,6 +48,44 @@ fn town_page_surface(
       ),
     ],
   )
+}
+
+///|
+fn town_page_header(tab_id : String) -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-page-header")], [
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-page-title")], [
+      @bunnia.text(town_page_title(tab_id)),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-page-subtitle")], [
+      @bunnia.text(town_page_subtitle(tab_id)),
+    ]),
+  ])
+}
+
+///|
+fn town_page_title(tab_id : String) -> String {
+  if tab_id == "home" {
+    "Home"
+  } else if tab_id == "discover" {
+    "Discover"
+  } else if tab_id == "messages" {
+    "Messages"
+  } else {
+    "My"
+  }
+}
+
+///|
+fn town_page_subtitle(tab_id : String) -> String {
+  if tab_id == "home" {
+    "Town pulse - what is happening now"
+  } else if tab_id == "discover" {
+    "Market board - find something useful"
+  } else if tab_id == "messages" {
+    "Mailbox board - who needs your decision"
+  } else {
+    "Inventory shelf - your place in town"
+  }
 }
 
 ///|

@@ -36,34 +36,20 @@ fn moderation_case_entry(item : MiniTownModerationCase) -> @bunnia.Node {
         ]),
         @bunnia.text(item.summary),
         @bunnia.view_with_attrs([@bunnia.class_name("moontown-run-actions")], [
-          moderation_case_action_button(item),
           moderation_button(item, "Hide", "hide", "hide-public-building"),
           moderation_button(
             item, "Takedown", "takedown", "takedown-public-building",
           ),
         ]),
+        backend_feedback(
+          "hide", "Hiding place...", "Place hidden.", "Could not hide place. Try again.",
+        ),
+        backend_feedback(
+          "takedown", "Taking place down...", "Place taken down.", "Could not take place down. Try again.",
+        ),
       ],
     ),
   )
-}
-
-///|
-fn moderation_case_action_button(item : MiniTownModerationCase) -> @bunnia.Node {
-  moderation_button(
-    item,
-    item.action_label,
-    moderation_case_action_id(item),
-    item.action_message,
-  )
-}
-
-///|
-fn moderation_case_action_id(item : MiniTownModerationCase) -> String {
-  if item.action_message == "appeal-moderation-case" {
-    "appeal"
-  } else {
-    "review"
-  }
 }
 
 ///|

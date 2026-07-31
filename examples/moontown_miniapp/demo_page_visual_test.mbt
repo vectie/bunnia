@@ -17,7 +17,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-chat-avatar"))
   assert_true(page.wxss.contains(".moontown-chat-unread-dot"))
   assert_true(
-    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #2563eb"),
+    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #d97706"),
   )
   assert_true(
     page.wxss.contains(
@@ -32,7 +32,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(
     page.wxss.contains("white-space:normal;overflow:visible;text-overflow:clip"),
   )
-  assert_true(page.wxss.contains("max-height:36vh"))
+  assert_true(page.wxss.contains("max-height:40vh"))
   assert_true(page.wxss.contains("max-height:72vh"))
   assert_true(page.wxss.contains("overscroll-behavior:contain"))
   assert_true(page.wxss.contains(".moontown-tabbar"))
@@ -42,7 +42,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-tab-button.map-surface"))
   assert_true(page.wxss.contains("font-size:26rpx"))
   assert_true(page.wxss.contains("font-size:22rpx"))
-  assert_true(page.wxss.contains("background:#f1f5f4"))
+  assert_true(page.wxss.contains("background:#fbf7ee"))
   assert_true(!page.wxss.contains(".moontown-user-switcher"))
   assert_true(!page.wxml.contains("Passport: Ada Builder"))
   assert_true(page.wxml.contains("Enter Town"))
@@ -54,8 +54,9 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(!page.wxss.contains(".moontown-guide-step"))
   assert_true(page.wxss.contains("env(safe-area-inset-top)"))
   assert_true(page.wxss.contains("env(safe-area-inset-bottom)"))
-  assert_true(page.wxss.contains("button:active{opacity:0.82"))
-  assert_true(!page.wxss.contains("button:active{transform"))
+  assert_true(
+    page.wxss.contains("button:active{opacity:0.88;transform:scale(0.98)"),
+  )
   assert_true(
     page.wxss.contains("button[disabled],.bunnia-status-disabled{opacity:0.52"),
   )

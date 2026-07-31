@@ -121,6 +121,8 @@ function seedState() {
     ],
     runs: [
       { id: "run-policy-review", agentId: "agent-policy-guide", buildingId: "policy-hall", bookId: "book-policy-hall", threadId: "thread-policy-hall", title: "Policy answer review", summary: "One accepted answer is waiting for book review.", status: "review", reviewRequired: true, artifactRef: "artifact://book-policy-hall" },
+      { id: "run-market-scan", agentId: "agent-map-curator", buildingId: "market-square", bookId: "book-market-square", threadId: "thread-market-square", title: "Market placement scan", summary: "Map Curator is finding published buildings that can be placed.", status: "running", reviewRequired: false, artifactRef: "artifact://market-square" },
+      { id: "run-private-lab-draft", agentId: "agent-builder", buildingId: "private-agent-lab", bookId: "book-private-agent-lab", threadId: "thread-private-agent-lab", title: "Private lab setup", summary: "Builder is preparing the private agent lab before publishing.", status: "running", reviewRequired: false, artifactRef: "artifact://book-private-agent-lab" },
     ],
     toolResults: [
       { id: "tool-policy-summary", toolName: "book-summarizer", buildingId: "policy-hall", threadId: "thread-policy-hall", title: "Policy source summary", summary: "Summarized 9 public source notes for the pending policy answer.", artifactRef: "artifact://book-policy-hall-sources", status: "waiting-review", openMessage: "open-tool-policy-summary", acknowledgeMessage: "ack-tool-result" },

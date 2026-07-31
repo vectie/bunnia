@@ -52,15 +52,17 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains("discover-action"),
+    !file_content(project.files, "bunnia.backend.js").contains(
+      "discover-action",
+    ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "/miniapp/discover/action",
     ),
   )
   assert_true(
-    file_content(project.files, "bunnia.backend.js").contains(
+    !file_content(project.files, "bunnia.backend.js").contains(
       "discoveryActionResult",
     ),
   )
@@ -90,8 +92,8 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/my.data.js").contains(
-      "\"accept-profile-consent\":[{k:\"set\",p:\"profile.consentAccepted\",v:\"true\"},{k:\"set\",p:\"profileDraft.consentAccepted\",v:true}]",
+    !file_content(project.files, "pages/moontown/my.data.js").contains(
+      "\"accept-profile-consent\"",
     ),
   )
   assert_true(
@@ -155,7 +157,7 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/my.data.js").contains(
+    !file_content(project.files, "pages/moontown/my.data.js").contains(
       "\"publish-private-building\":[]",
     ),
   )

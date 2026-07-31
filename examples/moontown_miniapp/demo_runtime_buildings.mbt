@@ -32,6 +32,7 @@ fn add_building_workflow_event_patches(
   )
   patches.push(
     @bunnia.wechat_event_patch("ask-selected-building", [
+      @bunnia.set_string("ui.feedback", "ask"),
       @bunnia.append_json(
         "chat.messages", "{\"id\":\"msg-mock-answer\",\"actorId\":\"agent-policy-guide\",\"text\":\"Mock answer recorded as a run waiting for review.\"}",
       ),
@@ -40,6 +41,7 @@ fn add_building_workflow_event_patches(
   )
   patches.push(
     @bunnia.wechat_event_patch("accept-memory-review", [
+      @bunnia.set_string("ui.feedback", "approve"),
       @bunnia.set_string("reviews.memoryReview", "approved"),
       @bunnia.set_string("runs.activeRunStatus", "done"),
       @bunnia.set_string("books.policyHall.status", "stable"),
@@ -47,12 +49,14 @@ fn add_building_workflow_event_patches(
   )
   patches.push(
     @bunnia.wechat_event_patch("reject-memory-review", [
+      @bunnia.set_string("ui.feedback", "reject"),
       @bunnia.set_string("reviews.memoryReview", "rejected"),
       @bunnia.set_string("runs.activeRunStatus", "rejected"),
     ]),
   )
   patches.push(
     @bunnia.wechat_event_patch("create-private-building", [
+      @bunnia.set_string("ui.feedback", "create-building"),
       @bunnia.append_json(
         "town.buildings", "{\"id\":\"created-agent-lab\",\"visibility\":\"private_draft\",\"ownerId\":\"user-a\"}",
       ),
@@ -64,10 +68,21 @@ fn add_building_workflow_event_patches(
   )
   patches.push(
     @bunnia.wechat_event_patch("place-published-building", [
+      @bunnia.set_string("ui.feedback", "place"),
       @bunnia.append_json(
         "town.placements", "{\"id\":\"placement-user-a-published-agent-lab\",\"buildingId\":\"published-agent-lab\",\"ownerId\":\"user-a\",\"layer\":\"personal\",\"x\":538,\"y\":528,\"status\":\"pinned\",\"source\":\"discover\"}",
       ),
       @bunnia.select_scene_marker("moontown-map", "published-agent-lab"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("cancel-run", [
+      @bunnia.set_string("ui.feedback", "cancel"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("retry-run", [
+      @bunnia.set_string("ui.feedback", "retry"),
     ]),
   )
   patches.push(@bunnia.wechat_event_patch("update-private-building", []))
@@ -81,6 +96,7 @@ fn add_building_workflow_event_patches(
   patches.push(@bunnia.wechat_event_patch("archive-private-building", []))
   patches.push(
     @bunnia.wechat_event_patch("create-agent", [
+      @bunnia.set_string("ui.feedback", "create-agent"),
       @bunnia.append_json(
         "agents.items", "{\"id\":\"agent-created\",\"buildingId\":\"private-agent-lab\",\"status\":\"idle\"}",
       ),

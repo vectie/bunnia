@@ -17,15 +17,11 @@ fn notification_entry(
     @bunnia.attr("wx:if", notification_row_visibility(notice)),
   ]
   if !notice.requires_subscription {
-    attrs.push(
-      town_route_attr(
-        if notice.building_id == "" {
-          "discover"
-        } else {
-          "realm"
-        },
-      ),
-    )
+    if notice.building_id == "" {
+      attrs.push(town_route_attr("discover"))
+    } else {
+      attrs.push(town_place_route_attr(notice.building_id))
+    }
   }
   @bunnia.keyed(
     "notice-\{notice.id}",

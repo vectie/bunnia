@@ -13,6 +13,20 @@ pub fn filtered_discovery_results(
 }
 
 ///|
+fn discovery_filter_match_count(
+  projection : MiniTownProjection,
+  filter : MiniTownDiscoveryFilter,
+) -> Int {
+  let mut count = 0
+  for item in unified_discovery_results(projection) {
+    if mini_town_discovery_filter_match(projection, filter, item) {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
 pub fn selected_discovery_filter(
   projection : MiniTownProjection,
 ) -> MiniTownDiscoveryFilter {

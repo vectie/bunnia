@@ -54,7 +54,7 @@ test "moontown miniapp gates reviewer diagnostics from My tab" {
   assert_true(
     reviewer_mine.wxml.contains("data-moderation-action=\"takedown\""),
   )
-  assert_true(reviewer_mine.wxml.contains("data-moderation-action=\"appeal\""))
+  assert_true(!reviewer_mine.wxml.contains("data-moderation-action=\"appeal\""))
   assert_true(
     reviewer_mine.wxml.contains("data-bunnia-message=\"hide-public-building\""),
   )
@@ -64,10 +64,12 @@ test "moontown miniapp gates reviewer diagnostics from My tab" {
     ),
   )
   assert_true(
-    reviewer_mine.wxml.contains(
+    !reviewer_mine.wxml.contains(
       "data-bunnia-message=\"appeal-moderation-case\"",
     ),
   )
+  assert_true(reviewer_mine.wxml.contains("Place hidden."))
+  assert_true(reviewer_mine.wxml.contains("Place taken down."))
   assert_true(reviewer_mine.wxml.contains("Developer Diagnostics"))
   assert_true(
     reviewer_mine.wxml.contains("data-developer-diagnostics=\"local-explicit\""),

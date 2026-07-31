@@ -2,8 +2,6 @@
 test "moontown miniapp generated page renders object drawer" {
   let page = demo_wechat_page()
   assert_true(page.wxml.contains("moontown-building-drawer"))
-  assert_true(page.wxml.contains("moontown-object-drawer"))
-  assert_true(page.wxml.contains("data-object-drawer=\"building\""))
   assert_true(page.wxml.contains("moontown-object-header"))
   assert_true(!page.wxml.contains("Selected Place"))
   assert_true(page.wxml.contains("moontown-object-title"))
@@ -31,8 +29,7 @@ test "moontown miniapp generated page renders object drawer" {
   assert_true(page.wxml.contains("data-book-shelf-role=\"support\""))
   assert_true(page.wxml.contains("12 memories - 1 review - Needs review"))
   assert_true(page.wxml.contains("9 memories - no reviews - Ready"))
-  assert_true(page.wxml.contains("Read"))
-  assert_true(page.wxml.contains("Open Place"))
+  assert_true(!page.wxml.contains("<text>Read</text>"))
   assert_true(page.wxml.contains("Agent Workers"))
   assert_true(page.wxml.contains("1 worker attached"))
   assert_true(page.wxml.contains("moontown-worker-entry"))

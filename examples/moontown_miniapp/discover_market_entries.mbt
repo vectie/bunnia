@@ -12,7 +12,7 @@ fn discover_entry(
         ),
         @bunnia.data("discovery-id", item.id),
         @bunnia.data("discovery-kind", item.kind),
-        @bunnia.attr("wx:if", discover_entry_visibility(item)),
+        @bunnia.attr("wx:if", discover_entry_visibility(projection, item)),
       ],
       [
         @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
@@ -26,12 +26,16 @@ fn discover_entry(
 }
 
 ///|
-fn discover_entry_visibility(item : MiniTownDiscoveryItem) -> String {
+fn discover_entry_visibility(
+  projection : MiniTownProjection,
+  item : MiniTownDiscoveryItem,
+) -> String {
   let filters = [
     "discover.filter == 'all'",
     "discover.filter == '\{item.kind}'",
   ]
-  if item.kind == "building" {
+  if item.kind == "building" &&
+    discovery_item_placement_state(projection, item) != "pinned" {
     filters.push("discover.filter == 'placeable'")
   }
   "{{\{filters.join(" || ")}}}"
@@ -68,7 +72,7 @@ fn discover_eligibility_label(
       "Can place"
     }
   } else if item.visibility == "published" || item.visibility == "public" {
-    "Can open"
+    "Preview only"
   } else if item.visibility == "personal" {
     "Owner only"
   } else {

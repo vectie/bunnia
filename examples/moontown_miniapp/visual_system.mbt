@@ -8,7 +8,7 @@ fn moontown_wxss_for_tab(tab_id : String) -> String {
   if tab_id == "reviewer" {
     reviewer_wxss()
   } else {
-    moontown_wxss()
+    minify_moontown_wxss(moontown_wxss_source_for_tab(tab_id))
   }
 }
 

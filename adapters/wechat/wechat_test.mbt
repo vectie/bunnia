@@ -49,6 +49,7 @@ test "wechat request adapter records replayable request data" {
   assert_true(js.contains("backend.' + endpointId + '.request"))
   assert_true(js.contains("backendStatus.' + String(endpointId).replace"))
   assert_true(js.contains("__bs(loading, endpointId, 'loading', '')"))
+  assert_true(js.contains("loading['requestState.state'] = 'loading'"))
 }
 
 ///|
@@ -75,6 +76,8 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("state'] = 'cancelled'"))
   assert_true(js.contains("__bs(update, endpointId, 'ready', '')"))
   assert_true(js.contains("__bs(update, endpointId, 'cancelled', '')"))
+  assert_true(js.contains("update['requestState.state'] = 'ready'"))
+  assert_true(js.contains("update['requestState.state'] = 'failed'"))
   assert_true(js.contains("__bunniaRetryRequest"))
   assert_true(js.contains("__bunniaCancelRequest"))
   assert_true(js.contains("const __bk='runId reviewId decision"))
@@ -321,6 +324,78 @@ test "wechat projects hoist repeated custom styles to app wxss" {
     ),
   )
   assert_eq(project.manifest.app_file_count + 1, project.files.length())
+}
+
+///|
+test "wechat projects hoist a shared rule prefix and keep route deltas local" {
+  let shared = ".paper{background:#fbf7ee}.button{color:#b45309}"
+  let first = project_page_with_wxss(
+    project_page(
+      name="First",
+      route="pages/first/index",
+      root=@core.page([@core.view([@core.text("First")])]),
+    ),
+    shared + ".first{display:block}",
+  )
+  let second = project_page_with_wxss(
+    project_page(
+      name="Second",
+      route="pages/second/index",
+      root=@core.page([@core.view([@core.text("Second")])]),
+    ),
+    shared + ".second{display:grid}",
+  )
+  let project = generate_project_from_pages(name="Shared Prefix", pages=[
+    first, second,
+  ])
+  let app_wxss = file_content(project.files, "app.wxss")
+  assert_true(app_wxss.contains(shared))
+  assert_eq(
+    file_content(project.files, "pages/first/index.wxss"),
+    ".first{display:block}",
+  )
+  assert_eq(
+    file_content(project.files, "pages/second/index.wxss"),
+    ".second{display:grid}",
+  )
+}
+
+///|
+test "wechat projects omit a fully shared sheet even when its prefix is shared" {
+  let shared = ".paper{background:#fbf7ee}.button{color:#b45309}"
+  let repeated = shared + ".repeated{display:block}"
+  let project = generate_project_from_pages(name="Shared Sheet And Prefix", pages=[
+    project_page_with_wxss(
+      project_page(
+        name="First",
+        route="pages/first/index",
+        root=@core.page([@core.view([@core.text("First")])]),
+      ),
+      repeated,
+    ),
+    project_page_with_wxss(
+      project_page(
+        name="Second",
+        route="pages/second/index",
+        root=@core.page([@core.view([@core.text("Second")])]),
+      ),
+      repeated,
+    ),
+    project_page_with_wxss(
+      project_page(
+        name="Third",
+        route="pages/third/index",
+        root=@core.page([@core.view([@core.text("Third")])]),
+      ),
+      shared + ".third{display:grid}",
+    ),
+  ])
+  assert_eq(file_content(project.files, "pages/first/index.wxss"), "")
+  assert_eq(file_content(project.files, "pages/second/index.wxss"), "")
+  assert_eq(
+    file_content(project.files, "pages/third/index.wxss"),
+    ".third{display:grid}",
+  )
 }
 
 ///|

@@ -29,6 +29,10 @@ test "moontown miniapp generated page keeps runtime and plan budgets stable" {
   assert_true(!page.wxml.contains("data-visibility=\"published\""))
   assert_true(page.wxml.contains("select-policy-hall"))
   assert_true(page.wxml.contains("ask-selected-building"))
+  assert_true(page.wxml.contains("data-building-id=\"published-agent-lab\""))
+  assert_true(page.wxml.contains("Asking..."))
+  assert_true(page.wxml.contains("{{!placementResult}}"))
+  assert_true(page.wxml.contains("Placed"))
   assert_true(!page.wxml.contains("create-private-building"))
   assert_true(!page.wxml.contains("create-agent"))
   assert_true(page.wxml.contains("place-published-building"))
@@ -70,5 +74,5 @@ test "moontown miniapp generated page keeps runtime and plan budgets stable" {
   assert_true(page.plan.scene_marker_count >= 8)
   assert_true(page.plan.scene_region_count == 2)
   assert_true(page.plan.scene_asset_count == 2)
-  assert_true(page.plan.windowed_list_count >= 5)
+  assert_true(page.plan.windowed_list_count >= 4)
 }

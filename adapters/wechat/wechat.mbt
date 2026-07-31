@@ -379,8 +379,9 @@ fn generate_project_from_pages_internal(
   for item in generated_pages {
     files.push(wechat_file("\{item.route}.wxml", item.page.wxml))
     let compacted_wxss = compact_wxss(item.page.wxss)
-    if compacted_wxss != "" && !shared_wxss.contains(compacted_wxss) {
-      files.push(wechat_file("\{item.route}.wxss", compacted_wxss))
+    let unique_wxss = project_unique_wxss(compacted_wxss, shared_wxss)
+    if unique_wxss != "" {
+      files.push(wechat_file("\{item.route}.wxss", unique_wxss))
     }
     files.push(
       wechat_file(
@@ -433,6 +434,10 @@ fn project_app_wxss(shared_wxss : Array[String]) -> String {
 ///|
 fn repeated_project_wxss(pages : Array[WechatProjectPage]) -> Array[String] {
   let repeated : Array[String] = []
+  let shared_prefix = longest_shared_project_wxss_prefix(pages)
+  if shared_prefix != "" {
+    repeated.push(shared_prefix)
+  }
   for item in pages {
     let wxss = compact_wxss(item.page.wxss)
     if wxss != "" &&
@@ -442,6 +447,88 @@ fn repeated_project_wxss(pages : Array[WechatProjectPage]) -> Array[String] {
     }
   }
   repeated
+}
+
+///|
+fn longest_shared_project_wxss_prefix(
+  pages : Array[WechatProjectPage],
+) -> String {
+  let mut best = ""
+  let mut best_savings = 0
+  for i in 0..<pages.length() {
+    let left = compact_wxss(pages[i].page.wxss)
+    for j in (i + 1)..<pages.length() {
+      let right = compact_wxss(pages[j].page.wxss)
+      let prefix = shared_css_rule_prefix(left, right)
+      let occurrences = project_wxss_prefix_occurrence_count(pages, prefix)
+      let savings = prefix.length() * (occurrences - 1)
+      if occurrences > 1 && savings > best_savings {
+        best = prefix
+        best_savings = savings
+      }
+    }
+  }
+  best
+}
+
+///|
+fn project_wxss_prefix_occurrence_count(
+  pages : Array[WechatProjectPage],
+  prefix : String,
+) -> Int {
+  if prefix == "" {
+    return 0
+  }
+  let mut count = 0
+  for item in pages {
+    if compact_wxss(item.page.wxss).has_prefix(prefix) {
+      count += 1
+    }
+  }
+  count
+}
+
+///|
+fn shared_css_rule_prefix(left : String, right : String) -> String {
+  let limit = if left.length() < right.length() {
+    left.length()
+  } else {
+    right.length()
+  }
+  let mut rule_end = 0
+  for i in 0..<limit {
+    if left[i] != right[i] {
+      break
+    }
+    if left[i] == '}' {
+      rule_end = i + 1
+    }
+  }
+  if rule_end == 0 {
+    ""
+  } else {
+    left.sub(start=0, end=rule_end).to_owned()
+  }
+}
+
+///|
+fn project_unique_wxss(wxss : String, shared : Array[String]) -> String {
+  for chunk in shared {
+    if wxss == chunk {
+      return ""
+    }
+  }
+  let mut shared_prefix = ""
+  for chunk in shared {
+    if wxss.has_prefix(chunk) && chunk.length() > shared_prefix.length() {
+      shared_prefix = chunk
+    }
+  }
+  if shared_prefix == "" {
+    wxss
+  } else {
+    wxss.sub(start=shared_prefix.length(), end=wxss.length()).to_owned()
+  }
 }
 
 ///|
@@ -587,6 +674,8 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  const loading = {}\n" +
   "  loading['backend.' + endpointId + '.state'] = 'loading'\n" +
   "  loading['backend.' + endpointId + '.error'] = ''\n" +
+  "  loading['requestState.state'] = 'loading'\n" +
+  "  loading['requestState.error'] = ''\n" +
   "  __bs(loading, endpointId, 'loading', '')\n" +
   "  const requestPayload = payload === undefined && endpoint.p ? page.data[endpoint.p] : (payload || {})\n" +
   "  loading['backend.' + endpointId + '.request'] = requestPayload\n" +
@@ -603,15 +692,21 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {\n" +
   "        update['backend.' + endpointId + '.state'] = 'failed'\n" +
   "        update['backend.' + endpointId + '.error'] = 'HTTP ' + res.statusCode\n" +
+  "        update['requestState.state'] = 'failed'\n" +
+  "        update['requestState.error'] = 'Request failed'\n" +
   "        __bs(update, endpointId, 'failed', 'HTTP ' + res.statusCode)\n" +
   "      } else if (res.data === undefined || res.data === null) {\n" +
   "        update['backend.' + endpointId + '.state'] = 'malformed'\n" +
   "        update['backend.' + endpointId + '.error'] = 'empty response'\n" +
+  "        update['requestState.state'] = 'failed'\n" +
+  "        update['requestState.error'] = 'Request failed'\n" +
   "        __bs(update, endpointId, 'malformed', 'empty response')\n" +
   "      } else {\n" +
   "        update['backend.' + endpointId + '.state'] = 'ready'\n" +
   "        update['backend.' + endpointId + '.response'] = res.data\n" +
   "        update['backend.' + endpointId + '.error'] = ''\n" +
+  "        update['requestState.state'] = 'ready'\n" +
+  "        update['requestState.error'] = ''\n" +
   "        __bs(update, endpointId, 'ready', '')\n" +
   "        if (endpoint.r) update[endpoint.r] = res.data\n" +
   "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
@@ -625,6 +720,8 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      const message = String(err.errMsg || err)\n" +
   "      update['backend.' + endpointId + '.state'] = message.indexOf('timeout') >= 0 ? 'timeout' : 'failed'\n" +
   "      update['backend.' + endpointId + '.error'] = message\n" +
+  "      update['requestState.state'] = 'failed'\n" +
+  "      update['requestState.error'] = 'Request failed'\n" +
   "      __bs(update, endpointId, update['backend.' + endpointId + '.state'], message)\n" +
   "      page.setData(update)\n" +
   "    }\n" +
@@ -658,6 +755,8 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  const update = {}\n" +
   "  update['backend.' + endpointId + '.state'] = 'cancelled'\n" +
   "  update['backend.' + endpointId + '.error'] = ''\n" +
+  "  update['requestState.state'] = 'cancelled'\n" +
+  "  update['requestState.error'] = ''\n" +
   "  __bs(update, endpointId, 'cancelled', '')\n" +
   "  page.setData(update)\n" +
   "}\n" +

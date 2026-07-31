@@ -8,22 +8,6 @@ fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
     [@bunnia.class_name("mt-panel moontown-discover-board")],
     [
       @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-discovery-search")],
-        [
-          @bunnia.input(
-            name="discoverSearch",
-            value=projection.search_query,
-            input_message="discover-search",
-          ),
-          @bunnia.node(
-            kind="button",
-            attrs=[@bunnia.class_name("moontown-primary-action")],
-            events=[@bunnia.tap("discover-search")],
-            children=[@bunnia.text("Search")],
-          ),
-        ],
-      ),
-      @bunnia.view_with_attrs(
         [@bunnia.class_name("moontown-discovery-primary-filters")],
         [
           discovery_filter_chip("all", "All"),
@@ -92,15 +76,33 @@ fn discover_more_filters(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn discover_results_heading(
   projection : MiniTownProjection,
-  results : Array[MiniTownDiscoveryItem],
+  _results : Array[MiniTownDiscoveryItem],
 ) -> @bunnia.Node {
-  let filter = selected_discovery_filter(projection)
-  @bunnia.view_with_attrs([@bunnia.class_name("moontown-results-heading")], [
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
-      @bunnia.text("\{results.length()} matches"),
-    ]),
-    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-      @bunnia.text(filter.label),
-    ]),
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-results-headings")], [
+    @bunnia.windowed_list(
+      projection.discovery_filters,
+      total_count=projection.discovery_filters.length(),
+      render=filter => {
+        @bunnia.keyed(
+          "discover-heading-\{filter.id}",
+          @bunnia.view_with_attrs(
+            [
+              @bunnia.class_name("moontown-results-heading"),
+              @bunnia.attr("wx:if", "{{discover.filter == '\{filter.id}'}}"),
+            ],
+            [
+              @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+                @bunnia.text(
+                  "\{discovery_filter_match_count(projection, filter)} matches",
+                ),
+              ]),
+              @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+                @bunnia.text(filter.label),
+              ]),
+            ],
+          ),
+        )
+      },
+    ),
   ])
 }

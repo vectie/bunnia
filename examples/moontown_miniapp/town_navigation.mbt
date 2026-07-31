@@ -45,6 +45,14 @@ fn town_route_attr(tab_id : String) -> @bunnia.Attr {
 }
 
 ///|
+fn town_place_route_attr(building_id : String) -> @bunnia.Attr {
+  @bunnia.data(
+    "bunnia-route",
+    "\{moontown_tab_route("realm")}?buildingId=\{building_id}",
+  )
+}
+
+///|
 fn town_passport_entry(projection : MiniTownProjection) -> @bunnia.Node {
   @bunnia.view_with_attrs([@bunnia.class_name("moontown-passport-switch")], [
     town_entry_button(),
@@ -108,10 +116,16 @@ fn create_drawer(_projection : MiniTownProjection) -> @bunnia.Node {
       @bunnia.input(name="buildingTitle", value="New Agent Lab"),
       @bunnia.button("Create Building", "create-private-building"),
     ]),
+    backend_feedback(
+      "create-building", "Creating building...", "Building created.", "Could not create building. Try again.",
+    ),
     @bunnia.form("create-agent", [
       @bunnia.input(name="agentName", value="New Agent"),
       @bunnia.button("Create Agent", "create-agent"),
     ]),
+    backend_feedback(
+      "create-agent", "Creating agent...", "Agent created.", "Could not create agent. Try again.",
+    ),
   ])
 }
 

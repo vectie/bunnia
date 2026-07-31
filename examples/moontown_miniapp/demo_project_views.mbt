@@ -34,6 +34,7 @@ fn mini_town_view_with_map_mode(
           town_map_backdrop(projection)
         },
         town_top_bar(projection),
+        global_request_feedback(),
         town_active_surface(projection),
         town_tabbar(projection),
       ],
