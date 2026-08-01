@@ -155,6 +155,34 @@ In WeChat DevTools:
 7. Return to Realm and confirm the supervisor badge and worker count match the
    latest MoonTown projection.
 
+## Marketplace Request To Worker
+
+1. In `Discover`, open a reviewed agent or building listing and choose `Try`,
+   `Install`, `Invite`, or `Request access`. This creates a publisher request;
+   it does not run the listing.
+2. As the publisher, open `Messages → Agent work → Requests` and tap `Refresh`.
+3. Read the requester, listing, proposed instruction, and visible ceiling. The
+   v1 phone surface caps work at reviewable output, gpt-5.6-sol, five minutes,
+   12,000 tokens, three artifacts, USD 2 equivalent provider budget, and web
+   off.
+4. Edit the exact instruction if needed, then tap `Approve & queue`, or tap
+   `Decline`. An approval requires an activated delegation-enabled supervisor.
+5. If activation was missing or Town restarted between approval and handoff,
+   activate the supervisor, refresh the Requests queue, and tap `Retry
+   handoff`. This recovers the deterministic existing handoff before creating
+   another one.
+6. Refresh the queue after MoonDesk transports the outbox. The row advances
+   from `handoff_queued` to `runtime_acknowledged`, `running`, and finally
+   `succeeded` or `failed`, using MoonClaw receipts and observations rather than
+   animation or optimistic UI.
+7. Open Notifications as the requester. Approval, queueing, runtime progress,
+   completion, and failure remain visible only to the request participants.
+
+The marketplace request is not a new agent runtime. Bunnia renders the phone
+interaction, MoonTown owns the decision and recovery state, the existing
+supervisor outbox carries the bounded assignment, MoonDesk transports it, and
+MoonClaw remains the sole executor.
+
 Touch controls remain at least 88rpx (44 CSS pixels at the standard WeChat
 scale), support immediate pressed feedback, and keep the five global tabs:
 `Home`, `Discover`, `Realm`, `Messages`, and `My`.

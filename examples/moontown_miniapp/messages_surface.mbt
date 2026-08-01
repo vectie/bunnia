@@ -8,6 +8,7 @@ fn messages_surface_panels(
     supervisor_phone_panel(projection),
   ]
   panels.push(messages_panel(projection))
+  panels.push(marketplace_action_request_panel())
   panels.push(child_task_control_panel(projection))
   panels.push(review_queue_panel(projection))
   panels.push(agent_work_panel(projection))

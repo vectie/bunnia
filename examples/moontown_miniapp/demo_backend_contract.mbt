@@ -114,6 +114,27 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         response_key="marketplaceActionResult",
       ),
       @bunnia.generic_endpoint(
+        "load-marketplace-action-requests",
+        "/miniapp/marketplace/action-requests",
+        @bunnia.http_get(),
+        payload_key="marketplaceActionRequestQuery",
+        response_key="marketplaceActionRequestResult",
+      ),
+      @bunnia.generic_endpoint(
+        "decide-marketplace-action-request",
+        "/miniapp/marketplace/action-requests/decision",
+        @bunnia.http_post(),
+        payload_key="marketplaceActionDecision",
+        response_key="marketplaceActionDecisionResult",
+      ),
+      @bunnia.generic_endpoint(
+        "retry-marketplace-action-handoff",
+        "/miniapp/marketplace/action-requests/retry-handoff",
+        @bunnia.http_post(),
+        payload_key="marketplaceActionRetry",
+        response_key="marketplaceActionRetryResult",
+      ),
+      @bunnia.generic_endpoint(
         "load-marketplace-channels",
         "/miniapp/marketplace/channels",
         @bunnia.http_get(),

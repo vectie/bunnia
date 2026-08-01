@@ -599,6 +599,7 @@ fn marketplace_work_channels() -> @bunnia.Node {
       @bunnia.attr("wx:if", "{{messages.mode == 'work'}}"),
     ],
     [
+      simple_message_channel("requests", "Requests"),
       simple_message_channel("supervisor", "Supervisor"),
       simple_message_channel("tasks", "Tasks"),
       simple_message_channel("reviews", "Reviews"),

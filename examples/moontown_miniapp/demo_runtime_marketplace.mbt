@@ -28,6 +28,21 @@ fn add_marketplace_event_patches(
       @bunnia.set_string("ui.feedback", "marketplace-action"),
     ]),
   )
+  for
+    id in [
+      "load-marketplace-action-requests", "decide-marketplace-action-request", "retry-marketplace-action-handoff",
+    ] {
+    patches.push(
+      @bunnia.wechat_event_patch(id, [
+        @bunnia.set_string("ui.feedback", "marketplace-action-requests"),
+      ]),
+    )
+  }
+  patches.push(
+    @bunnia.wechat_event_patch("notification-channel-requests", [
+      @bunnia.set_string("messages.channel", "requests"),
+    ]),
+  )
   patches.push(
     @bunnia.wechat_event_patch("preview-marketplace-share", [
       @bunnia.set_string("ui.feedback", "marketplace-share-preview"),

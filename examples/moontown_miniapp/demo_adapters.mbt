@@ -122,7 +122,7 @@ fn demo_initial_data_json_for_tab(tab_id : String) -> String {
     )
     .replace(
       old="\"marketplaceSubscription\":{",
-      new="\"notifications\":{\"remote\":false,\"items\":[],\"unreadCount\":0},\"marketplaceSubscription\":{",
+      new="\"marketplaceActionRequestQuery\":{},\"marketplaceActionRequests\":{\"remote\":false,\"items\":[]},\"marketplaceActionDecision\":{\"requestId\":\"\",\"expectedVersion\":1,\"decision\":\"accept\",\"instruction\":\"\",\"decisionSummary\":\"\"},\"marketplaceActionRetry\":{\"requestId\":\"\",\"expectedVersion\":1},\"notifications\":{\"remote\":false,\"items\":[],\"unreadCount\":0},\"marketplaceSubscription\":{",
     )
     .replace(
       old="\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":401,\"y\":388}",

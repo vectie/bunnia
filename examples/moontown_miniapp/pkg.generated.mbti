@@ -102,7 +102,9 @@ pub fn local_backend_base_url() -> String
 
 pub fn market_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
-pub fn mini_town_acceptance_receipt(id~ : String, run_id~ : String, artifact_ref~ : String, title~ : String, summary~ : String, status~ : String, deep_link~ : String) -> MiniTownAcceptanceReceipt
+pub fn marketplace_channels_by_kind(MiniTownProjection, String) -> Array[MiniTownConversationChannel]
+
+pub fn mini_town_acceptance_receipt(id~ : String, submission_id~ : String, evidence_digest~ : String, run_id~ : String, artifact_ref~ : String, reviewer_name~ : String, title~ : String, summary~ : String, status~ : String, deep_link~ : String) -> MiniTownAcceptanceReceipt
 
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
 
@@ -122,6 +124,8 @@ pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibil
 
 pub fn mini_town_child_worker(agent_id~ : String, supervisor_agent_id~ : String, name~ : String, task_id~ : String, task_title~ : String, run_id~ : String, status~ : String) -> MiniTownChildWorker
 
+pub fn mini_town_conversation_channel(id~ : String, kind~ : String, title~ : String, preview~ : String, context_label~ : String, building_id? : String, unread_count? : Int, subscribed? : Bool, status? : String) -> MiniTownConversationChannel
+
 pub fn mini_town_discovery_filter(id~ : String, label~ : String, kind~ : String, placeable_only? : Bool) -> MiniTownDiscoveryFilter
 
 pub fn mini_town_discovery_item(id~ : String, kind~ : String, title~ : String, summary~ : String, target_ref~ : String, visibility~ : String, status~ : String) -> MiniTownDiscoveryItem
@@ -131,6 +135,8 @@ pub fn mini_town_district(id~ : String, title~ : String, feature_kind~ : String,
 pub fn mini_town_guide_step(id~ : String, title~ : String, summary~ : String, tab_id~ : String, action_label~ : String, action_message~ : String, building_id~ : String, status~ : String, complete~ : Bool) -> MiniTownGuideStep
 
 pub fn mini_town_lifecycle_action(id~ : String, label~ : String, message~ : String, target_ref~ : String, book_id~ : String, allowed~ : Bool, reason~ : String, status~ : String) -> MiniTownLifecycleAction
+
+pub fn mini_town_marketplace_listing(id~ : String, kind~ : String, title~ : String, summary~ : String, publisher~ : String, publisher_id? : String, recommendation_reason? : String, sponsored? : Bool, sponsor_label? : String, status? : String, building_id? : String, price_label? : String, trust_label? : String, recommended? : Bool, actions? : Array[String]) -> MiniTownMarketplaceListing
 
 pub fn mini_town_message(id~ : String, actor_id~ : String, thread_id~ : String, text~ : String, status? : @agent.RunStatus) -> MiniTownMessage
 
@@ -168,9 +174,11 @@ pub fn mini_town_setup_choice(id~ : String, label~ : String, summary~ : String, 
 
 pub fn mini_town_setup_gate(id~ : String, label~ : String, summary~ : String, action_label~ : String, action_message~ : String, complete~ : Bool) -> MiniTownSetupGate
 
+pub fn mini_town_share_preview(id~ : String, listing_id~ : String, kind~ : String, title~ : String, safe_summary~ : String, publisher~ : String, visibility_label? : String, included_fields? : Array[String], withheld_fields? : Array[String]) -> MiniTownSharePreview
+
 pub fn mini_town_supervisor_control(agent_id~ : String, profile_id~ : String, name~ : String, avatar_ref~ : String, status~ : String, controllable? : Bool, child_count? : Int, child_limit? : Int) -> MiniTownSupervisorControl
 
-pub fn mini_town_supervisor_draft(profile_id~ : String, version~ : Int, name~ : String, avatar_ref~ : String, archetype_id~ : String, mission~ : String, tone_id~ : String, capability_ids~ : Array[String], workspace_id~ : String, building_id~ : String, book_id~ : String, consent_agent_control? : Bool, consent_bookkeeper_review? : Bool) -> MiniTownSupervisorDraft
+pub fn mini_town_supervisor_draft(profile_id~ : String, version~ : Int, name~ : String, avatar_ref~ : String, archetype_id~ : String, mission~ : String, tone_id~ : String, capability_ids~ : Array[String], workspace_id~ : String, building_id~ : String, book_id~ : String, consent_agent_control? : Bool, consent_bookkeeper_review? : Bool, consent_terms? : Bool, terms_version? : String) -> MiniTownSupervisorDraft
 
 pub fn mini_town_supervisor_setup(state~ : String, current_step~ : String, draft~ : MiniTownSupervisorDraft, archetypes~ : Array[MiniTownSetupChoice], tones~ : Array[MiniTownSetupChoice], capabilities~ : Array[MiniTownSetupChoice], ready? : Bool, activated? : Bool, runtime_status? : String, bookkeeper_status? : String) -> MiniTownSupervisorSetup
 
@@ -187,6 +195,8 @@ pub fn mini_town_watch(id~ : String, user_id~ : String, target_ref~ : String, ti
 pub fn mini_town_workbench_alert(id~ : String, title~ : String, summary~ : String, target_ref~ : String, severity~ : String, action_label~ : String, action_message~ : String, status~ : String) -> MiniTownWorkbenchAlert
 
 pub fn open_reviewer_tools(MiniTownProjection) -> MiniTownProjection
+
+pub fn organic_marketplace_listings(MiniTownProjection) -> Array[MiniTownMarketplaceListing]
 
 pub fn owned_audit_events(MiniTownProjection) -> Array[MiniTownAuditEvent]
 
@@ -211,6 +221,8 @@ pub fn profile_ready_to_publish(MiniTownProjection) -> Bool
 pub fn publication_steps(MiniTownProjection) -> Array[MiniTownPublicationStep]
 
 pub fn publish_selected_building(MiniTownProjection) -> MiniTownProjection
+
+pub fn recommended_marketplace_listings(MiniTownProjection) -> Array[MiniTownMarketplaceListing]
 
 pub fn reject_review(MiniTownProjection, String) -> MiniTownProjection
 
@@ -257,6 +269,8 @@ pub fn send_message_to_selected_building(MiniTownProjection, String) -> MiniTown
 pub fn setup_gates(MiniTownProjection) -> Array[MiniTownSetupGate]
 
 pub fn share_selected_building(MiniTownProjection) -> MiniTownProjection
+
+pub fn sponsored_marketplace_listings(MiniTownProjection) -> Array[MiniTownMarketplaceListing]
 
 pub fn submit_selected_building(MiniTownProjection) -> MiniTownProjection
 
@@ -307,8 +321,11 @@ pub fn workbench_alerts(MiniTownProjection) -> Array[MiniTownWorkbenchAlert]
 // Types and methods
 pub struct MiniTownAcceptanceReceipt {
   id : String
+  submission_id : String
+  evidence_digest : String
   run_id : String
   artifact_ref : String
+  reviewer_name : String
   title : String
   summary : String
   status : String
@@ -417,6 +434,18 @@ pub struct MiniTownChildWorker {
   status : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownConversationChannel {
+  id : String
+  kind : String
+  title : String
+  preview : String
+  context_label : String
+  building_id : String
+  unread_count : Int
+  subscribed : Bool
+  status : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownDiscoveryFilter {
   id : String
   label : String
@@ -471,6 +500,24 @@ pub struct MiniTownLifecycleAction {
   allowed : Bool
   reason : String
   status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownMarketplaceListing {
+  id : String
+  kind : String
+  title : String
+  summary : String
+  publisher : String
+  publisher_id : String
+  recommendation_reason : String
+  sponsored : Bool
+  sponsor_label : String
+  status : String
+  building_id : String
+  price_label : String
+  trust_label : String
+  recommended : Bool
+  actions : Array[String]
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownMessage {
@@ -611,6 +658,9 @@ pub struct MiniTownProjection {
   watches : Array[MiniTownWatch]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
+  marketplace_listings : Array[MiniTownMarketplaceListing]
+  conversation_channels : Array[MiniTownConversationChannel]
+  share_previews : Array[MiniTownSharePreview]
   ownership_filters : Array[MiniTownOwnershipFilter]
   backend_steps : Array[MiniTownBackendStep]
   backend_cache_states : Array[MiniTownBackendCacheState]
@@ -691,6 +741,18 @@ pub struct MiniTownSetupGate {
   status : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownSharePreview {
+  id : String
+  listing_id : String
+  kind : String
+  title : String
+  safe_summary : String
+  publisher : String
+  visibility_label : String
+  included_fields : Array[String]
+  withheld_fields : Array[String]
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownSupervisorControl {
   agent_id : String
   profile_id : String
@@ -716,6 +778,8 @@ pub struct MiniTownSupervisorDraft {
   book_id : String
   consent_agent_control : Bool
   consent_bookkeeper_review : Bool
+  consent_terms : Bool
+  terms_version : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownSupervisorSetup {
