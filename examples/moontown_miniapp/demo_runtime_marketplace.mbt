@@ -24,6 +24,11 @@ fn add_marketplace_event_patches(
     ]),
   )
   patches.push(
+    @bunnia.wechat_event_patch("load-marketplace-review-queue", [
+      @bunnia.set_string("ui.feedback", "marketplace-review-queue"),
+    ]),
+  )
+  patches.push(
     @bunnia.wechat_event_patch("marketplace-listing-action", [
       @bunnia.set_string("ui.feedback", "marketplace-action"),
     ]),

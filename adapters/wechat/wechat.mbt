@@ -401,7 +401,7 @@ fn generate_project_from_pages_internal(
     backend_contract,
   )
   files.push(wechat_file("bunnia.manifest.json", manifest_json(manifest)))
-  let total = total_file_bytes(files)
+  let total = total_file_bytes(files, generated_pages)
   let report = report_project_pages(
     files,
     generated_pages,
@@ -664,7 +664,7 @@ pub fn generate_runtime_js() -> String {
 ///|
 pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
-  "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility sensitivity title workspaceId buildingListingId agentListingId memberPrincipalIds limit cursor placeableOnly includeAlerts outcomeSubmission summary guidance instruction parentRunId targetRunId listingId listingKind actionId message channelId messageId mentions audiencePrincipalIds notificationId subscriptionId topicKind topicId enabled targetState targetPrincipalId grantId permission expiresAt expiresAtMs'.split(' ')\n" +
+  "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility sensitivity title workspaceId buildingListingId agentListingId memberPrincipalIds limit cursor placeableOnly includeAlerts outcomeSubmission summary guidance instruction parentRunId targetRunId listingId listingKind actionId message channelId messageId mentions audiencePrincipalIds notificationId subscriptionId topicKind topicId enabled targetState targetPrincipalId grantId permission expiresAt expiresAtMs requestId expectedVersion requestMessage decisionSummary reviewSummary claimCeiling maxCostMicroUsd maxRuntimeMs maxTokens maxArtifacts webSearch'.split(' ')\n" +
   "const __bunniaSessionStorageKey='__bunnia_session__'+(__bunniaBackend.s||'default')\n" +
   "\n" +
   "function __bunniaRequest(page, endpointId, payload, settled) {\n" +
@@ -814,7 +814,12 @@ fn packaged_scene_asset_content(asset : WechatSceneAsset) -> String {
 fn scene_asset_should_be_packaged(asset : WechatSceneAsset) -> Bool {
   !asset.remote &&
   asset.src.has_prefix("/assets/") &&
-  asset.src.has_suffix(".png")
+  (
+    asset.src.has_suffix(".png") ||
+    asset.src.has_suffix(".jpg") ||
+    asset.src.has_suffix(".jpeg") ||
+    asset.src.has_suffix(".webp")
+  )
 }
 
 ///|
@@ -842,10 +847,30 @@ fn packaged_scene_asset_png_base64() -> String {
 }
 
 ///|
-fn total_file_bytes(files : Array[WechatFile]) -> Int {
+fn materialized_file_bytes(
+  file : WechatFile,
+  pages : Array[WechatProjectPage],
+) -> Int {
+  if file.content.has_prefix("copy-file:") {
+    for page in pages {
+      for asset in page.page.scene_assets {
+        if scene_asset_file_path(asset.src) == file.path {
+          return asset.estimated_bytes
+        }
+      }
+    }
+  }
+  file.content.length()
+}
+
+///|
+fn total_file_bytes(
+  files : Array[WechatFile],
+  pages : Array[WechatProjectPage],
+) -> Int {
   let mut total = 0
   for item in files {
-    total += item.content.length()
+    total += materialized_file_bytes(item, pages)
   }
   total
 }
@@ -858,8 +883,8 @@ fn project_manifest(
   files : Array[WechatFile],
   backend_contract : @effects.BackendContract?,
 ) -> WechatProjectManifest {
-  let app_total = total_file_bytes(files)
-  let manifest_files = manifest_files(files)
+  let app_total = total_file_bytes(files, pages)
+  let manifest_files = manifest_files(files, pages)
   let manifest_pages = manifest_pages(pages, files, backend_contract)
   let scene_assets = manifest_scene_assets(manifest_pages)
   let scene_remote_asset_count = manifest_remote_scene_asset_count(scene_assets)
@@ -885,14 +910,17 @@ fn project_manifest(
 }
 
 ///|
-fn manifest_files(files : Array[WechatFile]) -> Array[WechatManifestFile] {
+fn manifest_files(
+  files : Array[WechatFile],
+  pages : Array[WechatProjectPage],
+) -> Array[WechatManifestFile] {
   let output : Array[WechatManifestFile] = []
   for file in files {
     output.push({
       path: file.path,
       kind: manifest_file_kind(file.path),
       route: manifest_file_route(file.path),
-      bytes: file.content.length(),
+      bytes: materialized_file_bytes(file, pages),
     })
   }
   output
@@ -1625,7 +1653,7 @@ fn render_node(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
     if root.children.length() == 0 && root.text == "" {
       "<\{kind}\{attrs}></\{kind}>"
     } else {
-      "<\{kind}\{attrs}>\{escape_xml(root.text)}\{render_children(root.children, adapter)}</\{kind}>"
+      "<\{kind}\{attrs}>\{escape_wxml_text(root.text)}\{render_children(root.children, adapter)}</\{kind}>"
     }
   }
 }
@@ -1646,7 +1674,9 @@ fn render_children(
 fn render_attrs(root : @core.Node, adapter : @core.PlatformAdapter) -> String {
   let out = StringBuilder::new()
   for attr in root.attrs {
-    out.write_string(" \{attr.name}=\"\{escape_xml(wechat_attr_value(attr))}\"")
+    out.write_string(
+      " \{attr.name}=\"\{escape_wxml_attr(wechat_attr_value(attr))}\"",
+    )
   }
   for binding in root.events {
     let rendered_event = event_name(binding.event, adapter)
@@ -1759,7 +1789,8 @@ fn project_page_js_with_backend(
     name,
     plan,
     "__bunniaInitialDataWithSession",
-    "    __bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})\n",
+    "    const formValues=event&&event.detail&&event.detail.value&&typeof event.detail.value==='object'?event.detail.value:{}\n" +
+    "    __bunniaMaybeRequest(this,message,Object.assign({},formValues,event.currentTarget.dataset||{}))\n",
     backend_session_page_methods_js() + runtime.page_methods_js,
   )
 }
@@ -2104,6 +2135,54 @@ fn escape_xml(value : String) -> String {
   .replace_all(old=">", new="&gt;")
   .replace_all(old="\"", new="&quot;")
   .to_string()
+}
+
+///|
+/// WeChat parses `{{ ... }}` as source code inside a WXML attribute. Encoding
+/// expression operators such as `&&`, `<`, or `>` as XML entities makes the
+/// WXML compiler reject otherwise valid bindings. Literal attributes retain
+/// full XML escaping; binding attributes only need their outer quote escaped.
+fn escape_wxml_attr(value : String) -> String {
+  if value.contains("{{") && value.contains("}}") {
+    value.replace_all(old="\"", new="&quot;")
+  } else {
+    escape_xml(value)
+  }
+}
+
+///|
+/// Text nodes may mix literal copy with one or more `{{ ... }}` expressions.
+/// Escape only the literal segments; expression operators must reach the WXML
+/// compiler unchanged.
+fn escape_wxml_text(value : String) -> String {
+  let out = StringBuilder::new()
+  let mut rest = value
+  while !rest.is_empty() {
+    match rest.find("{{") {
+      None => {
+        out.write_string(escape_xml(rest))
+        rest = ""
+      }
+      Some(start) => {
+        out.write_string(escape_xml(rest.sub(start=0, end=start).to_owned()))
+        let binding = rest.sub(start~, end=rest.length()).to_owned()
+        match binding.find("}}") {
+          None => {
+            out.write_string(escape_xml(binding))
+            rest = ""
+          }
+          Some(close) => {
+            let binding_end = close + 2
+            out.write_string(binding.sub(start=0, end=binding_end).to_owned())
+            rest = binding
+              .sub(start=binding_end, end=binding.length())
+              .to_owned()
+          }
+        }
+      }
+    }
+  }
+  out.to_string()
 }
 
 ///|

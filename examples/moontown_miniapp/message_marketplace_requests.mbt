@@ -64,7 +64,7 @@ fn marketplace_action_request_panel() -> @bunnia.Node {
       ),
       marketplace_action_request_rows(),
       backend_feedback(
-        "marketplace-action-requests", "Updating the governed request…", "Request and runtime handoff updated.",
+        "marketplace-action-requests", "Updating the governed request…", "Decision saved. The request card shows whether MoonClaw is queued or needs supervisor activation.",
         "The decision is saved when possible. Activate your supervisor, refresh, and retry the handoff.",
       ),
     ],
@@ -135,35 +135,63 @@ fn marketplace_action_decision_controls() -> @bunnia.Node {
           "Reviewable output · gpt-5.6-sol · 5 min · 12k tokens · 3 artifacts · web off",
         ),
       ]),
-      @bunnia.form("decide-marketplace-action-request", [
-        marketplace_hidden_input("requestId", "{{item.requestId}}"),
-        marketplace_hidden_input("expectedVersion", "{{item.version}}"),
-        marketplace_hidden_input("decision", "accept"),
-        marketplace_hidden_input("requestMessage", "{{item.requestMessage}}"),
-        @bunnia.node(
-          kind="input",
-          attrs=[
-            @bunnia.attr("name", "instruction"),
-            @bunnia.attr("value", "{{item.requestMessage}}"),
-            @bunnia.attr(
-              "placeholder", "Describe the exact bounded result to produce",
-            ),
-            @bunnia.attr("aria-label", "Approved worker instruction"),
-          ],
-          children=[],
-        ),
-        marketplace_submit_button(
-          "Approve & queue",
-          "check",
-          emphasis="primary",
-        ),
-      ]),
-      @bunnia.form("decide-marketplace-action-request", [
-        marketplace_hidden_input("requestId", "{{item.requestId}}"),
-        marketplace_hidden_input("expectedVersion", "{{item.version}}"),
-        marketplace_hidden_input("decision", "reject"),
-        marketplace_submit_button("Decline", "close"),
-      ]),
+      @bunnia.node(
+        kind="form",
+        attrs=[
+          // WeChat form serialization can drop punctuation-bearing hidden
+          // identifiers. Keep the same typed values on the submit target so
+          // the generic runtime's dataset merge preserves the durable ID.
+          @bunnia.data("request-id", "{{item.requestId}}"),
+          @bunnia.data("expected-version", "{{item.version}}"),
+          @bunnia.data("decision", "accept"),
+          @bunnia.data("request-message", "{{item.requestMessage}}"),
+        ],
+        events=[
+          @bunnia.event("submit", "decide-marketplace-action-request"),
+        ],
+        children=[
+          marketplace_hidden_input("requestId", "{{item.requestId}}"),
+          marketplace_hidden_input("expectedVersion", "{{item.version}}"),
+          marketplace_hidden_input("decision", "accept"),
+          marketplace_hidden_input(
+            "requestMessage", "{{item.requestMessage}}",
+          ),
+          @bunnia.node(
+            kind="input",
+            attrs=[
+              @bunnia.attr("name", "instruction"),
+              @bunnia.attr("value", "{{item.requestMessage}}"),
+              @bunnia.attr(
+                "placeholder", "Describe the exact bounded result to produce",
+              ),
+              @bunnia.attr("aria-label", "Approved worker instruction"),
+            ],
+            children=[],
+          ),
+          marketplace_submit_button(
+            "Approve & queue",
+            "check",
+            emphasis="primary",
+          ),
+        ],
+      ),
+      @bunnia.node(
+        kind="form",
+        attrs=[
+          @bunnia.data("request-id", "{{item.requestId}}"),
+          @bunnia.data("expected-version", "{{item.version}}"),
+          @bunnia.data("decision", "reject"),
+        ],
+        events=[
+          @bunnia.event("submit", "decide-marketplace-action-request"),
+        ],
+        children=[
+          marketplace_hidden_input("requestId", "{{item.requestId}}"),
+          marketplace_hidden_input("expectedVersion", "{{item.version}}"),
+          marketplace_hidden_input("decision", "reject"),
+          marketplace_submit_button("Decline", "close"),
+        ],
+      ),
     ],
   )
 }
@@ -188,20 +216,30 @@ fn marketplace_action_runtime_receipt() -> @bunnia.Node {
         ],
         [@bunnia.text("{{item.resultSummary}}")],
       ),
-      @bunnia.form("retry-marketplace-action-handoff", [
-        marketplace_hidden_input("requestId", "{{item.requestId}}"),
-        marketplace_hidden_input("expectedVersion", "{{item.version}}"),
-        @bunnia.node(
-          kind="button",
-          attrs=[
-            @bunnia.attr("wx:if", "{{item.canRetryHandoff}}"),
-            @bunnia.attr("form-type", "submit"),
-            @bunnia.class_name("moontown-market-action action-primary"),
-            @bunnia.attr("aria-label", "Retry MoonClaw handoff"),
-          ],
-          children=town_icon_label("retry", "Retry handoff"),
-        ),
-      ]),
+      @bunnia.node(
+        kind="form",
+        attrs=[
+          @bunnia.data("request-id", "{{item.requestId}}"),
+          @bunnia.data("expected-version", "{{item.version}}"),
+        ],
+        events=[
+          @bunnia.event("submit", "retry-marketplace-action-handoff"),
+        ],
+        children=[
+          marketplace_hidden_input("requestId", "{{item.requestId}}"),
+          marketplace_hidden_input("expectedVersion", "{{item.version}}"),
+          @bunnia.node(
+            kind="button",
+            attrs=[
+              @bunnia.attr("wx:if", "{{item.canRetryHandoff}}"),
+              @bunnia.attr("form-type", "submit"),
+              @bunnia.class_name("moontown-market-action action-primary"),
+              @bunnia.attr("aria-label", "Retry MoonClaw handoff"),
+            ],
+            children=town_icon_label("retry", "Retry handoff"),
+          ),
+        ],
+      ),
     ],
   )
 }

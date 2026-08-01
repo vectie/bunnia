@@ -21,10 +21,10 @@ pub fn render_budget_for_profile(name : String) -> @core.RenderBudget {
       )
     "large" =>
       @core.render_budget(
-        max_nodes=512,
+        max_nodes=1024,
         max_depth=16,
-        max_events=96,
-        max_initial_data_bytes=16384,
+        max_events=128,
+        max_initial_data_bytes=49152,
         max_unwindowed_list_children=64,
         max_scene_markers=256,
         max_scene_regions=128,
@@ -60,7 +60,7 @@ pub fn wechat_build_budget_for_profile(
         max_total_bytes=32768,
         max_wxml_bytes=16384,
         max_wxss_bytes=8192,
-        max_js_bytes=10240,
+        max_js_bytes=16384,
         max_initial_data_bytes=1024,
         max_event_patch_bytes=1024,
         max_event_patch_operations=32,
@@ -70,18 +70,18 @@ pub fn wechat_build_budget_for_profile(
       )
     "large" =>
       @wechat.build_budget(
-        max_pages=8,
-        max_files=48,
-        max_total_bytes=262144,
-        max_wxml_bytes=131072,
-        max_wxss_bytes=65536,
-        max_js_bytes=65536,
-        max_initial_data_bytes=16384,
-        max_event_patch_bytes=16384,
-        max_event_patch_operations=160,
-        max_page_first_screen_bytes=76000,
-        max_page_update_payload_bytes=4096,
-        max_page_update_operations=64,
+        max_pages=16,
+        max_files=96,
+        max_total_bytes=2 * 1024 * 1024,
+        max_wxml_bytes=512 * 1024,
+        max_wxss_bytes=256 * 1024,
+        max_js_bytes=1024 * 1024,
+        max_initial_data_bytes=128 * 1024,
+        max_event_patch_bytes=64 * 1024,
+        max_event_patch_operations=256,
+        max_page_first_screen_bytes=256 * 1024,
+        max_page_update_payload_bytes=8192,
+        max_page_update_operations=96,
       )
     "tiny" =>
       @wechat.build_budget(
@@ -141,15 +141,15 @@ pub fn inspection_budget_for_profile(name : String) -> ProjectInspectionBudget {
       )
     "large" =>
       inspection_budget(
-        max_route_risk_score=250000,
-        max_update_payload_bytes=4096,
-        max_update_operations=64,
+        max_route_risk_score=300000,
+        max_update_payload_bytes=8192,
+        max_update_operations=96,
         max_unwindowed_list_children=64,
         max_unkeyed_list_children=0,
         max_duplicate_list_keys=0,
-        max_backend_events=64,
+        max_backend_events=96,
         max_backend_streams=16,
-        max_backend_reviews=16,
+        max_backend_reviews=32,
         max_backend_cancels=16,
         max_backend_retries=16,
         max_scene_assets=64,
@@ -212,14 +212,14 @@ pub fn miniapp_inspection_budget_for_profile(
       )
     "large" =>
       miniapp_inspection_budget(
-        max_pages=8,
-        max_files=64,
-        max_total_bytes=262144,
+        max_pages=16,
+        max_files=96,
+        max_total_bytes=2 * 1024 * 1024,
         max_route_diagnostic_routes=0,
         max_route_diagnostics=0,
-        max_nodes=512,
+        max_nodes=1024,
         max_depth=16,
-        max_events=96,
+        max_events=128,
         max_scene_markers=256,
         max_scene_regions=128,
         max_scene_assets=64,

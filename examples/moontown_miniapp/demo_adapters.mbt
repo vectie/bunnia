@@ -105,6 +105,10 @@ fn demo_initial_data_json_for_tab(tab_id : String) -> String {
       new="\"messages\":{\"mode\":\"chats\",\"channel\":\"all\",\"channelKind\":\"all\",\"channelOpen\":false},\"channelDirectoryQuery\":{},\"channelDraft\":{\"channelId\":\"\",\"title\":\"\",\"visibility\":\"private\",\"sensitivity\":\"internal\",\"workspaceId\":\"\",\"buildingListingId\":\"\",\"agentListingId\":\"\",\"memberPrincipalIds\":[]},\"channels\":{\"remote\":false,\"items\":[],\"messages\":[{\"id\":\"welcome\",\"sender\":\"Town\",\"role\":\"system\",\"body\":\"This channel is visible only to its named participants.\"}],\"selected\":{\"id\":\"\",\"title\":\"\",\"kind\":\"\",\"contextLabel\":\"\"}},\"channelMessagesQuery\":{\"channelId\":\"\"},\"channelMessageDraft\":{\"body\":\"\"},\"marketplaceNotificationQuery\":{},\"marketplaceNotificationRead\":{\"notificationId\":\"\"},\"marketplaceSubscription\":{\"subscriptionId\":\"town-important-signals\",\"topicKind\":\"town\",\"topicId\":\"important-signals\",\"enabled\":true}",
     )
     .replace(
+      old="\"marketplaceFeedQuery\":{\"q\":\"\"},\"marketplace\":",
+      new="\"marketplaceFeedQuery\":{\"q\":\"\"},\"marketplaceReviewQueueQuery\":{},\"marketplaceReviewQueue\":{\"remote\":false,\"items\":[]},\"marketplace\":",
+    )
+    .replace(
       old="\"publisherOpen\":false,\"selected\"",
       new="\"publisherOpen\":false,\"sharePreviewOpen\":false,\"sharePreview\":{\"title\":\"\",\"safeSummary\":\"\",\"includedFields\":[],\"withheldFields\":[]},\"selected\"",
     )

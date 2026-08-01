@@ -17,13 +17,13 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-more-open\":[{k:\"set\",p:\"discover.moreOpen\",v:true}]",
+    !file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-more-open\"",
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-more-close\":[{k:\"set\",p:\"discover.moreOpen\",v:false}]",
+    !file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"discover-more-close\"",
     ),
   )
   assert_true(
@@ -32,18 +32,18 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"placeable\",\"kind\":\"building\",\"placeableOnly\":true,\"cursor\":0}",
+    !file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"placeable\"",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"product\",\"kind\":\"product\",\"placeableOnly\":false,\"cursor\":0}",
+      "\"publish-agent-listing\"",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"discover-filter-product\":[{k:\"set\",p:\"discover.filter\",v:\"product\"},{k:\"set\",p:\"discoverSearch\",v:{\"query\":\"agent\",\"filter\":\"product\",\"kind\":\"product\",\"placeableOnly\":false,\"cursor\":0}}]",
+      "\"load-marketplace-review-queue\"",
     ),
   )
   assert_true(
@@ -102,8 +102,8 @@ test "moontown generated project keeps route patch contracts for tabs and action
     ),
   )
   assert_true(
-    file_content(project.files, "pages/moontown/discover.data.js").contains(
-      "\"open-place-published-agent-lab\":[{k:\"set\",p:\"shell.activeTab\",v:\"realm\"},{k:\"set\",p:\"town.selectedBuildingId\",v:\"published-agent-lab\"},{k:\"set\",p:\"town.detailsOpen\",v:false}]",
+    !file_content(project.files, "pages/moontown/discover.data.js").contains(
+      "\"open-place-published-agent-lab\"",
     ),
   )
   assert_true(

@@ -20,7 +20,7 @@ test "moontown miniapp generated page renders map and shell" {
   )
   assert_true(
     page.wxml.contains(
-      "src=\"/assets/moontown_wenyu_energy_valley_20260727.png\"",
+      "src=\"/assets/moontown_wenyu_energy_valley_20260727.jpg\"",
     ),
   )
   assert_true(

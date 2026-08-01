@@ -50,15 +50,18 @@ fn marketplace_autocomplete() -> @bunnia.Node {
     ],
     [
       @bunnia.list(suggestions, suggestion => {
-        @bunnia.node(
-          kind="button",
-          attrs=[
-            @bunnia.class_name("moontown-market-suggestion"),
-            @bunnia.data("query", suggestion.0),
-            @bunnia.attr("bindtap", "onMarketplaceSuggestion"),
-            @bunnia.attr("aria-label", "Search for \{suggestion.1}"),
-          ],
-          children=town_icon_label("search", suggestion.1),
+        @bunnia.keyed(
+          "marketplace-suggestion-\{suggestion.0}",
+          @bunnia.node(
+            kind="button",
+            attrs=[
+              @bunnia.class_name("moontown-market-suggestion"),
+              @bunnia.data("query", suggestion.0),
+              @bunnia.attr("bindtap", "onMarketplaceSuggestion"),
+              @bunnia.attr("aria-label", "Search for \{suggestion.1}"),
+            ],
+            children=town_icon_label("search", suggestion.1),
+          ),
         )
       }),
     ],

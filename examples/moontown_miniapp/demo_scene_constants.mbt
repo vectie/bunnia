@@ -25,32 +25,32 @@ fn moontown_map_display_height() -> Int {
 
 ///|
 fn moontown_map_asset_src() -> String {
-  "/assets/moontown_wenyu_energy_valley_20260727.png"
+  "/assets/moontown_wenyu_energy_valley_20260727.jpg"
 }
 
 ///|
 fn moontown_map_asset_source() -> String {
-  "examples/moontown_miniapp/assets/moontown_wenyu_energy_valley_20260727.png"
+  "examples/moontown_miniapp/assets/moontown_wenyu_energy_valley_20260727.jpg"
 }
 
 ///|
 fn moontown_map_asset_bytes() -> Int {
-  965186
+  219912
 }
 
 ///|
 fn supervisor_avatar_asset_src() -> String {
-  "/assets/mobi-sea-otter-icon-concept-v1.png"
+  "/assets/mobi-sea-otter-icon-concept-v1.jpg"
 }
 
 ///|
 fn supervisor_avatar_asset_source() -> String {
-  "examples/moontown_miniapp/assets/mobi-sea-otter-icon-concept-v1.png"
+  "examples/moontown_miniapp/assets/mobi-sea-otter-icon-concept-v1.jpg"
 }
 
 ///|
 fn supervisor_avatar_asset_bytes() -> Int {
-  912906
+  26008
 }
 
 ///|

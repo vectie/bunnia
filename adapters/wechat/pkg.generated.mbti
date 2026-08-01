@@ -93,6 +93,8 @@ pub struct WechatBuildReport {
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
   max_page_update_operation_count : Int
+  recommended_main_package_bytes : Int
+  package_size_advisory : String
   diagnostics : Array[String]
   summary : String
 } derive(Eq, @debug.Debug)

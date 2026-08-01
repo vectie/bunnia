@@ -14,7 +14,10 @@ test "moontown generated project keeps shell files pages assets and ordinary gua
   )
   assert_eq(project.route, "pages/moontown/index")
   assert_eq(project.page_count, 6)
-  assert_true(project.report.event_patch_operation_count <= 160)
+  assert_true(project.report.total_bytes >= 219912 + 26008)
+  assert_eq(project.report.recommended_main_package_bytes, 1536 * 1024)
+  assert_eq(project.report.package_size_advisory, "within-headroom")
+  assert_true(project.report.event_patch_operation_count <= 256)
   assert_true(has_file(project.files, "bunnia.runtime.js"))
   assert_true(has_file(project.files, "bunnia.backend.js"))
   assert_true(has_file(project.files, "pages/moontown/home.wxml"))
@@ -23,14 +26,14 @@ test "moontown generated project keeps shell files pages assets and ordinary gua
   assert_true(has_file(project.files, "pages/moontown/my.wxml"))
   assert_true(has_file(project.files, "pages/moontown/reviewer.wxml"))
   assert_true(
-    has_file(project.files, "assets/moontown_wenyu_energy_valley_20260727.png"),
+    has_file(project.files, "assets/moontown_wenyu_energy_valley_20260727.jpg"),
   )
   assert_true(
     file_content(
       project.files,
-      "assets/moontown_wenyu_energy_valley_20260727.png",
+      "assets/moontown_wenyu_energy_valley_20260727.jpg",
     ).contains(
-      "copy-file:examples/moontown_miniapp/assets/moontown_wenyu_energy_valley_20260727.png",
+      "copy-file:examples/moontown_miniapp/assets/moontown_wenyu_energy_valley_20260727.jpg",
     ),
   )
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))

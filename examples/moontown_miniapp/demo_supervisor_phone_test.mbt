@@ -54,7 +54,7 @@ test "messages controls supervisor child work reviews and receipts" {
   )
   assert_true(messages.wxml.contains("SUPERVISOR LODGE · NOT OPEN"))
   assert_true(messages.wxml.contains("data-bunnia-message=\"tab-home\""))
-  assert_true(messages.wxml.contains("runtimeCursor &gt; 0"))
+  assert_true(messages.wxml.contains("runtimeCursor > 0"))
   assert_true(messages.wxml.contains("data-bunnia-message=\"assign-worker\""))
   assert_true(messages.wxml.contains("data-bunnia-message=\"steer-run\""))
   assert_true(messages.wxml.contains("data-bunnia-message=\"steer-child-run\""))

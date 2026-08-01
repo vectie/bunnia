@@ -79,7 +79,7 @@ fn generated_contract_data_stays_out_of_ordinary_wxml(
   if !data_js.contains("adminOpsQuery") ||
     !data_js.contains("messageCenterQuery") ||
     !backend_js.contains("/miniapp/admin/ops") ||
-    !backend_js.contains("/miniapp/messages/center") {
+    !backend_js.contains("/miniapp/marketplace/channels") {
     return false
   }
   for path in ordinary_wxml_paths() {

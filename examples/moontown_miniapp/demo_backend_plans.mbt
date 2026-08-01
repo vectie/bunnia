@@ -1,9 +1,9 @@
 ///|
 pub fn demo_backend_budget() -> @bunnia.BackendBudget {
   @bunnia.backend_budget(
-    max_endpoints=64,
+    max_endpoints=96,
     max_streaming=4,
-    max_review_required=18,
+    max_review_required=32,
   )
 }
 

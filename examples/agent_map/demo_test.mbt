@@ -128,7 +128,7 @@ test "agent map demo generates a mini-program file set" {
   )
   assert_true(
     project.page.js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "Object.assign({},formValues,event.currentTarget.dataset||{})",
     ),
   )
   assert_true(project.page.js.contains("e.k==='agent-operation-cancel'"))
@@ -143,7 +143,7 @@ test "agent map demo generates a mini-program file set" {
   assert_eq(project.manifest.pages[0].backend_retry_count, 1)
   assert_true(
     project.page.js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "Object.assign({},formValues,event.currentTarget.dataset||{})",
     ),
   )
   assert_true(project.page.js.contains("__bunniaEventPatches"))

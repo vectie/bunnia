@@ -10,7 +10,9 @@ pub fn demo_wechat_page() -> @bunnia.WechatPage {
 
 ///|
 pub fn demo_wechat_project() -> @bunnia.WechatProject {
-  demo_wechat_project_with_render_budget(@bunnia.default_render_budget())
+  demo_wechat_project_with_render_budget(
+    @bunnia.render_budget_for_profile("large"),
+  )
 }
 
 ///|

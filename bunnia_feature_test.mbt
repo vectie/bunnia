@@ -1192,7 +1192,7 @@ test "backend contracts plan request and streaming effects" {
   )
   assert_true(
     project.page.js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "Object.assign({},formValues,event.currentTarget.dataset||{})",
     ),
   )
   assert_true(

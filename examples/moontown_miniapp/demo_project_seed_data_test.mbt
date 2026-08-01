@@ -13,7 +13,7 @@ test "moontown generated project keeps seeded page data contract" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.wxml").contains(
-      "data-bunnia-message=\"load-message-center\"",
+      "data-bunnia-message=\"load-marketplace-channels\"",
     ),
   )
   assert_true(
@@ -98,12 +98,12 @@ test "moontown generated project keeps seeded page data contract" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"discover\":{\"filter\":\"all\",\"moreOpen\":false}",
+      "\"discover\":{\"filter\":\"all\",\"moreOpen\":false,\"suggestionsOpen\":false}",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"messages\":{\"channel\":\"all\"}",
+      "\"messages\":{\"mode\":\"chats\",\"channel\":\"all\",\"channelKind\":\"all\",\"channelOpen\":false}",
     ),
   )
   assert_true(

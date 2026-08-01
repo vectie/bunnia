@@ -86,6 +86,13 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         response_key="marketplaceFeedResult",
       ),
       @bunnia.generic_endpoint(
+        "load-marketplace-review-queue",
+        "/miniapp/marketplace/review-queue",
+        @bunnia.http_get(),
+        payload_key="marketplaceReviewQueueQuery",
+        response_key="marketplaceReviewQueueResult",
+      ),
+      @bunnia.generic_endpoint(
         "publish-agent-listing",
         "/miniapp/marketplace/listings/agent",
         @bunnia.http_post(),

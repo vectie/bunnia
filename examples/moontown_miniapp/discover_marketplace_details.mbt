@@ -355,12 +355,120 @@ fn marketplace_publisher_preview(
         total_count=projection.share_previews.length(),
         render=marketplace_publish_preview_row,
       ),
+      marketplace_review_queue_panel(),
       backend_feedback(
         "publish-listing", "Saving publication request...", "Publication request saved. Nothing became public automatically.",
         "The draft remains private. Fix the issue and try again.",
       ),
     ],
   )
+}
+
+///|
+fn marketplace_review_queue_panel() -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-review-queue")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-market-section-heading")],
+      [
+        town_icon("review"),
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-market-heading-copy")],
+          [
+            @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+              @bunnia.text("Independent review"),
+            ]),
+            @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+              @bunnia.text(
+                "Review another publisher's submitted public card before it appears in Town.",
+              ),
+            ]),
+          ],
+        ),
+      ],
+    ),
+    @bunnia.form("load-marketplace-review-queue", [
+      marketplace_submit_button("Check review queue", "refresh"),
+    ]),
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-market-state empty"),
+        @bunnia.attr(
+          "wx:if", "{{marketplaceReviewQueue.remote && marketplaceReviewQueue.items.length == 0}}",
+        ),
+      ],
+      [
+        town_icon("review"),
+        @bunnia.view_with_attrs(
+          [@bunnia.class_name("moontown-market-state-copy")],
+          [
+            @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+              @bunnia.text("No submitted cards"),
+            ]),
+            @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+              @bunnia.text("Another publisher's submissions will appear here."),
+            ]),
+          ],
+        ),
+      ],
+    ),
+    @bunnia.view_with_attrs(
+      [
+        @bunnia.class_name("moontown-review-queue-list"),
+        @bunnia.attr("wx:for", "{{marketplaceReviewQueue.items}}"),
+        @bunnia.attr("wx:for-item", "reviewItem"),
+        @bunnia.attr("wx:key", "id"),
+      ],
+      [
+        @bunnia.keyed(
+          "marketplace-review-row-template",
+          marketplace_review_queue_row(),
+        ),
+      ],
+    ),
+    backend_feedback(
+      "marketplace-review-queue", "Checking submitted cards...", "Review queue updated.",
+      "The review queue is available only to publishers and moderators.",
+    ),
+  ])
+}
+
+///|
+fn marketplace_review_queue_row() -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-review-queue-row")], [
+    @bunnia.view_with_attrs(
+      [@bunnia.class_name("moontown-publish-preview-title")],
+      [
+        town_icon("review"),
+        @bunnia.view_with_attrs([@bunnia.class_name("mt-title")], [
+          @bunnia.text("{{reviewItem.title}}"),
+        ]),
+        @bunnia.view_with_attrs([@bunnia.class_name("moontown-public-stamp")], [
+          @bunnia.text("{{reviewItem.kind}}"),
+        ]),
+      ],
+    ),
+    @bunnia.view_with_attrs([@bunnia.class_name("moontown-market-summary")], [
+      @bunnia.text("{{reviewItem.summary}}"),
+    ]),
+    @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
+      @bunnia.text(
+        "By {{reviewItem.publisher}} · {{reviewItem.licenseClass}} · {{reviewItem.rightsSummary}}",
+      ),
+    ]),
+    @bunnia.form("transition-marketplace-listing", [
+      marketplace_hidden_input("listingId", "{{reviewItem.id}}"),
+      marketplace_hidden_input("listingKind", "{{reviewItem.kind}}"),
+      marketplace_hidden_input("targetState", "published"),
+      marketplace_hidden_input(
+        "reviewSummary", "Independent reviewer approved rights, public fields, offered actions, and authority ceiling.",
+      ),
+      marketplace_submit_button(
+        "Approve & publish",
+        "check",
+        emphasis="primary",
+      ),
+    ]),
+  ])
 }
 
 ///|
@@ -443,9 +551,12 @@ fn marketplace_preview_field_list(
         ],
       ),
       @bunnia.list(items, item => {
-        @bunnia.view_with_attrs(
-          [@bunnia.class_name("moontown-preview-field")],
-          [@bunnia.text(item)],
+        @bunnia.keyed(
+          "marketplace-preview-\{kind}-\{item}",
+          @bunnia.view_with_attrs(
+            [@bunnia.class_name("moontown-preview-field")],
+            [@bunnia.text(item)],
+          ),
         )
       }),
     ],

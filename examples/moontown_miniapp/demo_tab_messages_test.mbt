@@ -28,9 +28,9 @@ test "moontown miniapp renders the supervisor control inbox" {
   assert_true(
     messages.wxml.contains("messages.channel == 'tasks' ? 'active' : ''"),
   )
-  assert_true(messages.wxml.contains("aria-label=\"Refresh chats\""))
+  assert_true(messages.wxml.contains("aria-label=\"Refresh conversations\""))
   assert_true(
-    messages.wxml.contains("data-bunnia-message=\"load-message-center\""),
+    messages.wxml.contains("data-bunnia-message=\"load-marketplace-channels\""),
   )
 
   assert_true(messages.wxml.contains("moontown-chat-row unread"))

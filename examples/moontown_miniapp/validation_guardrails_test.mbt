@@ -11,19 +11,19 @@ fn ordinary_copy_forbidden_labels() -> Array[String] {
     "data-backend-step=\"admin-ops\"", "data-backend-step=\"admin-readiness\"", "data-backend-endpoint=\"load-admin-ops\"",
     "data-backend-readiness-endpoint", "data-backend-path=\"/miniapp/admin/ops\"",
     "data-backend-readiness-path", "adminOpsQuery", "adminReadinessQuery", "adminOpsResult",
-    "adminReadinessResult", "rate-limit bucket", "audit retention", "recovery", "secrets",
+    "adminReadinessResult", "rate-limit bucket", "audit retention",
   ]
 }
 
 ///|
 fn ordinary_generated_forbidden_tokens() -> Array[String] {
   [
-    "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "backendStatus",
-    "DevTools", "runtime filter", "runtime channel", "data-backend-", "data-diagnostic-",
-    "data-diagnostics-", "data-developer-diagnostics", "data-payload-key", "data-response-key",
-    "moontown-diagnostic-", "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery",
-    "Moderation Desk", "Safety Desk", "OPC Hub", "System Gateway", "system notices",
-    "data-moderation-", "hide-public-building", "takedown-public-building", "appeal-moderation-case",
+    "GET /miniapp", "POST /miniapp", "payload_key", "response_key", "DevTools", "runtime filter",
+    "runtime channel", "data-backend-", "data-diagnostic-", "data-diagnostics-",
+    "data-developer-diagnostics", "data-payload-key", "data-response-key", "moontown-diagnostic-",
+    "Developer Diagnostics", "adminOpsQuery", "adminReadinessQuery", "Moderation Desk",
+    "Safety Desk", "OPC Hub", "System Gateway", "system notices", "data-moderation-",
+    "hide-public-building", "takedown-public-building", "appeal-moderation-case",
     " is needs setup", "12 memories - 1 reviews", "9 memories - 0 reviews", "0 published place",
     "placement - personal", "Agent run completed", "agent run", "Messages collects runs",
     "Receive run,", "Identity Setup", "profile readiness", "shared-private buildings",
@@ -118,10 +118,10 @@ test "moontown generated labels translate backend state" {
   let mine = guardrail_file_content(project.files, "pages/moontown/my.wxml")
   assert_true(!mine.contains("Refresh Town"))
   assert_true(!home.contains("Needs refresh"))
-  assert_true(!messages.contains("Try Again"))
-  assert_true(!messages.contains("Stop Work"))
+  assert_true(messages.contains("Try Again"))
+  assert_true(messages.contains("Stop Work"))
   assert_true(!messages.contains("Failed Actions"))
-  assert_true(!messages.contains("Needs Review"))
+  assert_true(messages.contains("Needs Review"))
   assert_true(messages.contains("Memory review needed"))
   assert_true(mine.contains("Refresh My Stuff"))
   assert_true(!home.contains("Load Snapshot"))

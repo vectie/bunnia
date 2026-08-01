@@ -30,6 +30,8 @@ pub struct WechatBuildReport {
   max_page_first_screen_bytes : Int
   max_page_update_payload_bytes : Int
   max_page_update_operation_count : Int
+  recommended_main_package_bytes : Int
+  package_size_advisory : String
   diagnostics : Array[String]
   summary : String
 } derive(Debug, Eq)
@@ -39,7 +41,7 @@ pub fn default_build_budget() -> WechatBuildBudget {
   {
     max_pages: 32,
     max_files: 16,
-    max_total_bytes: 262144,
+    max_total_bytes: 2 * 1024 * 1024,
     max_wxml_bytes: 65536,
     max_wxss_bytes: 65536,
     max_js_bytes: 65536,
@@ -121,7 +123,7 @@ fn report_files(
   let mut wxss = 0
   let mut js = 0
   for file in files {
-    let bytes = file.content.length()
+    let bytes = materialized_file_bytes(file, pages)
     total += bytes
     if file.path.has_suffix(".wxml") {
       wxml += bytes
@@ -134,6 +136,12 @@ fn report_files(
   let initial = initial_data_bytes(pages)
   let event_patch = event_patch_bytes(pages)
   let event_patch_operations = event_patch_operation_count(pages)
+  let recommended_main_package_bytes = recommended_main_package_bytes(budget)
+  let package_size_advisory = package_size_advisory(
+    total,
+    budget.max_total_bytes,
+    recommended_main_package_bytes,
+  )
   let (max_first_screen, max_update_payload, max_update_operations) = push_page_performance_diagnostics(
     diagnostics, files, pages, budget,
   )
@@ -210,8 +218,35 @@ fn report_files(
     max_page_first_screen_bytes: max_first_screen,
     max_page_update_payload_bytes: max_update_payload,
     max_page_update_operation_count: max_update_operations,
+    recommended_main_package_bytes,
+    package_size_advisory,
     diagnostics,
-    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} event_patch_ops=\{event_patch_operations} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} max_update_ops=\{max_update_operations} diagnostics=\{diagnostics.length()}",
+    summary: "Bunnia WeChat build report: pages=\{pages.length()} files=\{files.length()} total=\{total} hard_package_limit=\{budget.max_total_bytes} recommended_package_limit=\{recommended_main_package_bytes} package_size=\{package_size_advisory} wxml=\{wxml} wxss=\{wxss} js=\{js} initial_data=\{initial} event_patches=\{event_patch} event_patch_ops=\{event_patch_operations} missing_event_patches=\{missing_event_patch_count} orphan_event_patches=\{orphan_event_patch_count} max_first_screen=\{max_first_screen} max_update_payload=\{max_update_payload} max_update_ops=\{max_update_operations} diagnostics=\{diagnostics.length()}",
+  }
+}
+
+///|
+fn recommended_main_package_bytes(budget : WechatBuildBudget) -> Int {
+  let wechat_recommended = 1536 * 1024
+  if budget.max_total_bytes < wechat_recommended {
+    budget.max_total_bytes
+  } else {
+    wechat_recommended
+  }
+}
+
+///|
+fn package_size_advisory(
+  total : Int,
+  hard_limit : Int,
+  recommended_limit : Int,
+) -> String {
+  if total > hard_limit {
+    "over-hard-limit"
+  } else if total > recommended_limit {
+    "split-recommended"
+  } else {
+    "within-headroom"
   }
 }
 

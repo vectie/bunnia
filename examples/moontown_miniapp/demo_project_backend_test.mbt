@@ -23,7 +23,7 @@ test "moontown generated project keeps backend request contract and hidden runti
   )
   assert_true(
     file_content(project.files, "bunnia.backend.js").contains(
-      "/miniapp/messages/center",
+      "/miniapp/marketplace/channels",
     ),
   )
   assert_true(
@@ -169,7 +169,7 @@ test "moontown generated project keeps backend request contract and hidden runti
   )
   assert_true(
     project.page.js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "Object.assign({},formValues,event.currentTarget.dataset||{})",
     ),
   )
   assert_true(

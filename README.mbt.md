@@ -424,6 +424,32 @@ unapproved-remote, insecure-remote, and deferred asset counts.
 Build profiles also report generated scene asset counts derived from the
 WeChat manifest, so strict builds can compare planned package pressure with
 the actual route asset references emitted by the mini-app generator.
+
+### WeChat package policy
+
+Bunnia's WeChat release profile treats **2 MiB as the hard main-package
+limit** and **1.5 MiB as the recommended operating ceiling**. A build above
+1.5 MiB receives the `split-recommended` advisory so there is room for future
+iteration; a build above 2 MiB fails the strict release budget. The report and
+generated manifest count the materialized bytes of copied assets, not the
+length of their `copy-file:` marker.
+
+Follow the platform packaging model supplied for MoonSuite deployments:
+
+- keep the main package at or below 1.5 MiB whenever practical;
+- keep every subpackage at or below 2 MiB and all subpackages at or below
+  30 MiB in total;
+- reserve the main package for startup routes and truly boot-critical assets;
+- move non-TabBar pages and large optional components into subpackages;
+- serve image, audio, and video libraries from approved CDN or object-storage
+  domains, while keeping a compact local fallback for the first screen;
+- import third-party libraries by used function or module instead of bundling
+  an entire library.
+
+Remote assets still require an explicit approved-domain policy, rights
+metadata, and a usable failure state. Subpackaging is an architectural release
+step rather than a way to hide oversized startup code.
+
 Markers carry stable `data-hit-width` and `data-hit-height` attributes, and
 visual quality plans flag tappable markers with hit targets below the configured
 minimum so map interactions stay usable on mobile.

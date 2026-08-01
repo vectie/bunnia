@@ -45,7 +45,7 @@ fn runtime_child_task_rows() -> @bunnia.Node {
       @bunnia.attr("wx:key", "handoffId"),
       @bunnia.attr("wx:if", "{{child.workerRunId || child.worker_run_id}}"),
     ],
-    [runtime_child_task_row()],
+    [@bunnia.keyed("child-task-row-template", runtime_child_task_row())],
   )
 }
 

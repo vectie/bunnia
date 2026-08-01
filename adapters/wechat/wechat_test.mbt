@@ -20,7 +20,7 @@ test "wechat project config permits the local DevTools backend loop" {
 }
 
 ///|
-test "wechat generator escapes repeated WXML characters" {
+test "wechat generator preserves binding operators and escapes literal XML" {
   let project = generate_project(
     name="WXML Escape",
     route="pages/escape/index",
@@ -28,16 +28,15 @@ test "wechat generator escapes repeated WXML characters" {
       @core.node(
         kind="view",
         attrs=[@core.attr("wx:if", "{{ready && visible && enabled}}")],
-        children=[@core.text("A & B & C")],
+        children=[@core.text("A & B & C"), @core.text("{{ready && score > 0}}")],
       ),
     ]),
   )
   assert_true(
-    project.page.wxml.contains(
-      "wx:if=\"{{ready &amp;&amp; visible &amp;&amp; enabled}}\"",
-    ),
+    project.page.wxml.contains("wx:if=\"{{ready && visible && enabled}}\""),
   )
   assert_true(project.page.wxml.contains("A &amp; B &amp; C"))
+  assert_true(project.page.wxml.contains("{{ready && score > 0}}"))
 }
 
 ///|
@@ -57,7 +56,7 @@ test "wechat request adapter carries session headers and response keys" {
   let js = generate_request_adapter(test_backend_contract())
   assert_true(js.contains("s:\"bunniaSessionId\""))
   assert_true(js.contains("h:\"x-miniapp-session\""))
-  assert_true(js.contains("header: __bunniaRequestHeaders(page)"))
+  assert_true(js.contains("header: __bunniaRequestHeaders(page, endpointId)"))
   assert_true(js.contains("if (endpoint.r) update[endpoint.r] = res.data"))
   assert_true(js.contains("__bunniaSessionIdFromResponse(res.data)"))
   assert_true(js.contains("__bunniaSessionStorageKey"))
@@ -81,6 +80,12 @@ test "wechat request adapter maps backend result states" {
   assert_true(js.contains("__bunniaRetryRequest"))
   assert_true(js.contains("__bunniaCancelRequest"))
   assert_true(js.contains("const __bk='runId reviewId decision"))
+  assert_true(js.contains("requestId expectedVersion requestMessage"))
+  assert_true(
+    js.contains(
+      "claimCeiling maxCostMicroUsd maxRuntimeMs maxTokens maxArtifacts webSearch",
+    ),
+  )
   assert_true(
     js.contains(
       "module.exports = { __bunniaBackend, __bunniaRequest, __bunniaCancelRequest, __bunniaRetryRequest, __bunniaStoredSession, __bk }",
@@ -118,8 +123,11 @@ test "wechat backend dispatch handles agent cancel and retry endpoint kinds" {
   let js = project.page.js
   let backend_js = file_content(project.files, "bunnia.backend.js")
   assert_true(
+    js.contains("Object.assign({},formValues,event.currentTarget.dataset||{})"),
+  )
+  assert_true(
     js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "event.detail&&event.detail.value&&typeof event.detail.value==='object'",
     ),
   )
   assert_true(
@@ -482,7 +490,7 @@ test "wechat projects can package backend request adapter" {
   assert_true(!project.page.js.contains("\"load-status\""))
   assert_true(
     project.page.js.contains(
-      "__bunniaMaybeRequest(this,message,event.currentTarget.dataset||{})",
+      "Object.assign({},formValues,event.currentTarget.dataset||{})",
     ),
   )
   assert_true(project.page.js.contains("__bunniaRequest(p,id,pl)"))

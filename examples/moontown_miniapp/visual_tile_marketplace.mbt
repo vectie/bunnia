@@ -64,6 +64,11 @@ fn tile_marketplace_wxss() -> String {
   ".moontown-market-detail-actions form, .moontown-market-detail-actions > view { flex: 1 1 210rpx; }\n" +
   ".moontown-market-detail-actions button { width: 100%; }\n" +
   ".moontown-publish-preview-row { padding: 20rpx 0; border-bottom: 1rpx solid rgba(30,86,70,.12); }\n" +
+  ".moontown-review-queue { margin-top:24rpx; padding-top:20rpx; border-top:2rpx solid rgba(30,86,70,.16); }\n" +
+  ".moontown-review-queue > form { margin-top:12rpx; }\n" +
+  ".moontown-review-queue-list { display:grid; gap:12rpx; margin-top:12rpx; }\n" +
+  ".moontown-review-queue-row { padding:16rpx; border:1rpx solid rgba(30,86,70,.16); border-radius:18rpx; background:#f7fbf8; }\n" +
+  ".moontown-review-queue-row form { margin-top:12rpx; }\n" +
   ".moontown-publish-preview-title { display: flex; align-items: center; gap: 10rpx; }\n" +
   ".moontown-public-stamp { margin-left: auto; padding: 5rpx 10rpx; border: 1rpx solid #1f6a54; border-radius: 999rpx; color: #1f6a54; font-size: 18rpx; font-weight: 800; }\n" +
   ".moontown-preview-fields { margin-top: 12rpx; padding-left: 12rpx; border-left: 4rpx solid #2f855a; }\n" +
@@ -89,5 +94,5 @@ fn tile_marketplace_wxss() -> String {
   ".moontown-notification-explainer { display: grid; grid-template-columns: 44rpx minmax(0,1fr); gap: 10rpx; margin-top: 12rpx; padding: 14rpx; border-radius: 18rpx; background: #edf6f1; }\n" +
   ".moontown-notice-entry { grid-template-columns: 56rpx minmax(0,1fr) auto; }\n" +
   ".moontown-notice-open { width: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; text-align: left; }\n" +
-  "@media (max-width:520px) { .moontown-marketplace-toolbar { grid-template-columns:minmax(0,1fr) 110rpx; } .moontown-marketplace-toolbar > form:last-child { grid-column:1 / -1; } .moontown-market-listing { grid-template-columns:52rpx minmax(0,1fr); } .moontown-market-open { grid-column:2; width:100%; } .moontown-message-mode-bar { grid-template-columns:repeat(3,minmax(0,1fr)); } .moontown-message-mode-bar .moontown-chat-refresh { grid-column:3; } .moontown-create-channel form,.moontown-request-decision,.moontown-request-decision form:first-of-type { grid-template-columns:1fr; } .moontown-request-decision .moontown-policy-ceiling { grid-column:1; } }\n"
+  "@media (max-width:520px) { .moontown-marketplace-toolbar { grid-template-columns:minmax(0,1fr) 156rpx; } .moontown-marketplace-toolbar > form:last-child { grid-column:1 / -1; } .moontown-market-publish-button { min-width:156rpx; white-space:nowrap; } .moontown-market-listing { grid-template-columns:52rpx minmax(0,1fr); } .moontown-market-open { grid-column:2; width:100%; } .moontown-message-mode-bar { grid-template-columns:repeat(3,minmax(0,1fr)); } .moontown-message-mode-bar .moontown-chat-refresh { grid-column:3; } .moontown-create-channel form,.moontown-request-decision,.moontown-request-decision form:first-of-type { grid-template-columns:1fr; } .moontown-request-decision .moontown-policy-ceiling { grid-column:1; } }\n"
 }
