@@ -102,6 +102,8 @@ pub fn local_backend_base_url() -> String
 
 pub fn market_discovery_results(MiniTownProjection) -> Array[MiniTownDiscoveryItem]
 
+pub fn mini_town_acceptance_receipt(id~ : String, run_id~ : String, artifact_ref~ : String, title~ : String, summary~ : String, status~ : String, deep_link~ : String) -> MiniTownAcceptanceReceipt
+
 pub fn mini_town_activity_item(id~ : String, kind~ : String, title~ : String, summary~ : String, actor_id~ : String, target_ref~ : String, building_id~ : String, status~ : String) -> MiniTownActivityItem
 
 pub fn mini_town_agent(id~ : String, name~ : String, building_id~ : String, status~ : String) -> MiniTownAgent
@@ -117,6 +119,8 @@ pub fn mini_town_book(id~ : String, building_id~ : String, title~ : String, owne
 pub fn mini_town_book_shelf_item(id~ : String, book_id~ : String, building_id~ : String, role~ : String, title~ : String, safe_summary~ : String, visibility~ : String, status~ : String, accepted_memory_count~ : Int, pending_review_count~ : Int, target_ref~ : String) -> MiniTownBookShelfItem
 
 pub fn mini_town_building(id~ : String, title~ : String, kind~ : String, visibility~ : String, owner_id~ : String, summary~ : String, tags~ : Array[String], x~ : Int, y~ : Int, status~ : String, asset_ref? : String) -> MiniTownBuilding
+
+pub fn mini_town_child_worker(agent_id~ : String, supervisor_agent_id~ : String, name~ : String, task_id~ : String, task_title~ : String, run_id~ : String, status~ : String) -> MiniTownChildWorker
 
 pub fn mini_town_discovery_filter(id~ : String, label~ : String, kind~ : String, placeable_only? : Bool) -> MiniTownDiscoveryFilter
 
@@ -160,7 +164,15 @@ pub fn mini_town_run(id~ : String, agent_id~ : String, building_id~ : String, bo
 
 pub fn mini_town_run_action(id~ : String, label~ : String, message~ : String, target_ref~ : String, allowed~ : Bool, reason~ : String, status~ : String) -> MiniTownRunAction
 
+pub fn mini_town_setup_choice(id~ : String, label~ : String, summary~ : String, selected? : Bool) -> MiniTownSetupChoice
+
 pub fn mini_town_setup_gate(id~ : String, label~ : String, summary~ : String, action_label~ : String, action_message~ : String, complete~ : Bool) -> MiniTownSetupGate
+
+pub fn mini_town_supervisor_control(agent_id~ : String, profile_id~ : String, name~ : String, avatar_ref~ : String, status~ : String, controllable? : Bool, child_count? : Int, child_limit? : Int) -> MiniTownSupervisorControl
+
+pub fn mini_town_supervisor_draft(profile_id~ : String, version~ : Int, name~ : String, avatar_ref~ : String, archetype_id~ : String, mission~ : String, tone_id~ : String, capability_ids~ : Array[String], workspace_id~ : String, building_id~ : String, book_id~ : String, consent_agent_control? : Bool, consent_bookkeeper_review? : Bool) -> MiniTownSupervisorDraft
+
+pub fn mini_town_supervisor_setup(state~ : String, current_step~ : String, draft~ : MiniTownSupervisorDraft, archetypes~ : Array[MiniTownSetupChoice], tones~ : Array[MiniTownSetupChoice], capabilities~ : Array[MiniTownSetupChoice], ready? : Bool, activated? : Bool, runtime_status? : String, bookkeeper_status? : String) -> MiniTownSupervisorSetup
 
 pub fn mini_town_tab(id~ : String, label~ : String, map_surface? : Bool) -> MiniTownTab
 
@@ -293,6 +305,16 @@ pub fn workbench_alerts(MiniTownProjection) -> Array[MiniTownWorkbenchAlert]
 // Errors
 
 // Types and methods
+pub struct MiniTownAcceptanceReceipt {
+  id : String
+  run_id : String
+  artifact_ref : String
+  title : String
+  summary : String
+  status : String
+  deep_link : String
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownActivityItem {
   id : String
   kind : String
@@ -383,6 +405,16 @@ pub struct MiniTownBuilding {
   y : Int
   status : String
   asset_ref : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownChildWorker {
+  agent_id : String
+  supervisor_agent_id : String
+  name : String
+  task_id : String
+  task_title : String
+  run_id : String
+  status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownDiscoveryFilter {
@@ -555,6 +587,10 @@ pub struct MiniTownProjection {
   active_notification_channel_id : String
   active_ownership_filter_id : String
   reviewer_tools_open : Bool
+  supervisor_setup : MiniTownSupervisorSetup
+  supervisor : MiniTownSupervisorControl
+  child_workers : Array[MiniTownChildWorker]
+  acceptance_receipts : Array[MiniTownAcceptanceReceipt]
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -638,6 +674,13 @@ pub struct MiniTownRunAction {
   status : String
 } derive(Eq, @debug.Debug)
 
+pub struct MiniTownSetupChoice {
+  id : String
+  label : String
+  summary : String
+  selected : Bool
+} derive(Eq, @debug.Debug)
+
 pub struct MiniTownSetupGate {
   id : String
   label : String
@@ -646,6 +689,46 @@ pub struct MiniTownSetupGate {
   action_message : String
   complete : Bool
   status : String
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownSupervisorControl {
+  agent_id : String
+  profile_id : String
+  name : String
+  avatar_ref : String
+  status : String
+  controllable : Bool
+  child_count : Int
+  child_limit : Int
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownSupervisorDraft {
+  profile_id : String
+  version : Int
+  name : String
+  avatar_ref : String
+  archetype_id : String
+  mission : String
+  tone_id : String
+  capability_ids : Array[String]
+  workspace_id : String
+  building_id : String
+  book_id : String
+  consent_agent_control : Bool
+  consent_bookkeeper_review : Bool
+} derive(Eq, @debug.Debug)
+
+pub struct MiniTownSupervisorSetup {
+  state : String
+  current_step : String
+  draft : MiniTownSupervisorDraft
+  archetypes : Array[MiniTownSetupChoice]
+  tones : Array[MiniTownSetupChoice]
+  capabilities : Array[MiniTownSetupChoice]
+  ready : Bool
+  activated : Bool
+  runtime_status : String
+  bookkeeper_status : String
 } derive(Eq, @debug.Debug)
 
 pub struct MiniTownTab {

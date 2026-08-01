@@ -9,6 +9,13 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "load-town-snapshot", "/miniapp/town/snapshot", "townSnapshot",
       ),
       @bunnia.generic_endpoint(
+        "load-book-registrations",
+        "/miniapp/book-registrations",
+        @bunnia.http_get(),
+        payload_key="bookCatalogQuery",
+        response_key="installedBookCatalogResponse",
+      ),
+      @bunnia.generic_endpoint(
         "load-ownership-snapshot",
         "/miniapp/me/ownership",
         @bunnia.http_get(),
@@ -33,11 +40,155 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
         "save-profile", "/miniapp/me/profile", "profileDraft", "profileResult",
       ),
       @bunnia.generic_endpoint(
+        "load-supervisor-setup",
+        "/miniapp/onboarding/supervisor",
+        @bunnia.http_get(),
+        payload_key="supervisorSetupQuery",
+        response_key="onboardingSnapshot",
+      ),
+      @bunnia.generic_endpoint(
+        "save-supervisor-draft",
+        "/miniapp/onboarding/supervisor/draft",
+        @bunnia.http_put(),
+        payload_key="supervisorDraft",
+        response_key="supervisorDraftResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "activate-supervisor", "/miniapp/onboarding/supervisor/activate", "supervisorActivation",
+        "activationResult",
+      ),
+      @bunnia.generic_endpoint(
         "discover-search",
         "/miniapp/discover/search",
         @bunnia.http_get(),
         payload_key="discoverSearch",
         response_key="discoverSearchResult",
+      ),
+      @bunnia.generic_endpoint(
+        "marketplace-search",
+        "/miniapp/marketplace/discovery/search",
+        @bunnia.http_get(),
+        payload_key="marketplaceSearch",
+        response_key="marketplaceSearchResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-marketplace-recommendations",
+        "/miniapp/marketplace/discovery/recommendations",
+        @bunnia.http_get(),
+        payload_key="marketplaceRecommendationQuery",
+        response_key="marketplaceRecommendationResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-marketplace-feed",
+        "/miniapp/marketplace/discovery/feed",
+        @bunnia.http_get(),
+        payload_key="marketplaceFeedQuery",
+        response_key="marketplaceFeedResult",
+      ),
+      @bunnia.generic_endpoint(
+        "publish-agent-listing",
+        "/miniapp/marketplace/listings/agent",
+        @bunnia.http_post(),
+        payload_key="agentListingDraft",
+        response_key="agentListingResult",
+      ),
+      @bunnia.generic_endpoint(
+        "publish-building-listing",
+        "/miniapp/marketplace/listings/building",
+        @bunnia.http_post(),
+        payload_key="buildingListingDraft",
+        response_key="buildingListingResult",
+      ),
+      @bunnia.generic_endpoint(
+        "transition-marketplace-listing",
+        "/miniapp/marketplace/listings/transition",
+        @bunnia.http_post(),
+        payload_key="listingTransition",
+        response_key="listingTransitionResult",
+      ),
+      @bunnia.generic_endpoint(
+        "marketplace-listing-action",
+        "/miniapp/marketplace/listings/action",
+        @bunnia.http_post(),
+        payload_key="marketplaceAction",
+        response_key="marketplaceActionResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-marketplace-channels",
+        "/miniapp/marketplace/channels",
+        @bunnia.http_get(),
+        payload_key="channelDirectoryQuery",
+        response_key="channelDirectoryResult",
+      ),
+      @bunnia.generic_endpoint(
+        "create-marketplace-channel",
+        "/miniapp/marketplace/channels",
+        @bunnia.http_post(),
+        payload_key="channelDraft",
+        response_key="channelResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-channel-messages",
+        "/miniapp/marketplace/messages",
+        @bunnia.http_get(),
+        payload_key="channelMessagesQuery",
+        response_key="channelMessagesResult",
+      ),
+      @bunnia.generic_endpoint(
+        "send-channel-message",
+        "/miniapp/marketplace/messages",
+        @bunnia.http_post(),
+        payload_key="channelMessageDraft",
+        response_key="channelMessageResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-marketplace-notifications",
+        "/miniapp/marketplace/notifications",
+        @bunnia.http_get(),
+        payload_key="marketplaceNotificationQuery",
+        response_key="marketplaceNotificationResult",
+      ),
+      @bunnia.generic_endpoint(
+        "read-marketplace-notification",
+        "/miniapp/marketplace/notifications/read",
+        @bunnia.http_post(),
+        payload_key="marketplaceNotificationRead",
+        response_key="marketplaceNotificationReadResult",
+      ),
+      @bunnia.generic_endpoint(
+        "update-marketplace-subscription",
+        "/miniapp/marketplace/subscriptions",
+        @bunnia.http_post(),
+        payload_key="marketplaceSubscription",
+        response_key="marketplaceSubscriptionResult",
+      ),
+      @bunnia.generic_endpoint(
+        "create-marketplace-share-grant",
+        "/miniapp/marketplace/share-grants",
+        @bunnia.http_post(),
+        payload_key="marketplaceShareGrant",
+        response_key="marketplaceShareGrantResult",
+      ),
+      @bunnia.generic_endpoint(
+        "load-shared-marketplace-listings",
+        "/miniapp/marketplace/shared-listings",
+        @bunnia.http_get(),
+        payload_key="marketplaceSharedQuery",
+        response_key="marketplaceSharedResult",
+      ),
+      @bunnia.generic_endpoint(
+        "revoke-marketplace-share-grant",
+        "/miniapp/marketplace/share-grants/revoke",
+        @bunnia.http_post(),
+        payload_key="marketplaceShareRevoke",
+        response_key="marketplaceShareRevokeResult",
+      ),
+      @bunnia.generic_endpoint(
+        "preview-marketplace-share",
+        "/miniapp/marketplace/shares/preview",
+        @bunnia.http_post(),
+        payload_key="marketplaceSharePreview",
+        response_key="marketplaceSharePreviewResult",
       ),
       @bunnia.generic_endpoint(
         "discover-action",
@@ -85,17 +236,43 @@ pub fn demo_backend_contract() -> @bunnia.BackendContract {
       @bunnia.agent_message_endpoint(
         "send-building-message", "/miniapp/messages/send", "chatDraft", "chatResult",
       ),
+      @bunnia.agent_message_endpoint(
+        "send-supervisor-message", "/miniapp/messages", "supervisorMessage", "supervisorMessageResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "assign-worker", "/miniapp/runs/delegate", "workerDelegate", "delegateResult",
+      ),
       @bunnia.handoff_submit_endpoint(
         "handoff-agent-work", "/miniapp/agents/handoff", "handoffDraft", "handoffResult",
       ),
       @bunnia.agent_cancel_endpoint(
         "cancel-run", "/miniapp/runs/cancel", "runCancel", "cancelResult",
       ),
+      @bunnia.operator_submit_endpoint(
+        "steer-run", "/miniapp/runs/steer", "runSteer", "steerResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "steer-child-run", "/miniapp/runs/child/steer", "childRunSteer", "childSteerResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "wake-supervisor", "/miniapp/runs/supervisor/wake", "supervisorWake", "supervisorWakeResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "stop-supervisor", "/miniapp/runs/supervisor/stop", "supervisorStop", "supervisorStopResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "resume-supervisor", "/miniapp/runs/supervisor/resume", "supervisorResume",
+        "supervisorResumeResult",
+      ),
       @bunnia.agent_retry_endpoint(
         "retry-run", "/miniapp/runs/retry", "runRetry", "retryResult",
       ),
       @bunnia.review_decision_endpoint(
         "accept-memory-review", "/miniapp/reviews/accept", "reviewDecision", "reviewResult",
+      ),
+      @bunnia.operator_submit_endpoint(
+        "request-bookkeeper-review", "/miniapp/reviews/decision", "bookkeeperReview",
+        "bookkeeperReviewResult",
       ),
       @bunnia.review_decision_endpoint(
         "reject-memory-review", "/miniapp/reviews/reject", "reviewDecision", "reviewResult",

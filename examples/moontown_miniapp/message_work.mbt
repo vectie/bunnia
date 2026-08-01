@@ -3,7 +3,12 @@ fn agent_work_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let runs = active_runs(projection)
   let results = visible_tool_results(projection)
   @bunnia.view_with_attrs(
-    [@bunnia.class_name("mt-panel moontown-message-work")],
+    [
+      @bunnia.class_name("mt-panel moontown-message-work"),
+      @bunnia.attr(
+        "wx:if", "{{messages.mode == 'work' && messages.channel == 'tasks'}}",
+      ),
+    ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Agent Work"),

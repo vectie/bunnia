@@ -12,6 +12,10 @@ pub struct MiniTownProjection {
   active_notification_channel_id : String
   active_ownership_filter_id : String
   reviewer_tools_open : Bool
+  supervisor_setup : MiniTownSupervisorSetup
+  supervisor : MiniTownSupervisorControl
+  child_workers : Array[MiniTownChildWorker]
+  acceptance_receipts : Array[MiniTownAcceptanceReceipt]
   users : Array[MiniTownUser]
   profile : MiniTownProfile
   roles : Array[MiniTownRole]
@@ -32,6 +36,9 @@ pub struct MiniTownProjection {
   watches : Array[MiniTownWatch]
   discovery_items : Array[MiniTownDiscoveryItem]
   discovery_filters : Array[MiniTownDiscoveryFilter]
+  marketplace_listings : Array[MiniTownMarketplaceListing]
+  conversation_channels : Array[MiniTownConversationChannel]
+  share_previews : Array[MiniTownSharePreview]
   ownership_filters : Array[MiniTownOwnershipFilter]
   backend_steps : Array[MiniTownBackendStep]
   backend_cache_states : Array[MiniTownBackendCacheState]

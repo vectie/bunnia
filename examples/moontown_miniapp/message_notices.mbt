@@ -23,18 +23,29 @@ fn notification_entry(
       attrs.push(town_place_route_attr(notice.building_id))
     }
   }
+  let open_attrs = [
+    @bunnia.class_name("moontown-chat-copy moontown-notice-open"),
+    @bunnia.attr("aria-label", "Open notification: \{notice.title}"),
+  ]
+  if !notice.requires_subscription {
+    if notice.building_id == "" {
+      open_attrs.push(town_route_attr("discover"))
+    } else {
+      open_attrs.push(town_place_route_attr(notice.building_id))
+    }
+  }
   @bunnia.keyed(
     "notice-\{notice.id}",
-    @bunnia.node(
-      kind="view",
-      attrs~,
-      events=[@bunnia.tap(notification_tap_message(notice))],
-      children=[
-        @bunnia.view_with_attrs(
-          [@bunnia.class_name("moontown-chat-avatar kind-\{notice.kind}")],
-          [@bunnia.text(notification_avatar_label(notice.kind))],
-        ),
-        @bunnia.view_with_attrs([@bunnia.class_name("moontown-chat-copy")], [
+    @bunnia.view_with_attrs(attrs, [
+      @bunnia.view_with_attrs(
+        [@bunnia.class_name("moontown-chat-avatar kind-\{notice.kind}")],
+        [town_icon(notification_icon_kind(notice.kind))],
+      ),
+      @bunnia.node(
+        kind="button",
+        attrs=open_attrs,
+        events=[@bunnia.tap(notification_tap_message(notice))],
+        children=[
           @bunnia.view_with_attrs(
             [@bunnia.class_name("moontown-chat-title-row")],
             [
@@ -51,10 +62,39 @@ fn notification_entry(
           @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
             @bunnia.text(notification_context_text(projection, notice)),
           ]),
-        ]),
-      ],
-    ),
+        ],
+      ),
+      if notice.unread {
+        @bunnia.form("read-marketplace-notification", [
+          marketplace_hidden_input("notificationId", notice.id),
+          marketplace_submit_button("Mark read", "read"),
+        ])
+      } else {
+        @bunnia.view([])
+      },
+    ]),
   )
+}
+
+///|
+fn notification_icon_kind(kind : String) -> String {
+  if kind == "agent-run" {
+    "agent"
+  } else if kind == "review" {
+    "review"
+  } else if kind == "interaction" {
+    "messages"
+  } else if kind == "follow" {
+    "follow"
+  } else if kind == "subscription" {
+    "notification"
+  } else if kind == "publish" {
+    "publish"
+  } else if kind == "share" {
+    "share"
+  } else {
+    "notification"
+  }
 }
 
 ///|

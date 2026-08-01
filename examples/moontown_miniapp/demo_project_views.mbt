@@ -24,7 +24,9 @@ fn mini_town_view_with_map_mode(
   @bunnia.page([
     @bunnia.view_with_attrs(
       [
-        @bunnia.class_name("moontown-miniapp"),
+        @bunnia.class_name(
+          "moontown-miniapp {{town.mapFullscreen ? 'map-focus' : ''}}",
+        ),
         @bunnia.data("active-user", projection.active_user_id),
       ],
       [
@@ -32,6 +34,11 @@ fn mini_town_view_with_map_mode(
           town_map_surface(projection)
         } else {
           town_map_backdrop(projection)
+        },
+        if full_map {
+          town_map_focus_toggle()
+        } else {
+          @bunnia.view([])
         },
         town_top_bar(projection),
         global_request_feedback(),

@@ -2,6 +2,7 @@
 fn moontown_map_page_methods_js() -> String {
   "  onLoad(options){\n" +
   "    if(options&&options.buildingId)this.setData({'town.selectedBuildingId':options.buildingId,'town.detailsOpen':false})\n" +
+  "    if(options&&options.channel)this.setData({'messages.channel':options.channel})\n" +
   "    this.__mc(this.data.mapViewport.x,this.data.mapViewport.y,this.data.mapViewport.scale)\n" +
   "  },\n" +
   "  onMoontownMapTouchStart(e){\n" +
@@ -22,7 +23,7 @@ fn moontown_map_page_methods_js() -> String {
   "    if(!m||!t.length)return\n" +
   "    if(t.length>1&&m.n===2){\n" +
   "      const c=this.__tc(t)\n" +
-  "      const s=this.__cl(m.s*this.__td(t)/(m.d||1),2.6,3.4)\n" +
+  "      const s=this.__cl(m.s*this.__td(t)/(m.d||1),0.25,3.4)\n" +
   "      const k=this.__mk(s)\n" +
   "      this.__mc(c.x-m.ax*k,c.y-m.ay*k,s)\n" +
   "    }else{\n" +
@@ -33,14 +34,14 @@ fn moontown_map_page_methods_js() -> String {
   "    this.__mt=null\n" +
   "  },\n" +
   "  __mc(x,y,scale){\n" +
-  "    const s=this.__cl(scale,2.6,3.4)\n" +
+  "    const s=this.__cl(scale,0.25,3.4)\n" +
   "    const fit=(rawX,rawY)=>{\n" +
   "      const win=this.__wi()\n" +
   "      const k=this.__mk(s)\n" +
   "      const vw=win.windowWidth/k\n" +
   "      const vh=win.windowHeight/k\n" +
-  "      const sx=this.__cl(-Number(rawX||0)/k,0,Math.max(0,1400-vw))\n" +
-  "      const sy=this.__cl(-Number(rawY||0)/k,0,Math.max(0,880-vh))\n" +
+  "      const sx=this.__cl(-Number(rawX||0)/k,0,Math.max(0,\{moontown_map_width()}-vw))\n" +
+  "      const sy=this.__cl(-Number(rawY||0)/k,0,Math.max(0,\{moontown_map_height()}-vh))\n" +
   "      return {x:-sx*k,y:-sy*k}\n" +
   "    }\n" +
   "    const next=fit(x,y)\n" +
@@ -62,5 +63,6 @@ fn moontown_map_page_methods_js() -> String {
   "  },\n" +
   "  __cl(value,min,max){\n" +
   "    return Math.max(min,Math.min(max,Number(value||0)))\n" +
-  "  },\n"
+  "  },\n" +
+  moontown_supervisor_lifecycle_methods_js(false)
 }

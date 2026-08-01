@@ -69,7 +69,7 @@ fn town_page_title(tab_id : String) -> String {
   } else if tab_id == "discover" {
     "Discover"
   } else if tab_id == "messages" {
-    "Messages"
+    "Inbox"
   } else {
     "My"
   }
@@ -82,7 +82,7 @@ fn town_page_subtitle(tab_id : String) -> String {
   } else if tab_id == "discover" {
     "Market board - find something useful"
   } else if tab_id == "messages" {
-    "Mailbox board - who needs your decision"
+    "Updates and requests from your town"
   } else {
     "Inventory shelf - your place in town"
   }

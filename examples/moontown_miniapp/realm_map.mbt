@@ -37,3 +37,29 @@ fn town_map_surface(projection : MiniTownProjection) -> @bunnia.Node {
     ]),
   ])
 }
+
+///|
+fn town_map_focus_toggle() -> @bunnia.Node {
+  @bunnia.view_with_attrs([@bunnia.class_name("moontown-map-focus-controls")], [
+    @bunnia.node(
+      kind="button",
+      attrs=[
+        @bunnia.class_name("moontown-map-focus-button"),
+        @bunnia.attr("wx:if", "{{!town.mapFullscreen}}"),
+        @bunnia.attr("aria-label", "Show the full town map"),
+      ],
+      events=[@bunnia.tap("enter-map-fullscreen")],
+      children=[@bunnia.text("Full map")],
+    ),
+    @bunnia.node(
+      kind="button",
+      attrs=[
+        @bunnia.class_name("moontown-map-focus-button exit"),
+        @bunnia.attr("wx:if", "{{town.mapFullscreen}}"),
+        @bunnia.attr("aria-label", "Leave full map"),
+      ],
+      events=[@bunnia.tap("exit-map-fullscreen")],
+      children=[@bunnia.text("Done")],
+    ),
+  ])
+}

@@ -15,6 +15,16 @@ fn add_building_workflow_event_patches(
   patches : Array[@bunnia.WechatEventPatch],
 ) -> Unit {
   patches.push(
+    @bunnia.wechat_event_patch("enter-map-fullscreen", [
+      @bunnia.set_json("town.mapFullscreen", "true"),
+    ]),
+  )
+  patches.push(
+    @bunnia.wechat_event_patch("exit-map-fullscreen", [
+      @bunnia.set_json("town.mapFullscreen", "false"),
+    ]),
+  )
+  patches.push(
     @bunnia.wechat_event_patch("discover-search", [
       @bunnia.set_string("discover.query", "agent"),
       @bunnia.set_json("discoverSearch", "{\"query\":\"agent\",\"cursor\":0}"),

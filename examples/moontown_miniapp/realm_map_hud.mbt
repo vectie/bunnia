@@ -7,7 +7,7 @@ fn town_right_hud(projection : MiniTownProjection) -> @bunnia.Node {
 
 ///|
 fn town_realm_overlay(projection : MiniTownProjection) -> @bunnia.Node {
-  town_right_hud(projection)
+  @bunnia.view([realm_supervisor_signal(projection), town_right_hud(projection)])
 }
 
 ///|

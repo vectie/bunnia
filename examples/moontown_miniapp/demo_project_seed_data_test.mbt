@@ -23,7 +23,7 @@ test "moontown generated project keeps seeded page data contract" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"mapViewport\":{\"x\":-520,\"y\":-260,\"scale\":2.6,\"style\":\"transform:translate(-520px,-260px) scale(2.6)\"",
+      "\"mapViewport\":{\"x\":-180,\"y\":-40,\"scale\":0.65,\"style\":\"transform:translate(-180px,-40px) scale(0.65)\"",
     ),
   )
   assert_true(
@@ -168,7 +168,7 @@ test "moontown generated project keeps seeded page data contract" {
   )
   assert_true(
     file_content(project.files, "pages/moontown/index.data.js").contains(
-      "\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":538,\"y\":528}",
+      "\"placementDraft\":{\"buildingId\":\"published-agent-lab\",\"x\":740,\"y\":363}",
     ),
   )
   assert_true(

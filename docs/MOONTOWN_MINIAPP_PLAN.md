@@ -293,6 +293,14 @@ Output:
 
 Current implementation:
 
+- The first-agent closed loop now begins in a five-stop registration kiosk on
+  Home: identity, mission/tone/capabilities, workspace/building/book binding,
+  consent/readiness review, and activation. The generated UI persists and
+  resumes the versioned draft through explicit MoonTown adapter commands and
+  renders loading, empty, error, conflict, saved, and activation states.
+- Activation uses the opaque `moontown.supervisor-activation-handoff.v1`
+  boundary. Runtime startup and Bookkeeper acceptance remain separate visible
+  states; the frontend does not infer either transition.
 - Realm and Home now render data-driven tile guide plaques derived from the
   current projection. The guide translates the reference onboarding/navigation
   screenshots into compact town steps: enter Realm, read Home, discover public
@@ -389,6 +397,17 @@ Tile style:
 Output:
 
 - Agentic UI is first-class without making chat the entire app.
+
+Current first-agent slice:
+
+- Messages now provides focused All, Supervisor, Tasks, Reviews, and Receipts
+  phone channels while preserving the five global app tabs.
+- The supervisor thread, bounded child-task controls, steer/stop/retry
+  commands, review requests, deep links, and Bookkeeper pending/accepted/
+  rejected receipts all consume MoonTown projection identifiers and explicit
+  backend contracts.
+- Detailed setup and integration instructions live in
+  `MOONTOWN_SUPERVISOR_PHONE_GUIDE.md`.
 
 ### M6: My Ownership Center
 

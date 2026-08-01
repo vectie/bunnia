@@ -3,32 +3,19 @@
 
 ///|
 fn discover_panel(projection : MiniTownProjection) -> @bunnia.Node {
-  let results = filtered_discovery_results(projection)
   @bunnia.view_with_attrs(
     [@bunnia.class_name("mt-panel moontown-discover-board")],
     [
-      @bunnia.view_with_attrs(
-        [@bunnia.class_name("moontown-discovery-primary-filters")],
-        [
-          discovery_filter_chip("all", "All"),
-          discovery_filter_chip("building", "Places"),
-          discovery_filter_chip("user", "People"),
-          @bunnia.node(
-            kind="button",
-            attrs=[
-              @bunnia.class_name(
-                "moontown-discovery-more {{discover.moreOpen ? 'active' : ''}}",
-              ),
-              @bunnia.attr("aria-label", "Show more filters"),
-            ],
-            events=[@bunnia.tap("discover-more-open")],
-            children=[@bunnia.text("More")],
-          ),
-        ],
-      ),
-      discover_more_filters(projection),
-      discover_results_heading(projection, results),
-      discover_results_list(projection, results),
+      marketplace_discover_toolbar(),
+      marketplace_autocomplete(),
+      marketplace_discover_filters(),
+      marketplace_request_states(),
+      marketplace_shared_with_me(),
+      marketplace_recommendations(projection),
+      marketplace_organic_results(projection),
+      marketplace_sponsored_results(projection),
+      marketplace_listing_details(),
+      marketplace_publisher_preview(projection),
     ],
   )
 }

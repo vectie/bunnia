@@ -12,9 +12,21 @@ test "moontown miniapp generated page renders map and shell" {
   assert_true(page.wxml.contains("catchtouchmove=\"onMoontownMapTouchMove\""))
   assert_true(page.wxml.contains("bindtouchend=\"onMoontownMapTouchEnd\""))
   assert_true(!page.wxml.contains("moontown-map-backfill"))
-  assert_true(page.wxml.contains("moontown-wenyu-map-image"))
-  assert_true(page.wxml.contains("data-asset-id=\"moontown-wenyu-map\""))
-  assert_true(page.wxml.contains("left:958rpx;top:776rpx"))
+  assert_true(page.wxml.contains("moontown-wenyu-energy-valley-map-image"))
+  assert_true(
+    page.wxml.contains(
+      "data-asset-id=\"moontown-wenyu-energy-valley-20260727\"",
+    ),
+  )
+  assert_true(
+    page.wxml.contains(
+      "src=\"/assets/moontown_wenyu_energy_valley_20260727.png\"",
+    ),
+  )
+  assert_true(
+    page.wxml.contains("data-building-family=\"canonical-wenyu-energy-valley\""),
+  )
+  assert_true(page.wxml.contains("left:1228rpx;top:690rpx"))
   assert_true(page.wxml.contains("moontown-map-marker"))
   assert_true(page.wxml.contains("Town Gate"))
   assert_true(!page.wxml.contains("System Gateway"))
@@ -29,6 +41,13 @@ test "moontown miniapp generated page renders map and shell" {
   assert_true(page.wxml.contains("bunnia-status-review"))
   assert_eq(string_occurrence_count(page.wxml, "moontown-map-marker-kind"), 0)
   assert_true(page.wxml.contains("moontown-topbar"))
+  assert_true(page.wxml.contains("moontown-map-focus-controls"))
+  assert_true(
+    page.wxml.contains("data-bunnia-message=\"enter-map-fullscreen\""),
+  )
+  assert_true(page.wxml.contains("data-bunnia-message=\"exit-map-fullscreen\""))
+  assert_true(page.wxml.contains("<text>Full map</text>"))
+  assert_true(page.wxml.contains("<text>Done</text>"))
   assert_true(!page.wxml.contains("moontown-left-hud"))
   assert_true(page.wxml.contains("moontown-right-hud"))
   assert_true(!page.wxml.contains("moontown-bottom-hud"))

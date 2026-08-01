@@ -27,7 +27,7 @@ fn tab_button(tab : MiniTownTab, active_tab_id : String) -> @bunnia.Node {
         ),
       ],
       events=[@bunnia.tap("tab-\{tab.id}")],
-      children=[@bunnia.text(tab.label)],
+      children=town_icon_label(tab.id, tab.label),
     ),
   )
 }
@@ -49,6 +49,14 @@ fn town_place_route_attr(building_id : String) -> @bunnia.Attr {
   @bunnia.data(
     "bunnia-route",
     "\{moontown_tab_route("realm")}?buildingId=\{building_id}",
+  )
+}
+
+///|
+fn town_messages_route_attr(channel : String) -> @bunnia.Attr {
+  @bunnia.data(
+    "bunnia-route",
+    "\{moontown_tab_route("messages")}?channel=\{channel}",
   )
 }
 

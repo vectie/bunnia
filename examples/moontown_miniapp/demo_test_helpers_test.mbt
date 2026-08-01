@@ -99,14 +99,14 @@ fn generated_wxss_has_tile_visual_system(
 ) -> Bool {
   let wxss = ordinary_wxss_bundle(files)
   wxss.contains("button{min-width:88rpx;min-height:88rpx") &&
-  wxss.contains("background:#fbf7ee;color:#292524;font-size:26rpx") &&
+  wxss.contains("background:#f3f7f4;color:#26342e;font-size:26rpx") &&
   wxss.contains(".bunnia-review-button{min-height:88rpx") &&
   wxss.contains(
     ".bunnia-scene-marker{position:absolute;transform:translate(-50%,-50%);min-width:120rpx;min-height:88rpx",
   ) &&
   wxss.contains(".bunnia-scene-thread{min-width:88rpx;min-height:88rpx") &&
   wxss.contains(
-    ".moontown-map-marker{position:absolute;z-index:3;min-width:112rpx;max-width:180rpx;min-height:88rpx",
+    ".moontown-map-marker{position:absolute;z-index:900;width:32rpx;min-width:32rpx;max-width:32rpx",
   ) &&
   wxss.contains(
     "button[disabled],.bunnia-status-disabled{opacity:0.52;pointer-events:none",
@@ -119,10 +119,10 @@ fn generated_wxss_has_tile_visual_system(
   wxss.contains("overscroll-behavior:contain") &&
   wxss.contains(".moontown-page-surface{position:absolute;z-index:7") &&
   wxss.contains("bottom:0;margin:0;padding:0 24rpx 184rpx") &&
-  wxss.contains("background:#fbf7ee") &&
+  wxss.contains("background:#f3f7f4") &&
   wxss.contains("-webkit-overflow-scrolling:touch") &&
   wxss.contains(".moontown-page-header{") &&
-  wxss.contains(".moontown-page-title{color:#292524") &&
+  wxss.contains(".moontown-page-title{color:#26342e") &&
   wxss.contains(".moontown-page-grid{min-height:0;display:grid") &&
   wxss.contains(
     ".moontown-page-grid.single{grid-template-columns:minmax(0,1fr)",
@@ -141,10 +141,10 @@ fn generated_wxss_has_tile_visual_system(
     ".moontown-message-inbox,.moontown-message-review,.moontown-message-work,.moontown-my-inventory{border-top:0",
   ) &&
   wxss.contains(
-    ".moontown-chat-row{min-width:0;min-height:112rpx;margin:0;display:grid;grid-template-columns:72rpx minmax(0,1fr)",
+    ".moontown-chat-row{min-width:0;min-height:104rpx;margin:0;display:grid;grid-template-columns:56rpx minmax(0,1fr)",
   ) &&
   wxss.contains(
-    ".moontown-chat-avatar.kind-agent-run{background:#fef3c7;color:#92400e",
+    ".moontown-chat-avatar.kind-agent-run{background:#e2f1eb;color:#1f5a48",
   ) &&
   wxss.contains(".moontown-chat-preview,.moontown-chat-preview text{") &&
   wxss.contains(".moontown-tabbar{box-shadow:0 -10rpx 28rpx") &&
@@ -158,7 +158,7 @@ fn generated_wxss_has_tile_visual_system(
     ".moontown-tab-button.map-surface{top:-26rpx;min-width:112rpx;min-height:112rpx",
   ) &&
   wxss.contains(".moontown-primary-action{") &&
-  wxss.contains("border-color:#b45309;background:#b45309") &&
+  wxss.contains("border-color:#1f6a54;background:#1f6a54") &&
   wxss.contains(".moontown-danger-action{") &&
   generated_wxss_has_broad_tile_palette(wxss) &&
   wxss.contains(".moontown-discovery-badges,.moontown-object-badges") &&
@@ -186,14 +186,14 @@ fn generated_wxss_has_tile_visual_system(
 
 ///|
 fn generated_wxss_has_broad_tile_palette(wxss : String) -> Bool {
-  wxss.contains("background:#0f172a") &&
-  wxss.contains("#fbf7ee") &&
-  wxss.contains("#fffbeb") &&
+  wxss.contains("background:#a9cce2") &&
+  wxss.contains("#f3f7f4") &&
+  wxss.contains("#f7fbf8") &&
   wxss.contains("#fff") &&
-  wxss.contains("#292524") &&
-  wxss.contains("#b45309") &&
+  wxss.contains("#26342e") &&
+  wxss.contains("#1f6a54") &&
   wxss.contains("#16a34a") &&
-  wxss.contains("#d97706") &&
+  wxss.contains("#2f7f68") &&
   wxss.contains("#dc2626") &&
   !wxss.contains("background:rgba(248,250,252,0.72)") &&
   !wxss.contains("#fff8dc") &&

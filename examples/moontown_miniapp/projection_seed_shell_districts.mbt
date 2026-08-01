@@ -28,7 +28,7 @@ fn demo_districts() -> Array[MiniTownDistrict] {
       action_message="tab-messages",
       discovery_filter_id="demand",
       search_query="review demand",
-      accent="orange",
+      accent="teal",
       status="review",
     ),
     mini_town_district(

@@ -68,22 +68,22 @@ test "moontown generated project keeps route patch contracts for tabs and action
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"notification-channel-agent\":[{k:\"set\",p:\"messages.channel\",v:\"agent\"},{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"agent-run\",\"limit\":30,\"cursor\":0}}]",
+      "\"notification-channel-supervisor\":[{k:\"set\",p:\"messages.channel\",v:\"supervisor\"}]",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "p:\"messageCenterQuery\",v:{\"channel\":\"agent-run\",\"limit\":30,\"cursor\":0}",
+      "\"notification-channel-tasks\":[{k:\"set\",p:\"messages.channel\",v:\"tasks\"}]",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "\"notification-channel-unread\":[{k:\"set\",p:\"messages.channel\",v:\"unread\"},{k:\"set\",p:\"messageCenterQuery\",v:{\"channel\":\"unread\",\"limit\":30,\"cursor\":0}}]",
+      "\"notification-channel-reviews\":[{k:\"set\",p:\"messages.channel\",v:\"reviews\"}]",
     ),
   )
   assert_true(
     file_content(project.files, "pages/moontown/messages.data.js").contains(
-      "p:\"messageCenterQuery\",v:{\"channel\":\"unread\",\"limit\":30,\"cursor\":0}",
+      "\"notification-channel-receipts\":[{k:\"set\",p:\"messages.channel\",v:\"receipts\"}]",
     ),
   )
   assert_true(

@@ -6,8 +6,10 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-map-drag-content"))
   assert_true(page.wxss.contains("transform-origin:0 0"))
   assert_true(!page.wxss.contains(".moontown-map-backfill"))
-  assert_true(page.wxss.contains(".moontown-wenyu-map-image"))
-  assert_true(page.wxss.contains("width:2800rpx;height:1760rpx"))
+  assert_true(page.wxss.contains(".moontown-wenyu-energy-valley-map-image"))
+  assert_true(page.wxss.contains("width:2560rpx;height:1440rpx"))
+  assert_true(page.wxss.contains("top:0;width:2560rpx;height:1440rpx"))
+  assert_true(page.wxss.contains(".moontown-miniapp.map-focus"))
   assert_true(!page.wxss.contains(".moontown-left-hud"))
   assert_true(page.wxss.contains(".moontown-right-hud"))
   assert_true(!page.wxss.contains(".moontown-bottom-hud"))
@@ -17,7 +19,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-chat-avatar"))
   assert_true(page.wxss.contains(".moontown-chat-unread-dot"))
   assert_true(
-    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #d97706"),
+    page.wxss.contains(".moontown-home-pulse{border-top:3rpx solid #2f7f68"),
   )
   assert_true(
     page.wxss.contains(
@@ -26,7 +28,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   )
   assert_true(
     page.wxss.contains(
-      ".moontown-review-entry,.moontown-workbench-alert{border-left:4rpx solid #d69e2e",
+      ".moontown-review-entry,.moontown-workbench-alert{border-left:4rpx solid #5b6fc7",
     ),
   )
   assert_true(
@@ -42,7 +44,7 @@ test "moontown miniapp generated page keeps tile visual system stable" {
   assert_true(page.wxss.contains(".moontown-tab-button.map-surface"))
   assert_true(page.wxss.contains("font-size:26rpx"))
   assert_true(page.wxss.contains("font-size:22rpx"))
-  assert_true(page.wxss.contains("background:#fbf7ee"))
+  assert_true(page.wxss.contains("background:#f3f7f4"))
   assert_true(!page.wxss.contains(".moontown-user-switcher"))
   assert_true(!page.wxml.contains("Passport: Ada Builder"))
   assert_true(page.wxml.contains("Enter Town"))

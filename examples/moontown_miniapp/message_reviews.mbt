@@ -2,7 +2,12 @@
 fn review_queue_panel(projection : MiniTownProjection) -> @bunnia.Node {
   let reviews = pending_reviews(projection)
   @bunnia.view_with_attrs(
-    [@bunnia.class_name("mt-panel moontown-message-review")],
+    [
+      @bunnia.class_name("mt-panel moontown-message-review"),
+      @bunnia.attr(
+        "wx:if", "{{messages.mode == 'work' && messages.channel == 'reviews'}}",
+      ),
+    ],
     [
       @bunnia.view_with_attrs([@bunnia.class_name("mt-panel-title")], [
         @bunnia.text("Needs Review"),

@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Deterministic test provider for the generated Moontown example only.
+// Production profile semantics, runtime execution, and acceptance live in
+// MoonTown, MoonClaw, and Bookkeeper respectively.
 import { createServer } from "node:http";
 import { createHash, randomUUID } from "node:crypto";
 import {
@@ -257,7 +260,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`Moontown mini-app local backend
+  console.log(`Moontown mini-app local test provider
 
 Usage:
   node examples/moontown_miniapp/backend/local_backend.mjs [--host 127.0.0.1] [--port 18191]

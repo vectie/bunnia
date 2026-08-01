@@ -23,11 +23,14 @@ test "moontown generated project keeps shell files pages assets and ordinary gua
   assert_true(has_file(project.files, "pages/moontown/my.wxml"))
   assert_true(has_file(project.files, "pages/moontown/reviewer.wxml"))
   assert_true(
-    has_file(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png"),
+    has_file(project.files, "assets/moontown_wenyu_energy_valley_20260727.png"),
   )
   assert_true(
-    file_content(project.files, "assets/wenyu_reference_tilemap_iso_mobile.png").contains(
-      "copy-file:examples/moontown_miniapp/assets/wenyu_reference_tilemap_iso_mobile.png",
+    file_content(
+      project.files,
+      "assets/moontown_wenyu_energy_valley_20260727.png",
+    ).contains(
+      "copy-file:examples/moontown_miniapp/assets/moontown_wenyu_energy_valley_20260727.png",
     ),
   )
   assert_true(project.page.js.contains("require('../../bunnia.runtime.js')"))

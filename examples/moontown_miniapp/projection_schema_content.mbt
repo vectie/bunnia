@@ -38,7 +38,7 @@ pub fn mini_town_building(
   x~ : Int,
   y~ : Int,
   status~ : String,
-  asset_ref? : String = "moontown-building",
+  asset_ref? : String = "moontown-wenyu-energy-valley-20260727",
 ) -> MiniTownBuilding {
   {
     id,

@@ -28,6 +28,8 @@ fn town_status_label(status : String) -> String {
     "Clear"
   } else if status == "pending" {
     "Waiting for review"
+  } else if status == "pending_provider" {
+    "Queued · waiting for provider"
   } else if status == "idle" {
     "Waiting"
   } else {

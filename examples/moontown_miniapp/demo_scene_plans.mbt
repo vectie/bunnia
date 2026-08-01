@@ -2,10 +2,10 @@
 pub fn demo_camera() -> @bunnia.SceneCamera {
   @bunnia.scene_camera(
     scene_id="moontown-map",
-    x=360,
-    y=160,
+    x=160,
+    y=40,
     width=720,
-    height=720,
+    height=480,
   )
 }
 
@@ -60,5 +60,5 @@ pub fn demo_scene_visual_quality_plan() -> @bunnia.SceneVisualQualityPlan {
 
 ///|
 fn demo_scene_review_viewport() -> @bunnia.SceneViewport {
-  @bunnia.scene_viewport(x=360, y=160, width=640, height=480)
+  @bunnia.scene_viewport(x=160, y=40, width=640, height=480)
 }

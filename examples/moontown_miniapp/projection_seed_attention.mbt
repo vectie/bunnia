@@ -82,22 +82,17 @@ fn demo_notification_channels() -> Array[MiniTownNotificationChannel] {
   [
     mini_town_notification_channel(id="all", label="All", kind="all"),
     mini_town_notification_channel(
-      id="unread",
-      label="Unread",
-      kind="all",
-      unread_only=true,
+      id="supervisor",
+      label="Supervisor",
+      kind="supervisor",
     ),
+    mini_town_notification_channel(id="tasks", label="Tasks", kind="agent-run"),
+    mini_town_notification_channel(id="reviews", label="Reviews", kind="review"),
     mini_town_notification_channel(
-      id="interaction",
-      label="Activity",
-      kind="interaction",
+      id="receipts",
+      label="Receipts",
+      kind="receipt",
     ),
-    mini_town_notification_channel(
-      id="agent",
-      label="Replies",
-      kind="agent-run",
-    ),
-    mini_town_notification_channel(id="notices", label="Notices", kind="notice"),
   ]
 }
 

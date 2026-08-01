@@ -664,10 +664,10 @@ pub fn generate_runtime_js() -> String {
 ///|
 pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "const __bunniaBackend = \{backend_contract_object(contract)}\n" +
-  "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility limit cursor placeableOnly includeAlerts'.split(' ')\n" +
+  "const __bk='runId reviewId decision buildingId bookId agentId targetUserId noticeId noticeKind targetRef discoveryAction discoveryId discoveryKind query filter kind channel status visibility sensitivity title workspaceId buildingListingId agentListingId memberPrincipalIds limit cursor placeableOnly includeAlerts outcomeSubmission summary guidance instruction parentRunId targetRunId listingId listingKind actionId message channelId messageId mentions audiencePrincipalIds notificationId subscriptionId topicKind topicId enabled targetState targetPrincipalId grantId permission expiresAt expiresAtMs'.split(' ')\n" +
   "const __bunniaSessionStorageKey='__bunnia_session__'+(__bunniaBackend.s||'default')\n" +
   "\n" +
-  "function __bunniaRequest(page, endpointId, payload) {\n" +
+  "function __bunniaRequest(page, endpointId, payload, settled) {\n" +
   "  const endpoint = __bunniaBackend.e[endpointId]\n" +
   "  if (!endpoint) throw new Error('Unknown Bunnia endpoint: ' + endpointId)\n" +
   "  const baseUrl = page.data[__bunniaBackend.b] || ''\n" +
@@ -676,6 +676,7 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "  loading['backend.' + endpointId + '.error'] = ''\n" +
   "  loading['requestState.state'] = 'loading'\n" +
   "  loading['requestState.error'] = ''\n" +
+  "  loading['requestState.statusCode'] = 0\n" +
   "  __bs(loading, endpointId, 'loading', '')\n" +
   "  const requestPayload = payload === undefined && endpoint.p ? page.data[endpoint.p] : (payload || {})\n" +
   "  loading['backend.' + endpointId + '.request'] = requestPayload\n" +
@@ -685,10 +686,11 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "    url: baseUrl + endpoint.u,\n" +
   "    method: endpoint.m,\n" +
   "    data: requestPayload,\n" +
-  "    header: __bunniaRequestHeaders(page),\n" +
+  "    header: __bunniaRequestHeaders(page, endpointId),\n" +
   "    timeout: endpoint.t,\n" +
   "    success(res) {\n" +
   "      const update = {}\n" +
+  "      update['requestState.statusCode'] = Number(res.statusCode || 0)\n" +
   "      if (res.statusCode && (res.statusCode < 200 || res.statusCode >= 300)) {\n" +
   "        update['backend.' + endpointId + '.state'] = 'failed'\n" +
   "        update['backend.' + endpointId + '.error'] = 'HTTP ' + res.statusCode\n" +
@@ -712,8 +714,9 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "        const sessionId = __bunniaSessionIdFromResponse(res.data)\n" +
   "        if (res.data && res.data.state === 'revoked') __bunniaStoreSession('')\n" +
   "        else if (sessionId && __bunniaBackend.s) { update[__bunniaBackend.s] = sessionId; __bunniaStoreSession(sessionId) }\n" +
+  "        if (typeof page.__bunniaResponsePatch === 'function') { try { Object.assign(update, page.__bunniaResponsePatch(endpointId, res.data) || {}) } catch (_) {} }\n" +
   "      }\n" +
-  "      page.setData(update)\n" +
+  "      page.setData(update, () => { if (typeof settled === 'function') settled(update['requestState.state'] === 'ready', res.data) })\n" +
   "    },\n" +
   "    fail(err) {\n" +
   "      const update = {}\n" +
@@ -722,14 +725,21 @@ pub fn generate_request_adapter(contract : @effects.BackendContract) -> String {
   "      update['backend.' + endpointId + '.error'] = message\n" +
   "      update['requestState.state'] = 'failed'\n" +
   "      update['requestState.error'] = 'Request failed'\n" +
+  "      update['requestState.statusCode'] = 0\n" +
   "      __bs(update, endpointId, update['backend.' + endpointId + '.state'], message)\n" +
-  "      page.setData(update)\n" +
+  "      page.setData(update, () => { if (typeof settled === 'function') settled(false, err) })\n" +
   "    }\n" +
   "  })\n" +
   "}\n" +
   "\n" +
-  "function __bunniaRequestHeaders(page) {\n" +
-  "  const k = __bunniaBackend.s, h = __bunniaBackend.h, t = (k && page && page.data ? page.data[k] : '') || __bunniaStoredSession()\n" +
+  "function __bunniaRequestHeaders(page, endpointId) {\n" +
+  "  const k = __bunniaBackend.s, h = __bunniaBackend.h\n" +
+  "  if (page && typeof page.__bunniaSessionTokenForEndpoint === 'function') {\n" +
+  "    let scoped\n" +
+  "    try { scoped = page.__bunniaSessionTokenForEndpoint(endpointId) } catch (_) { scoped = undefined }\n" +
+  "    if (scoped !== undefined && scoped !== null) return scoped && h ? { [h]: String(scoped) } : {}\n" +
+  "  }\n" +
+  "  const t = (k && page && page.data ? page.data[k] : '') || __bunniaStoredSession()\n" +
   "  return t && h ? { [h]: t } : {}\n" +
   "}\n" +
   "\n" +
@@ -1759,6 +1769,7 @@ fn backend_session_page_methods_js() -> String {
   "  onShow(){\n" +
   "    const token=__bunniaStoredSession()\n" +
   "    if(__bunniaBackend.s&&token&&this.data[__bunniaBackend.s]!==token){const update={};update[__bunniaBackend.s]=token;this.setData(update)}\n" +
+  "    if(typeof this.__bunniaPageShown==='function')this.__bunniaPageShown()\n" +
   "  },\n"
 }
 
@@ -1822,10 +1833,19 @@ fn page_definition_js(
   "  __bunniaEvent(event) {\n" +
   "    const message = event.currentTarget.dataset.bunniaMessage\n" +
   "    const patches = __bunniaEventPatches[message] || []\n" +
+  "    const inputPath = event.currentTarget.dataset.bunniaInputPath\n" +
+  "    const inputPatches = inputPath && event.detail && event.detail.value !== undefined ? [{ k: 'set', p: inputPath, v: event.detail.value }] : []\n" +
+  "    const setPath = event.currentTarget.dataset.bunniaSetPath\n" +
+  "    const setRaw = event.currentTarget.dataset.bunniaSetValue\n" +
+  "    let setValue = setRaw\n" +
+  "    if (setPath && event.currentTarget.dataset.bunniaSetJson === 'true') { try { setValue = JSON.parse(setRaw) } catch (_) {} }\n" +
+  "    const setPatches = setPath ? [{ k: 'set', p: setPath, v: setValue }] : []\n" +
   "    __bunniaApplyPatches(this, [\n" +
   "      { k: 'set', p: '__bunnia.lastMessage', v: message },\n" +
   "      { k: 'set', p: '__bunnia.handledEvents', v: (this.data.__bunnia.handledEvents || 0) + 1 },\n" +
-  "      ...patches\n" +
+  "      ...patches,\n" +
+  "      ...inputPatches,\n" +
+  "      ...setPatches\n" +
   "    ])\n" +
   after_event_js +
   "    const route = event.currentTarget.dataset.bunniaRoute\n" +
@@ -1844,10 +1864,10 @@ fn backend_request_dispatch_js() -> String {
   "  if(!id)return\n" +
   "  const e=__bunniaBackend.e[id]\n" +
   "  if(!e)return\n" +
-  "  const pl=__bp(p,e,d)\n" +
-  "  if(e.k==='agent-operation-cancel')return __bunniaRequest(p,id,pl)\n" +
-  "  if(e.k==='agent-operation-retry')return pl?__bunniaRequest(p,id,pl):__bunniaRetryRequest(p,id)\n" +
-  "  return __bunniaRequest(p,id,pl)\n" +
+  "  const raw=__bp(p,e,d)\n" +
+  "  const send=()=>{const source=raw===undefined?(e.p?p.data[e.p]:{}):raw;const pl=typeof p.__bunniaMapRequest==='function'?p.__bunniaMapRequest(id,source):raw;if(e.k==='agent-operation-cancel')return __bunniaRequest(p,id,pl);if(e.k==='agent-operation-retry')return pl?__bunniaRequest(p,id,pl):__bunniaRetryRequest(p,id);return __bunniaRequest(p,id,pl)}\n" +
+  "  if(typeof p.__bunniaBeforeRequest==='function'&&p.__bunniaBeforeRequest(id,raw,send))return\n" +
+  "  return send()\n" +
   "}\n"
 }
 

@@ -19,9 +19,9 @@ fn town_map_backdrop(projection : MiniTownProjection) -> @bunnia.Node {
 ///|
 fn moontown_map_backdrop_image() -> @bunnia.Node {
   @bunnia.node(kind="image", attrs=[
-    @bunnia.class_name("moontown-wenyu-map-image"),
+    @bunnia.class_name("moontown-wenyu-energy-valley-map-image"),
     @bunnia.attr("src", moontown_map_asset_src()),
-    @bunnia.attr("alt", "Moontown Wenyu Valley map backdrop"),
+    @bunnia.attr("alt", "Canonical Moontown Wenyu Energy Valley map backdrop"),
     @bunnia.attr("mode", "scaleToFill"),
   ])
 }
@@ -29,11 +29,12 @@ fn moontown_map_backdrop_image() -> @bunnia.Node {
 ///|
 fn moontown_map_image() -> @bunnia.Node {
   @bunnia.node(kind="image", attrs=[
-    @bunnia.class_name("moontown-wenyu-map-image"),
+    @bunnia.class_name("moontown-wenyu-energy-valley-map-image"),
     @bunnia.attr("src", moontown_map_asset_src()),
-    @bunnia.attr("alt", "Moontown Wenyu Valley map"),
+    @bunnia.attr("alt", "Canonical Moontown Wenyu Energy Valley map"),
     @bunnia.attr("mode", "scaleToFill"),
-    @bunnia.data("asset-id", "moontown-wenyu-map"),
+    @bunnia.data("building-family", "canonical-wenyu-energy-valley"),
+    @bunnia.data("asset-id", "moontown-wenyu-energy-valley-20260727"),
     @bunnia.data("asset-kind", "image"),
     @bunnia.data("asset-source", moontown_map_asset_source()),
     @bunnia.data("asset-remote", "false"),
