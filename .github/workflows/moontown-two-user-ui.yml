@@ -1,0 +1,46 @@
+name: MoonTown two-user UI qualification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  two-user-ui:
+    runs-on: [self-hosted, macOS, wechat-devtools]
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      WECHAT_DEVTOOLS_CLI: ${{ vars.WECHAT_DEVTOOLS_CLI }}
+      MOONTOWN_ADA_BASE_URL: ${{ vars.MOONTOWN_ADA_BASE_URL }}
+      MOONTOWN_BO_BASE_URL: ${{ vars.MOONTOWN_BO_BASE_URL }}
+      MOONTOWN_ADA_SESSION: ${{ secrets.MOONTOWN_ADA_SESSION }}
+      MOONTOWN_BO_SESSION: ${{ secrets.MOONTOWN_BO_SESSION }}
+      MOONTOWN_TEST_LISTING_ID: ${{ vars.MOONTOWN_TEST_LISTING_ID }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Verify pre-provisioned services
+        run: |
+          curl -fsS "$MOONTOWN_ADA_BASE_URL/miniapp/health"
+          curl -fsS "$MOONTOWN_BO_BASE_URL/miniapp/health"
+
+      - name: Build and inspect the generated mini-app
+        run: |
+          moon run cmd/main -- build --target wechat --example moontown_miniapp --strict --budget large --render-budget large
+          sh scripts/validate_moontown_ordinary_copy.sh
+
+      - name: Install the DevTools automation client outside the code package
+        run: |
+          npm install --prefix _build/ui-e2e-tools --no-save miniprogram-automator
+          echo "MINIPROGRAM_AUTOMATOR_MODULE=$PWD/_build/ui-e2e-tools/node_modules/miniprogram-automator" >> "$GITHUB_ENV"
+
+      - name: Run the two-user UI-to-UI journey
+        run: node scripts/two_user_ui_to_ui.mjs
+
+      - name: Upload qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: moontown-two-user-ui-evidence
+          path: _build/bunnia/two-user-ui-result.json

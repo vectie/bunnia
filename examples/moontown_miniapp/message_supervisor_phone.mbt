@@ -88,9 +88,7 @@ fn supervisor_phone_panel(_projection : MiniTownProjection) -> @bunnia.Node {
             [
               @bunnia.text("{{conversationItem.content}}"),
               @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-                @bunnia.text(
-                  "Replay-backed · cursor {{conversationItem.cursor}}",
-                ),
+                @bunnia.text("Recovered conversation record"),
               ]),
             ],
           ),
@@ -107,9 +105,7 @@ fn supervisor_phone_panel(_projection : MiniTownProjection) -> @bunnia.Node {
                 "{{onboardingSnapshot.assistantResponse.response.content}}",
               ),
               @bunnia.view_with_attrs([@bunnia.class_name("mt-meta")], [
-                @bunnia.text(
-                  "Receipt-backed reply · cursor {{onboardingSnapshot.assistantResponse.runtimeCursor}}",
-                ),
+                @bunnia.text("Verified reply receipt"),
               ]),
             ],
           ),

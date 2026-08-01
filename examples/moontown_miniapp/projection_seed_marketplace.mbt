@@ -141,7 +141,7 @@ fn demo_share_previews() -> Array[MiniTownSharePreview] {
         "Reviews and accepted outcomes",
       ],
       withheld_fields=[
-        "Raw MoonBook pages and drafts", "Private members and messages", "Runtime payloads, paths, and secrets",
+        "Raw MoonBook pages and drafts", "Private members and messages", "Technical details, file paths, and secrets",
       ],
     ),
   ]

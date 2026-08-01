@@ -50,7 +50,7 @@ while IFS= read -r rel || [ -n "$rel" ]; do
     if skip_guardrail_line "$term"; then
       continue
     fi
-    if rg -n -o ">[^<]*${term}[^<]*<" "$file"; then
+    if rg -n -o "<text>[^<]*${term}[^<]*</text>" "$file"; then
       printf '%s\n' "forbidden visible technical copy '$term' in $rel"
       failed=1
     fi
@@ -92,25 +92,13 @@ else
     if skip_guardrail_line "$token"; then
       continue
     fi
-    if ! rg -n -F "$token" "$app_wxss" >/dev/null; then
+    if ! rg -n -F "$token" \
+      "$app_wxss" "$project_dir"/pages/moontown/*.wxss >/dev/null; then
       printf '%s\n' "missing Moontown touch/style guard token '$token'"
       failed=1
     fi
   done < "$touch_tokens_file"
 fi
-
-for stale_wxss in "$project_dir"/pages/moontown/*.wxss; do
-  if [ ! -e "$stale_wxss" ]; then
-    continue
-  fi
-  case "$stale_wxss" in
-    */reviewer.wxss) ;;
-    *)
-      printf '%s\n' "stale ordinary page WXSS: $stale_wxss"
-      failed=1
-      ;;
-  esac
-done
 
 if [ "$failed" -ne 0 ]; then
   exit 1

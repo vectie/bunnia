@@ -8,6 +8,7 @@ fn tile_map_wxss() -> String {
   ".moontown-map-focus-button { min-width: 132rpx; min-height: 76rpx; padding: 8rpx 16rpx; border-radius: 999rpx; background: #174a3c; color: #f7fbf8; font-weight: 800; }\n" +
   ".moontown-miniapp.map-focus .moontown-topbar, .moontown-miniapp.map-focus .moontown-right-hud, .moontown-miniapp.map-focus .moontown-tabbar, .moontown-miniapp.map-focus .moontown-request-feedback { display: none; }\n" +
   ".moontown-map-marker { position: absolute; z-index: 900; width: 32rpx; min-width: 32rpx; max-width: 32rpx; height: 32rpx; min-height: 32rpx; padding: 0; transform: translate(-50%,-50%); border: 2rpx solid rgba(255,255,255,0.92); border-radius: 999rpx; background: #287f72; box-shadow: 0 3rpx 10rpx rgba(15,23,42,0.26); }\n" +
+  ".moontown-map-marker::after { position: absolute; left: 50%; top: 50%; width: 88rpx; height: 88rpx; content: ''; transform: translate(-50%,-50%); }\n" +
   ".moontown-map-marker.quiet { opacity: 0.88; }\n" +
   ".moontown-map-marker.selected { z-index: 901; display: block; width: auto; min-width: 178rpx; max-width: 236rpx; height: auto; min-height: 62rpx; padding: 10rpx 14rpx; transform: translate(-50%,-100%); border: 3rpx solid rgba(240,253,250,0.92); border-radius: 18rpx; background: #174a3c; box-shadow: 0 0 0 5rpx rgba(47,127,104,0.28), 0 8rpx 18rpx rgba(15,23,42,0.26); }\n" +
   ".moontown-map-marker-title { display: none; color: #1f2d22; font-size: 22rpx; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
