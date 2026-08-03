@@ -146,16 +146,12 @@ fn marketplace_action_decision_controls() -> @bunnia.Node {
           @bunnia.data("decision", "accept"),
           @bunnia.data("request-message", "{{item.requestMessage}}"),
         ],
-        events=[
-          @bunnia.event("submit", "decide-marketplace-action-request"),
-        ],
+        events=[@bunnia.event("submit", "decide-marketplace-action-request")],
         children=[
           marketplace_hidden_input("requestId", "{{item.requestId}}"),
           marketplace_hidden_input("expectedVersion", "{{item.version}}"),
           marketplace_hidden_input("decision", "accept"),
-          marketplace_hidden_input(
-            "requestMessage", "{{item.requestMessage}}",
-          ),
+          marketplace_hidden_input("requestMessage", "{{item.requestMessage}}"),
           @bunnia.node(
             kind="input",
             attrs=[
@@ -182,9 +178,7 @@ fn marketplace_action_decision_controls() -> @bunnia.Node {
           @bunnia.data("expected-version", "{{item.version}}"),
           @bunnia.data("decision", "reject"),
         ],
-        events=[
-          @bunnia.event("submit", "decide-marketplace-action-request"),
-        ],
+        events=[@bunnia.event("submit", "decide-marketplace-action-request")],
         children=[
           marketplace_hidden_input("requestId", "{{item.requestId}}"),
           marketplace_hidden_input("expectedVersion", "{{item.version}}"),
@@ -222,9 +216,7 @@ fn marketplace_action_runtime_receipt() -> @bunnia.Node {
           @bunnia.data("request-id", "{{item.requestId}}"),
           @bunnia.data("expected-version", "{{item.version}}"),
         ],
-        events=[
-          @bunnia.event("submit", "retry-marketplace-action-handoff"),
-        ],
+        events=[@bunnia.event("submit", "retry-marketplace-action-handoff")],
         children=[
           marketplace_hidden_input("requestId", "{{item.requestId}}"),
           marketplace_hidden_input("expectedVersion", "{{item.version}}"),

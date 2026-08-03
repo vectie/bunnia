@@ -12,9 +12,7 @@ test "messages exposes the marketplace request decision to MoonClaw receipt loop
   assert_true(page.wxml.contains("decide-marketplace-action-request"))
   assert_true(page.wxml.contains("retry-marketplace-action-handoff"))
   assert_true(page.wxml.contains("data-request-id=\"{{item.requestId}}\""))
-  assert_true(
-    page.wxml.contains("data-expected-version=\"{{item.version}}\""),
-  )
+  assert_true(page.wxml.contains("data-expected-version=\"{{item.version}}\""))
   assert_true(
     backend_contract_contains(
       demo_backend_contract(),
